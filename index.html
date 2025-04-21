@@ -6,12 +6,8 @@
   <title>Team Due mori</title>
   <style>
     /* ── Hide-on-scroll ── */
-    header, nav {
-      transition: transform .3s ease;
-    }
-    header.hide, nav.hide {
-      transform: translateY(-100%);
-    }
+    header, nav { transition: transform .3s ease; }
+    header.hide, nav.hide { transform: translateY(-100%); }
 
     /* ── Corpo & Sfondo “Grigio Cool” ─ */
     body {
@@ -35,15 +31,8 @@
       text-align: center;
       padding: 20px;
     }
-    header h1 {
-      margin: 0;
-      font-size: 2em;
-      text-transform: uppercase;
-    }
-    header p {
-      margin: 5px 0 0;
-      font-size: 1em;
-    }
+    header h1 { margin: 0; font-size: 2em; text-transform: uppercase; }
+    header p  { margin: 5px 0 0; font-size: 1em; }
 
     /* ── Nav & Pulsanti XXL‑Tondi ─ */
     nav {
@@ -71,9 +60,7 @@
       transform: scale(1.2);
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
-    nav button:hover {
-      background: #ffe1e8;
-    }
+    nav button:hover { background: #ffe1e8; }
     nav button .ripple {
       position: absolute;
       border-radius: 50%;
@@ -141,16 +128,13 @@
   <main></main>
 
   <script>
-    // ── Nuove info per ogni “sezione” ─
+    // ── Info + immagini per ogni sezione ─
     const research = {
       mechapa: `
-        <!-- Immagine di Don Fabio incorporata via Data URI -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABQCAYAAAAvf...
-
-        " alt="Don Fabio Leggendario" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="./images/don-fabio.jpg" alt="Don Fabio" style="width:100%; border-radius:10px; margin-bottom:12px;">
         <h3>Descrizione</h3>
-        <p>Fondatore del Due Mori ed ex proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma quando vuole sa essere dolce come una pera matura. Saggio, furbo e con uno sguardo che dice “so già cosa hai sbagliato”.</p>
-        <h3>Altezza</h3><p>Circa 3 m</p>
+        <p>Fondatore del Due Mori ed ex proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma quando vuole sa essere dolce come una pera matura. Saggio, furbo e con uno sguardo che dice “so già cosa hai sbagliato”.</p>
+        <h3>Altezza</h3><p>Circa 3 m</p>
         <h3>Mansione</h3><p>Controllo generale, ex cameriere, figura protettiva</p>
         <h3>Velocità</h3><p>Cinghiale (parte piano ma quando parte… scansa tutto)</p>
         <h3>Piatto preferito</h3><p>Kebab</p>
@@ -160,13 +144,10 @@
         <h3>Paese preferito</h3><p>Italia</p>
       `,
       jiquilillo: `
-        <!-- Immagine di Lucia -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABQCAYAAAAvf...
-
-        " alt="Lucia Dolce Guerriera" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="./images/lucia.jpg" alt="Lucia" style="width:100%; border-radius:10px; margin-bottom:12px;">
         <h3>Descrizione</h3>
-        <p>Regina gentile del Due Mori e compagna storica di Don Fabio, Lucia è l’incarnazione della dolcezza armata. Dietro il suo sorriso tenero si nasconde una forza invincibile e una resistenza emotiva da carro armato corazzato.</p>
-        <h3>Altezza</h3><p>Circa 1.67 m</p>
+        <p>Regina gentile del Due Mori e compagna storica di Don Fabio, Lucia è l’incarnazione della dolcezza armata. Dietro il suo sorriso tenero si nasconde una forza invincibile e una resistenza emotiva da carro armato corazzato.</p>
+        <h3>Altezza</h3><p>Circa 1.67 m</p>
         <h3>Mansione</h3><p>Cameriera d’onore, dispensatrice ufficiale di amore, coccole e saggezza.</p>
         <h3>Velocità</h3><p>Tartaruga zen – si muove con calma e grazia, ma con l’eleganza di una leggenda vivente</p>
         <h3>Piatto preferito</h3><p>Fette biscottate con la marmellata fatta dallo zio – colazione mistica certificata UNESCO</p>
@@ -176,14 +157,11 @@
         <h3>Paese preferito</h3><p>Italia</p>
       `,
       aposentillo: `
-        <!-- Immagine di Martina -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABQCAYAAAAvf...
-
-        " alt="Martina la Contabile Ninja" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="./images/martina.jpg" alt="Martina" style="width:100%; border-radius:10px; margin-bottom:12px;">
         <h3>Descrizione</h3>
         <p>Capitano inarrestabile della sala, Martina è una vecchia volpe di battaglia: sa dove guardare, cosa dire e soprattutto… come far quadrare i conti al centesimo. Una mente brillante in un corpo sempre in movimento, che tra un piatto e l’altro ti pianifica le vacanze al miglior prezzo dell’universo.</p>
-        <h3>Altezza</h3><p>Circa 1.72 m</p>
-        <h3>Mansione</h3><p>Cameriera, cassiera, contabile suprema del Due Mori</p>
+        <h3>Altezza</h3><p>Circa 1.72 m</p>
+        <h3>Mansione</h3><p>Cameriera, cassiera, contabile suprema del Due Mori</p>
         <h3>Velocità</h3><p>Lepre meticolosa – si muove con ritmo costante e cervello in turbo</p>
         <h3>Piatto preferito</h3><p>Tutto ciò che si può innaffiare di salsa – la regina del condimento</p>
         <h3>Fetish</h3><p>Scovare le offerte online migliori del globo: voli, hotel, viaggi… se c’è un coupon, lei lo trova prima che venga creato</p>
@@ -192,41 +170,35 @@
         <h3>Paese preferito</h3><p>Giappone</p>
       `,
       miramar: `
-        <!-- Immagine di Roberta -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABQCAYAAAAvf...
-
-        " alt="Roberta il Mecha Perfetto" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="./images/roberta.jpg" alt="Roberta" style="width:100%; border-radius:10px; margin-bottom:12px;">
         <h3>Descrizione</h3>
-        <p>L’incarnazione di Lucia… ma potenziata. Se Lucia è un carro armato, Roberta è un mecha giapponese alimentato a senso del dovere. È incaricata di controllare le allergie dei clienti con la precisione di un farmacista ninja e di mantenere il locale in uno stato talmente perfetto da far piangere gli ispettori ASL dalla commozione.</p>
-        <h3>Altezza</h3><p>Circa 1.70 m</p>
-        <h3>Mansione</h3><p>Supervisione totale della sala, responsabile delle allergie, protettrice del locale e del suo onore</p>
+        <p>L’incarnazione di Lucia… ma potenziata. Roberta è un mecha giapponese alimentato a senso del dovere. È incaricata di controllare le allergie dei clienti con la precisione di un farmacista ninja e di mantenere il locale in uno stato talmente perfetto da far piangere gli ispettori ASL dalla commozione.</p>
+        <h3>Altezza</h3><p>Circa 1.70 m</p>
+        <h3>Mansione</h3><p>Supervisione totale della sala, responsabile delle allergie e del suo onore</p>
         <h3>Velocità</h3><p>Ultra Sonica Celestiale – quando serve è ovunque e da nessuna parte allo stesso tempo</p>
         <h3>Piatto preferito</h3><p>Riso in bianco (semplice ma sacro)</p>
-        <h3>Fetish</h3><p>Dire ad Alejandro di mangiare meno zucchero… mentre si mangia un gelato con tre gusti e panna extra (con sguardo innocente)</p>
-        <h3>Debolezza</h3><p>Ogni tanto l’ansia le fa un check-in non richiesto, ma se la combatte con grinta e precisione</p>
+        <h3>Fetish</h3><p>Dire ad Alejandro di mangiare meno zucchero… mentre si mangia un gelato con tre gusti e panna extra</p>
+        <h3>Debolezza</h3><p>Ogni tanto l’ansia le fa un check-in non richiesto</p>
         <h3>Pazienza</h3><p>Divina con scadenza improvvisa – se si esaurisce… evacuare l’edificio</p>
         <h3>Paese preferito</h3><p>Giappone</p>
       `,
       eltransito: `
-        <!-- Immagine di Marzio -->
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAKAAAABQCAYAAAAvf...
-
-        " alt="Marzio il Diplomatico" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="./images/marzio.jpg" alt="Marzio" style="width:100%; border-radius:10px; margin-bottom:12px;">
         <h3>Descrizione</h3>
-        <p>L’angelo dietro le quinte? Marzio è il volto, il braccio, e il cervello operativo del Due Mori. È il primo che vedi quando entri, il responsabile del rapporto col pubblico, il motivatore della squadra e il diplomatico che tratta con i fornitori come un boss della logistica spirituale. Sempre presente, sempre attivo, sempre concentrato.</p>
-        <h3>Altezza</h3><p>Circa 1.80 m</p>
-        <h3>Mansione</h3><p>Cameriere di punta, gestore della squadra, responsabile dei rapporti con fornitori e contabile delle pratiche invisibili ma vitali.</p>
+        <p>L’angelo dietro le quinte? Marzio è il volto, il braccio, e il cervello operativo del Due Mori. Sempre presente, sempre attivo, sempre concentrato.</p>
+        <h3>Altezza</h3><p>Circa 1.80 m</p>
+        <h3>Mansione</h3><p>Cameriere di punta, gestore della squadra, responsabile rapporti e contabilità</p>
         <h3>Velocità</h3><p>Luce liquida – se ti distrai, l’hai già perso di vista</p>
-        <h3>Piatto preferito</h3><p>Tortellini con ragù alla bolognese – e se non sono fatti bene, chiama direttamente il sindaco</p>
-        <h3>Fetish</h3><p>Seguire ossessivamente la dieta per entrare in una forma che ha già raggiunto da mesi – perfezione come filosofia di vita</p>
-        <h3>Debolezza</h3><p>Da scoprire, ma se c’è… è classificata.</p>
-        <h3>Pazienza</h3><p>Media, ma se si esaurisce… chiama il Vescovo e prepara l’estrema unzione.</p>
+        <h3>Piatto preferito</h3><p>Tortellini con ragù alla bolognese – e se non sono perfetti, chiama il sindaco</p>
+        <h3>Fetish</h3><p>Seguire ossessivamente la dieta per entrare in una forma che ha già raggiunto da mesi</p>
+        <h3>Debolezza</h3><p>Classificata (se esiste… è segreta)</p>
+        <h3>Pazienza</h3><p>Media, ma se si esaurisce… chiama il Vescovo</p>
         <h3>Paese preferito</h3><p>Italia</p>
       `
     };
 
     const sections = [
-      { id: 'mechapa',     title: 'Don Fabio' },
+      { id: 'mechapa',     title: 'Don Fabio' },
       { id: 'jiquilillo',  title: 'Lucia' },
       { id: 'aposentillo', title: 'Martina' },
       { id: 'miramar',     title: 'Roberta' },
@@ -236,46 +208,58 @@
     document.addEventListener('DOMContentLoaded', () => {
       const nav  = document.querySelector('nav');
       const main = document.querySelector('main');
+
       sections.forEach(s => {
         const btn = document.createElement('button');
         btn.dataset.target = s.id;
         btn.textContent    = s.title;
         nav.appendChild(btn);
+
         const sec = document.createElement('section');
         sec.id = s.id;
         sec.innerHTML = `<h2>${s.title}</h2>${research[s.id]}`;
         main.appendChild(sec);
       });
+
       const buttons = Array.from(nav.querySelectorAll('button'));
       buttons[0].classList.add('active');
       document.getElementById(buttons[0].dataset.target).classList.add('active');
+
       buttons.forEach(btn => {
         btn.addEventListener('click', e => {
+          // ripple effect
           const circle = document.createElement('span');
           circle.className = 'ripple';
           const r = btn.getBoundingClientRect();
-          circle.style.width = circle.style.height = Math.max(r.width, r.height) + 'px';
-          circle.style.left  = e.clientX - r.left  - r.width/2 + 'px';
-          circle.style.top   = e.clientY - r.top   - r.height/2 + 'px';
+          circle.style.width  = circle.style.height = Math.max(r.width, r.height) + 'px';
+          circle.style.left   = e.clientX - r.left - r.width/2 + 'px';
+          circle.style.top    = e.clientY - r.top  - r.height/2 + 'px';
           btn.appendChild(circle);
           setTimeout(() => circle.remove(), 600);
+
+          // toggle active
           buttons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
+
+          // show section
           document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
           const tgt = document.getElementById(btn.dataset.target);
           tgt.classList.add('active');
           tgt.scrollIntoView({ behavior: 'smooth' });
         });
       });
+
+      // hide-on-scroll
       let lastY = window.pageYOffset;
       window.addEventListener('scroll', () => {
         const y = window.pageYOffset;
+        const header = document.querySelector('header');
         if (y > lastY + 5) {
-          document.querySelector('header').classList.add('hide');
-          document.querySelector('nav').classList.add('hide');
+          header.classList.add('hide');
+          nav.classList.add('hide');
         } else if (y < lastY - 5) {
-          document.querySelector('header').classList.remove('hide');
-          document.querySelector('nav').classList.remove('hide');
+          header.classList.remove('hide');
+          nav.classList.remove('hide');
         }
         lastY = y;
       });

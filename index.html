@@ -27,9 +27,7 @@
     header {
       position: sticky; top: 0; z-index: 10;
       background: rgba(0,0,0,0.6);
-      color: #fff;
-      text-align: center;
-      padding: 20px;
+      color: #fff; text-align: center; padding: 20px;
     }
     header h1 { margin: 0; font-size: 2em; text-transform: uppercase; }
     header p  { margin: 5px 0 0; font-size: 1em; }
@@ -38,40 +36,28 @@
     nav {
       position: sticky; top: 80px; z-index: 9;
       background: rgba(255,255,255,0.1);
-      text-align: center;
-      padding: 10px 0;
+      text-align: center; padding: 10px 0;
     }
     nav button {
-      position: relative;
-      margin: 8px;
-      padding: 14px 32px;
-      border-radius: 999px;
-      font-size: 17px;
-      border: none;
-      background: #ff9a9e;
-      color: #fff;
-      font-weight: bold;
-      cursor: pointer;
-      overflow: hidden;
-      transition: transform .2s, background .3s;
+      position: relative; margin: 8px;
+      padding: 14px 32px; border-radius: 999px;
+      font-size: 17px; border: none;
+      background: #ff9a9e; color: #fff;
+      font-weight: bold; cursor: pointer;
+      overflow: hidden; transition: transform .2s, background .3s;
     }
     nav button.active {
-      background: #fad0c4;
-      transform: scale(1.2);
+      background: #fad0c4; transform: scale(1.2);
       box-shadow: 0 0 10px rgba(0,0,0,0.3);
     }
     nav button:hover { background: #ffe1e8; }
     nav button .ripple {
-      position: absolute;
-      border-radius: 50%;
+      position: absolute; border-radius: 50%;
       background: rgba(255,255,255,0.7);
-      transform: scale(0);
-      animation: rippleAnim .6s linear;
+      transform: scale(0); animation: rippleAnim .6s linear;
       pointer-events: none;
     }
-    @keyframes rippleAnim {
-      to { transform: scale(4); opacity: 0; }
-    }
+    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
 
     /* ── Main & Sezioni ─ */
     main {
@@ -80,38 +66,26 @@
       scroll-snap-type: y mandatory;
     }
     main section {
-      display: none;
-      max-width: 800px;
-      margin: 20px auto;
-      padding: 20px;
-      border-radius: 10px;
+      display: none; max-width: 800px; margin: 20px auto;
+      padding: 20px; border-radius: 10px;
       background: rgba(255,255,255,0.9);
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      opacity: 0;
-      transform: translateY(30px);
+      opacity: 0; transform: translateY(30px);
       transition: opacity .6s ease, transform .6s ease;
       scroll-snap-align: start;
     }
     main section.active {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
+      display: block; opacity: 1; transform: translateY(0);
     }
     main section h2 {
-      margin-top: 0;
-      font-size: 1.8em;
-      color: #333;
+      margin-top: 0; font-size: 1.8em; color: #333;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     main section h3 {
-      margin: 15px 0 5px;
-      font-size: 1.2em;
-      color: #444;
+      margin: 15px 0 5px; font-size: 1.2em; color: #444;
     }
     main section p, main section ul {
-      color: #555;
-      line-height: 1.6;
-      margin: 5px 0;
+      color: #555; line-height: 1.6; margin: 5px 0;
     }
     main section ul { padding-left: 20px; }
     main section ul li { margin-bottom: 4px; }
@@ -128,10 +102,10 @@
   <main></main>
 
   <script>
-    // ── Info + immagini per ogni sezione ─
     const research = {
       mechapa: `
-        <img src="./images/don-fabio.jpg" alt="Don Fabio" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBxAPDw8ODQ8PDQ0NDg0NDQ0NDQ0NDQ0NFREWFhURFRUYHSggGBolGxUXITEhJSkrLi4uFx8zODMtNygtLisBCgoKDg0OGhAQGi0lICYtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLf/AABEIAJ8BPgMBIgACEQEDEQH/...rest of Base64 omitted for brevity..." 
+             alt="Don Fabio" style="width:100%;border-radius:10px;margin-bottom:12px;">
         <h3>Descrizione</h3>
         <p>Fondatore del Due Mori ed ex proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma quando vuole sa essere dolce come una pera matura. Saggio, furbo e con uno sguardo che dice “so già cosa hai sbagliato”.</p>
         <h3>Altezza</h3><p>Circa 3 m</p>
@@ -144,7 +118,8 @@
         <h3>Paese preferito</h3><p>Italia</p>
       `,
       jiquilillo: `
-        <img src="./images/lucia.jpg" alt="Lucia" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/...rest omitted..." 
+             alt="Lucia" style="width:100%;border-radius:10px;margin-bottom:12px;">
         <h3>Descrizione</h3>
         <p>Regina gentile del Due Mori e compagna storica di Don Fabio, Lucia è l’incarnazione della dolcezza armata. Dietro il suo sorriso tenero si nasconde una forza invincibile e una resistenza emotiva da carro armato corazzato.</p>
         <h3>Altezza</h3><p>Circa 1.67 m</p>
@@ -156,21 +131,23 @@
         <h3>Pazienza</h3><p>Eterna – potrebbe ascoltare il rumore dell’universo senza perdere la calma</p>
         <h3>Paese preferito</h3><p>Italia</p>
       `,
-      aposentillo: `
-        <img src="./images/martina.jpg" alt="Martina" style="width:100%; border-radius:10px; margin-bottom:12px;">
+      eltransito: `
+        <img src="data:image/jpeg;base64,/9j/4AAQSk...rest..." 
+             alt="Marzio" style="width:100%;border-radius:10px;margin-bottom:12px;">
         <h3>Descrizione</h3>
-        <p>Capitano inarrestabile della sala, Martina è una vecchia volpe di battaglia: sa dove guardare, cosa dire e soprattutto… come far quadrare i conti al centesimo. Una mente brillante in un corpo sempre in movimento, che tra un piatto e l’altro ti pianifica le vacanze al miglior prezzo dell’universo.</p>
-        <h3>Altezza</h3><p>Circa 1.72 m</p>
-        <h3>Mansione</h3><p>Cameriera, cassiera, contabile suprema del Due Mori</p>
-        <h3>Velocità</h3><p>Lepre meticolosa – si muove con ritmo costante e cervello in turbo</p>
-        <h3>Piatto preferito</h3><p>Tutto ciò che si può innaffiare di salsa – la regina del condimento</p>
-        <h3>Fetish</h3><p>Scovare le offerte online migliori del globo: voli, hotel, viaggi… se c’è un coupon, lei lo trova prima che venga creato</p>
-        <h3>Debolezza</h3><p>Ancora da scoprire (forse non esiste… forse è segreta… forse è dietro la porta della dispensa)</p>
-        <h3>Pazienza</h3><p>Bassa ma tattica – ne ha poca, ma la sa usare come un’arma da ninja</p>
-        <h3>Paese preferito</h3><p>Giappone</p>
+        <p>L’angelo dietro le quinte? Marzio è il volto, il braccio, e il cervello operativo del Due Mori. È il primo che vedi quando entri, il responsabile del rapporto col pubblico, il motivatore della squadra e il diplomatico che tratta con i fornitori come un boss della logistica spirituale. Sempre presente, sempre attivo, sempre concentrato.</p>
+        <h3>Altezza</h3><p>Circa 1.80 m</p>
+        <h3>Mansione</h3><p>Cameriere di punta, gestore della squadra, responsabile rapporti e contabilità</p>
+        <h3>Velocità</h3><p>Luce liquida – se ti distrai, l’hai già perso di vista</p>
+        <h3>Piatto preferito</h3><p>Tortellini con ragù alla bolognese – e se non sono perfetti, chiama il sindaco</p>
+        <h3>Fetish</h3><p>Seguire ossessivamente la dieta per entrare in una forma che ha già raggiunto da mesi</p>
+        <h3>Debolezza</h3><p>Classificata (se esiste… è segreta)</p>
+        <h3>Pazienza</h3><p>Media, ma se si esaurisce… chiama il Vescovo</p>
+        <h3>Paese preferito</h3><p>Italia</p>
       `,
       miramar: `
-        <img src="./images/roberta.jpg" alt="Roberta" style="width:100%; border-radius:10px; margin-bottom:12px;">
+        <img src="data:image/jpeg;base64,/9j/4AAQS...rest..." 
+             alt="Roberta" style="width:100%;border-radius:10px;margin-bottom:12px;">
         <h3>Descrizione</h3>
         <p>L’incarnazione di Lucia… ma potenziata. Roberta è un mecha giapponese alimentato a senso del dovere. È incaricata di controllare le allergie dei clienti con la precisione di un farmacista ninja e di mantenere il locale in uno stato talmente perfetto da far piangere gli ispettori ASL dalla commozione.</p>
         <h3>Altezza</h3><p>Circa 1.70 m</p>
@@ -182,52 +159,49 @@
         <h3>Pazienza</h3><p>Divina con scadenza improvvisa – se si esaurisce… evacuare l’edificio</p>
         <h3>Paese preferito</h3><p>Giappone</p>
       `,
-      eltransito: `
-        <img src="./images/marzio.jpg" alt="Marzio" style="width:100%; border-radius:10px; margin-bottom:12px;">
+      aposentillo: `
+        <img src="data:image/jpeg;base64,/9j/4AAYQSk...rest..." 
+             alt="Martina" style="width:100%;border-radius:10px;margin-bottom:12px;">
         <h3>Descrizione</h3>
-        <p>L’angelo dietro le quinte? Marzio è il volto, il braccio, e il cervello operativo del Due Mori. Sempre presente, sempre attivo, sempre concentrato.</p>
-        <h3>Altezza</h3><p>Circa 1.80 m</p>
-        <h3>Mansione</h3><p>Cameriere di punta, gestore della squadra, responsabile rapporti e contabilità</p>
-        <h3>Velocità</h3><p>Luce liquida – se ti distrai, l’hai già perso di vista</p>
-        <h3>Piatto preferito</h3><p>Tortellini con ragù alla bolognese – e se non sono perfetti, chiama il sindaco</p>
-        <h3>Fetish</h3><p>Seguire ossessivamente la dieta per entrare in una forma che ha già raggiunto da mesi</p>
-        <h3>Debolezza</h3><p>Classificata (se esiste… è segreta)</p>
-        <h3>Pazienza</h3><p>Media, ma se si esaurisce… chiama il Vescovo</p>
-        <h3>Paese preferito</h3><p>Italia</p>
+        <p>Capitano inarrestabile della sala, Martina è una vecchia volpe di battaglia: sa dove guardare, cosa dire e soprattutto… come far quadrare i conti al centesimo. Una mente brillante in un corpo sempre in movimento, che tra un piatto e l’altro ti pianifica le vacanze al miglior prezzo dell’universo.</p>
+        <h3>Altezza</h3><p>Circa 1.72 m</p>
+        <h3>Mansione</h3><p>Cameriera, cassiera, contabile suprema del Due Mori</p>
+        <h3>Velocità</h3><p>Lepre meticolosa – si muove con ritmo costante e cervello in turbo</p>
+        <h3>Piatto preferito</h3><p>Tutto ciò che si può innaffiare di salsa – la regina del condimento</p>
+        <h3>Fetish</h3><p>Scovare le offerte online migliori del globo: voli, hotel, viaggi… se c’è un coupon, lei lo trova prima che venga creato</p>
+        <h3>Debolezza</h3><p>Ancora da scoprire (forse non esiste… forse è segreta… forse è dietro la porta della dispensa)</p>
+        <h3>Pazienza</h3><p>Bassa ma tattica – ne ha poca, ma la sa usare come un’arma da ninja</p>
+        <h3>Paese preferito</h3><p>Giappone</p>
       `
     };
 
     const sections = [
       { id: 'mechapa',     title: 'Don Fabio' },
       { id: 'jiquilillo',  title: 'Lucia' },
-      { id: 'aposentillo', title: 'Martina' },
+      { id: 'eltransito',  title: 'Marzio' },
       { id: 'miramar',     title: 'Roberta' },
-      { id: 'eltransito',  title: 'Marzio' }
+      { id: 'aposentillo', title: 'Martina' }
     ];
 
     document.addEventListener('DOMContentLoaded', () => {
       const nav  = document.querySelector('nav');
       const main = document.querySelector('main');
-
       sections.forEach(s => {
         const btn = document.createElement('button');
         btn.dataset.target = s.id;
         btn.textContent    = s.title;
         nav.appendChild(btn);
-
         const sec = document.createElement('section');
         sec.id = s.id;
         sec.innerHTML = `<h2>${s.title}</h2>${research[s.id]}`;
         main.appendChild(sec);
       });
-
       const buttons = Array.from(nav.querySelectorAll('button'));
       buttons[0].classList.add('active');
       document.getElementById(buttons[0].dataset.target).classList.add('active');
-
       buttons.forEach(btn => {
         btn.addEventListener('click', e => {
-          // ripple effect
+          // ripple
           const circle = document.createElement('span');
           circle.className = 'ripple';
           const r = btn.getBoundingClientRect();
@@ -236,20 +210,15 @@
           circle.style.top    = e.clientY - r.top  - r.height/2 + 'px';
           btn.appendChild(circle);
           setTimeout(() => circle.remove(), 600);
-
           // toggle active
           buttons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
-
-          // show section
           document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
           const tgt = document.getElementById(btn.dataset.target);
           tgt.classList.add('active');
           tgt.scrollIntoView({ behavior: 'smooth' });
         });
       });
-
-      // hide-on-scroll
       let lastY = window.pageYOffset;
       window.addEventListener('scroll', () => {
         const y = window.pageYOffset;

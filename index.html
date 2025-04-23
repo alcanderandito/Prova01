@@ -5,104 +5,124 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ─── Reset & Fullscreen ─── */
-    * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; overflow-x:hidden; }
+    /* ── Reset & Fullscreen ── */
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body { width: 100%; height: 100%; font-family: Arial, Helvetica, sans-serif; }
 
-    /* ─── Sfondo via IMG + Overlay ─── */
+    /* ── Sfondo via IMG + Overlay ── */
     .bg {
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
-      object-fit:cover;
-      z-index:-2;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -2;
     }
     .overlay {
-      position: fixed; top:0; left:0;
-      width:100%; height:100%;
+      position: fixed; top: 0; left: 0;
+      width: 100%; height: 100%;
       background: rgba(0,0,0,0.5);
-      z-index:-1;
+      z-index: -1;
     }
 
-    /* ─── Container centrale ─── */
+    /* ── Container centrale ── */
     .container {
-      position: relative; z-index:1;
-      width:100%; min-height:100%;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:flex-start;
-      padding:80px 20px 40px;
-      text-align:center;
-      color:#fff;
+      position: relative; z-index: 1;
+      width: 100%; min-height: 100%;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-start;
+      text-align: center; color: #fff;
+      padding: 80px 20px 40px;
     }
 
-    /* ─── Titolo & Sottotitolo ─── */
+    /* ── Titolo & Sottotitolo ── */
     h1 {
-      font-size:2rem;
-      font-weight:700;
-      letter-spacing:.05em;
-      text-shadow:0 1px 4px rgba(0,0,0,0.7);
-      margin-bottom:.5em;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      margin-bottom: .5em;
     }
     p {
-      font-size:1rem;
-      text-shadow:0 1px 3px rgba(0,0,0,0.7);
-      margin-bottom:1.5em;
+      font-size: 1rem;
+      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
+      margin-bottom: 1.5em;
     }
 
-    /* ─── Pulsanti in Colonna ─── */
+    /* ── Pulsanti in Colonna ── */
     .nav {
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      gap:12px;
-      width:90%;
-      max-width:300px;
-      margin:0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      width: 90%;
+      max-width: 300px;
+      margin: 0 auto;
     }
+
+    /* ── Cerchi “moneta” + pop-in ── */
     .nav a {
-      width:100%;
-      padding:10px 0;
-      background:rgba(255,154,158,0.9);
-      border-radius:25px;
-      color:#fff;
-      text-decoration:none;
-      font-size:1rem;
-      font-weight:600;
-      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+      width: 60px;
+      height: 60px;
+      padding: 0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.9rem;
+      font-weight: 600;
+      background: rgba(255,154,158,0.9);
+      color: #fff;
+      text-decoration: none;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       transition: background .3s, transform .2s;
-      text-align:center;
+      opacity: 0;
+      transform: scale(0);
+      animation: popIn 0.5s ease forwards;
+    }
+    .nav a:nth-child(1) { animation-delay: 0.2s; }
+    .nav a:nth-child(2) { animation-delay: 0.3s; }
+    .nav a:nth-child(3) { animation-delay: 0.4s; }
+    .nav a:nth-child(4) { animation-delay: 0.5s; }
+    .nav a:nth-child(5) { animation-delay: 0.6s; }
+    .nav a:nth-child(6) { animation-delay: 0.7s; }
+    .nav a:nth-child(7) { animation-delay: 0.8s; }
+    .nav a:nth-child(8) { animation-delay: 0.9s; }
+
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0); }
+      60%  { opacity: 1; transform: scale(1.2); }
+      100% { opacity: 1; transform: scale(1); }
     }
     .nav a:hover {
-      background:rgba(255,154,158,1);
+      background: rgba(255,154,158,1);
       transform: translateY(-2px);
     }
     .nav a:active {
       transform: translateY(0);
-      box-shadow:0 2px 6px rgba(0,0,0,0.3) inset;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3) inset;
     }
   </style>
 </head>
-
 <body>
-  <!-- sfondo e overlay -->
+
+  <!-- Sfondo e overlay -->
   <img src="home.PNG" class="bg" alt="Sfondo Team Due Mori">
   <div class="overlay"></div>
 
-  <!-- contenuto -->
+  <!-- Contenuto centrale -->
   <div class="container">
     <h1>Team Due Mori</h1>
     <p>Sfoglia le schede del Dream-Team.</p>
     <nav class="nav">
-      <a href="fabio.html">Don Fabio</a>
-      <a href="lucia.html">Lucia</a>
-      <a href="martina.html">Martina</a>
-      <a href="roberta.html">Roberta</a>
-      <a href="marzio.html">Marzio</a>
-      <a href="hamza.html">Hamza</a>
-      <a href="max.html">Max</a>
-      <a href="claudia.html">Claudia</a>
+      <a href="fabio.html">F</a>
+      <a href="lucia.html">L</a>
+      <a href="martina.html">M</a>
+      <a href="roberta.html">R</a>
+      <a href="marzio.html">Z</a>
+      <a href="hamza.html">H</a>
+      <a href="max.html">X</a>
+      <a href="claudia.html">C</a>
     </nav>
   </div>
+
 </body>
 </html>

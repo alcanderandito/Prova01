@@ -33,7 +33,7 @@
       padding: 80px 20px 40px;
     }
 
-    /* ── Titolo & Sottotitolo ── */
+    /* ── Titolo & sottotitolo ── */
     h1 {
       font-size: 2rem;
       font-weight: 700;
@@ -47,21 +47,19 @@
       margin-bottom: 1.5em;
     }
 
-    /* ── Pulsanti in Colonna ── */
+    /* ── Pulsanti “moneta” orizzontali ── */
     .nav {
       display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      width: 90%;
-      max-width: 300px;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 16px;
+      width: 100%;
+      max-width: 800px;
       margin: 0 auto;
     }
-
-    /* ── Cerchi “moneta” + pop-in ── */
     .nav a {
-      width: 60px;
-      height: 60px;
+      width: 140px;
+      height: 140px;
       padding: 0;
       border-radius: 50%;
       display: flex;
@@ -77,7 +75,9 @@
       opacity: 0;
       transform: scale(0);
       animation: popIn 0.5s ease forwards;
+      text-align: center;
     }
+    /* delay progressivo */
     .nav a:nth-child(1) { animation-delay: 0.2s; }
     .nav a:nth-child(2) { animation-delay: 0.3s; }
     .nav a:nth-child(3) { animation-delay: 0.4s; }
@@ -94,7 +94,7 @@
     }
     .nav a:hover {
       background: rgba(255,154,158,1);
-      transform: translateY(-2px);
+      transform: translateY(-4px);
     }
     .nav a:active {
       transform: translateY(0);
@@ -113,14 +113,14 @@
     <h1>Team Due Mori</h1>
     <p>Sfoglia le schede del Dream-Team.</p>
     <nav class="nav">
-      <a href="fabio.html">F</a>
-      <a href="lucia.html">L</a>
-      <a href="martina.html">M</a>
-      <a href="roberta.html">R</a>
-      <a href="marzio.html">Z</a>
-      <a href="hamza.html">H</a>
-      <a href="max.html">X</a>
-      <a href="claudia.html">C</a>
+      <a href="fabio.html">Don Fabio</a>
+      <a href="lucia.html">Lucia</a>
+      <a href="martina.html">Martina</a>
+      <a href="roberta.html">Roberta</a>
+      <a href="marzio.html">Marzio</a>
+      <a href="hamza.html">Hamza</a>
+      <a href="max.html">Max</a>
+      <a href="claudia.html">Claudia</a>
     </nav>
   </div>
 

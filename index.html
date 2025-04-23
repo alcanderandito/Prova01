@@ -30,7 +30,8 @@
 
     /* TITOLO & DESCRIZIONE */
     h1 {
-      font-size:2rem; font-weight:700;
+      font-size:2.5rem; /* aumentato da 2rem */
+      font-weight:700;
       letter-spacing:.05em;
       text-shadow:0 1px 4px rgba(0,0,0,0.7);
       margin-bottom:0.3em;
@@ -41,12 +42,12 @@
       margin-bottom:2em;
     }
 
-    /* START BUTTON (gigante & trasparente) */
+    /* START BUTTON (gigante & meno trasparente) */
     #startBtn {
       width:200px;
       height:200px;
       border-radius:100px;
-      background: rgba(255,154,158,0.3);
+      background: rgba(255,154,158,0.5); /* da 0.3 a 0.5 */
       border:none;
       color:#fff;
       font-size:1.5rem;
@@ -59,7 +60,7 @@
       transition: transform .2s, background .3s;
     }
     #startBtn:hover {
-      background: rgba(255,154,158,0.5);
+      background: rgba(255,154,158,0.7); /* hover più opaco */
       transform: translateY(-5px);
     }
     #startBtn:active {
@@ -124,7 +125,7 @@
     .nav.active a:nth-child(9){animation-delay:1.4s}
     .nav.active a:nth-child(10){animation-delay:1.55s}
 
-    /* NEON GLOW ON HOVER */
+    /* NEON GLOW SU HOVER */
     .nav.active a:hover {
       box-shadow:
         0 0 8px rgba(255,255,255,0.8),

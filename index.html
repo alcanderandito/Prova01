@@ -5,54 +5,50 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* Corpo & Sfondo */
-    body {
+    /* ── Reset & full-height ── */
+    html, body {
       margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      color: #fff;
-      background:
-        linear-gradient(135deg, #4a4a4a, #7a7a7a),
-        url("home.PNG") center/cover no-repeat;
-      position: relative;
-    }
-    /* Overlay scuro */
-    body::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 0;
+      padding: 0;
+      height: 100%;
     }
 
-    /* Container centrale */
+    /* ── Sfondo con fallback colore ── */
+    body {
+      background: url("home.PNG") center center / cover no-repeat fixed;
+      background-color: #7a7a7a; /* se home.PNG non si carica */
+      font-family: Arial, Helvetica, sans-serif;
+      color: #fff;
+    }
+
+    /* ── Overlay centrale ── */
     .container {
-      position: relative;
-      z-index: 1;
-      text-align: center;
-      padding: 80px 20px 40px;
-      min-height: 100vh;
-      box-sizing: border-box;
+      height: 100%;
+      width: 100%;
+      background: rgba(0,0,0,0.45);
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: start;
+      justify-content: center;
+      text-align: center;
+      box-sizing: border-box;
+      padding: 20px;
     }
 
-    /* Titolo */
+    /* ── Titolo & Sottotitolo ── */
     h1 {
-      margin: 0;
-      font-size: 3em;
+      margin: 0 0 10px;
+      font-size: 2.5rem;
       font-weight: 900;
-      letter-spacing: 0.1em;
-      text-shadow: 0 2px 6px rgba(0,0,0,0.8);
+      letter-spacing: .1em;
+      text-shadow: 0 2px 6px rgba(0,0,0,0.7);
     }
     p {
-      margin: 10px 0 40px;
-      font-size: 1.2em;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.8);
+      margin: 0 0 30px;
+      font-size: 1.1rem;
+      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
     }
 
-    /* Griglia bottoni */
+    /* ── Griglia bottoni ── */
     .btn-set {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -63,19 +59,22 @@
     .btn-set a {
       display: inline-block;
       padding: 14px 28px;
-      background: rgba(255, 154, 158, 0.8);
+      background: #ff9a9e;
       border-radius: 50px;
-      text-decoration: none;
       color: #fff;
-      font-size: 17px;
+      text-decoration: none;
+      font-size: 1rem;
       font-weight: bold;
-      text-align: center;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       transition: background .3s, transform .2s;
     }
     .btn-set a:hover {
-      background: rgba(255, 154, 158, 1);
+      background: #fad0c4;
       transform: translateY(-3px);
+    }
+    .btn-set a:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3) inset;
     }
   </style>
 </head>

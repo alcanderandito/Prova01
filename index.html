@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Team Due mori</title>
+  <title>Team Due Mori</title>
   <style>
     /* ── Hide-on-scroll ── */
     header, nav { transition: transform .3s ease; }
@@ -94,7 +94,7 @@
 <body>
 
   <header>
-    <h1>Team Due mori</h1>
+    <h1>Team Due Mori</h1>
     <p>Sfoglia le schede segrete del Due Mori.</p>
   </header>
 
@@ -137,7 +137,6 @@
       const nav  = document.querySelector('nav');
       const main = document.querySelector('main');
 
-      // CREA I PULSANTI E LE SEZIONI
       sections.forEach(s => {
         const btn = document.createElement('button');
         btn.dataset.target = s.id;
@@ -150,12 +149,10 @@
         main.appendChild(sec);
       });
 
-      // SETTA PRIMO ATTIVO
       const buttons = Array.from(nav.querySelectorAll('button'));
       buttons[0].classList.add('active');
       document.getElementById(buttons[0].dataset.target).classList.add('active');
 
-      // GESTIONE CLICK
       buttons.forEach(btn => {
         btn.addEventListener('click', e => {
           const circle = document.createElement('span');
@@ -177,7 +174,6 @@
         });
       });
 
-      // SHOW/HIDE ON SCROLL
       let lastY = window.pageYOffset;
       window.addEventListener('scroll', () => {
         const y = window.pageYOffset;
@@ -193,6 +189,5 @@
       });
     });
   </script>
-
 </body>
 </html>

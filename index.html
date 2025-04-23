@@ -5,44 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ── RESET & FULLSCREEN ── */
+    /* RESET & FULLSCREEN */
     * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; overflow:hidden; }
+    html, body { width:100%; height:100%; overflow:hidden; font-family:Arial,Helvetica,sans-serif; }
 
-    /* ── SFONDO “VIVO” ── */
+    /* SFONDO PARALLAX LAYER */
     .bg {
-      position:fixed; top:0; left:0;
-      width:100%; height:100%;
+      position:fixed;
+      top:50%; left:50%;
+      width:110%; height:110%;
+      transform: translate(-50%,-50%) scale(1.03);
       object-fit:cover;
       z-index:-2;
-      transform-origin:center center;
-      animation: bgBreath 30s ease-in-out infinite alternate;
-    }
-    @keyframes bgBreath {
-      from { transform: scale(1); }
-      to   { transform: scale(1.03); }
+      transition: transform 0.1s ease-out;
     }
     .overlay {
       position:fixed; inset:0;
-      background: rgba(0,0,0,0.5); z-index:-1;
+      background: rgba(0,0,0,0.5);
+      z-index:-1;
+      pointer-events:none;
     }
 
-    /* ── CONTENITORE CENTRALE ── */
+    /* CONTENITORE */
     .container {
       position:relative; z-index:1;
       width:100%; height:100%;
       display:flex; flex-direction:column;
       align-items:center; text-align:center;
-      padding-top:60px; /* lascia spazio al titolo */
-      color:#fff;
+      padding-top:60px; color:#fff;
     }
 
-    /* ── TITOLO & DESCRIZIONE ── */
+    /* TITOLO & DESCRIZIONE */
     h1 {
       font-size:2.5rem; font-weight:700;
       letter-spacing:.05em;
       text-shadow:0 1px 4px rgba(0,0,0,0.7);
-      margin-bottom:0.3em;
+      margin-bottom:.3em;
     }
     .subtitle {
       font-size:1rem;
@@ -50,18 +48,16 @@
       margin-bottom:2em;
     }
 
-    /* ── START BUTTON centrato & trasparente & breathing ── */
+    /* START BUTTON */
     #startBtn {
-      position:absolute;
-      top:50%; left:50%;
-      transform: translate(-50%,-50%) scale(1);
+      position:absolute; top:50%; left:50%;
+      transform: translate(-50%,-50%);
       width:220px; height:220px;
       border-radius:50%;
-      background: rgba(255,154,158,0.2); /* più trasparente */
+      background: rgba(255,154,158,0.2);
       backdrop-filter: blur(30px);
-      border: 2px solid rgba(255,255,255,0.3);
-      color:#fff;
-      font-size:1.6rem; font-weight:700;
+      border:2px solid rgba(255,255,255,0.3);
+      color:#fff; font-size:1.6rem; font-weight:700;
       display:flex; align-items:center; justify-content:center;
       box-shadow:0 4px 16px rgba(0,0,0,0.3);
       cursor:pointer;
@@ -73,14 +69,10 @@
       from { transform: translate(-50%,-50%) scale(1); }
       to   { transform: translate(-50%,-50%) scale(1.05); }
     }
-    #startBtn:hover {
-      background: rgba(255,154,158,0.3);
-    }
-    #startBtn:active {
-      transform: translate(-50%,-50%) scale(0.98);
-    }
+    #startBtn:hover { background: rgba(255,154,158,0.3); }
+    #startBtn:active { transform: translate(-50%,-50%) scale(0.98); }
 
-    /* ── NAV nascosto inizialmente ── */
+    /* NAV MONETE */
     .nav {
       position:absolute;
       bottom:40px; left:50%;
@@ -103,14 +95,14 @@
       box-shadow:0 4px 12px rgba(0,0,0,0.2);
       opacity:0; transform:scale(0);
     }
-    @media (min-width: 600px) {
+    @media (min-width:600px) {
       .nav a {
         background: rgba(255,255,255,0.1);
         backdrop-filter: blur(20px);
       }
     }
 
-    /* ── ANIMAZIONI MONETE ── */
+    /* ANIMAZIONI MONETE */
     @keyframes popIn {
       0%   { opacity:0; transform:scale(0); }
       60%  { opacity:1; transform:scale(1.2); }
@@ -120,7 +112,6 @@
       0%,100% { transform: scale(1); }
       50%     { transform: scale(1.05); }
     }
-
     .nav.active {
       pointer-events:auto;
     }
@@ -153,7 +144,8 @@
 </head>
 <body>
 
-  <img src="home.PNG" class="bg" alt="">
+  <!-- SFONDO REATTIVO -->
+  <img src="home.PNG" class="bg" id="bg" alt="">
   <div class="overlay"></div>
 
   <div class="container">
@@ -175,6 +167,18 @@
   </div>
 
   <script>
+    // Parallax mouse / touch
+    const bg = document.getElementById('bg');
+    function onMove(e) {
+      const x = (e.clientX || e.touches[0].clientX) / window.innerWidth - 0.5;
+      const y = (e.clientY || e.touches[0].clientY) / window.innerHeight - 0.5;
+      // moltiplica per un fattore small
+      bg.style.transform = `translate(${-x*20}px,${-y*20}px) scale(1.03)`;
+    }
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('touchmove', onMove);
+
+    // START button logic
     document.getElementById('startBtn').addEventListener('click', function() {
       this.style.display = 'none';
       document.getElementById('teamNav').classList.add('active');

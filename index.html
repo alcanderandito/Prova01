@@ -14,6 +14,10 @@
       color: #fff;
       text-align: center;
       padding: 20px;
+      transition: transform .3s ease;
+    }
+    header.hide {
+      transform: translateY(-100%);
     }
     header h1 { margin: 0; font-size: 2em; text-transform: uppercase; }
     header p  { margin: 5px 0 0; font-size: 1em; }
@@ -21,13 +25,18 @@
     /* ── Nav Overlay Fixed ── */
     nav {
       position: fixed;
-      top: 80px;      /* altezza header */
+      top: 80px;       /* pari all’altezza dell’header */
       left: 0;
       width: 100%;
       background: rgba(255,255,255,0.1);
       text-align: center;
       padding: 10px 0;
       z-index: 999;
+      transition: transform .3s ease;
+    }
+    /* quando aggiunge .hide nav sparisce sopra del tutto */
+    nav.hide {
+      transform: translateY(-140px); /* 80px header + circa 60px nav height */
     }
     nav button {
       position: relative;
@@ -76,7 +85,7 @@
     /* ── Main & Sezioni ── */
     main {
       padding: 20px;
-      padding-top: calc(80px + 60px); /* header + nav */
+      padding-top: calc(80px + 60px); /* lascia spazio a header+nav */
       scroll-behavior: smooth;
       scroll-snap-type: y mandatory;
     }
@@ -218,7 +227,7 @@
 
     buttons.forEach(btn => {
       btn.addEventListener('click', e => {
-        // ripple effect
+        // ripple
         const circle = document.createElement('span');
         circle.className = 'ripple';
         const r = btn.getBoundingClientRect();
@@ -228,18 +237,18 @@
         btn.appendChild(circle);
         setTimeout(() => circle.remove(), 600);
 
-        // switch active
+        // switch
         buttons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-
         document.querySelectorAll('main section').forEach(s => s.classList.remove('active'));
+
         const tgt = document.getElementById(btn.dataset.target);
         tgt.classList.add('active');
         tgt.scrollIntoView({ behavior: 'smooth' });
       });
     });
 
-    // hide nav/header on scroll down
+    // hide header & nav on scroll down
     let lastY = window.pageYOffset;
     window.addEventListener('scroll', () => {
       const y = window.pageYOffset;

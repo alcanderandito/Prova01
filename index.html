@@ -1,67 +1,134 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8"/>
-<meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Team Due Mori</title>
-<style>
- /* —— Sfondo immagine —— */
- body{
-   margin:0;
-   font-family:Arial,Helvetica,sans-serif;
-   min-height:100vh;
-   display:flex;
-   flex-direction:column;
-   align-items:center;
-   justify-content:flex-start;
-   background:url("home.PNG") center/cover no-repeat fixed;
- }
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Team Due Mori</title>
+  <style>
+    /* ————————————————————————— BODY & OVERLAY ————————————————————————— */
+    body {
+      margin: 0;
+      font-family: Arial,Helvetica,sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      background: url("home.PNG") center/cover no-repeat fixed;
+      position: relative;
+    }
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,0.4);
+      pointer-events: none;
+      z-index: -1;
+    }
 
- /* —— Titolo & Sottotitolo —— */
- h1{
-   margin:40px 0 10px;
-   font-size:2.4em;
-   font-weight:900;
-   text-transform:uppercase;
-   color:#fff;
-   text-shadow:2px 2px 6px #0008;
- }
- p{
-   margin:0 0 30px;
-   color:#fff;
-   text-shadow:1px 1px 4px #0008;
- }
+    /* ——————————————————————— TITLO & TYPEWRITER ——————————————————————— */
+    h1 {
+      margin: 40px 0 10px;
+      font-size: 2.4em;
+      font-weight: 900;
+      text-transform: uppercase;
+      color: #fff;
+      text-shadow: 2px 2px 6px #0008;
+      overflow: hidden;
+      white-space: nowrap;
+      border-right: .15em solid #fff;
+      width: 0;
+      animation:
+        type 2s steps(20) 0.5s forwards,
+        blink .5s step-end infinite alternate 2.5s;
+    }
+    @keyframes type {
+      from { width: 0; }
+      to   { width: 100%; }
+    }
+    @keyframes blink {
+      50% { border-color: transparent; }
+    }
+    p {
+      margin: 0 0 30px;
+      color: #fff;
+      text-shadow: 1px 1px 4px #0008;
+    }
 
- /* —— Pulsanti —— */
- .btn-set{
-   display:flex;
-   flex-wrap:wrap;
-   justify-content:center;
-   gap:16px;
- }
- .btn-set a{
-   padding:18px 36px;
-   border-radius:999px;
-   background:#ff9a9e;
-   color:#fff;
-   font-size:17px;
-   font-weight:bold;
-   text-decoration:none;
-   box-shadow:0 4px 10px #0003;
-   transition:.2s background,.2s transform;
- }
- .btn-set a:hover{
-   background:#fad0c4;
-   transform:scale(1.08);
- }
-</style>
+    /* ————————————————————————— BUTTON GRID ————————————————————————— */
+    .btn-set {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 16px;
+      width: 90%;
+      max-width: 600px;
+      margin-bottom: 60px;
+    }
+    .btn-set a {
+      position: relative;
+      display: inline-block;
+      padding: 18px 36px;
+      border-radius: 999px;
+      background: rgba(255,154,158,0.6);
+      backdrop-filter: blur(8px);
+      color: #fff;
+      font-size: 17px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+      overflow: hidden;
+      transform: scale(0.8);
+      opacity: 0;
+      animation: popIn .6s ease forwards;
+    }
+    .btn-set a:nth-child(1) { animation-delay: 0.3s; }
+    .btn-set a:nth-child(2) { animation-delay: 0.4s; }
+    .btn-set a:nth-child(3) { animation-delay: 0.5s; }
+    .btn-set a:nth-child(4) { animation-delay: 0.6s; }
+    .btn-set a:nth-child(5) { animation-delay: 0.7s; }
+    .btn-set a:nth-child(6) { animation-delay: 0.8s; }
+    .btn-set a:nth-child(7) { animation-delay: 0.9s; }
+    .btn-set a:nth-child(8) { animation-delay: 1.0s; }
+
+    @keyframes popIn {
+      0%   { opacity: 0; transform: scale(0.5) translateY(20px); }
+      80%  { opacity: 1; transform: scale(1.1) translateY(-5px); }
+      100% { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .btn-set a:hover {
+      background: rgba(250,208,196,0.8);
+      transform: scale(1.1);
+    }
+    .btn-set a:active {
+      transform: scale(0.95);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3) inset;
+    }
+
+    /* ————————————————————— SCROLL-DOWN ARROW ————————————————————— */
+    .scroll-down {
+      position: absolute;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 2em;
+      color: #fff;
+      text-shadow: 1px 1px 4px #0008;
+      animation: bounce 1.2s infinite;
+      pointer-events: none;
+    }
+    @keyframes bounce {
+      0%,100% { transform: translate(-50%, 0); }
+      50%     { transform: translate(-50%, 10px); }
+    }
+  </style>
 </head>
+
 <body>
   <h1>TEAM DUE MORI</h1>
   <p>Sfoglia le schede del Dream-Team.</p>
 
   <div class="btn-set">
-    <a href="fabio.html">Don&nbsp;Fabio</a>
+    <a href="fabio.html">Don Fabio</a>
     <a href="lucia.html">Lucia</a>
     <a href="martina.html">Martina</a>
     <a href="roberta.html">Roberta</a>
@@ -70,5 +137,7 @@
     <a href="max.html">Max</a>
     <a href="claudia.html">Claudia</a>
   </div>
+
+  <div class="scroll-down">↓</div>
 </body>
 </html>

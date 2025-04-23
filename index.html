@@ -5,84 +5,97 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ── Reset & full-height ── */
-    html, body {
-      margin: 0;
-      padding: 0;
-      height: 100%;
+    /* ── Reset & Full-screen ── */
+    * { margin:0; padding:0; box-sizing:border-box; }
+    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; }
+
+    /* ── Sfondo come <img> (garantito caricamento) ── */
+    .bg {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      object-fit: cover;
+      z-index: -2;
+    }
+    /* ── Overlay per contrasto ── */
+    .overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: -1;
     }
 
-    /* ── Sfondo con fallback colore ── */
-    body {
-      background: url("home.PNG") center center / cover no-repeat fixed;
-      background-color: #7a7a7a; /* se home.PNG non si carica */
-      font-family: Arial, Helvetica, sans-serif;
-      color: #fff;
-    }
-
-    /* ── Overlay centrale ── */
+    /* ── Container centrale ── */
     .container {
-      height: 100%;
-      width: 100%;
-      background: rgba(0,0,0,0.45);
+      position: relative;
+      z-index: 1;
+      width: 100%; height: 100%;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      box-sizing: border-box;
+      color: #fff;
       padding: 20px;
     }
 
-    /* ── Titolo & Sottotitolo ── */
+    /* ── Titolo & sottotitolo ── */
     h1 {
-      margin: 0 0 10px;
-      font-size: 2.5rem;
+      font-size: 3rem;
       font-weight: 900;
       letter-spacing: .1em;
       text-shadow: 0 2px 6px rgba(0,0,0,0.7);
+      margin-bottom: 0.5em;
     }
     p {
-      margin: 0 0 30px;
-      font-size: 1.1rem;
+      font-size: 1.2rem;
       text-shadow: 0 1px 4px rgba(0,0,0,0.7);
+      margin-bottom: 1.5em;
     }
 
     /* ── Griglia bottoni ── */
-    .btn-set {
+    .nav {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 16px;
-      width: 90%;
-      max-width: 600px;
+      grid-template-columns: repeat(auto-fit, minmax(160px,1fr));
+      gap: 1rem;
+      width: 100%;
+      max-width: 800px;
     }
-    .btn-set a {
-      display: inline-block;
-      padding: 14px 28px;
-      background: #ff9a9e;
+    .nav a {
+      display: block;
+      padding: 1rem 1.5rem;
+      background: #ff6b6b;
       border-radius: 50px;
       color: #fff;
       text-decoration: none;
       font-size: 1rem;
-      font-weight: bold;
+      font-weight: 600;
       box-shadow: 0 4px 12px rgba(0,0,0,0.4);
       transition: background .3s, transform .2s;
+      text-align: center;
     }
-    .btn-set a:hover {
-      background: #fad0c4;
+    .nav a:hover {
+      background: #ffa6a6;
       transform: translateY(-3px);
     }
-    .btn-set a:active {
+    .nav a:active {
       transform: translateY(0);
       box-shadow: 0 2px 6px rgba(0,0,0,0.3) inset;
     }
   </style>
 </head>
 <body>
+
+  <!-- SFONDO -->
+  <img src="home.PNG" alt="" class="bg">
+  <div class="overlay"></div>
+
+  <!-- CONTENUTO -->
   <div class="container">
     <h1>TEAM DUE MORI</h1>
-    <p>Sfoglia le schede del Dream-Team.</p>
-    <div class="btn-set">
+    <p>Sfoglia le schede segrete del Due Mori</p>
+    <nav class="nav">
       <a href="fabio.html">Don Fabio</a>
       <a href="lucia.html">Lucia</a>
       <a href="martina.html">Martina</a>
@@ -91,7 +104,8 @@
       <a href="hamza.html">Hamza</a>
       <a href="max.html">Max</a>
       <a href="claudia.html">Claudia</a>
-    </div>
+    </nav>
   </div>
+
 </body>
 </html>

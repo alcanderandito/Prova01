@@ -16,11 +16,11 @@
       object-fit:cover; z-index:-2;
     }
     .overlay {
-      position:fixed; top:0; left:0; inset:0;
+      position:fixed; inset:0;
       background: rgba(0,0,0,0.5); z-index:-1;
     }
 
-    /* CONTAINER CENTRALE */
+    /* CONTENITORE CENTRALE */
     .container {
       position:relative; z-index:1;
       display:flex; flex-direction:column;
@@ -28,34 +28,36 @@
       padding:80px 20px 40px; color:#fff;
     }
 
+    /* TITOLO */
     h1 {
       font-size:2rem; font-weight:700;
       letter-spacing:.05em;
       text-shadow:0 1px 4px rgba(0,0,0,0.7);
-      margin-bottom:.5em;
-    }
-    p {
-      font-size:1rem;
-      text-shadow:0 1px 3px rgba(0,0,0,0.7);
-      margin-bottom:1.5em;
+      margin-bottom:1em;
     }
 
-    /* NAV MOBILE COLUMN */
+    /* START BUTTON */
+    #startBtn {
+      padding:14px 28px;
+      font-size:1.2rem; font-weight:700;
+      color:#fff; background:#ff9a9e;
+      border:none; border-radius:50px;
+      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      cursor:pointer; transition:transform .2s, background .3s;
+    }
+    #startBtn:hover { background:#fad0c4; transform: translateY(-3px); }
+    #startBtn:active { transform: translateY(0) scale(.98); }
+
+    /* NAV INIZIALMENTE NASCOSTO */
     .nav {
-      display:flex; flex-direction:column;
-      align-items:center; gap:12px;
-      width:100%; max-width:200px; margin:0 auto;
-    }
-    /* NAV DESKTOP ROW */
-    @media (min-width: 600px) {
-      .nav {
-        flex-direction:row; flex-wrap:wrap;
-        justify-content:center; max-width:800px;
-        gap:20px;
-      }
+      display:flex; flex-wrap:wrap;
+      justify-content:center; gap:20px;
+      width:100%; max-width:800px;
+      margin-top:20px;
+      pointer-events:none;
     }
 
-    /* MONETE GLASS + POPIN + BREATH + NEON + ADAPTIVE BLUR/OPA */
+    /* MONETE (base glass) */
     .nav a {
       flex:0 0 auto;
       width:100px; height:100px;
@@ -63,19 +65,12 @@
       display:flex; align-items:center; justify-content:center;
       font-size:0.9rem; font-weight:600;
       color:#fff; text-decoration:none;
-      /* MOBILE: blur 2px + opa 0.5 */
       background: rgba(255,255,255,0.5);
       backdrop-filter: blur(2px);
       border:1px solid rgba(255,255,255,0.3);
       box-shadow:0 4px 12px rgba(0,0,0,0.2);
       opacity:0; transform:scale(0);
-      animation:
-        popIn 0.5s ease forwards,
-        breath 3s ease-in-out infinite 0.6s;
-      transition: transform .2s, box-shadow .2s;
-      text-align:center;
     }
-    /* OVERRIDE DESKTOP: blur 20px + opa 0.1 */
     @media (min-width: 600px) {
       .nav a {
         background: rgba(255,255,255,0.1);
@@ -83,18 +78,7 @@
       }
     }
 
-    /* staggered popIn */
-    .nav a:nth-child(1){animation-delay:0.2s}
-    .nav a:nth-child(2){animation-delay:0.3s}
-    .nav a:nth-child(3){animation-delay:0.4s}
-    .nav a:nth-child(4){animation-delay:0.5s}
-    .nav a:nth-child(5){animation-delay:0.6s}
-    .nav a:nth-child(6){animation-delay:0.7s}
-    .nav a:nth-child(7){animation-delay:0.8s}
-    .nav a:nth-child(8){animation-delay:0.9s}
-    .nav a:nth-child(9){animation-delay:1.0s}
-    .nav a:nth-child(10){animation-delay:1.1s}
-
+    /* ANIMAZIONI: popIn + respiro */
     @keyframes popIn {
       0%   { opacity:0; transform:scale(0); }
       60%  { opacity:1; transform:scale(1.2); }
@@ -105,14 +89,33 @@
       50%     { transform: scale(1.05); }
     }
 
+    /* AL CLICK: mostriamo nav e applichiamo animazioni */
+    .nav.active {
+      pointer-events:auto;
+    }
+    .nav.active a {
+      animation: popIn 0.5s ease forwards, breath 3s ease-in-out infinite 0.6s;
+      transition: box-shadow .2s, transform .2s;
+    }
+    .nav.active a:nth-child(1){ animation-delay:0.2s; }
+    .nav.active a:nth-child(2){ animation-delay:0.35s; }
+    .nav.active a:nth-child(3){ animation-delay:0.5s; }
+    .nav.active a:nth-child(4){ animation-delay:0.65s; }
+    .nav.active a:nth-child(5){ animation-delay:0.8s; }
+    .nav.active a:nth-child(6){ animation-delay:0.95s; }
+    .nav.active a:nth-child(7){ animation-delay:1.1s; }
+    .nav.active a:nth-child(8){ animation-delay:1.25s; }
+    .nav.active a:nth-child(9){ animation-delay:1.4s; }
+    .nav.active a:nth-child(10){ animation-delay:1.55s; }
+
     /* neon glow on hover */
-    .nav a:hover {
+    .nav.active a:hover {
       box-shadow:
         0 0 8px rgba(255,255,255,0.8),
         0 0 16px rgba(255,255,255,0.6);
       transform: translateY(-4px) scale(1.05);
     }
-    .nav a:active {
+    .nav.active a:active {
       transform: translateY(0) scale(1.02);
       box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
     }
@@ -120,13 +123,15 @@
 </head>
 <body>
 
-  <img src="home.PNG" class="bg" alt="Sfondo Team Due Mori">
+  <!-- SFONDO E OVERLAY -->
+  <img src="home.PNG" class="bg" alt="">
   <div class="overlay"></div>
 
+  <!-- CONTENUTO -->
   <div class="container">
     <h1>Team Due Mori</h1>
-    <p>Sfoglia le schede del Dream-Team.</p>
-    <nav class="nav">
+    <button id="startBtn">Start</button>
+    <nav class="nav" id="teamNav">
       <a href="fabio.html">Don Fabio</a>
       <a href="lucia.html">Lucia</a>
       <a href="martina.html">Martina</a>
@@ -139,6 +144,14 @@
       <a href="hamza.html">Hamza</a>
     </nav>
   </div>
+
+  <script>
+    document.getElementById('startBtn').addEventListener('click', function() {
+      this.style.display = 'none';
+      const nav = document.getElementById('teamNav');
+      nav.classList.add('active');
+    });
+  </script>
 
 </body>
 </html>

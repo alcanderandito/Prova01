@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ── RESET & FULLSCREEN ── */
+    /* RESET & FULLSCREEN */
     * { margin:0; padding:0; box-sizing:border-box; }
     html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; }
 
-    /* ── SFONDO + OVERLAY ── */
+    /* SFONDO + OVERLAY */
     .bg {
       position:fixed; top:0; left:0;
       width:100%; height:100%;
@@ -21,7 +21,7 @@
       background: rgba(0,0,0,0.5); z-index:-1;
     }
 
-    /* ── CONTAINER CENTRALE ── */
+    /* CONTAINER */
     .container {
       position:relative; z-index:1;
       width:100%; min-height:100%;
@@ -31,7 +31,6 @@
       padding:80px 20px 40px;
     }
 
-    /* ── TITOLO & SOTTOTITOLO ── */
     h1 {
       font-size:2rem; font-weight:700;
       letter-spacing:.05em;
@@ -44,12 +43,13 @@
       margin-bottom:1.5em;
     }
 
-    /* ── NAV MONETE MOBILE (colonna) & DESKTOP (riga) ── */
+    /* NAV MONETE MOBILE (colonna) */
     .nav {
       display:flex; flex-direction:column;
       align-items:center; gap:12px;
       width:100%; max-width:200px; margin:0 auto;
     }
+    /* NAV DESKTOP (riga) */
     @media (min-width: 600px) {
       .nav {
         flex-direction: row; flex-wrap: wrap;
@@ -58,7 +58,7 @@
       }
     }
 
-    /* ── MONETE 100×100 + GLASS + POP-IN + BREATH + NEON ── */
+    /* MONETE GLASS + POP-IN + BREATH + NEON + ADAPTIVE BLUR/OPA */
     .nav a {
       flex:0 0 auto;
       width:100px; height:100px;
@@ -66,18 +66,27 @@
       display:flex; align-items:center; justify-content:center;
       font-size:0.9rem; font-weight:600;
       color:#fff; text-decoration:none;
-      background: rgba(255,255,255,0.2);
+      /* default MOBILE glass */
+      background: rgba(255,255,255,0.4);
       border:1px solid rgba(255,255,255,0.3);
-      backdrop-filter: blur(8px);
+      backdrop-filter: blur(4px);
       box-shadow:0 4px 12px rgba(0,0,0,0.2);
-      transition: transform .2s, box-shadow .2s;
+      transition: transform .2s, box-shadow .2s, background .3s;
       opacity:0; transform:scale(0);
       animation:
         popIn 0.5s ease forwards,
         breath 3s ease-in-out infinite 0.6s;
       text-align:center;
     }
-    /* delay per popIn */
+    /* override DESKTOP glass */
+    @media (min-width: 600px) {
+      .nav a {
+        background: rgba(255,255,255,0.15);
+        backdrop-filter: blur(12px);
+      }
+    }
+
+    /* staggered popIn */
     .nav a:nth-child(1){animation-delay:0.2s}
     .nav a:nth-child(2){animation-delay:0.3s}
     .nav a:nth-child(3){animation-delay:0.4s}
@@ -89,18 +98,15 @@
     .nav a:nth-child(9){animation-delay:1.0s}
     .nav a:nth-child(10){animation-delay:1.1s}
 
-    /* popIn animation */
     @keyframes popIn {
       0%   { opacity:0; transform:scale(0); }
       60%  { opacity:1; transform:scale(1.2); }
       100% { opacity:1; transform:scale(1); }
     }
-    /* breathing effect */
     @keyframes breath {
       0%,100% { transform: scale(1); }
       50%     { transform: scale(1.05); }
     }
-    /* on hover: neon glow */
     .nav a:hover {
       box-shadow:
         0 0 8px rgba(255,255,255,0.8),
@@ -115,11 +121,9 @@
 </head>
 <body>
 
-  <!-- SFONDO E OVERLAY -->
-  <img src="home.PNG" class="bg" alt="Sfondo Team Due Mori">
+  <img src="home.PNG" class="bg" alt="">
   <div class="overlay"></div>
 
-  <!-- CONTENUTO CENTRALE -->
   <div class="container">
     <h1>Team Due Mori</h1>
     <p>Sfoglia le schede del Dream-Team.</p>

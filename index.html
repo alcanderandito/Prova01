@@ -5,11 +5,61 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Team Due Mori</title>
   <style>
-    /* ── Hide-on-scroll ── */
-    header, nav { transition: transform .3s ease; }
-    header.hide, nav.hide { transform: translateY(-100%); }
+    /* ── Header Sticky ── */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 1000;
+      background: rgba(0,0,0,0.6);
+      color: #fff;
+      text-align: center;
+      padding: 20px;
+    }
+    header h1 { margin: 0; font-size: 2em; text-transform: uppercase; }
+    header p  { margin: 5px 0 0; font-size: 1em; }
 
-    /* ── Corpo & Sfondo “Grigio Cool” ─ */
+    /* ── Nav Overlay Fixed ── */
+    nav {
+      position: fixed;
+      top: 80px;      /* altezza header */
+      left: 0;
+      width: 100%;
+      background: rgba(255,255,255,0.1);
+      text-align: center;
+      padding: 10px 0;
+      z-index: 999;
+    }
+    nav button {
+      position: relative;
+      margin: 8px;
+      padding: 14px 32px;
+      border-radius: 999px;
+      font-size: 17px;
+      border: none;
+      background: #ff9a9e;
+      color: #fff;
+      font-weight: bold;
+      cursor: pointer;
+      overflow: hidden;
+      transition: transform .2s, background .3s;
+    }
+    nav button.active {
+      background: #fad0c4;
+      transform: scale(1.2);
+      box-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    nav button:hover { background: #ffe1e8; }
+    nav button .ripple {
+      position: absolute;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.7);
+      transform: scale(0);
+      animation: rippleAnim .6s linear;
+      pointer-events: none;
+    }
+    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
+
+    /* ── Corpo & Sfondo “Grigio Cool” ── */
     body {
       font-family: Arial, sans-serif;
       margin: 0; padding: 0;
@@ -23,69 +73,47 @@
       100% { background: linear-gradient(135deg, #a0a0a0, #808090); }
     }
 
-    /* ── Header Sticky & Titolo Statico ─ */
-    header {
-      position: sticky; top: 0; z-index: 10;
-      background: rgba(0,0,0,0.6); color: #fff;
-      text-align: center; padding: 20px;
-    }
-    header h1 { margin: 0; font-size: 2em; text-transform: uppercase; }
-    header p  { margin: 5px 0 0; font-size: 1em; }
-
-    /* ── Nav & Pulsanti XXL-Tondi ─ */
-    nav {
-      position: sticky; top: 80px; z-index: 9;
-      background: rgba(255,255,255,0.1);
-      text-align: center; padding: 10px 0;
-    }
-    nav button {
-      position: relative; margin: 8px;
-      padding: 14px 32px; border-radius: 999px;
-      font-size: 17px; border: none;
-      background: #ff9a9e; color: #fff;
-      font-weight: bold; cursor: pointer;
-      overflow: hidden; transition: transform .2s, background .3s;
-    }
-    nav button.active {
-      background: #fad0c4; transform: scale(1.2);
-      box-shadow: 0 0 10px rgba(0,0,0,0.3);
-    }
-    nav button:hover { background: #ffe1e8; }
-    nav button .ripple {
-      position: absolute; border-radius: 50%;
-      background: rgba(255,255,255,0.7);
-      transform: scale(0); animation: rippleAnim .6s linear;
-      pointer-events: none;
-    }
-    @keyframes rippleAnim { to { transform: scale(4); opacity: 0; } }
-
-    /* ── Main & Sezioni ─ */
+    /* ── Main & Sezioni ── */
     main {
       padding: 20px;
+      padding-top: calc(80px + 60px); /* header + nav */
       scroll-behavior: smooth;
       scroll-snap-type: y mandatory;
     }
     main section {
-      display: none; max-width: 800px; margin: 20px auto;
-      padding: 20px; border-radius: 10px;
+      display: none;
+      max-width: 800px;
+      margin: 20px auto;
+      padding: 20px;
+      border-radius: 10px;
       background: rgba(255,255,255,0.9);
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-      opacity: 0; transform: translateY(30px);
+      opacity: 0;
+      transform: translateY(30px);
       transition: opacity .6s ease, transform .6s ease;
       scroll-snap-align: start;
+      scroll-margin-top: calc(80px + 60px);
     }
     main section.active {
-      display: block; opacity: 1; transform: translateY(0);
+      display: block;
+      opacity: 1;
+      transform: translateY(0);
     }
     main section h2 {
-      margin-top: 0; font-size: 1.8em; color: #333;
+      margin-top: 0;
+      font-size: 1.8em;
+      color: #333;
       text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
     }
     main section h3 {
-      margin: 15px 0 5px; font-size: 1.2em; color: #444;
+      margin: 15px 0 5px;
+      font-size: 1.2em;
+      color: #444;
     }
     main section p, main section ul {
-      color: #555; line-height: 1.6; margin: 5px 0;
+      color: #555;
+      line-height: 1.6;
+      margin: 5px 0;
     }
     main section ul { padding-left: 20px; }
     main section ul li { margin-bottom: 4px; }
@@ -190,6 +218,7 @@
 
     buttons.forEach(btn => {
       btn.addEventListener('click', e => {
+        // ripple effect
         const circle = document.createElement('span');
         circle.className = 'ripple';
         const r = btn.getBoundingClientRect();
@@ -199,6 +228,7 @@
         btn.appendChild(circle);
         setTimeout(() => circle.remove(), 600);
 
+        // switch active
         buttons.forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
@@ -209,7 +239,7 @@
       });
     });
 
-    // hide header/nav on scroll
+    // hide nav/header on scroll down
     let lastY = window.pageYOffset;
     window.addEventListener('scroll', () => {
       const y = window.pageYOffset;

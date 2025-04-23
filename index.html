@@ -5,11 +5,11 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* reset & full-screen */
+    /* ── RESET & FULLSCREEN ── */
     * { margin:0; padding:0; box-sizing:border-box }
-    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; overflow-x:hidden }
+    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; }
 
-    /* sfondo via <img> + overlay */
+    /* ── SFONDO VIA IMG + OVERLAY ── */
     .bg {
       position:fixed; top:0; left:0;
       width:100%; height:100%;
@@ -23,7 +23,7 @@
       z-index:-1;
     }
 
-    /* container centrale */
+    /* ── CONTAINER CENTRALE ── */
     .container {
       position:relative; z-index:1;
       width:100%; min-height:100%;
@@ -33,7 +33,7 @@
       padding:80px 20px 40px;
     }
 
-    /* titolo e tagline */
+    /* ── TITOLO & SOTTOTITOLO ── */
     h1 {
       font-size:2rem; font-weight:700;
       letter-spacing:.05em;
@@ -46,20 +46,18 @@
       margin-bottom:1.5em;
     }
 
-    /* nav orizzontale, no wrap, swipe se necessario */
+    /* ── NAV MONETE MOBILE (colonna) ── */
     .nav {
       display:flex;
-      flex-wrap:nowrap;
-      overflow-x:auto;
+      flex-direction:column;
+      align-items:center;
       gap:12px;
       width:100%;
-      padding:0 20px;
-      justify-content:center;
+      max-width:200px;
+      margin:0 auto;
+      overflow: visible;
     }
-    /* nascondi scrollbar WebKit */
-    .nav::-webkit-scrollbar { display:none }
-
-    /* monete 100×100 con pop-in */
+    /* ── MONETE 100×100 + POP-IN ── */
     .nav a {
       flex:0 0 auto;
       width:100px; height:100px;
@@ -96,15 +94,29 @@
       transform: translateY(0);
       box-shadow:0 2px 6px rgba(0,0,0,0.3) inset;
     }
+
+    /* ── MEDIA QUERY PER DESKTOP (>600px) ── */
+    @media (min-width: 600px) {
+      .container {
+        padding:100px 40px 60px;
+      }
+      .nav {
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        max-width: 800px;
+        gap: 20px;
+      }
+    }
   </style>
 </head>
 <body>
 
-  <!-- sfondo e overlay -->
-  <img src="home.PNG" class="bg" alt="">
+  <!-- SFONDO E OVERLAY -->
+  <img src="home.PNG" class="bg" alt="Sfondo Team Due Mori">
   <div class="overlay"></div>
 
-  <!-- contenuto centrale -->
+  <!-- CONTENUTO CENTRALE -->
   <div class="container">
     <h1>Team Due Mori</h1>
     <p>Sfoglia le schede del Dream-Team.</p>

@@ -27,10 +27,10 @@
       pointer-events:none;
     }
 
-    /* CONTENITORE (aggiungo un po' di altezza per scroll) */
+    /* CONTENITORE */
     .container {
       position:relative; z-index:1;
-      min-height:200vh; /* almeno doppio schermo per scroll */
+      min-height:200vh;
       display:flex; flex-direction:column;
       align-items:center; text-align:center;
       padding-top:60px; color:#fff;
@@ -49,9 +49,10 @@
       margin-bottom:2em;
     }
 
-    /* START BUTTON */
+    /* START BUTTON al centro */
     #startBtn {
-      position:absolute; top:50%; left:50%;
+      position:absolute;
+      top:50%; left:50%;
       transform: translate(-50%,-50%);
       width:220px; height:220px;
       border-radius:50%;
@@ -73,11 +74,11 @@
     #startBtn:hover { background: rgba(255,154,158,0.3); }
     #startBtn:active { transform: translate(-50%,-50%) scale(0.98); }
 
-    /* NAV MONETE */
+    /* NAV MONETE CENTRATO */
     .nav {
       position:absolute;
-      bottom:40px; left:50%;
-      transform: translateX(-50%);
+      top:50%; left:50%;
+      transform: translate(-50%,-50%);
       display:flex; flex-wrap:wrap;
       justify-content:center; gap:20px;
       width:100%; max-width:800px;
@@ -103,7 +104,7 @@
       }
     }
 
-    /* ANIMAZIONI MONETE */
+    /* MONETE ANIMAZIONI */
     @keyframes popIn {
       0%   { opacity:0; transform:scale(0); }
       60%  { opacity:1; transform:scale(1.2); }
@@ -132,8 +133,9 @@
     .nav.active a:nth-child(10){animation-delay:1.55s}
 
     .nav.active a:hover {
-      box-shadow: 0 0 8px rgba(255,255,255,0.8),
-                  0 0 16px rgba(255,255,255,0.6);
+      box-shadow:
+        0 0 8px rgba(255,255,255,0.8),
+        0 0 16px rgba(255,255,255,0.6);
       transform: translateY(-4px) scale(1.05);
     }
     .nav.active a:active {
@@ -166,20 +168,18 @@
   </div>
 
   <script>
-    // Parallax scroll-to-zoom
+    // ZOOM al scroll
     window.addEventListener('scroll', () => {
-      // più scroll, più zoom (max scale 1.2)
       const scroll = window.scrollY;
       const maxScroll = document.body.scrollHeight - window.innerHeight;
       const scale = 1 + (scroll / maxScroll) * 0.2;
       document.getElementById('bg').style.transform = `translate(-50%,-50%) scale(${scale})`;
     });
 
-    // START button logic
+    // START button
     document.getElementById('startBtn').addEventListener('click', function() {
       this.style.display = 'none';
       document.getElementById('teamNav').classList.add('active');
-      // scrolla leggermente per attivare subito lo zoom
       window.scrollTo({ top: 10, behavior: 'smooth' });
     });
   </script>

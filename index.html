@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ————————————————————————— BODY & OVERLAY ————————————————————————— */
+    /* —— Sfondo con fallback gradiente + immagine —— */
     body {
       margin: 0;
       font-family: Arial,Helvetica,sans-serif;
@@ -14,19 +14,22 @@
       flex-direction: column;
       align-items: center;
       justify-content: flex-start;
-      background: url("home.PNG") center/cover no-repeat fixed;
+      background:
+        linear-gradient(135deg, #4a4a4a, #7a7a7a),
+        url("home.PNG") center/cover no-repeat fixed;
       position: relative;
     }
+    /* —— Overlay più leggero —— */
     body::before {
       content: "";
       position: fixed;
       inset: 0;
-      background: rgba(0,0,0,0.4);
+      background: rgba(0,0,0,0.2);
       pointer-events: none;
       z-index: -1;
     }
 
-    /* ——————————————————————— TITLO & TYPEWRITER ——————————————————————— */
+    /* —— Titolo & Typewriter —— */
     h1 {
       margin: 40px 0 10px;
       font-size: 2.4em;
@@ -34,31 +37,24 @@
       text-transform: uppercase;
       color: #fff;
       text-shadow: 2px 2px 6px #0008;
-      overflow: hidden;
-      white-space: nowrap;
-      border-right: .15em solid #fff;
+      overflow: hidden; white-space: nowrap; border-right: .15em solid #fff;
       width: 0;
       animation:
         type 2s steps(20) 0.5s forwards,
         blink .5s step-end infinite alternate 2.5s;
     }
-    @keyframes type {
-      from { width: 0; }
-      to   { width: 100%; }
-    }
-    @keyframes blink {
-      50% { border-color: transparent; }
-    }
+    @keyframes type { from { width: 0; } to { width: 100%; } }
+    @keyframes blink { 50% { border-color: transparent; } }
     p {
       margin: 0 0 30px;
       color: #fff;
       text-shadow: 1px 1px 4px #0008;
     }
 
-    /* ————————————————————————— BUTTON GRID ————————————————————————— */
+    /* —— Pulsanti in griglia con glassmorphism e animazioni —— */
     .btn-set {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(140px,1fr));
       gap: 16px;
       width: 90%;
       max-width: 600px;
@@ -81,6 +77,7 @@
       opacity: 0;
       animation: popIn .6s ease forwards;
     }
+    /* delay incrementale */
     .btn-set a:nth-child(1) { animation-delay: 0.3s; }
     .btn-set a:nth-child(2) { animation-delay: 0.4s; }
     .btn-set a:nth-child(3) { animation-delay: 0.5s; }
@@ -104,14 +101,11 @@
       box-shadow: 0 2px 6px rgba(0,0,0,0.3) inset;
     }
 
-    /* ————————————————————— SCROLL-DOWN ARROW ————————————————————— */
+    /* —— Freccia scroll-down —— */
     .scroll-down {
-      position: absolute;
-      bottom: 20px;
-      left: 50%;
+      position: absolute; bottom: 20px; left: 50%;
       transform: translateX(-50%);
-      font-size: 2em;
-      color: #fff;
+      font-size: 2em; color: #fff;
       text-shadow: 1px 1px 4px #0008;
       animation: bounce 1.2s infinite;
       pointer-events: none;

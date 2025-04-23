@@ -5,92 +5,88 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ── Reset & Fullscreen ── */
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; font-family: Arial, Helvetica, sans-serif; }
+    /* reset & full-screen */
+    * { margin:0; padding:0; box-sizing:border-box }
+    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; overflow-x:hidden }
 
-    /* ── Sfondo via IMG + Overlay ── */
+    /* sfondo via <img> + overlay */
     .bg {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
-      object-fit: cover;
-      z-index: -2;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
+      object-fit:cover;
+      z-index:-2;
     }
     .overlay {
-      position: fixed; top: 0; left: 0;
-      width: 100%; height: 100%;
+      position:fixed; top:0; left:0;
+      width:100%; height:100%;
       background: rgba(0,0,0,0.5);
-      z-index: -1;
+      z-index:-1;
     }
 
-    /* ── Container centrale ── */
+    /* container centrale */
     .container {
-      position: relative; z-index: 1;
-      width: 100%; min-height: 100%;
-      display: flex; flex-direction: column;
-      align-items: center; justify-content: flex-start;
-      text-align: center; color: #fff;
-      padding: 80px 20px 40px;
+      position:relative; z-index:1;
+      width:100%; min-height:100%;
+      display:flex; flex-direction:column;
+      align-items:center; justify-content:flex-start;
+      text-align:center; color:#fff;
+      padding:80px 20px 40px;
     }
 
-    /* ── Titolo & sottotitolo ── */
+    /* titolo e tagline */
     h1 {
-      font-size: 2rem;
-      font-weight: 700;
-      letter-spacing: .05em;
-      text-shadow: 0 1px 4px rgba(0,0,0,0.7);
-      margin-bottom: .5em;
+      font-size:2rem; font-weight:700;
+      letter-spacing:.05em;
+      text-shadow:0 1px 4px rgba(0,0,0,0.7);
+      margin-bottom:.5em;
     }
     p {
-      font-size: 1rem;
-      text-shadow: 0 1px 3px rgba(0,0,0,0.7);
-      margin-bottom: 1.5em;
+      font-size:1rem;
+      text-shadow:0 1px 3px rgba(0,0,0,0.7);
+      margin-bottom:1.5em;
     }
 
-    /* ── Pulsanti “moneta” orizzontali ── */
+    /* nav orizzontale, no wrap, swipe se necessario */
     .nav {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 16px;
-      width: 100%;
-      max-width: 800px;
-      margin: 0 auto;
+      display:flex;
+      flex-wrap:nowrap;
+      overflow-x:auto;
+      gap:12px;
+      width:100%;
+      padding:0 20px;
+      justify-content:center;
     }
+    /* nascondi scrollbar WebKit */
+    .nav::-webkit-scrollbar { display:none }
+
+    /* monete 100×100 con pop-in */
     .nav a {
-      width: 140px;
-      height: 140px;
-      padding: 0;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.9rem;
-      font-weight: 600;
+      flex:0 0 auto;
+      width:100px; height:100px;
+      border-radius:50%;
+      display:flex; align-items:center; justify-content:center;
+      font-size:0.9rem; font-weight:600;
       background: rgba(255,154,158,0.9);
-      color: #fff;
-      text-decoration: none;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.4);
-      transition: background .3s, transform .2s;
-      opacity: 0;
-      transform: scale(0);
-      animation: popIn 0.5s ease forwards;
-      text-align: center;
+      color:#fff; text-decoration:none;
+      box-shadow:0 4px 12px rgba(0,0,0,0.4);
+      transition:background .3s, transform .2s;
+      opacity:0; transform:scale(0);
+      animation:popIn .5s ease forwards;
+      text-align:center;
     }
-    /* delay progressivo */
-    .nav a:nth-child(1) { animation-delay: 0.2s; }
-    .nav a:nth-child(2) { animation-delay: 0.3s; }
-    .nav a:nth-child(3) { animation-delay: 0.4s; }
-    .nav a:nth-child(4) { animation-delay: 0.5s; }
-    .nav a:nth-child(5) { animation-delay: 0.6s; }
-    .nav a:nth-child(6) { animation-delay: 0.7s; }
-    .nav a:nth-child(7) { animation-delay: 0.8s; }
-    .nav a:nth-child(8) { animation-delay: 0.9s; }
+    .nav a:nth-child(1){animation-delay:.2s}
+    .nav a:nth-child(2){animation-delay:.3s}
+    .nav a:nth-child(3){animation-delay:.4s}
+    .nav a:nth-child(4){animation-delay:.5s}
+    .nav a:nth-child(5){animation-delay:.6s}
+    .nav a:nth-child(6){animation-delay:.7s}
+    .nav a:nth-child(7){animation-delay:.8s}
+    .nav a:nth-child(8){animation-delay:.9s}
 
     @keyframes popIn {
-      0%   { opacity: 0; transform: scale(0); }
-      60%  { opacity: 1; transform: scale(1.2); }
-      100% { opacity: 1; transform: scale(1); }
+      0%   { opacity:0; transform:scale(0) }
+      60%  { opacity:1; transform:scale(1.2) }
+      100% { opacity:1; transform:scale(1) }
     }
     .nav a:hover {
       background: rgba(255,154,158,1);
@@ -98,17 +94,17 @@
     }
     .nav a:active {
       transform: translateY(0);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.3) inset;
+      box-shadow:0 2px 6px rgba(0,0,0,0.3) inset;
     }
   </style>
 </head>
 <body>
 
-  <!-- Sfondo e overlay -->
-  <img src="home.PNG" class="bg" alt="Sfondo Team Due Mori">
+  <!-- sfondo e overlay -->
+  <img src="home.PNG" class="bg" alt="">
   <div class="overlay"></div>
 
-  <!-- Contenuto centrale -->
+  <!-- contenuto centrale -->
   <div class="container">
     <h1>Team Due Mori</h1>
     <p>Sfoglia le schede del Dream-Team.</p>

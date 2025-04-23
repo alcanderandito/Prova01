@@ -7,7 +7,7 @@
   <style>
     /* RESET & FULLSCREEN */
     * { margin:0; padding:0; box-sizing:border-box; }
-    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; }
+    html, body { width:100%; height:100%; font-family:Arial,Helvetica,sans-serif; overflow:hidden; }
 
     /* SFONDO + OVERLAY */
     .bg {
@@ -20,21 +20,19 @@
       background: rgba(0,0,0,0.5); z-index:-1;
     }
 
-    /* CONTENITORE CENTRALE */
+    /* CONTENITORE */
     .container {
       position:relative; z-index:1;
-      display:flex; flex-direction:column;
-      align-items:center; text-align:center;
-      padding:80px 20px 40px; color:#fff;
+      width:100%; height:100%;
+      text-align:center; color:#fff;
     }
 
     /* TITOLO & DESCRIZIONE */
     h1 {
-      font-size:2.5rem; /* aumentato da 2rem */
-      font-weight:700;
+      font-size:2.5rem; font-weight:700;
       letter-spacing:.05em;
       text-shadow:0 1px 4px rgba(0,0,0,0.7);
-      margin-bottom:0.3em;
+      margin-top:20px;
     }
     .subtitle {
       font-size:1rem;
@@ -42,37 +40,40 @@
       margin-bottom:2em;
     }
 
-    /* START BUTTON (gigante & meno trasparente) */
+    /* START BUTTON centrato e vetro estremo */
     #startBtn {
-      width:200px;
-      height:200px;
-      border-radius:100px;
-      background: rgba(255,154,158,0.5); /* da 0.3 a 0.5 */
-      border:none;
+      position:absolute;
+      top:50%; left:50%;
+      transform: translate(-50%, -50%);
+      width:220px; height:220px;
+      border-radius:50%;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(30px);
+      border: 2px solid rgba(255,255,255,0.3);
       color:#fff;
-      font-size:1.5rem;
-      font-weight:700;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      box-shadow:0 4px 12px rgba(0,0,0,0.3);
+      font-size:1.6rem; font-weight:700;
+      display:flex; align-items:center; justify-content:center;
+      box-shadow:0 4px 16px rgba(0,0,0,0.3);
       cursor:pointer;
-      transition: transform .2s, background .3s;
+      transition: background .3s, transform .2s;
+      z-index:2;
     }
     #startBtn:hover {
-      background: rgba(255,154,158,0.7); /* hover più opaco */
-      transform: translateY(-5px);
+      background: rgba(255,255,255,0.2);
+      transform: translate(-50%, -50%) translateY(-5px);
     }
     #startBtn:active {
-      transform: translateY(0) scale(0.98);
+      transform: translate(-50%, -50%) scale(0.98);
     }
 
-    /* NAV MONETE (nascosto inizialmente) */
+    /* NAV nascosto inizialmente */
     .nav {
+      position:absolute;
+      bottom:40px; left:50%;
+      transform: translateX(-50%);
       display:flex; flex-wrap:wrap;
       justify-content:center; gap:20px;
       width:100%; max-width:800px;
-      margin-top:40px;
       pointer-events:none;
     }
     .nav a {
@@ -82,20 +83,14 @@
       display:flex; align-items:center; justify-content:center;
       font-size:0.9rem; font-weight:600;
       color:#fff; text-decoration:none;
-      background: rgba(255,255,255,0.5);
-      backdrop-filter: blur(2px);
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(20px);
       border:1px solid rgba(255,255,255,0.3);
       box-shadow:0 4px 12px rgba(0,0,0,0.2);
       opacity:0; transform:scale(0);
     }
-    @media (min-width: 600px) {
-      .nav a {
-        background: rgba(255,255,255,0.1);
-        backdrop-filter: blur(20px);
-      }
-    }
 
-    /* ANIMAZIONI */
+    /* POP-IN & RESPIRO */
     @keyframes popIn {
       0%   { opacity:0; transform:scale(0); }
       60%  { opacity:1; transform:scale(1.2); }
@@ -111,7 +106,8 @@
       pointer-events:auto;
     }
     .nav.active a {
-      animation: popIn 0.5s ease forwards, breath 3s ease-in-out infinite 0.6s;
+      animation: popIn 0.5s ease forwards,
+                 breath 3s ease-in-out infinite 0.6s;
       transition: box-shadow .2s, transform .2s;
     }
     .nav.active a:nth-child(1){animation-delay:0.2s}
@@ -125,7 +121,7 @@
     .nav.active a:nth-child(9){animation-delay:1.4s}
     .nav.active a:nth-child(10){animation-delay:1.55s}
 
-    /* NEON GLOW SU HOVER */
+    /* NEON GLOW al passaggio */
     .nav.active a:hover {
       box-shadow:
         0 0 8px rgba(255,255,255,0.8),
@@ -140,11 +136,9 @@
 </head>
 <body>
 
-  <!-- SFONDO & OVERLAY -->
   <img src="home.PNG" class="bg" alt="Sfondo Team Due Mori">
   <div class="overlay"></div>
 
-  <!-- CONTENUTO -->
   <div class="container">
     <h1>Team Due Mori</h1>
     <div class="subtitle">Sfoglia le schede del Dream-Team.</div>

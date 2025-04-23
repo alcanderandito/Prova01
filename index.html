@@ -30,7 +30,7 @@
     /* CONTENITORE */
     .container {
       position:relative; z-index:1;
-      min-height:200vh;
+      min-height:200vh;   /* permette lo scroll */
       display:flex; flex-direction:column;
       align-items:center; text-align:center;
       padding-top:60px; color:#fff;
@@ -46,13 +46,13 @@
     .subtitle {
       font-size:1rem;
       text-shadow:0 1px 3px rgba(0,0,0,0.7);
-      margin-bottom:2em;
+      margin-bottom:1.5em;
     }
 
-    /* START BUTTON al centro */
+    /* START BUTTON – posizionato al 30% dall’alto */
     #startBtn {
       position:absolute;
-      top:50%; left:50%;
+      top:30%; left:50%;
       transform: translate(-50%,-50%);
       width:220px; height:220px;
       border-radius:50%;
@@ -74,10 +74,10 @@
     #startBtn:hover { background: rgba(255,154,158,0.3); }
     #startBtn:active { transform: translate(-50%,-50%) scale(0.98); }
 
-    /* NAV MONETE CENTRATO */
+    /* NAV MONETE – posizionato al 45% dall’alto */
     .nav {
       position:absolute;
-      top:50%; left:50%;
+      top:45%; left:50%;
       transform: translate(-50%,-50%);
       display:flex; flex-wrap:wrap;
       justify-content:center; gap:20px;
@@ -104,7 +104,7 @@
       }
     }
 
-    /* MONETE ANIMAZIONI */
+    /* ANIMAZIONI MONETE */
     @keyframes popIn {
       0%   { opacity:0; transform:scale(0); }
       60%  { opacity:1; transform:scale(1.2); }
@@ -114,9 +114,7 @@
       0%,100% { transform: scale(1); }
       50%     { transform: scale(1.05); }
     }
-    .nav.active {
-      pointer-events:auto;
-    }
+    .nav.active { pointer-events:auto; }
     .nav.active a {
       animation: popIn 0.5s ease forwards, breath 3s ease-in-out infinite 0.6s;
       transition: box-shadow .2s, transform .2s;
@@ -168,7 +166,7 @@
   </div>
 
   <script>
-    // ZOOM al scroll
+    // Zoom dinamico sullo scroll
     window.addEventListener('scroll', () => {
       const scroll = window.scrollY;
       const maxScroll = document.body.scrollHeight - window.innerHeight;
@@ -176,7 +174,7 @@
       document.getElementById('bg').style.transform = `translate(-50%,-50%) scale(${scale})`;
     });
 
-    // START button
+    // START button logic
     document.getElementById('startBtn').addEventListener('click', function() {
       this.style.display = 'none';
       document.getElementById('teamNav').classList.add('active');

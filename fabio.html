@@ -1,28 +1,84 @@
-<!DOCTYPE html><html lang="it"><head>
-<meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
 <title>Don Fabio</title>
+
 <style>
-/* CSS condiviso */
+/* ===== CSS condiviso ===== */
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;padding:30px}
-.card{max-width:800px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 4px 12px #0003;padding:24px}
+.card{max-width:800px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 4px 12px #0003;padding:24px;position:relative;overflow:hidden}
+
+/* Titoli & testo */
 h2{margin-top:0;font-size:2em;color:#333;text-align:center}
 h3{margin:18px 0 6px;font-size:1.2em;color:#444}
 p{margin:4px 0;color:#555;line-height:1.6}
-img{width:100%;border-radius:10px;margin-bottom:14px}
-.back{display:block;width:max-content;margin:40px auto 0;padding:14px 32px;border-radius:999px;background:#9ecbff;color:#fff;font-weight:bold;text-decoration:none;box-shadow:0 3px 8px #0003;transition:.2s background,.2s transform}
+
+/* ===== Carousel ===== */
+.carousel-img{width:100%;border-radius:10px;margin-bottom:14px;display:none}
+.carousel-img.active{display:block}
+
+/* Frecce */
+.arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:2.2rem;font-weight:bold;
+       background:#fff8;border-radius:50%;width:44px;height:44px;line-height:44px;text-align:center;
+       cursor:pointer;user-select:none;transition:background .2s}
+.arrow:hover{background:#fff}
+.arrow.left{left:10px}
+.arrow.right{right:10px}
+
+/* Bottone back */
+.back{display:block;width:max-content;margin:40px auto 0;padding:14px 32px;border-radius:999px;
+      background:#9ecbff;color:#fff;font-weight:bold;text-decoration:none;box-shadow:0 3px 8px #0003;
+      transition:.2s background,.2s transform}
 .back:hover{background:#b7dcff;transform:scale(1.05)}
-</style></head><body>
+</style>
+</head>
+
+<body>
 <div class="card">
- <h2>Don Fabio</h2>
- <img src="fabio.PNG" alt="Don Fabio">
- <h3>Descrizione</h3><p>Fondatore del Due Mori e proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma sa essere dolce come una pera matura.</p>
- <h3>Altezza</h3><p>Circa 3 m</p>
- <h3>Mansione</h3><p>Controllo generale, cameriere, figura protettiva</p>
- <h3>Velocità</h3><p>Rapido e forte come un cinghiale</p>
- <h3>Piatto preferito</h3><p>Pane e marmellata – colazione mistica certificata UNESCO</p>
- <h3>Fetish</h3><p>Far dimagrire tutti</p>
- <h3>Debolezza</h3><p>Disordine e pigrizia</p>
- <h3>Pazienza</h3><p>Bassa</p>
- <h3>Paese preferito</h3><p>Italia</p>
- <a class="back" href="index.html">⟵ Torna alla Home</a>
-</div></body></html>
+  <h2>Don Fabio</h2>
+
+  <!-- Frecce -->
+  <span class="arrow left"  id="prev">&#9664;</span>
+  <span class="arrow right" id="next">&#9654;</span>
+
+  <!-- Immagini -->
+  <img src="fabio.PNG"   class="carousel-img active" alt="Don Fabio">
+  <img src="fabio1.PNG"  class="carousel-img"        alt="Don Fabio 1">
+  <img src="fabio2.PNG"  class="carousel-img"        alt="Don Fabio 2">
+  <img src="fabio3.PNG"  class="carousel-img"        alt="Don Fabio 3">
+  <img src="fabio4.PNG"  class="carousel-img"        alt="Don Fabio 4">
+  <img src="fabio5.PNG"  class="carousel-img"        alt="Don Fabio 5">
+  <img src="fabio6.PNG"  class="carousel-img"        alt="Don Fabio 6">
+
+  <!-- Descrizione -->
+  <h3>Descrizione</h3><p>Fondatore del Due Mori e proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma sa essere dolce come una pera matura.</p>
+  <h3>Altezza</h3><p>Circa 3 m</p>
+  <h3>Mansione</h3><p>Controllo generale, cameriere, figura protettiva</p>
+  <h3>Velocità</h3><p>Rapido e forte come un cinghiale</p>
+  <h3>Piatto preferito</h3><p>Pane e marmellata – colazione mistica certificata UNESCO</p>
+  <h3>Fetish</h3><p>Far dimagrire tutti</p>
+  <h3>Debolezza</h3><p>Disordine e pigrizia</p>
+  <h3>Pazienza</h3><p>Bassa</p>
+  <h3>Paese preferito</h3><p>Italia</p>
+
+  <a class="back" href="index.html">⟵ Torna alla Home</a>
+</div>
+
+<script>
+/* ===== Carousel JS minimalista ===== */
+const imgs = document.querySelectorAll('.carousel-img');
+let idx = 0;
+
+document.getElementById('prev').onclick = () => change(-1);
+document.getElementById('next').onclick = () => change(1);
+
+function change(step){
+  imgs[idx].classList.remove('active');
+  idx = (idx + step + imgs.length) % imgs.length;
+  imgs[idx].classList.add('active');
+}
+</script>
+</body>
+</html>

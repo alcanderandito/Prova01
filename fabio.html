@@ -8,7 +8,7 @@
 <style>
 /* ===== CSS condiviso ===== */
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;padding:30px}
-.card{max-width:800px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 4px 12px #0003;padding:24px;position:relative;overflow:hidden}
+.card{max-width:800px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 4px 12px #0003;padding:24px;overflow:hidden}
 
 /* Titoli & testo */
 h2{margin-top:0;font-size:2em;color:#333;text-align:center}
@@ -19,13 +19,22 @@ p{margin:4px 0;color:#555;line-height:1.6}
 .carousel-img{width:100%;border-radius:10px;margin-bottom:14px;display:none}
 .carousel-img.active{display:block}
 
+/* Contenitore frecce sotto l’immagine */
+.controls{
+  display:flex;
+  justify-content:center;
+  gap:2rem;
+  margin-bottom:20px;
+}
+
 /* Frecce */
-.arrow{position:absolute;top:50%;transform:translateY(-50%);font-size:2.2rem;font-weight:bold;
-       background:#fff8;border-radius:50%;width:44px;height:44px;line-height:44px;text-align:center;
-       cursor:pointer;user-select:none;transition:background .2s}
+.arrow{
+  font-size:2.2rem;font-weight:bold;
+  background:#fff8;border:2px solid #ccc;border-radius:50%;
+  width:48px;height:48px;line-height:44px;text-align:center;
+  cursor:pointer;user-select:none;transition:.2s background
+}
 .arrow:hover{background:#fff}
-.arrow.left{left:10px}
-.arrow.right{right:10px}
 
 /* Bottone back */
 .back{display:block;width:max-content;margin:40px auto 0;padding:14px 32px;border-radius:999px;
@@ -39,10 +48,6 @@ p{margin:4px 0;color:#555;line-height:1.6}
 <div class="card">
   <h2>Don Fabio</h2>
 
-  <!-- Frecce -->
-  <span class="arrow left"  id="prev">&#9664;</span>
-  <span class="arrow right" id="next">&#9654;</span>
-
   <!-- Immagini -->
   <img src="fabio.PNG"   class="carousel-img active" alt="Don Fabio">
   <img src="fabio1.PNG"  class="carousel-img"        alt="Don Fabio 1">
@@ -51,6 +56,12 @@ p{margin:4px 0;color:#555;line-height:1.6}
   <img src="fabio4.PNG"  class="carousel-img"        alt="Don Fabio 4">
   <img src="fabio5.PNG"  class="carousel-img"        alt="Don Fabio 5">
   <img src="fabio6.PNG"  class="carousel-img"        alt="Don Fabio 6">
+
+  <!-- Frecce SOTTO l’immagine -->
+  <div class="controls">
+    <span class="arrow" id="prev">&#9664;</span>
+    <span class="arrow" id="next">&#9654;</span>
+  </div>
 
   <!-- Descrizione -->
   <h3>Descrizione</h3><p>Fondatore del Due Mori e proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma sa essere dolce come una pera matura.</p>

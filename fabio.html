@@ -6,7 +6,7 @@
 <title>Don Fabio</title>
 
 <style>
-/* ===== CSS condiviso ===== */
+/* ===== Layout generale ===== */
 body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;padding:30px}
 .card{max-width:800px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 4px 12px #0003;padding:24px;overflow:hidden}
 
@@ -19,27 +19,35 @@ p{margin:4px 0;color:#555;line-height:1.6}
 .carousel-img{width:100%;border-radius:10px;margin-bottom:14px;display:none}
 .carousel-img.active{display:block}
 
-/* Contenitore frecce sotto l’immagine */
-.controls{
-  display:flex;
-  justify-content:center;
-  gap:2rem;
-  margin-bottom:20px;
-}
+/* ===== iPhone-style arrows ===== */
+.controls{display:flex;justify-content:center;gap:2rem;margin-bottom:20px}
 
-/* Frecce */
-.arrow{
-  font-size:2.2rem;font-weight:bold;
-  background:#fff8;border:2px solid #ccc;border-radius:50%;
-  width:48px;height:48px;line-height:44px;text-align:center;
-  cursor:pointer;user-select:none;transition:.2s background
+.nav{
+  width:44px;height:44px;
+  background:#f2f2f7;                 /* iOS light grey */
+  border:none;border-radius:50%;
+  box-shadow:0 2px 6px #0001;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:background .15s,box-shadow .15s;
 }
-.arrow:hover{background:#fff}
+.nav:hover  {background:#e5e5ec;box-shadow:0 4px 8px #0002;}
+.nav:active {background:#d9d9e0;box-shadow:0 1px 3px #0003;}
+.nav::before{
+  content:'';width:12px;height:12px;
+  border:solid #2c2c2e;               /* iOS dark grey */
+  border-width:0 2.5px 2.5px 0;
+  display:inline-block;
+}
+#prev::before{transform:rotate(135deg);}   /* ‹  */
+#next::before{transform:rotate(-45deg);}   /* ›  */
 
-/* Bottone back */
-.back{display:block;width:max-content;margin:40px auto 0;padding:14px 32px;border-radius:999px;
-      background:#9ecbff;color:#fff;font-weight:bold;text-decoration:none;box-shadow:0 3px 8px #0003;
-      transition:.2s background,.2s transform}
+/* ===== Bottone “Back” ===== */
+.back{
+  display:block;width:max-content;margin:40px auto 0;padding:14px 32px;border-radius:999px;
+  background:#9ecbff;color:#fff;font-weight:bold;text-decoration:none;box-shadow:0 3px 8px #0003;
+  transition:.2s background,.2s transform
+}
 .back:hover{background:#b7dcff;transform:scale(1.05)}
 </style>
 </head>
@@ -49,18 +57,18 @@ p{margin:4px 0;color:#555;line-height:1.6}
   <h2>Don Fabio</h2>
 
   <!-- Immagini -->
-  <img src="fabio.PNG"   class="carousel-img active" alt="Don Fabio">
-  <img src="fabio1.PNG"  class="carousel-img"        alt="Don Fabio 1">
-  <img src="fabio2.PNG"  class="carousel-img"        alt="Don Fabio 2">
-  <img src="fabio3.PNG"  class="carousel-img"        alt="Don Fabio 3">
-  <img src="fabio4.PNG"  class="carousel-img"        alt="Don Fabio 4">
-  <img src="fabio5.PNG"  class="carousel-img"        alt="Don Fabio 5">
-  <img src="fabio6.PNG"  class="carousel-img"        alt="Don Fabio 6">
+  <img src="fabio.PNG"  class="carousel-img active" alt="Don Fabio">
+  <img src="fabio1.PNG" class="carousel-img" alt="Don Fabio 1">
+  <img src="fabio2.PNG" class="carousel-img" alt="Don Fabio 2">
+  <img src="fabio3.PNG" class="carousel-img" alt="Don Fabio 3">
+  <img src="fabio4.PNG" class="carousel-img" alt="Don Fabio 4">
+  <img src="fabio5.PNG" class="carousel-img" alt="Don Fabio 5">
+  <img src="fabio6.PNG" class="carousel-img" alt="Don Fabio 6">
 
-  <!-- Frecce SOTTO l’immagine -->
+  <!-- Frecce sotto l’immagine -->
   <div class="controls">
-    <span class="arrow" id="prev">&#9664;</span>
-    <span class="arrow" id="next">&#9654;</span>
+    <button class="nav" id="prev" aria-label="Foto precedente"></button>
+    <button class="nav" id="next" aria-label="Foto successiva"></button>
   </div>
 
   <!-- Descrizione -->
@@ -78,16 +86,14 @@ p{margin:4px 0;color:#555;line-height:1.6}
 </div>
 
 <script>
-/* ===== Carousel JS minimalista ===== */
-const imgs = document.querySelectorAll('.carousel-img');
-let idx = 0;
-
-document.getElementById('prev').onclick = () => change(-1);
-document.getElementById('next').onclick = () => change(1);
-
+/* ===== Mini-JS per il carousel ===== */
+const imgs=document.querySelectorAll('.carousel-img');
+let idx=0;
+document.getElementById('prev').onclick=()=>change(-1);
+document.getElementById('next').onclick=()=>change(1);
 function change(step){
   imgs[idx].classList.remove('active');
-  idx = (idx + step + imgs.length) % imgs.length;
+  idx=(idx+step+imgs.length)%imgs.length;
   imgs[idx].classList.add('active');
 }
 </script>

@@ -1,10 +1,25 @@
-// api/chat.js
-export default async function handler(req, res) {
-  if (req.method !== "POST") return res.status(405).json({ reply: "Solo POST!" });
+/**
+ *  api/chat.js
+ *  ───────────
+ *  Funzione serverless per Vercel che trasforma il messaggio dell’utente
+ *  in una richiesta a OpenAI e restituisce la risposta di Alfred Bot.
+ */
 
+export default async function handler(req, res) {
+  // 1. Consenti solo POST
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ reply: "Solo POST, grazie." });
+  }
+
+  // 2. Leggi il corpo già parsato da Vercel (content-type: application/json)
   const { message = "" } = req.body || {};
+  if (!message.trim()) {
+    return res.status(400).json({ reply: "Messaggio mancante." });
+  }
 
   try {
+    // 3. Chiamata a OpenAI
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -12,18 +27,34 @@ export default async function handler(req, res) {
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o-turbo",
+        model: "gpt-4o-mini",           // ⇦ modello realmente disponibile
         messages: [
-          { role: "system", content: "Sei Alfred Bot: sarcastico, divertente, in italiano." },
-          { role: "user", content: message }
+          {
+            role: "system",
+            content:
+              "Ti chiami Alfred Bot. Sei sarcastico, divertente, un po’ volgare ma non offensivo, parli solo in italiano.",
+          },
+          { role: "user", content: message },
         ],
-        temperature: 0.8,
+        temperature: 0.85,
       }),
     });
 
+    if (!openaiRes.ok) {
+      const errText = await openaiRes.text();
+      console.error("OpenAI response error:", errText);
+      return res
+        .status(500)
+        .json({ reply: "Errore OpenAI, riprova fra un attimo." });
+    }
+
     const data = await openaiRes.json();
-    return res.status(200).json({ reply: data.choices[0].message.content });
-  } catch (e) {
-    return res.status(500).json({ reply: "Errore interno, riprova più tardi." });
+    const reply = data.choices?.[0]?.message?.content ?? "🤔 (nessuna risposta)";
+    return res.status(200).json({ reply });
+  } catch (err) {
+    console.error("Server error:", err);
+    return res
+      .status(500)
+      .json({ reply: "Errore interno del server, riprova più tardi." });
   }
 }

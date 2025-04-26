@@ -1,121 +1,185 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<title>Team Due Mori</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<!-- ⟩⟩  STILI GENERALI DELLA HOME  ⟨⟨ -->
-<style>
-  /* sfondo + titolo */
-  body{margin:0;font-family:sans-serif;background:#fff url(bg.jpg) center/cover fixed;}
-  h1{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);
-      margin:0;font-size:clamp(2.5rem,8vw,5rem);color:#fff;
-      text-shadow:0 0 15px #000,0 0 30px #000}
-  /* monete che cadono (keyframes semplificati) */
-  .coin{position:fixed;width:48px;height:48px;pointer-events:none;
-        background:url(coin.png) center/contain no-repeat;
-        animation:fall 8s linear infinite}
-  @keyframes fall{
-    0%{transform:translateY(-10vh) rotate(0deg)}
-    100%{transform:translateY(110vh) rotate(720deg)}
-  }
-  /* genera 12 monete */
-</style>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Team Due Mori</title>
+
+  <!-- —————————  STILI ESISTENTI  —————————-->
+  <style>
+    /* RESET & BASE */
+    *{margin:0;padding:0;box-sizing:border-box;}
+    html,body{width:100%;height:100%;overflow-y:scroll;font-family:Arial,Helvetica,sans-serif;}
+
+    /* BACKGROUND ZOOM AL PRIMO SCROLL */
+    .bg{
+      position:fixed;top:50%;left:50%;
+      width:120%;height:120%;
+      object-fit:cover;
+      transform:translate(-50%,-50%) scale(1);
+      transform-origin:center center;
+      z-index:-2;
+    }
+    .overlay{
+      position:fixed;inset:0;
+      background:rgba(0,0,0,.5);
+      z-index:-1;pointer-events:none;
+    }
+
+    /* HEADER pieno schermo */
+    header{
+      height:100vh;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;text-align:center;
+      color:#fff;padding:0 20px;
+    }
+    h1{
+      font-size:2.5rem;font-weight:700;letter-spacing:.05em;
+      text-shadow:0 1px 4px rgba(0,0,0,.7);margin-bottom:.3em;
+    }
+    .subtitle{font-size:1rem;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-bottom:1em;}
+
+    /* freccia */
+    #scrollIndicator{font-size:2rem;color:#fff;cursor:pointer;animation:pulse 1.5s ease-in-out infinite;}
+    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
+
+    /* MAIN scroll */
+    main{position:relative;z-index:1;min-height:200vh;padding:40px 20px 80px;}
+
+    /* NAV GRID */
+    .nav{display:grid;gap:20px;justify-items:center;grid-template-columns:repeat(2,1fr);margin:0 auto;max-width:800px;}
+    @media(min-width:600px){.nav{grid-template-columns:repeat(5,1fr);}}
+
+    /* MONETE */
+    .nav a{
+      width:100px;height:100px;border-radius:50%;
+      display:flex;align-items:center;justify-content:center;
+      font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;
+      background:rgba(255,255,255,.5);backdrop-filter:blur(4px);
+      border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);
+      opacity:0;transform:scale(0);
+      animation:popIn .5s ease forwards,breath 3s ease-in-out infinite .6s;
+    }
+    /* ritardi animazione */
+    .nav a:nth-child(1){animation-delay:.2s}.nav a:nth-child(2){animation-delay:.35s}
+    .nav a:nth-child(3){animation-delay:.5s}.nav a:nth-child(4){animation-delay:.65s}
+    .nav a:nth-child(5){animation-delay:.8s}.nav a:nth-child(6){animation-delay:.95s}
+    .nav a:nth-child(7){animation-delay:1.1s}.nav a:nth-child(8){animation-delay:1.25s}
+    .nav a:nth-child(9){animation-delay:1.4s}.nav a:nth-child(10){animation-delay:1.55s}
+
+    @keyframes popIn{0%{opacity:0;transform:scale(0);}60%{opacity:1;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
+    @keyframes breath{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+    .nav a:hover{box-shadow:0 0 8px rgba(255,255,255,.8),0 0 16px rgba(255,255,255,.6);transform:translateY(-4px) scale(1.05);}
+    .nav a:active{transform:translateY(0) scale(1.02);box-shadow:inset 0 2px 6px rgba(0,0,0,.3);}
+
+    /* —————————  NUOVI STILI CHAT  —————————*/
+    #chatToggle{
+      position:fixed;top:1rem;right:1rem;
+      width:60px;height:60px;border:none;border-radius:50%;
+      background:#0094ff url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/55% no-repeat;
+      cursor:pointer;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.25);
+      transition:transform .15s;
+    }
+    #chatToggle:hover{transform:scale(1.08);}
+    #chatContainer{
+      position:fixed;bottom:1.5rem;right:1.5rem;
+      width:320px;max-width:90vw;height:420px;
+      display:none;z-index:1100;
+    }
+    /* finestra chat (identica a prima) */
+    .chatBox{width:100%;height:100%;display:flex;flex-direction:column;border:2px solid #00345f;border-radius:6px;box-shadow:0 4px 12px rgba(0,0,0,.25);background:#fff;font-size:14px;}
+    .chatBar{background:#00345f;color:#fff;padding:8px 12px;font-weight:700;display:flex;justify-content:space-between;align-items:center;}
+    .chatBody{flex:1;overflow-y:auto;padding:6px 10px;}
+    .chatBody .msg{margin:4px 0;display:flex;}
+    .chatBody .bot  .bubble{background:#f1f1f1;color:#000;align-self:flex-start}
+    .chatBody .user .bubble{background:#0094ff;color:#fff;align-self:flex-end}
+    .bubble{padding:6px 10px;border-radius:12px;max-width:75%;word-wrap:break-word;}
+    .chatInput{display:flex;border-top:1px solid #ccc;}
+    .chatInput input{flex:1;padding:10px;border:none;font-size:14px;}
+    .chatInput button{width:52px;border:none;background:#0094ff;color:#fff;font-size:18px;cursor:pointer;}
+  </style>
 </head>
 <body>
-  <h1>Team Due Mori</h1>
-  <script>
-    for(let i=0;i<12;i++){
-      const c=document.createElement("div");
-      c.className="coin"; c.style.left=Math.random()*100+"vw";
-      c.style.animationDelay=(Math.random()*-8)+"s";
-      document.body.appendChild(c);
-    }
-  </script>
 
-  <!-- ========== CHAT ========== -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  <style>
-    :root{--blue:#0d94ff;--dark:#08365c}
-    /* icona flottante */
-    #chat-toggle{position:fixed;top:1rem;right:1rem;width:54px;height:54px;
-      background:var(--blue);border-radius:50%;display:flex;justify-content:center;
-      align-items:center;font-size:26px;color:#fff;cursor:pointer;z-index:999}
-    /* finestra */
-    #chatbox{position:fixed;top:65px;right:15px;width:320px;height:420px;
-      background:#fff;border:1px solid var(--dark);border-radius:8px;
-      box-shadow:0 4px 12px rgba(0,0,0,.25);display:none;flex-direction:column;z-index:998}
-    #chatbox header{background:var(--dark);color:#fff;
-      padding:.45rem .6rem;font-weight:700;cursor:move;
-      display:flex;justify-content:space-between;align-items:center;border-radius:8px 8px 0 0}
-    #chatbox header button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer}
-    #chat-body{flex:1;overflow-y:auto;padding:.6rem;font-size:.9rem}
-    .msg{margin:.25rem 0;max-width:78%}
-    .user .bubble{background:var(--blue);color:#fff;border-radius:16px 16px 4px 16px}
-    .bot  .bubble{background:#f2f3f5;color:#000;border-radius:16px 16px 16px 4px}
-    .bubble{padding:.45rem .7rem;display:inline-block;line-height:1.25}
-    #chat-form{display:flex;border-top:1px solid #ccd0d3}
-    #chat-input{flex:1;border:none;padding:.55rem;font-size:.9rem}
-    #chat-input:focus{outline:none}
-    #chat-send{background:var(--blue);border:none;color:#fff;padding:.55rem .9rem;cursor:pointer}
-  </style>
+  <!-- immagine e overlay esistenti -->
+  <img src="home.PNG" class="bg" id="bg" alt="">
+  <div class="overlay"></div>
 
-  <div id="chat-toggle"><i class="fa-solid fa-comments"></i></div>
-
-  <div id="chatbox">
-    <header>
-      Alfred Bot 🤖
-      <button id="chat-close">&times;</button>
-    </header>
-    <div id="chat-body"></div>
-    <form id="chat-form" autocomplete="off">
-      <input id="chat-input" placeholder="Scrivi qui…">
-      <button id="chat-send">➜</button>
-    </form>
+  <!-- —————————  BOTTONE & CONTENITORE CHAT  —————————-->
+  <button id="chatToggle" aria-label="Apri chat"></button>
+  <div id="chatContainer">
+    <div class="chatBox" id="chatBox">
+      <div class="chatBar">Alfred Bot 🤖 <span id="chatClose" style="cursor:pointer;font-weight:400;">✕</span></div>
+      <div class="chatBody" id="chatBody"></div>
+      <form class="chatInput" id="chatForm" autocomplete="off">
+        <input id="chatInput" placeholder="Scrivi qui…"/>
+        <button type="submit">➤</button>
+      </form>
+    </div>
   </div>
 
-<script>
-/* toggle icona/finestra */
-const toggle=document.getElementById("chat-toggle"),
-      box   =document.getElementById("chatbox"),
-      close =document.getElementById("chat-close");
-toggle.onclick=()=>{box.style.display="flex";toggle.style.display="none"};
-close .onclick=()=>{box.style.display="none";toggle.style.display="flex"};
+  <!-- —————————  CONTENUTO ORIGINALE  —————————-->
+  <header>
+    <h1>Team Due Mori</h1>
+    <div class="subtitle">Sfoglia le schede del Dream-Team.</div>
+    <div id="scrollIndicator">&#8595;</div>
+  </header>
 
-/* trascinabilità semplice su header */
-(function drag(el){
-  let x=0,y=0; const head=el.querySelector("header");
-  head.addEventListener("pointerdown",e=>{
-    x=e.clientX-el.offsetLeft; y=e.clientY-el.offsetTop;
-    head.setPointerCapture(e.pointerId);
-  });
-  head.addEventListener("pointermove",e=>{
-    if(!head.hasPointerCapture(e.pointerId))return;
-    el.style.left=Math.max(0,e.clientX-x)+"px";
-    el.style.top =Math.max(0,e.clientY-y)+"px";
-  });
-})(box);
+  <main id="main">
+    <nav class="nav" id="teamNav">
+      <a href="fabio.html">Don&nbsp;Fabio</a>
+      <a href="lucia.html">Lucia</a>
+      <a href="martina.html">Martina</a>
+      <a href="marzio.html">Marzio</a>
+      <a href="roberta.html">Roberta</a>
+      <a href="max.html">Max</a>
+      <a href="claudia.html">Claudia</a>
+      <a href="reby.html">Reby</a>
+      <a href="gioele.html">Gioele</a>
+      <a href="hamza.html">Hamza</a>
+    </nav>
+  </main>
 
-/* chat messaging */
-const bodyEl=document.getElementById("chat-body"),
-      inputEl=document.getElementById("chat-input"),
-      formEl=document.getElementById("chat-form");
-function append(msg,who){
-  const d=document.createElement("div"); d.className="msg "+who;
-  d.innerHTML=`<div class="bubble">${msg}</div>`; bodyEl.appendChild(d);
-  bodyEl.scrollTop=bodyEl.scrollHeight;
-}
-formEl.addEventListener("submit",async e=>{
-  e.preventDefault();
-  const text=inputEl.value.trim(); if(!text)return;
-  append(text,"user"); inputEl.value=""; inputEl.focus();
-  try{
-    const res=await fetch("https://prova01-mu.vercel.app/api/chat",  /*👉 cambia in '/api/chat' se stai sul dominio Vercel */
-      {method:"POST",headers:{"Content-Type":"application/json"},
-       body:JSON.stringify({message:text})});
-    const {reply}=await res.json(); append(reply,"bot");
-  }catch{append("Errore di connessione 😢","bot")}
-});
-</script>
+  <!-- —————————  SCRIPTS  —————————-->
+  <script>
+    /* zoom bg sullo scroll */
+    window.addEventListener('scroll',()=>{
+      const factor=Math.min(window.scrollY/200,1);
+      const scale=1+factor*0.5;
+      document.getElementById('bg').style.transform=`translate(-50%,-50%) scale(${scale})`;
+    });
+    document.getElementById('scrollIndicator').addEventListener('click',()=>{
+      document.getElementById('teamNav').scrollIntoView({behavior:'smooth'});
+    });
+
+    /* CHAT UI */
+    const chatToggle   = document.getElementById('chatToggle');
+    const chatBox      = document.getElementById('chatContainer');
+    const chatClose    = document.getElementById('chatClose');
+    const chatBody     = document.getElementById('chatBody');
+    const chatForm     = document.getElementById('chatForm');
+    const chatInput    = document.getElementById('chatInput');
+    chatToggle.onclick = ()=> chatBox.style.display = 'block';
+    chatClose .onclick = ()=> chatBox.style.display = 'none';
+
+    const appendMsg=(text,who)=>{
+      const row=document.createElement('div');row.className='msg '+who;
+      row.innerHTML=`<div class="bubble">${text}</div>`;
+      chatBody.appendChild(row);
+      chatBody.scrollTop=chatBody.scrollHeight;
+    };
+
+    chatForm.addEventListener('submit',async e=>{
+      e.preventDefault();
+      const text=chatInput.value.trim(); if(!text) return;
+      appendMsg(text,'user'); chatInput.value=''; chatInput.focus();
+
+      try{
+        const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text})});
+        const {reply}=await r.json();
+        appendMsg(reply,'bot');
+      }catch{appendMsg('Errore di connessione 😢','bot');}
+    });
+  </script>
+
 </body>
 </html>

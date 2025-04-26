@@ -1,96 +1,121 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1.0" />
-  <title>Team Due Mori</title>
-
-  <!--  Sfondo / tua grafica  ------------------------------------------------>
-  <style>
-    html,body{
-      margin:0;min-height:100%;font-family:system-ui,sans-serif;
-      background:url("tuo_sfondo.jpg") center/cover fixed;
-    }
-    h1{color:#fff;text-align:center;margin-top:35vh;font-size:3rem;
-        text-shadow:0 2px 6px rgba(0,0,0,.6);}
-  </style>
-
-  <!--  Chat widget --------------------------------------------------------->
-  <style>
-    #alfred-container{
-      position:fixed;top:1rem;right:1rem;width:320px;max-width:90vw;
-      font-family:inherit;z-index:9999;
-    }
-    #alfred-header{
-      display:flex;justify-content:space-between;align-items:center;
-      background:#1e3446;color:#fff;border-radius:6px 6px 0 0;
-      padding:.45rem .65rem;font-weight:600;user-select:none;
-    }
-    #alfred-close{background:none;border:none;color:#fff;font-size:20px;line-height:1;cursor:pointer;}
-    #alfred-body{
-      background:#fafafa;border:1px solid #eee;border-top:none;
-      height:330px;overflow-y:auto;padding:.6rem;font-size:15px;
-    }
-    #alfred-input{
-      width:100%;border:1px solid #ccc;border-radius:4px;
-      padding:.45rem .55rem;font-size:15px;margin:.45rem 0 .6rem;
-    }
-    .bubble{display:inline-block;padding:.35rem .6rem;border-radius:18px;margin:.25rem 0;max-width:90%}
-    .user .bubble{background:#0092ff;color:#fff;margin-left:auto}
-    .bot  .bubble{background:#e7ecef;color:#222}
-  </style>
+<meta charset="UTF-8">
+<title>Team Due Mori</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<!-- ⟩⟩  STILI GENERALI DELLA HOME  ⟨⟨ -->
+<style>
+  /* sfondo + titolo */
+  body{margin:0;font-family:sans-serif;background:#fff url(bg.jpg) center/cover fixed;}
+  h1{position:absolute;top:45%;left:50%;transform:translate(-50%,-50%);
+      margin:0;font-size:clamp(2.5rem,8vw,5rem);color:#fff;
+      text-shadow:0 0 15px #000,0 0 30px #000}
+  /* monete che cadono (keyframes semplificati) */
+  .coin{position:fixed;width:48px;height:48px;pointer-events:none;
+        background:url(coin.png) center/contain no-repeat;
+        animation:fall 8s linear infinite}
+  @keyframes fall{
+    0%{transform:translateY(-10vh) rotate(0deg)}
+    100%{transform:translateY(110vh) rotate(720deg)}
+  }
+  /* genera 12 monete */
+</style>
 </head>
-
 <body>
   <h1>Team Due Mori</h1>
+  <script>
+    for(let i=0;i<12;i++){
+      const c=document.createElement("div");
+      c.className="coin"; c.style.left=Math.random()*100+"vw";
+      c.style.animationDelay=(Math.random()*-8)+"s";
+      document.body.appendChild(c);
+    }
+  </script>
 
-  <!-- Chat widget -->
-  <div id="alfred-container">
-    <div id="alfred-header">
+  <!-- ========== CHAT ========== -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+  <style>
+    :root{--blue:#0d94ff;--dark:#08365c}
+    /* icona flottante */
+    #chat-toggle{position:fixed;top:1rem;right:1rem;width:54px;height:54px;
+      background:var(--blue);border-radius:50%;display:flex;justify-content:center;
+      align-items:center;font-size:26px;color:#fff;cursor:pointer;z-index:999}
+    /* finestra */
+    #chatbox{position:fixed;top:65px;right:15px;width:320px;height:420px;
+      background:#fff;border:1px solid var(--dark);border-radius:8px;
+      box-shadow:0 4px 12px rgba(0,0,0,.25);display:none;flex-direction:column;z-index:998}
+    #chatbox header{background:var(--dark);color:#fff;
+      padding:.45rem .6rem;font-weight:700;cursor:move;
+      display:flex;justify-content:space-between;align-items:center;border-radius:8px 8px 0 0}
+    #chatbox header button{background:none;border:none;color:#fff;font-size:20px;cursor:pointer}
+    #chat-body{flex:1;overflow-y:auto;padding:.6rem;font-size:.9rem}
+    .msg{margin:.25rem 0;max-width:78%}
+    .user .bubble{background:var(--blue);color:#fff;border-radius:16px 16px 4px 16px}
+    .bot  .bubble{background:#f2f3f5;color:#000;border-radius:16px 16px 16px 4px}
+    .bubble{padding:.45rem .7rem;display:inline-block;line-height:1.25}
+    #chat-form{display:flex;border-top:1px solid #ccd0d3}
+    #chat-input{flex:1;border:none;padding:.55rem;font-size:.9rem}
+    #chat-input:focus{outline:none}
+    #chat-send{background:var(--blue);border:none;color:#fff;padding:.55rem .9rem;cursor:pointer}
+  </style>
+
+  <div id="chat-toggle"><i class="fa-solid fa-comments"></i></div>
+
+  <div id="chatbox">
+    <header>
       Alfred Bot 🤖
-      <button id="alfred-close">×</button>
-    </div>
-    <div id="alfred-body"></div>
-    <input id="alfred-input" placeholder="Scrivi qui..." autocomplete="off" />
+      <button id="chat-close">&times;</button>
+    </header>
+    <div id="chat-body"></div>
+    <form id="chat-form" autocomplete="off">
+      <input id="chat-input" placeholder="Scrivi qui…">
+      <button id="chat-send">➜</button>
+    </form>
   </div>
 
-  <!-- Chat script -->
-  <script>
-    const bodyEl  = document.getElementById("alfred-body");
-    const inputEl = document.getElementById("alfred-input");
-    const closeEl = document.getElementById("alfred-close");
+<script>
+/* toggle icona/finestra */
+const toggle=document.getElementById("chat-toggle"),
+      box   =document.getElementById("chatbox"),
+      close =document.getElementById("chat-close");
+toggle.onclick=()=>{box.style.display="flex";toggle.style.display="none"};
+close .onclick=()=>{box.style.display="none";toggle.style.display="flex"};
 
-    function append(text, who){
-      const wrap = document.createElement("div");
-      wrap.className = who;
-      wrap.innerHTML = `<div class="bubble">${text}</div>`;
-      bodyEl.appendChild(wrap);
-      bodyEl.scrollTop = bodyEl.scrollHeight;
-    }
+/* trascinabilità semplice su header */
+(function drag(el){
+  let x=0,y=0; const head=el.querySelector("header");
+  head.addEventListener("pointerdown",e=>{
+    x=e.clientX-el.offsetLeft; y=e.clientY-el.offsetTop;
+    head.setPointerCapture(e.pointerId);
+  });
+  head.addEventListener("pointermove",e=>{
+    if(!head.hasPointerCapture(e.pointerId))return;
+    el.style.left=Math.max(0,e.clientX-x)+"px";
+    el.style.top =Math.max(0,e.clientY-y)+"px";
+  });
+})(box);
 
-    async function send(){
-      const text = inputEl.value.trim();
-      if(!text) return;
-      append(text,"user");
-      inputEl.value="";
-      try{
-        const r = await fetch("/api/chat",{
-          method:"POST",
-          headers:{"Content-Type":"application/json"},
-          body:JSON.stringify({message:text})
-        });
-        const {reply}=await r.json();
-        append(reply,"bot");
-      }catch(e){
-        append("Errore di connessione 😢","bot");
-      }
-    }
-
-    inputEl.addEventListener("keydown",e=>{
-      if(e.key==="Enter"){e.preventDefault();send();}
-    });
-    inputEl.addEventListener("touchend",()=>setTimeout(()=>inputEl.focus(),0));
-    closeEl.onclick = ()=>document.getElementById("alfred-container").style.display="none";
-  </script>
+/* chat messaging */
+const bodyEl=document.getElementById("chat-body"),
+      inputEl=document.getElementById("chat-input"),
+      formEl=document.getElementById("chat-form");
+function append(msg,who){
+  const d=document.createElement("div"); d.className="msg "+who;
+  d.innerHTML=`<div class="bubble">${msg}</div>`; bodyEl.appendChild(d);
+  bodyEl.scrollTop=bodyEl.scrollHeight;
+}
+formEl.addEventListener("submit",async e=>{
+  e.preventDefault();
+  const text=inputEl.value.trim(); if(!text)return;
+  append(text,"user"); inputEl.value=""; inputEl.focus();
+  try{
+    const res=await fetch("https://prova01-mu.vercel.app/api/chat",  /*👉 cambia in '/api/chat' se stai sul dominio Vercel */
+      {method:"POST",headers:{"Content-Type":"application/json"},
+       body:JSON.stringify({message:text})});
+    const {reply}=await res.json(); append(reply,"bot");
+  }catch{append("Errore di connessione 😢","bot")}
+});
+</script>
 </body>
 </html>

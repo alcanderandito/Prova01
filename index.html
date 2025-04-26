@@ -5,56 +5,42 @@
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Team Due Mori</title>
   <style>
-    /* ========== RESET & BASE ======================================= */
+    /* RESET & BASE --------------------------------------------------- */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{width:100%;height:100%;overflow-y:scroll;font-family:Arial,Helvetica,sans-serif}
 
-    /* ========== BACKGROUND ZOOM ==================================== */
-    .bg{
-      position:fixed;top:50%;left:50%;width:120%;height:120%;
+    /* BACKGROUND ZOOM ------------------------------------------------ */
+    .bg{position:fixed;top:50%;left:50%;width:120%;height:120%;
       object-fit:cover;transform:translate(-50%,-50%) scale(1);
-      transform-origin:center center;z-index:-2;
-    }
+      transform-origin:center center;z-index:-2}
     .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:-1;pointer-events:none}
 
-    /* ========== HEADER FULLSCREEN ================================== */
-    header{
-      height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-      text-align:center;color:#fff;padding:0 20px;
-    }
+    /* HEADER --------------------------------------------------------- */
+    header{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      text-align:center;color:#fff;padding:0 20px}
     h1{font-size:2.5rem;font-weight:700;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.7);margin-bottom:.3em}
     .subtitle{font-size:1rem;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-bottom:1em}
-
-    /* freccia scroll */
     #scrollIndicator{font-size:2rem;color:#fff;cursor:pointer;animation:pulse 1.5s ease-in-out infinite}
     @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
 
-    /* ========== MAIN GRID di monete ================================= */
+    /* GRID MONETE ---------------------------------------------------- */
     main{position:relative;z-index:1;min-height:200vh;padding:40px 20px 80px}
-    .nav{
-      display:grid;gap:20px;justify-items:center;grid-template-columns:repeat(2,1fr);
-      margin:0 auto;max-width:800px;
-    }
+    .nav{display:grid;gap:20px;justify-items:center;grid-template-columns:repeat(2,1fr);margin:0 auto;max-width:800px}
     @media(min-width:600px){.nav{grid-template-columns:repeat(5,1fr)}}
-
-    .nav a{
-      width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-      font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;
-      background:rgba(255,255,255,.5);backdrop-filter:blur(4px);
-      border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);
-      opacity:0;transform:scale(0);
-      animation:popIn .5s ease forwards,breath 3s ease-in-out infinite .6s;
-    }
-    .nav a:nth-child(n){animation-delay:calc(.15s*var(--i))}
-    @keyframes popIn{0%{opacity:0;transform:scale(0)}60%{opacity:1;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
+    .nav a{--d:.15s;width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+      font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;background:rgba(255,255,255,.5);
+      backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);
+      opacity:0;transform:scale(0);animation:pop .5s ease forwards calc(var(--i)*var(--d)),breath 3s ease-in-out infinite .6s}
+    @keyframes pop{0%{opacity:0;transform:scale(0)}60%{opacity:1;transform:scale(1.2)}100%{opacity:1;transform:scale(1)}}
     @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
     .nav a:hover{box-shadow:0 0 8px rgba(255,255,255,.8),0 0 16px rgba(255,255,255,.6);transform:translateY(-4px) scale(1.05)}
     .nav a:active{transform:translateY(0) scale(1.02);box-shadow:inset 0 2px 6px rgba(0,0,0,.3)}
 
-    /* ========== ALFRED BOT WIDGET ================================== */
+    /* WIDGET ALFRED BOT (top-right) --------------------------------- */
     #alfred-box{
-      position:fixed;bottom:20px;right:20px;width:280px;display:flex;flex-direction:column;
-      font-size:14px;background:#fff;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.25);overflow:hidden;z-index:9999
+      position:fixed;top:20px;right:20px;width:280px;display:flex;flex-direction:column;
+      font-size:14px;background:#fff;border-radius:6px;box-shadow:0 4px 16px rgba(0,0,0,.25);
+      overflow:hidden;z-index:9999
     }
     #alfred-bar{background:#29455e;color:#fff;padding:6px 8px;display:flex;justify-content:space-between;align-items:center;font-weight:700}
     #alfred-bar button{background:none;border:none;color:#fff;font-size:16px;cursor:pointer}
@@ -65,14 +51,13 @@
     .msg.bot .bubble{background:#f1f1f1;color:#111;border-bottom-left-radius:0}
     .msg.user .bubble{background:#1d9bf0;color:#fff;border-bottom-right-radius:0}
     #alfred-input{display:flex;border-top:1px solid #ccc}
-    #alfred-input input{flex:1;border:none;padding:8px;font-size:14px}
+    #alfred-input input{flex:1;border:none;padding:8px;font-size:14px;pointer-events:auto}
     #alfred-input button{background:#1d9bf0;border:none;color:#fff;width:40px;cursor:pointer}
     #alfred-input input:focus{outline:none}
   </style>
 </head>
 <body>
 
-  <!-- sfondo + overlay -->
   <img src="home.PNG" class="bg" id="bg" alt="">
   <div class="overlay"></div>
 
@@ -86,20 +71,20 @@
   <!-- MAIN -->
   <main id="main">
     <nav class="nav" id="teamNav">
-      <a href="fabio.html" style="--i:1">Don&nbsp;Fabio</a>
-      <a href="lucia.html" style="--i:2">Lucia</a>
+      <a href="fabio.html"   style="--i:1">Don&nbsp;Fabio</a>
+      <a href="lucia.html"   style="--i:2">Lucia</a>
       <a href="martina.html" style="--i:3">Martina</a>
-      <a href="marzio.html" style="--i:4">Marzio</a>
+      <a href="marzio.html"  style="--i:4">Marzio</a>
       <a href="roberta.html" style="--i:5">Roberta</a>
-      <a href="max.html" style="--i:6">Max</a>
+      <a href="max.html"     style="--i:6">Max</a>
       <a href="claudia.html" style="--i:7">Claudia</a>
-      <a href="reby.html" style="--i:8">Reby</a>
-      <a href="gioele.html" style="--i:9">Gioele</a>
-      <a href="hamza.html" style="--i:10">Hamza</a>
+      <a href="reby.html"    style="--i:8">Reby</a>
+      <a href="gioele.html"  style="--i:9">Gioele</a>
+      <a href="hamza.html"   style="--i:10">Hamza</a>
     </nav>
   </main>
 
-  <!-- ==== WIDGET ALFRED BOT ======================================== -->
+  <!-- WIDGET ALFRED BOT -->
   <div id="alfred-box">
     <div id="alfred-bar">
       <span>Alfred Bot 🤖</span>
@@ -111,10 +96,9 @@
       <button title="Invia">➜</button>
     </div>
   </div>
-  <!-- =============================================================== -->
 
   <script>
-    /* --------- BACKGROUND ZOOM ------------------------------------ */
+    /*  ZOOM sfondo + freccia  */
     window.addEventListener('scroll',()=>{
       const f=Math.min(window.scrollY/200,1);
       document.getElementById('bg').style.transform=`translate(-50%,-50%) scale(${1+f*0.5})`;
@@ -123,12 +107,12 @@
       document.getElementById('teamNav').scrollIntoView({behavior:'smooth'});
     });
 
-    /* --------- ALFRED BOT ----------------------------------------- */
+    /*  Alfred Bot  */
     const box   = document.getElementById("alfred-box");
     const body  = document.getElementById("alfred-body");
     const input = document.querySelector("#alfred-input input");
     const send  = document.querySelector("#alfred-input button");
-    document.getElementById("alfred-close").onclick = () => box.remove();
+    document.getElementById("alfred-close").onclick = ()=> box.remove();
 
     function addMsg(txt,who){
       const div=document.createElement("div");
@@ -136,7 +120,6 @@
       div.innerHTML=`<div class="bubble">${txt}</div>`;
       body.appendChild(div); body.scrollTop=body.scrollHeight;
     }
-
     async function submit(){
       const text=input.value.trim(); if(!text) return;
       addMsg(text,"user"); input.value="";

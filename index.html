@@ -95,7 +95,7 @@
 
   <main id="main">
     <nav class="nav" id="teamNav">
-      <!-- ... -->
+      <!-- … -->
     </nav>
   </main>
 
@@ -192,30 +192,34 @@
 
     /* ——— ADATTAMENTO A TASTIERA ——— */
     function onKeyboardShow(){
-      chatContainer.style.height='45vh';
-      if(window.visualViewport){
-        const kb = window.innerHeight - window.visualViewport.height;
-        chatContainer.style.bottom = kb + 'px';
-        // *** QUI AGGIUNTO ***
-        const w = chatContainer.offsetWidth;
-        chatContainer.style.left = `calc(50vw - ${w/2}px)`;
-      }
+      if (!window.visualViewport) return;
+      const vv = window.visualViewport;
+      // altezza = 40% della viewport utile (in px)
+      const newH = Math.round(vv.height * 0.4);
+      chatContainer.style.height = `${newH}px`;
+      // poggia esattamente sulla tastiera
+      chatContainer.style.bottom = '0px';
+      // rimuove il top centrato
+      chatContainer.style.top = '';
+      // riallinea orizzontalmente al centro della viewport
+      const w = chatContainer.offsetWidth;
+      chatContainer.style.left = `${Math.round((vv.width - w)/2)}px`;
     }
     function onKeyboardHide(){
+      // ripristina altezza e centratura
       chatContainer.style.height = window.innerWidth<600 ? '50vh' : '300px';
       chatContainer.style.bottom = '';
       centerBox();
     }
 
-    if(window.visualViewport){
+    if (window.visualViewport) {
       window.visualViewport.addEventListener('resize',()=>{
-        if(chatContainer.style.display==='block' && window.innerWidth<600) onKeyboardShow();
+        if (chatContainer.style.display==='block' && window.innerWidth<600) onKeyboardShow();
         else onKeyboardHide();
       });
     }
     chatInput.addEventListener('focus', onKeyboardShow);
     chatInput.addEventListener('blur',  onKeyboardHide);
-
   </script>
 </body>
 </html>

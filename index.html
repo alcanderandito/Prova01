@@ -194,8 +194,8 @@
     function onKeyboardShow(){
       if (!window.visualViewport) return;
       const vv = window.visualViewport;
-      // altezza = 45% della viewport utile (in px)
-      const newH = Math.round(vv.height * 0.45);
+      // altezza = 55% della viewport utile (in px)
+      const newH = Math.round(vv.height * 0.55);
       chatContainer.style.height = `${newH}px`;
       // poggia esattamente sulla tastiera
       const kb = window.innerHeight - vv.height;

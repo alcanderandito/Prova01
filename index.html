@@ -200,17 +200,16 @@
 
     /* ——— ADATTAMENTO A TASTIERA AGGIORNATO ——— */
     function onKeyboardShow(){
-      // quando la tastiera apre riduciamo altezza e rialziamo la finestra
       chatContainer.style.height = '45vh';
       if(window.visualViewport){
         const vh = window.visualViewport.height;
         const kb = window.innerHeight - vh;
-        chatContainer.style.top = `calc(50vh - ${chatContainer.offsetHeight/2}px - ${kb/2}px)`;
+        chatContainer.style.bottom = `${kb}px`;
       }
     }
     function onKeyboardHide(){
       chatContainer.style.height = window.innerWidth<600 ? '50vh' : '300px';
-      chatContainer.style.top = '';  // rientra in posizione centrata
+      chatContainer.style.bottom = '';
     }
 
     if(window.visualViewport){

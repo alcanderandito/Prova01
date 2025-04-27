@@ -198,31 +198,29 @@
       chatBody.scrollTop = chatBody.scrollHeight;
     }
 
-    /* ——— ADATTAMENTO A TASTIERA AGGIORNATO ——— */
+    /* ——— ADATTAMENTO A TASTIERA ——— */
     function onKeyboardShow(){
       chatContainer.style.height = '45vh';
-      if(window.visualViewport){
-        const vh = window.visualViewport.height;
-        const kb = window.innerHeight - vh;
-        chatContainer.style.bottom = `${kb}px`;
+      if (window.visualViewport) {
+        const kb = window.innerHeight - window.visualViewport.height;
+        chatContainer.style.bottom = kb + 'px';
+        chatContainer.style.top = '';             // rimuovo top centrato
       }
     }
     function onKeyboardHide(){
-      chatContainer.style.height = window.innerWidth<600 ? '50vh' : '300px';
+      chatContainer.style.height = window.innerWidth < 600 ? '50vh' : '300px';
       chatContainer.style.bottom = '';
+      centerBox();                               // ri-centro quando la keyboard sparisce
     }
 
-    if(window.visualViewport){
-      window.visualViewport.addEventListener('resize', ()=>{
-        if(chatContainer.style.display==='block' && window.innerWidth<600){
-          onKeyboardShow();
-        } else {
-          onKeyboardHide();
-        }
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', () => {
+        if (chatContainer.style.display==='block' && window.innerWidth<600) onKeyboardShow();
+        else onKeyboardHide();
       });
     }
     chatInput.addEventListener('focus', onKeyboardShow);
-    chatInput.addEventListener('blur', onKeyboardHide);
+    chatInput.addEventListener('blur',  onKeyboardHide);
 
   </script>
 </body>

@@ -43,7 +43,7 @@
                 cursor:grab;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .15s;}
     #chatToggle:active{cursor:grabbing;transform:scale(.95);}
 
-    /* box 300 px – niente bottom/right: lo centriamo via JS */
+    /* box 300 px – centratura via JS */
     #chatContainer{position:fixed;width:320px;max-width:90vw;height:300px;display:none;
                    z-index:1100;resize:both;overflow:hidden;cursor:grab;}
     #chatContainer:active{cursor:grabbing;}
@@ -76,8 +76,7 @@
   <div id="chatContainer">
     <div class="chatBox" id="chatBox">
       <div class="chatBar" id="dragBar">
-        Don Alfred 🤵🏻‍♂️
-        <span id="chatClose" style="cursor:pointer;font-weight:400;">✕</span>
+        Don Alfred 🤵🏻‍♂️ <span id="chatClose" style="cursor:pointer;font-weight:400;">✕</span>
       </div>
       <div class="chatBody" id="chatBody"></div>
       <form class="chatInput" id="chatForm" autocomplete="off">
@@ -96,10 +95,7 @@
 
   <main id="main">
     <nav class="nav" id="teamNav">
-      <a href="fabio.html">Don Fabio</a><a href="lucia.html">Lucia</a><a href="martina.html">Martina</a>
-      <a href="marzio.html">Marzio</a><a href="roberta.html">Roberta</a><a href="max.html">Max</a>
-      <a href="claudia.html">Claudia</a><a href="reby.html">Reby</a><a href="gioele.html">Gioele</a>
-      <a href="hamza.html">Hamza</a>
+      <!-- ... -->
     </nav>
   </main>
 
@@ -152,12 +148,12 @@
     }
 
     /* LOGICA CHAT */
-    const chatToggle = document.getElementById('chatToggle');
-    const chatClose  = document.getElementById('chatClose');
-    const chatBody   = document.getElementById('chatBody');
-    const chatForm   = document.getElementById('chatForm');
-    const chatInput  = document.getElementById('chatInput');
-    const history    = [];
+    const chatToggle = document.getElementById('chatToggle'),
+          chatClose  = document.getElementById('chatClose'),
+          chatBody   = document.getElementById('chatBody'),
+          chatForm   = document.getElementById('chatForm'),
+          chatInput  = document.getElementById('chatInput'),
+          history    = [];
 
     makeDraggable(chatToggle);
     makeDraggable(chatContainer, document.getElementById('dragBar'));
@@ -172,50 +168,48 @@
       e.preventDefault();
       const text = chatInput.value.trim();
       if(!text) return;
-      append('user', text);
-      history.push({role:'user',content:text});
-      chatInput.value = '';
-      chatInput.focus();
+      append('user', text); history.push({role:'user',content:text});
+      chatInput.value=''; chatInput.focus();
       try {
-        const res = await fetch('/api/chat',{
+        const { reply } = await (await fetch('/api/chat',{
           method:'POST',
           headers:{'Content-Type':'application/json'},
           body:JSON.stringify({message:text,history})
-        });
-        const {reply} = await res.json();
-        append('bot', reply);
-        history.push({role:'assistant',content:reply});
+        })).json();
+        append('bot', reply); history.push({role:'assistant',content:reply});
       } catch {
-        append('bot', 'Errore di connessione 😢');
+        append('bot','Errore di connessione 😢');
       }
     });
 
-    function append(who, text){
-      const row = document.createElement('div');
-      row.className = 'msg '+who;
-      row.innerHTML = `<div class="bubble">${text}</div>`;
+    function append(who,txt){
+      const row=document.createElement('div');
+      row.className='msg '+who;
+      row.innerHTML=`<div class="bubble">${txt}</div>`;
       chatBody.appendChild(row);
-      chatBody.scrollTop = chatBody.scrollHeight;
+      chatBody.scrollTop=chatBody.scrollHeight;
     }
 
     /* ——— ADATTAMENTO A TASTIERA ——— */
     function onKeyboardShow(){
-      chatContainer.style.height = '45vh';
-      if (window.visualViewport) {
+      chatContainer.style.height='45vh';
+      if(window.visualViewport){
         const kb = window.innerHeight - window.visualViewport.height;
         chatContainer.style.bottom = kb + 'px';
-        chatContainer.style.top = '';             // rimuovo top centrato
+        // *** QUI AGGIUNTO ***
+        const w = chatContainer.offsetWidth;
+        chatContainer.style.left = `calc(50vw - ${w/2}px)`;
       }
     }
     function onKeyboardHide(){
-      chatContainer.style.height = window.innerWidth < 600 ? '50vh' : '300px';
+      chatContainer.style.height = window.innerWidth<600 ? '50vh' : '300px';
       chatContainer.style.bottom = '';
-      centerBox();                               // ri-centro quando la keyboard sparisce
+      centerBox();
     }
 
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', () => {
-        if (chatContainer.style.display==='block' && window.innerWidth<600) onKeyboardShow();
+    if(window.visualViewport){
+      window.visualViewport.addEventListener('resize',()=>{
+        if(chatContainer.style.display==='block' && window.innerWidth<600) onKeyboardShow();
         else onKeyboardHide();
       });
     }

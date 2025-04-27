@@ -198,7 +198,8 @@
       const newH = Math.round(vv.height * 0.4);
       chatContainer.style.height = `${newH}px`;
       // poggia esattamente sulla tastiera
-      chatContainer.style.bottom = '0px';
+      const kb = window.innerHeight - vv.height;
+      chatContainer.style.bottom = `${kb}px`;
       // rimuove il top centrato
       chatContainer.style.top = '';
       // riallinea orizzontalmente al centro della viewport

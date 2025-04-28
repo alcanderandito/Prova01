@@ -3,71 +3,93 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>Team Due Mori</title>
+  <title>Team Due Mori (Mobile Only)</title>
 
-  <!-- —————————  STILI  —————————-->
   <style>
     /* RESET & BASE */
     *{margin:0;padding:0;box-sizing:border-box;}
     html,body{width:100%;height:100%;overflow-y:scroll;font-family:Arial,Helvetica,sans-serif;}
 
-    /* BACKGROUND */
-    .bg{position:fixed;top:50%;left:50%;width:120%;height:120%;object-fit:cover;
-        transform:translate(-50%,-50%) scale(1);transform-origin:center center;z-index:-2;}
-    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:-1;pointer-events:none;}
+    /* ----------  SOLO MOBILE (≤600 px) ---------- */
+    @media (max-width:600px){
 
-    /* HEADER */
-    header{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-            text-align:center;color:#fff;padding:0 20px;}
-    h1{font-size:2.5rem;font-weight:700;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.7);margin-bottom:.3em;}
-    .subtitle{font-size:1rem;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-bottom:1em;}
-    #scrollIndicator{font-size:2rem;color:#fff;cursor:pointer;animation:pulse 1.5s ease-in-out infinite;}
-    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
+      /* BACKGROUND */
+      .bg{position:fixed;top:50%;left:50%;width:120%;height:120%;object-fit:cover;
+          transform:translate(-50%,-50%) scale(1);transform-origin:center center;z-index:-2;}
+      .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:-1;pointer-events:none;}
 
-    /* GRID */
-    main{position:relative;z-index:1;min-height:200vh;padding:40px 20px 80px;}
-    .nav{display:grid;gap:20px;justify-items:center;grid-template-columns:repeat(2,1fr);margin:0 auto;max-width:800px;}
-    @media(min-width:600px){.nav{grid-template-columns:repeat(5,1fr);}}
-    .nav a{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-           font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;background:rgba(255,255,255,.5);
-           backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);
-           opacity:0;transform:scale(0);animation:popIn .5s ease forwards,breath 3s ease-in-out infinite .6s;}
-    @keyframes popIn{0%{opacity:0;transform:scale(0);}60%{opacity:1;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
-    @keyframes breath{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
-    .nav a:hover{box-shadow:0 0 8px rgba(255,255,255,.8),0 0 16px rgba(255,255,255,.6);transform:translateY(-4px) scale(1.05);}
-    .nav a:active{transform:translateY(0) scale(1.02);box-shadow:inset 0 2px 6px rgba(0,0,0,.3);}
+      /* HEADER */
+      header{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
+              text-align:center;color:#fff;padding:0 20px;}
+      h1{font-size:2.2rem;font-weight:700;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.7);margin-bottom:.3em;}
+      .subtitle{font-size:.95rem;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-bottom:1em;}
+      #scrollIndicator{font-size:2rem;color:#fff;cursor:pointer;animation:pulse 1.5s ease-in-out infinite;}
+      @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
 
-    /* CHAT */
-    #chatToggle{position:fixed;top:1rem;right:1rem;width:60px;height:60px;border:none;border-radius:50%;
-                background:#0094ff url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/55% no-repeat;
-                cursor:grab;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .15s;}
-    #chatToggle:active{cursor:grabbing;transform:scale(.95);}
+      /* GRID 2×N fissa */
+      main{position:relative;z-index:1;min-height:200vh;padding:40px 20px 80px;}
+      .nav{display:grid;gap:20px;justify-items:center;grid-template-columns:repeat(2,1fr);margin:0 auto;max-width:480px;}
+      .nav a{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+             font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;background:rgba(255,255,255,.5);
+             backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);
+             opacity:0;transform:scale(0);animation:popIn .5s ease forwards,breath 3s ease-in-out infinite .6s;}
+      @keyframes popIn{0%{opacity:0;transform:scale(0);}60%{opacity:1;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
+      @keyframes breath{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+      .nav a:hover{box-shadow:0 0 8px rgba(255,255,255,.8),0 0 16px rgba(255,255,255,.6);transform:translateY(-4px) scale(1.05);}
+      .nav a:active{transform:translateY(0) scale(1.02);box-shadow:inset 0 2px 6px rgba(0,0,0,.3);}
 
-    /* box 300 px – centratura via JS */
-    #chatContainer{position:fixed;width:320px;max-width:90vw;height:300px;display:none;
-                   z-index:1100;resize:both;overflow:hidden;cursor:grab;}
-    #chatContainer:active{cursor:grabbing;}
-    .chatBox{width:100%;height:100%;display:flex;flex-direction:column;border:2px solid #00345f;border-radius:6px;
-             box-shadow:0 4px 12px rgba(0,0,0,.25);background:#fff;font-size:14px;}
-    .chatBar{background:#00345f;color:#fff;padding:8px 12px;font-weight:700;display:flex;justify-content:space-between;
-             align-items:center;user-select:none;cursor:grab;}
-    .chatBody{flex:1;overflow-y:auto;padding:6px 10px;}
-    .chatBody .msg{margin:4px 0;display:flex;}
-    .chatBody .bot .bubble{background:#f1f1f1;color:#000;align-self:flex-start}
-    .chatBody .user .bubble{background:#0094ff;color:#fff;align-self:flex-end}
-    .bubble{padding:6px 10px;border-radius:12px;max-width:75%;word-wrap:break-word;}
-    .chatInput{display:flex;border-top:1px solid #ccc;}
-    .chatInput input{flex:1;padding:10px;border:none;font-size:14px;}
-    .chatInput button{width:52px;border:none;background:#0094ff;color:#fff;font-size:18px;cursor:pointer;}
+      /* CHAT FLOAT */
+      #chatToggle{position:fixed;top:1rem;right:1rem;width:60px;height:60px;border:none;border-radius:50%;
+                  background:#0094ff url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/55% no-repeat;
+                  cursor:grab;z-index:1000;box-shadow:0 4px 12px rgba(0,0,0,.25);transition:transform .15s;}
+      #chatToggle:active{transform:scale(.95);}
 
-    /* mobile */
-    @media(max-width:600px){
-      #chatContainer{width:95vw;height:50vh;resize:none;}
+      #chatContainer{position:fixed;width:95vw;height:50vh;display:none;max-width:none;
+                     z-index:1100;resize:none;overflow:hidden;cursor:grab;}
+      .chatBox{width:100%;height:100%;display:flex;flex-direction:column;border:2px solid #00345f;border-radius:6px;
+               box-shadow:0 4px 12px rgba(0,0,0,.25);background:#fff;font-size:14px;}
+      .chatBar{background:#00345f;color:#fff;padding:8px 12px;font-weight:700;display:flex;justify-content:space-between;
+               align-items:center;user-select:none;cursor:grab;touch-action:none;}   /* <-- fix iOS */
+
+      .chatBody{flex:1;overflow-y:auto;padding:6px 10px;}
+      .chatBody .msg{margin:4px 0;display:flex;}
+      .chatBody .bot .bubble{background:#f1f1f1;color:#000;align-self:flex-start}
+      .chatBody .user .bubble{background:#0094ff;color:#fff;align-self:flex-end}
+      .bubble{padding:6px 10px;border-radius:12px;max-width:75%;word-wrap:break-word;}
+      .chatInput{display:flex;border-top:1px solid #ccc;}
+      .chatInput input{flex:1;padding:10px;border:none;font-size:14px;}
+      .chatInput button{width:52px;border:none;background:#0094ff;color:#fff;font-size:18px;cursor:pointer;}
+    }
+
+    /* ----------  BLOCCA DESKTOP (≥601 px) ---------- */
+    @media (min-width:601px){
+      /* nasconde tutto l’app vero e proprio */
+      header,main,#chatToggle,#chatContainer,.bg,.overlay{display:none!important;}
+
+      /* schermata di avviso */
+      body::before{
+        content:"🛑  Questo sito è ottimizzato solo per smartphone.\\A  Aprilo dal tuo telefono, gigante! 😜";
+        white-space:pre-line;
+        display:flex;
+        align-items:center;
+        justify-content:center;
+        height:100vh;
+        width:100%;
+        text-align:center;
+        font-size:2.5rem;
+        font-family:Arial,Helvetica,sans-serif;
+        background:#000;
+        color:#fff;
+        padding:0 5vw;
+      }
+
+      html,body{overflow:hidden;}
     }
   </style>
 </head>
 <body>
 
+  <!-- BACKGROUND -->
   <img src="home.PNG" class="bg" id="bg" alt="">
   <div class="overlay"></div>
 
@@ -95,11 +117,11 @@
 
   <main id="main">
     <nav class="nav" id="teamNav">
-      <!-- … -->
+      <!-- …POPOLA QUI… -->
     </nav>
   </main>
 
-  <!-- —————————  SCRIPT  —————————-->
+  <!-- SCRIPT originale (non toccato) -->
   <script>
     /* BG zoom e scroll indicator */
     window.addEventListener('scroll',()=>{
@@ -190,32 +212,26 @@
       chatBody.scrollTop=chatBody.scrollHeight;
     }
 
-    /* ——— ADATTAMENTO A TASTIERA ——— */
+    /* — Tastiera mobile — */
     function onKeyboardShow(){
       if (!window.visualViewport) return;
       const vv = window.visualViewport;
-      // **altezza = 75% della viewport utile (in px)**
       const newH = Math.round(vv.height * 0.75);
       chatContainer.style.height = `${newH}px`;
-      // poggia esattamente sulla tastiera
       const kb = window.innerHeight - vv.height;
       chatContainer.style.bottom = `${kb}px`;
-      // rimuove il top centrato
       chatContainer.style.top = '';
-      // riallinea orizzontalmente al centro della viewport
       const w = chatContainer.offsetWidth;
       chatContainer.style.left = `${Math.round((vv.width - w)/2)}px`;
     }
     function onKeyboardHide(){
-      // ripristina altezza e centratura
-      chatContainer.style.height = window.innerWidth<600 ? '50vh' : '300px';
+      chatContainer.style.height = '50vh';
       chatContainer.style.bottom = '';
       centerBox();
     }
-
     if (window.visualViewport) {
       window.visualViewport.addEventListener('resize',()=>{
-        if (chatContainer.style.display==='block' && window.innerWidth<600) onKeyboardShow();
+        if (chatContainer.style.display==='block' && window.innerWidth<601) onKeyboardShow();
         else onKeyboardHide();
       });
     }

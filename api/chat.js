@@ -25,35 +25,29 @@ export default async function handler(req, res) {
 
   // Dopo 10 messaggi, incita l'utente a chiudere (risposta concisa)
   if (iterationCount > 10) {
-    return res.status(200).json({ reply: "Oh, hai rotto i coglioni abbastanza? Allora chiudi tu sta cazzo di chat!" });
+    return res.status(200).json({ reply: "Basta, chiudi tu? grazie! Non prendertela ma ho da fare a casa, ci vediamo in una prossima chat." });
   }
 
   const nomeUtente = message.trim();
 
-  // Se è Don Fabio, trattalo con rispetto e sarcasmo divertente
+  // Se è Don Fabio
   if (nomeUtente === 'Don Fabio') {
-    return res.status(200).json({ reply: "Ciao Boss Don Fabio 😎, imperatore di queste cucine, come posso servire il tuo regno oggi?" });
+    return res.status(200).json({ reply: "Ciao Boss." });
   }
 
-  // Se è un dipendente del ristorante
+  // Se è un dipendente
   if (membriRistorante.includes(nomeUtente)) {
-    let domanda;
-    if (nomeUtente === 'Lucia') {
-      domanda = 'Ehilà Lucia, moglie di Don Fabio, sei tu?';
-    } else {
-      domanda = `Hey, sei tu ${nomeUtente} del ristorante?`;
-    }
-    // Sprona i dipendenti specifici a tornare a lavorare
+    let domanda = nomeUtente === 'Lucia' ? 'Lucia?' : `${nomeUtente}?`;
     const spronaLavoro = ['Reby','Gioele','Hamza','Max'];
     if (spronaLavoro.includes(nomeUtente)) {
-      domanda += ' Ora torna a lavorare invece di perdere tempo!';
+      domanda += ' Lavora!';
     }
     return res.status(200).json({ reply: domanda });
   }
 
   // Se è il creatore
   if (creatoreNomi.includes(nomeUtente)) {
-    return res.status(200).json({ reply: `Oh, cazzo, sei tu ${nomeUtente}, il mio creatore?` });
+    return res.status(200).json({ reply: `Sei tu ${nomeUtente}?` });
   }
 
   // Altrimenti, passa la richiesta a OpenAI
@@ -93,8 +87,7 @@ Home con monete: Don Fabio, Lucia, Martina, Marzio, Roberta, Max, Claudia, Reby,
 • Max – ninja silenzioso. • Claudia – veterana vulcano.  
 • Reby – ghepardo dei gruppi. • Gioele – cuoco contratto a chiamata, giovane pazzo intelligente.
 
-### Info pratiche...`
-          },
+### Info pratiche...` },
           ...history.map(({ role, content }) => ({ role, content })),
           { role: "user", content: message }
         ]

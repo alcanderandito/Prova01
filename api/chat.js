@@ -16,6 +16,11 @@ export default async function handler(req, res) {
     return res.status(400).json({ reply: "Messaggio mancante." });
   }
 
+  // ▶️ Reset contatore se nuova sessione (chat ricaricata o aperta nuova)
+  if (history.length === 0) {
+    iterationCount = 0;
+  }
+
   // ▶️ 1-bis. Incremento e “kick” dopo 10 giri
   iterationCount++;
   if (iterationCount > 10) {
@@ -27,9 +32,9 @@ export default async function handler(req, res) {
   // ▶️ 2. Rilevazione richieste prenotazione o info ristorante/menu
   const lc = message.toLowerCase();
   if (/\b(prenot|menu|ristorante|informazioni)\b/.test(lc)) {
-    return res.status(200).json({ reply: `Ehi buongustaio, ecco le info rapide del Team Due Mori:
+    return res.status(200).json({ reply: `Ehi buongustaio! Ricorda: non siamo una pizzeria e io non prendo prenotazioni o ordinazioni, ma ti facilito tutte le info del Team Due Mori:
 
-• Antica Trattoria Due Mori
+• Antica Trattoria Due Mori (non pizzeria)
 • Via San Marco, 11 · 38122 Trento (TN)
 • Orari: martedì–domenica 12:00–14:15 & 19:00–22:15 (lunedì chiuso)
 • Tel: 0461 984251 (prenotazioni 10:00–15:00 & 19:00–23:00)
@@ -38,7 +43,7 @@ export default async function handler(req, res) {
 • Cucina tipica trentina, menù à la carte e fissi, selezione vini locali
 • Sito: http://www.ristoranteduemori.com
 
-Per prenotare chiama pure, e smettila di sbavare sullo schermo! 😂` });
+Per prenotare usa i recapiti ufficiali, e smettila di sbavare sullo schermo! 😂` });
   }
 
   try {

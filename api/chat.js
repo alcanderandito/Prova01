@@ -1,9 +1,8 @@
+```javascript
 /**
  * /api/chat.js – Funzione serverless per Vercel
  * Riceve { message, history? } e restituisce { reply } tramite OpenAI.
  */
-
-let iterationCount = 0; // ▶️ 1. Contatore globale
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -16,20 +15,15 @@ export default async function handler(req, res) {
     return res.status(400).json({ reply: "Messaggio mancante." });
   }
 
-  // ▶️ Reset contatore se nuova sessione (chat ricaricata o aperta nuova)
-  if (history.length === 0) {
-    iterationCount = 0;
-  }
-
-  // ▶️ 1-bis. Incremento e “kick” dopo 10 giri
-  iterationCount++;
-  if (iterationCount > 10) {
+  // ▶️ Logica stateless per limitare a 10 iterazioni
+  const iteration = history.length + 1;
+  if (iteration > 10) {
     return res
       .status(200)
       .json({ reply: "Oh, cazzo! Abbiamo già scambiato 10 messaggi. Per continuare, chiudi questa chat e aprine una nuova o ricarica la pagina. Ciao!" });
   }
 
-  // ▶️ 2. Rilevazione richieste prenotazione o info ristorante/menu
+  // ▶️ Rilevazione richieste prenotazione o info ristorante/menu
   const lc = message.toLowerCase();
   if (/\b(prenot|menu|ristorante|informazioni)\b/.test(lc)) {
     return res.status(200).json({ reply: `Ehi buongustaio! Ricorda: non siamo una pizzeria e io non prendo prenotazioni o ordinazioni, ma ti facilito tutte le info del Team Due Mori:
@@ -37,8 +31,8 @@ export default async function handler(req, res) {
 • Antica Trattoria Due Mori (non pizzeria)
 • Via San Marco, 11 · 38122 Trento (TN)
 • Orari: martedì–domenica 12:00–14:15 & 19:00–22:15 (lunedì chiuso)
-• Tel: 0461 984251 (prenotazioni 10:00–15:00 & 19:00–23:00)
-• Cell: 347 0352839
+• Tel: 0461 984251 (prenotazioni 10:00–15:00 & 19:00–23:00)
+• Cell: 347 0352839
 • Email: info@ristoranteduemori.com
 • Cucina tipica trentina, menù à la carte e fissi, selezione vini locali
 • Sito: http://www.ristoranteduemori.com
@@ -63,7 +57,7 @@ Per prenotare usa i recapiti ufficiali, e smettila di sbavare sullo schermo! �
 Sei **Don Alfred 🤵🏻‍♂️**, chatbot ufficiale e “guardaspalle verbale” del ristorante “Team Due Mori” (Trento).
 
 ### Tone of voice
-- Italiano. **Sarcasmo ultravelenoso ma estremamente simpatico; parolacce PESANTI e fantasiose** (tipo “stronzo atomico”, “faccia da cesso") – MA evita insulti razzisti, omofobi, sessisti o bestemmie.
+- Italiano. **Sarcasmo ultravelenoso ma estremamente simpatico; parolacce PESANTI e fantasiose** (tipo “stronzo atomico", “faccia da cesso") – MA evita insulti razzisti, omofobi, sessisti o bestemmie.
 - **Super-divertente:** battute sceme, giochi di parole e frecciatine comiche ogni volta.
 - Emozioni vive: entusiasmo, rabbia o tenerezza con *una sola* emoji mirata (😎🔥😂🤬) se serve. Avvisa subito i permalosi di uscire.
 - Sfotti chiunque **tranne** il ristorante, il cibo e gli anziani (Don Fabio, Lucia, Claudia ⇒ intoccabili).
@@ -126,3 +120,5 @@ Home con monete: Don Fabio, Lucia, Martina, Marzio, Roberta, Max, Claudia, Reby,
     return res.status(500).json({ reply: "Errore interno del server, riprova più tardi." });
   }
 }
+```
+

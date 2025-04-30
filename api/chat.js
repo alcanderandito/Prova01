@@ -1,8 +1,11 @@
-```javascript
+import fetch from "node-fetch"; // Polyfill fetch per Node.js
+
 /**
  * /api/chat.js – Funzione serverless per Vercel
  * Riceve { message, history? } e restituisce { reply } tramite OpenAI.
  */
+
+let iterationCount = 0; // ▶️ 1. Contatore globale
 
 export default async function handler(req, res) {
   if (req.method !== "POST") {
@@ -15,15 +18,20 @@ export default async function handler(req, res) {
     return res.status(400).json({ reply: "Messaggio mancante." });
   }
 
-  // ▶️ Logica stateless per limitare a 10 iterazioni
-  const iteration = history.length + 1;
-  if (iteration > 10) {
+  // ▶️ Reset contatore se nuova sessione (chat ricaricata o aperta nuova)
+  if (history.length === 0) {
+    iterationCount = 0;
+  }
+
+  // ▶️ 1-bis. Incremento e “kick” dopo 10 giri
+  iterationCount++;
+  if (iterationCount > 10) {
     return res
       .status(200)
       .json({ reply: "Oh, cazzo! Abbiamo già scambiato 10 messaggi. Per continuare, chiudi questa chat e aprine una nuova o ricarica la pagina. Ciao!" });
   }
 
-  // ▶️ Rilevazione richieste prenotazione o info ristorante/menu
+  // ▶️ 2. Rilevazione richieste prenotazione o info ristorante/menu
   const lc = message.toLowerCase();
   if (/\b(prenot|menu|ristorante|informazioni)\b/.test(lc)) {
     return res.status(200).json({ reply: `Ehi buongustaio! Ricorda: non siamo una pizzeria e io non prendo prenotazioni o ordinazioni, ma ti facilito tutte le info del Team Due Mori:
@@ -120,5 +128,3 @@ Home con monete: Don Fabio, Lucia, Martina, Marzio, Roberta, Max, Claudia, Reby,
     return res.status(500).json({ reply: "Errore interno del server, riprova più tardi." });
   }
 }
-```
-

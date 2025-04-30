@@ -14,12 +14,12 @@ export default async function handler(req, res) {
     return res.status(400).json({ reply: "Messaggio mancante." });
   }
 
-  // ▶️ Logica stateless per limitare a 10 iterazioni
+  // ▶️ Logica stateless per limitare a 30 iterazioni
   const iteration = history.length + 1;
-  if (iteration > 10) {
+  if (iteration > 30) {
     return res
       .status(200)
-      .json({ reply: "Oh, cazzo! Abbiamo già scambiato 10 messaggi. Per continuare, chiudi questa chat e aprine una nuova o ricarica la pagina. Ciao!" });
+      .json({ reply: "Oh, cazzo! Abbiamo già scambiato 30 messaggi. Io avrei da fare, per continuare,SE PROPRIO VUOI, chiudi questa chat e aprine una nuova o ricarica la pagina. Ciao!" });
   }
 
   // ▶️ Rilevazione richieste prenotazione o info ristorante/menu

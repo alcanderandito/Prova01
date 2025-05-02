@@ -44,19 +44,17 @@
 
       /* Chat full‑screen */
       #chatContainer{position:fixed;inset:0;display:none;flex-direction:column;width:100vw;height:100dvh;
-                     background:#ece5dd;z-index:1100;}
+                     background:#ece5dd;z-index:1100;
+                     overscroll-behavior-y:contain;      /* 👉 stop rubber‑band */
+                     touch-action:pan-y;}
 
       /* ======================  WHATSAPP SKIN  ====================== */
-      /* Wallpaper stile WhatsApp */
       #chatContainer::before{
-        content:"";
-        position:absolute;inset:0;
-        background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") top left / 540px repeat;
-        opacity:.15;
-        z-index:0;
+        content:"";position:absolute;inset:0;
+        background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") top left/540px repeat;
+        opacity:.15;z-index:0;
       }
 
-      /* Barra titolo (avatar + icone) */
       .chatBar{
         position:fixed;top:0;left:0;width:100%;height:56px;background:#075e54;
         color:#fff;display:flex;align-items:center;padding:0 16px;gap:10px;
@@ -66,34 +64,30 @@
       .chatBar .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
       .chatBar .wIcon{width:22px;height:22px;cursor:pointer;filter:invert(1) brightness(2);}
 
-      /* Input fissa in basso (safe‑area) */
       .chatInput{
         position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom);
         display:flex;align-items:center;gap:8px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-        background:#f0f0f0;z-index:3;
+        background:#f0f0f0;z-index:3;transition:transform .2s ease-out;
       }
       .chatInput input{
-        flex:1;padding:10px 12px;border:none;border-radius:20px;font-size:15px;
-        background:#fff;
+        flex:1;padding:10px 12px;border:none;border-radius:20px;font-size:15px;background:#fff;
       }
       .chatInput button{
         width:48px;height:48px;border:none;border-radius:50%;background:#25d366;
         display:flex;align-items:center;justify-content:center;
       }
 
-      /* Area messaggi occupa lo spazio fra barre */
       .chatBody{
         position:absolute;top:56px;bottom:72px;left:0;right:0;overflow-y:auto;
         padding:10px 12px 90px 12px;display:flex;flex-direction:column;gap:6px;z-index:1;
+        transition:bottom .2s ease-out;
       }
 
-      /* Bubble & timestamp */
       .msg{position:relative;display:flex;flex-direction:column;max-width:80%;}
       .bubble{padding:6px 8px 16px 8px;font-size:14px;line-height:1.3;border-radius:8px;
               box-shadow:0 1px 1px rgba(0,0,0,.1);position:relative;}
       .time{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6;white-space:nowrap;}
-
-      .bot  .bubble{background:#fff;border-radius:0 8px 8px 8px;}
+      .bot .bubble{background:#fff;border-radius:0 8px 8px 8px;}
       .user .bubble{background:#d1f8c6;border-radius:8px 0 8px 8px;align-self:flex-end;}
       .user .bubble::after{
         content:"✔✔";font-size:11px;position:absolute;bottom:2px;right:-18px;
@@ -119,18 +113,16 @@
 
   <!-- Chat -->
   <div id="chatContainer">
-    <!-- Barra top stile WhatsApp -->
     <div class="chatBar">
       <img src="avatar-roberta.jpg" alt="" class="avatar">
       <span class="name">Ro❤️❤️❤️</span>
       <img src="https://img.icons8.com/ios-glyphs/30/ffffff/video-call.png" class="wIcon" alt="video">
-      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/phone.png"      class="wIcon" style="margin-left:8px" alt="call">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/phone.png" class="wIcon" style="margin-left:8px" alt="call">
       <span id="chatClose" style="font-size:26px;margin-left:12px;cursor:pointer;">✕</span>
     </div>
 
     <div class="chatBody" id="chatBody"></div>
 
-    <!-- Input stile WhatsApp -->
     <form class="chatInput" id="chatForm" autocomplete="off">
       <img src="https://img.icons8.com/ios-glyphs/30/000000/plus-math.png" class="wIcon" style="filter:none;">
       <input id="chatInputField" placeholder="Messaggio" />
@@ -152,30 +144,36 @@
 
   <script>
     /* Parallax background */
-    const bg   = document.getElementById('bg'),
+    const bg = document.getElementById('bg'),
           teamNav = document.getElementById('teamNav'),
           scrollIndicator = document.getElementById('scrollIndicator');
     window.addEventListener('scroll',()=>{const f=Math.min(scrollY/200,1);bg.style.transform=`translate(-50%,-50%) scale(${1+f*0.5})`;});
     scrollIndicator.onclick = ()=> teamNav.scrollIntoView({behavior:'smooth'});
 
     /* Chat */
-    const chatToggle   = document.getElementById('chatToggle'),
-          chatContainer= document.getElementById('chatContainer'),
-          chatClose    = document.getElementById('chatClose'),
-          chatBody     = document.getElementById('chatBody'),
-          chatForm     = document.getElementById('chatForm'),
-          chatInput    = document.getElementById('chatInputField'),
-          history      = [];
+    const chatToggle    = document.getElementById('chatToggle'),
+          chatContainer = document.getElementById('chatContainer'),
+          chatClose     = document.getElementById('chatClose'),
+          chatBody      = document.getElementById('chatBody'),
+          chatForm      = document.getElementById('chatForm'),
+          chatInput     = document.getElementById('chatInputField'),
+          history       = [];
 
-    chatToggle.onclick = ()=>{chatContainer.style.display='flex';chatInput.focus();};
-    chatClose .onclick = ()=> chatContainer.style.display='none';
+    chatToggle.onclick = ()=>{
+      document.body.classList.add('chat-open');          // blocca scroll pagina
+      chatContainer.style.display='flex';
+      chatInput.focus();
+    };
+    chatClose.onclick = ()=>{
+      chatContainer.style.display='none';
+      document.body.classList.remove('chat-open');
+    };
 
     function append(who,text){
       const row=document.createElement('div');
       row.className='msg '+who;
       row.innerHTML=`<div class="bubble">${text}</div>`;
-      /* timestamp */
-      const now = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      const now=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
       row.querySelector('.bubble').insertAdjacentHTML('beforeend',`<span class="time">${now}</span>`);
       chatBody.appendChild(row);
       chatBody.scrollTop=chatBody.scrollHeight;
@@ -196,6 +194,18 @@
         append('bot','Errore di connessione 😢');
       }
     });
+
+    /* --- FISSAGGIO tastiera iOS (visualViewport) --- */
+    if (window.visualViewport){
+      const vv = window.visualViewport;
+      const fixKeyboard = ()=>{
+        const bottomSpace = Math.max(0,window.innerHeight - vv.height - vv.offsetTop);
+        document.querySelector('.chatInput').style.transform = `translateY(-${bottomSpace}px)`;
+        document.querySelector('.chatBody').style.bottom = `${72 + bottomSpace}px`;
+      };
+      vv.addEventListener('resize', fixKeyboard);
+      vv.addEventListener('scroll', fixKeyboard);
+    }
   </script>
 </body>
 </html>

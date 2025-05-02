@@ -1,111 +1,122 @@
 <!DOCTYPE html><html lang="it"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Don Alfred Chat</title>
+<title>Chat • Don Alfred</title>
 <style>
-/* ========== BASE ================================================= */
-*{margin:0;padding:0;box-sizing:border-box;}
-html,body{height:100%;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif;}
-/* ========== MOBILE ONLY (0‑600 px) =============================== */
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+
+/* -------- MOBILE 0‑600 px ------------------------------------------- */
 @media (max-width:600px){
-:root{/* var --vh aggiornata da JS + safe‑area */--vh:1vh;--T:env(safe-area-inset-top);--B:env(safe-area-inset-bottom);--KB:0px;}
-body.lock{position:fixed;overflow:hidden;width:100%;}
+:root{--vh:1vh}                          /* ← aggiornata da JS */
 
-/* floating WA‑style button */
-#openChat{position:fixed;top:calc(1rem + var(--T));right:1rem;width:60px;height:60px;border:none;border-radius:50%;
-          background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat;
-          box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:1000;cursor:pointer;}
-#openChat:active{transform:scale(.9);}
+/* BLOCCA BODY dietro la chat */
+body.lock{position:fixed;overflow:hidden;width:100%}
 
-/* CHAT box full‑screen */
-#chat{position:fixed;inset:0;display:none;flex-direction:column;width:100vw;
-      height:calc(var(--vh)*100);background:#ece5dd;overscroll-behavior:contain;touch-action:pan-y;z-index:1100;}
-#chat::before{content:"";position:absolute;inset:0;background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;opacity:.15;}
+/* ===== pulsante WA verde =========================================== */
+#open{position:fixed;z-index:1000;top:1rem;right:1rem;width:60px;height:60px;border:none;border-radius:50%;
+       background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat;
+       box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+#open:active{transform:scale(.9)}
 
-/* top‑bar */
-.top{display:flex;align-items:center;gap:10px;color:#fff;font-weight:500;font-size:16px;
-     background:#075e54;padding:10px 16px;padding-top:calc(10px + var(--T));z-index:2;}
-.top .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.top button{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:1;}
+/* ===== CHAT box ===================================================== */
+#chat{
+  position:fixed;inset:0;display:none;flex-direction:column;width:100vw;
+  height:calc(var(--vh)*100);
+  padding:env(safe-area-inset-top) env(safe-area-inset-left) env(safe-area-inset-bottom) env(safe-area-inset-right);
+  background:#ece5dd;overscroll-behavior:contain;touch-action:pan-y;z-index:1100
+}
+#chat::before{content:"";position:absolute;inset:0;background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;opacity:.15}
 
-/* messages area */
-#msgs{flex:1;overflow-y:auto;padding:10px 12px 100px 12px;display:flex;flex-direction:column;gap:6px;z-index:1;}
+/* ===== top‑bar ====================================================== */
+.top{height:48px;display:flex;align-items:center;gap:10px;padding:0 16px;
+     background:#075e54;color:#fff;font-weight:500;font-size:16px;flex:0 0 auto}
+.top .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top button{background:none;border:none;color:#fff;font-size:26px;cursor:pointer}
 
-/* input‑bar */
-#bar{position:fixed;left:0;right:0;bottom:0;display:flex;align-items:center;gap:8px;
-     padding:8px 8px calc(8px + var(--B));background:#f0f0f0;z-index:2;transition:transform .2s;}
-#bar input{flex:1;border:none;border-radius:20px;padding:10px 12px;font-size:15px;background:#fff;}
-#bar button{width:46px;height:46px;border:none;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center;}
+/* ===== area messaggi =============================================== */
+#msgs{flex:1 1 auto;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px}
 
-/* bubbles */
-.msg{max-width:80%;display:flex;flex-direction:column;font-size:14px;position:relative;}
-.b{padding:6px 8px 18px;border-radius:8px;line-height:1.35;box-shadow:0 1px 1px rgba(0,0,0,.08);}
-.t{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6;}
-.me .b{background:#d1f8c6;border-radius:8px 0 8px 8px;align-self:flex-end;}
-.me .b::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700;}
-.you .b{background:#fff;border-radius:0 8px 8px 8px;}
+/* ===== input‑bar ==================================================== */
+#bar{height:60px;display:flex;align-items:center;gap:8px;padding:0 8px;background:#f0f0f0;flex:0 0 auto;transition:transform .2s}
+#bar input{flex:1;border:none;border-radius:20px;padding:10px 12px;font-size:15px;background:#fff}
+#bar button{width:46px;height:46px;border:none;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center}
+
+/* ===== bubble ======================================================= */
+.msg{max-width:80%;display:flex;flex-direction:column;font-size:14px;position:relative}
+.b{padding:6px 8px 18px;border-radius:8px;line-height:1.35;box-shadow:0 1px 1px rgba(0,0,0,.08)}
+.t{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
+.me .b{background:#d1f8c6;border-radius:8px 0 8px 8px;align-self:flex-end}
+.me .b::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
+.you .b{background:#fff;border-radius:0 8px 8px 8px}
 }
 
-/* ========== DESKTOP block (≥601 px) =============================== */
+/* -------- DESKTOP: blocco tutto ------------------------------------ */
 @media (min-width:601px){
 body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;
-            font-size:2.5rem;background:#000;color:#fff;text-align:center;}
-#openChat,#chat{display:none!important;}html,body{overflow:hidden;}
+             font-size:2.5rem;background:#000;color:#fff;text-align:center}
+#open,#chat{display:none!important}html,body{overflow:hidden}
 }
 </style>
 </head><body>
 
-<button id="openChat" aria-label="apri chat"></button>
+<button id="open" aria-label="apri chat"></button>
 
 <div id="chat">
-  <div class="top"><span class="name">Don Alfred 🤵🏻‍♂️</span><button id="close">✕</button></div>
+  <div class="top"><span class="name">Don Alfred 🤵🏻‍♂️</span><button id="close">✕</button></div>
   <div id="msgs"></div>
   <form id="bar"><input id="txt" placeholder="Messaggio"><button type="submit">
-     <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px"></button></form>
+      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px"></button></form>
 </div>
 
 <script>
-const btnOpen=Q('#openChat'),chat=Q('#chat'),btnClose=Q('#close'),txt=Q('#txt'),bar=Q('#bar'),msgs=Q('#msgs');function Q(s){return document.querySelector(s)}
-let history=[];
+const $=s=>document.querySelector(s),open=$('#open'),chat=$('#chat'),close=$('#close'),txt=$('#txt'),
+      bar=$('#bar'),msgs=$('#msgs');let history=[];
 
-/* open/close */
-btnOpen.onclick=_=>{document.body.classList.add('lock');chat.style.display='flex';txt.focus();}
-btnClose.onclick=_=>{chat.style.display='none';document.body.classList.remove('lock')}
+/* -------- open/close & body lock ----------------------------------- */
+open.onclick =()=>{document.body.classList.add('lock');chat.style.display='flex';txt.focus()}
+close.onclick=()=>{chat.style.display='none';document.body.classList.remove('lock')}
 
-/* bubble helper */
-function add(who,text){const d=document.createElement('div');d.className='msg '+who;
-const t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-d.innerHTML=`<div class="b">${text}<span class="t">${t}</span></div>`;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight}
+/* -------- append bubble -------------------------------------------- */
+function bubble(who,text){
+  const d=document.createElement('div');d.className='msg '+who;
+  const hh=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  d.innerHTML=`<div class="b">${text}<span class="t">${hh}</span></div>`;
+  msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight
+}
 
-/* send */
-bar.addEventListener('submit',async e=>{
- e.preventDefault();const v=txt.value.trim();if(!v)return;add('me',v);history.push({role:'user',content:v});txt.value='';
- try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:v,history})});
- const {reply}=await r.json();add('you',reply);history.push({role:'assistant',content:reply});}catch{add('you','Errore di rete 😢')}
-});
+/* -------- send + fetch --------------------------------------------- */
+$('#bar').addEventListener('submit',async e=>{
+  e.preventDefault();const v=txt.value.trim();if(!v)return;
+  bubble('me',v);history.push({role:'user',content:v});txt.value='';
+  try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+       body:JSON.stringify({message:v,history})}),{reply}=await r.json();
+       bubble('you',reply);history.push({role:'assistant',content:reply})}
+  catch{bubble('you','Errore di rete 😢')}
+})
 
-/* viewport & keyboard */
+/* -------- viewport & keyboard fix ---------------------------------- */
 (function(){
- const setVH=()=>{const h=window.visualViewport?visualViewport.height:window.innerHeight;
-                  document.documentElement.style.setProperty('--vh',`${h*0.01}px`);}
+ const setVH=()=>{const h=window.visualViewport?visualViewport.height:innerHeight;
+                  document.documentElement.style.setProperty('--vh',`${h*0.01}px`)}
  setVH();(window.visualViewport||window).addEventListener('resize',setVH);
 
- /* segue tastiera */
  if(window.visualViewport){
-   const follow=()=>{const gap=Math.max(0,window.innerHeight-visualViewport.height-visualViewport.offsetTop);
-     bar.style.transform=`translateY(-${gap}px)`;msgs.style.paddingBottom=`${100+gap}px`;}
-   visualViewport.addEventListener('resize',follow);visualViewport.addEventListener('scroll',follow);follow();
+   const follow=()=>{const g=Math.max(0,innerHeight-visualViewport.height-visualViewport.offsetTop);
+     bar.style.transform=`translateY(-${g}px)`;msgs.style.paddingBottom=`${g}px`}
+   visualViewport.addEventListener('resize',follow);
+   visualViewport.addEventListener('scroll',follow);follow()
  }
 })();
 
-/* blocca rubber‑band su iOS dentro chat */
+/* -------- blocca rubber‑band iOS ----------------------------------- */
 ['touchstart','touchmove'].forEach(ev=>{
-  chat.addEventListener(ev,e=>{
-    if(e.touches.length>1)return;
-    const atTop=msgs.scrollTop===0,atBottom=Math.ceil(msgs.scrollHeight-msgs.scrollTop)===msgs.clientHeight;
-    const dir=e.touches[0].clientY-e.touches[0].screenY;
-    if((atTop&&dir>0)||(atBottom&&dir<0))e.preventDefault();
-  },{passive:false});
-});
+ chat.addEventListener(ev,e=>{
+   if(e.touches.length>1)return;
+   const atTop=msgs.scrollTop===0,atBottom=Math.ceil(msgs.scrollHeight-msgs.scrollTop)===msgs.clientHeight,
+         dir=e.touches[0].clientY-e.touches[0].screenY;
+   if((atTop&&dir>0)||(atBottom&&dir<0))e.preventDefault()
+ },{passive:false})
+})
 </script>
 </body></html>

@@ -46,25 +46,59 @@
       #chatContainer{position:fixed;inset:0;display:none;flex-direction:column;width:100vw;height:100dvh;
                      background:#ece5dd;z-index:1100;}
 
-      /* Barra top fissa */
-      .chatBar{position:fixed;top:0;left:0;width:100%;height:56px;background:#075e54;color:#fff;
-               display:flex;align-items:center;padding:0 16px;font-weight:700;font-size:16px;z-index:2;}
+      /* ======================  WHATSAPP SKIN  ====================== */
+      /* Wallpaper stile WhatsApp */
+      #chatContainer::before{
+        content:"";
+        position:absolute;inset:0;
+        background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") top left / 540px repeat;
+        opacity:.15;
+        z-index:0;
+      }
 
-      /* Input fissa in basso (rispetta la safe‑area degli iPhone) */
-      .chatInput{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom);
-                 display:flex;align-items:center;gap:6px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));
-                 background:#f0f0f0;z-index:2;}
-      .chatInput input{flex:1;padding:10px 12px;border:none;border-radius:20px;font-size:15px;}
-      .chatInput button{width:48px;height:48px;border:none;border-radius:50%;background:#25d366;color:#fff;
-                        font-size:20px;display:flex;align-items:center;justify-content:center;}
+      /* Barra titolo (avatar + icone) */
+      .chatBar{
+        position:fixed;top:0;left:0;width:100%;height:56px;background:#075e54;
+        color:#fff;display:flex;align-items:center;padding:0 16px;gap:10px;
+        font-weight:500;font-size:16px;z-index:3;
+      }
+      .chatBar img.avatar{width:32px;height:32px;border-radius:50%;object-fit:cover;}
+      .chatBar .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+      .chatBar .wIcon{width:22px;height:22px;cursor:pointer;filter:invert(1) brightness(2);}
 
-      /* Area messaggi occupa lo spazio fra le due barre */
-      .chatBody{position:absolute;top:56px;bottom:72px;left:0;right:0;overflow-y:auto;
-                padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
+      /* Input fissa in basso (safe‑area) */
+      .chatInput{
+        position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom);
+        display:flex;align-items:center;gap:8px;padding:8px 8px calc(8px + env(safe-area-inset-bottom));
+        background:#f0f0f0;z-index:3;
+      }
+      .chatInput input{
+        flex:1;padding:10px 12px;border:none;border-radius:20px;font-size:15px;
+        background:#fff;
+      }
+      .chatInput button{
+        width:48px;height:48px;border:none;border-radius:50%;background:#25d366;
+        display:flex;align-items:center;justify-content:center;
+      }
 
-      .bubble{padding:8px 10px;max-width:80%;font-size:14px;line-height:1.3;border-radius:8px;box-shadow:0 1px 1px rgba(0,0,0,.1);}
-      .bot .bubble{background:#fff;color:#000;border-radius:0 8px 8px 8px;}
-      .user .bubble{background:#dcf8c6;color:#000;border-radius:8px 0 8px 8px;align-self:flex-end;}
+      /* Area messaggi occupa lo spazio fra barre */
+      .chatBody{
+        position:absolute;top:56px;bottom:72px;left:0;right:0;overflow-y:auto;
+        padding:10px 12px 90px 12px;display:flex;flex-direction:column;gap:6px;z-index:1;
+      }
+
+      /* Bubble & timestamp */
+      .msg{position:relative;display:flex;flex-direction:column;max-width:80%;}
+      .bubble{padding:6px 8px 16px 8px;font-size:14px;line-height:1.3;border-radius:8px;
+              box-shadow:0 1px 1px rgba(0,0,0,.1);position:relative;}
+      .time{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6;white-space:nowrap;}
+
+      .bot  .bubble{background:#fff;border-radius:0 8px 8px 8px;}
+      .user .bubble{background:#d1f8c6;border-radius:8px 0 8px 8px;align-self:flex-end;}
+      .user .bubble::after{
+        content:"✔✔";font-size:11px;position:absolute;bottom:2px;right:-18px;
+        color:#34b7f1;font-weight:700;font-family:Arial,Helvetica,sans-serif;
+      }
     }
 
     /* ----------------------  BLOCCO DESKTOP >600 px  ---------------------- */
@@ -85,11 +119,26 @@
 
   <!-- Chat -->
   <div id="chatContainer">
-    <div class="chatBar">Don Alfred 🤵🏻‍♂️ <span id="chatClose" style="margin-left:auto;font-size:24px;cursor:pointer;">✕</span></div>
+    <!-- Barra top stile WhatsApp -->
+    <div class="chatBar">
+      <img src="avatar-roberta.jpg" alt="" class="avatar">
+      <span class="name">Ro❤️❤️❤️</span>
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/video-call.png" class="wIcon" alt="video">
+      <img src="https://img.icons8.com/ios-glyphs/30/ffffff/phone.png"      class="wIcon" style="margin-left:8px" alt="call">
+      <span id="chatClose" style="font-size:26px;margin-left:12px;cursor:pointer;">✕</span>
+    </div>
+
     <div class="chatBody" id="chatBody"></div>
+
+    <!-- Input stile WhatsApp -->
     <form class="chatInput" id="chatForm" autocomplete="off">
-      <input id="chatInputField" placeholder="Scrivi un messaggio…" />
-      <button type="submit">➤</button>
+      <img src="https://img.icons8.com/ios-glyphs/30/000000/plus-math.png" class="wIcon" style="filter:none;">
+      <input id="chatInputField" placeholder="Messaggio" />
+      <img src="https://img.icons8.com/ios-glyphs/30/000000/camera.png" class="wIcon" style="filter:none;">
+      <img src="https://img.icons8.com/ios-glyphs/30/000000/image.png"  class="wIcon" style="filter:none;">
+      <button type="submit" aria-label="Invia">
+        <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px;height:24px;">
+      </button>
     </form>
   </div>
 
@@ -125,6 +174,9 @@
       const row=document.createElement('div');
       row.className='msg '+who;
       row.innerHTML=`<div class="bubble">${text}</div>`;
+      /* timestamp */
+      const now = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      row.querySelector('.bubble').insertAdjacentHTML('beforeend',`<span class="time">${now}</span>`);
       chatBody.appendChild(row);
       chatBody.scrollTop=chatBody.scrollHeight;
     }
@@ -140,7 +192,9 @@
                                           body:JSON.stringify({message:text,history})});
         const {reply}= await r.json();
         append('bot',reply); history.push({role:'assistant',content:reply});
-      }catch{ append('bot','Errore di connessione 😢'); }
+      }catch{
+        append('bot','Errore di connessione 😢');
+      }
     });
   </script>
 </body>

@@ -7,50 +7,43 @@
 *{margin:0;padding:0;box-sizing:border-box}
 html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
 
-/* ========== MOBILE ONLY (0‑600 px) ================================= */
+/* -------- MOBILE ≤600 px ------------------------------------------ */
 @media (max-width:600px){
-:root{--vh:1vh}                        /* fallback per iOS <15.6 */
+:root{--safeT:env(safe-area-inset-top);--safeB:env(safe-area-inset-bottom);}
 
-/* pulsante flottante ------------------------------------------------ */
+/* pulsante verde --------------------------------------------------- */
 #btn{position:fixed;top:1rem;right:1rem;width:60px;height:60px;border:none;border-radius:50%;
      background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat;
      box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:1000;cursor:pointer}
 #btn:active{transform:scale(.9)}
 
-/* chat container ---------------------------------------------------- */
-#box{
-  position:fixed;inset:0;display:none;flex-direction:column;width:100vw;
-  height:100dvh;                /* Safari 15.6+ / Chrome 103+ */
-  height:calc(var(--vh)*100);   /* fallback runtime iOS <=15.5 */
-  background:#ece5dd;
-  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
-  overscroll-behavior:contain;touch-action:pan-y;z-index:1100
-}
+/* contenitore chat ------------------------------------------------- */
+#box{position:fixed;inset:0;display:none;width:100vw;height:100vh;background:#ece5dd;z-index:1100}
 #box::before{content:"";position:absolute;inset:0;pointer-events:none;
-  background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
-  opacity:.15}
+  background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;opacity:.15}
 
-/* top‑bar (sticky) -------------------------------------------------- */
-.head{height:52px;background:#075e54;color:#fff;display:flex;align-items:center;
-      gap:10px;padding:0 16px;font-weight:500;font-size:16px;
-      position:sticky;top:env(safe-area-inset-top);z-index:5}
-.head .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.head button{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:0}
+/* top‑bar fissa ---------------------------------------------------- */
+.top{position:fixed;top:0;left:0;right:0;height:52px;padding-top:var(--safeT);
+     background:#075e54;color:#fff;display:flex;align-items:center;gap:10px;padding-left:16px;padding-right:16px;
+     font-weight:500;font-size:16px;z-index:2}
+.top .name{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.top button{background:none;border:none;color:#fff;font-size:26px;cursor:pointer;line-height:0}
 
-/* messages list ----------------------------------------------------- */
-#list{flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
-      padding:10px 12px;scroll-behavior:smooth;
-      /* spazio per la input‑bar + safe‑area */
-      padding-bottom:calc(env(safe-area-inset-bottom) + 64px)}
+/* barra input fissa ------------------------------------------------ */
+.bottom{position:fixed;left:0;right:0;height:60px;padding:8px 8px calc(8px + var(--safeB));
+        background:#f0f0f0;display:flex;align-items:center;gap:8px;z-index:2;transition:bottom .15s}
+.bottom input{flex:1;border:none;border-radius:20px;padding:10px 12px;font-size:15px;background:#fff}
+.bottom button{width:46px;height:46px;border:none;border-radius:50%;background:#25d366;
+               display:flex;align-items:center;justify-content:center}
 
-/* input‑bar (stick al bottom) -------------------------------------- */
-#bar{height:56px;background:#f0f0f0;display:flex;align-items:center;gap:8px;padding:0 8px;
-     position:sticky;bottom:env(safe-area-inset-bottom);z-index:5}
-#bar input{flex:1;border:none;border-radius:20px;padding:10px 12px;background:#fff;font-size:15px}
-#bar button{width:46px;height:46px;border:none;border-radius:50%;background:#25d366;
-            display:flex;align-items:center;justify-content:center}
+/* lista messaggi --------------------------------------------------- */
+#list{position:absolute;left:0;right:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
+      padding:10px 12px;
+      top:calc(52px + var(--safeT));                 /* sotto la top‑bar   */
+      bottom:calc(60px + var(--safeB));              /* sopra la input‑bar */
+      scroll-behavior:smooth}
 
-/* bubbles ----------------------------------------------------------- */
+/* bolle ------------------------------------------------------------- */
 .msg{max-width:80%;display:flex;flex-direction:column;font-size:14px;position:relative}
 .b{padding:6px 8px 18px;border-radius:8px;line-height:1.35;box-shadow:0 1px 1px rgba(0,0,0,.07)}
 .t{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
@@ -59,7 +52,7 @@ html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Rob
 .you .b{background:#fff;border-radius:0 8px 8px 8px}
 }
 
-/* ========== DESKTOP block ========================================= */
+/* -------- DESKTOP: blocco ----------------------------------------- */
 @media (min-width:601px){
 body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;
              font-size:2.5rem;background:#000;color:#fff;text-align:center}
@@ -68,60 +61,57 @@ body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;ju
 </style>
 </head><body>
 
-<button id="btn" aria-label="Apri chat"></button>
+<button id="btn"></button>
 
 <div id="box">
-  <div class="head"><span class="name">Don Alfred 🤵🏻‍♂️</span><button id="close">✕</button></div>
+  <div class="top"><span class="name">Don Alfred 🤵🏻‍♂️</span><button id="close">✕</button></div>
   <div id="list"></div>
-  <form id="bar" autocomplete="off">
-     <input id="txt" placeholder="Messaggio">
-     <button type="submit"><img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px"></button>
-  </form>
+  <form class="bottom" id="bar"><input id="txt" placeholder="Messaggio"><button type="submit">
+      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px"></button></form>
 </div>
 
 <script>
-const $=s=>document.querySelector(s),btn=$('#btn'),box=$('#box'),cls=$('#close'),
-      txt=$('#txt'),list=$('#list'),bar=$('#bar');let history=[];
+const $=s=>document.querySelector(s),btn=$('#btn'),box=$('#box'),close=$('#close'),
+      list=$('#list'),bar=$('#bar'),txt=$('#txt');let hist=[];
 
-/* open / close ------------------------------------------------------ */
-btn.onclick =()=>{box.style.display='flex';document.body.style.overflow='hidden';txt.focus()}
-cls.onclick =()=>{box.style.display='none';document.body.style.overflow='';}
+/* open/close -------------------------------------------------------- */
+btn.onclick =()=>{box.style.display='block';document.body.style.overflow='hidden';txt.focus()}
+close.onclick=()=>{box.style.display='none';document.body.style.overflow=''}
 
-/* append bubble ----------------------------------------------------- */
-function add(who,text){
-  const n=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  list.insertAdjacentHTML('beforeend',
-    `<div class="msg ${who}"><div class="b">${text}<span class="t">${n}</span></div></div>`);
-  list.scrollTop=list.scrollHeight;
+/* bubbles ----------------------------------------------------------- */
+function add(who,txt){const t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+ list.insertAdjacentHTML('beforeend',`<div class="msg ${who}"><div class="b">${txt}<span class="t">${t}</span></div></div>`);
+ list.scrollTop=list.scrollHeight}
+
+/* submit ------------------------------------------------------------ */
+bar.addEventListener('submit',async e=>{
+ e.preventDefault();const v=txt.value.trim();if(!v)return;
+ add('me',v);hist.push({role:'user',content:v});txt.value='';
+ try{const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({message:v,history:hist})}),{reply}=await r.json();
+        add('you',reply);hist.push({role:'assistant',content:reply})}
+ catch{add('you','Errore di rete 😢')}
+})
+
+/* barra segue tastiera (Safari) ------------------------------------ */
+if(window.visualViewport){
+  const follow=()=>{
+    const gap=Math.max(0,innerHeight-visualViewport.height-visualViewport.offsetTop);
+    bar.style.bottom=`calc(${gap}px + var(--safeB))`;
+    list.style.bottom=`calc(60px + var(--safeB) + ${gap}px)`;
+  };
+  visualViewport.addEventListener('resize',follow);
+  visualViewport.addEventListener('scroll',follow);
+  follow();
 }
 
-/* send -------------------------------------------------------------- */
-bar.addEventListener('submit',async e=>{
-  e.preventDefault();
-  const val=txt.value.trim();if(!val)return;
-  add('me',val);history.push({role:'user',content:val});txt.value='';
-  try{
-    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
-                body:JSON.stringify({message:val,history})});
-    const {reply}=await r.json();add('you',reply);history.push({role:'assistant',content:reply})
-  }catch{add('you','Errore di rete 😢')}
-});
-
-/* --vh fallback per vecchi iOS ------------------------------------- */
-(function(){
-  const update=()=>{const h=window.visualViewport?visualViewport.height:innerHeight;
-                    document.documentElement.style.setProperty('--vh',`${h*0.01}px`)}
-  update();(window.visualViewport||window).addEventListener('resize',update);
-})();
-
-/* blocco rubber‑band iOS ------------------------------------------- */
+/* rubber‑band iOS stop --------------------------------------------- */
 ['touchstart','touchmove'].forEach(ev=>{
  box.addEventListener(ev,e=>{
    if(e.touches.length>1)return;
-   const atTop=list.scrollTop===0,
-         atBottom=Math.abs(list.scrollHeight-list.scrollTop-list.clientHeight)<1,
+   const top=list.scrollTop===0,bot=Math.abs(list.scrollHeight-list.scrollTop-list.clientHeight)<1,
          dir=Math.sign(e.touches[0].clientY-e.touches[0].screenY);
-   if((atTop&&dir>0)||(atBottom&&dir<0))e.preventDefault();
+   if((top&&dir>0)||(bot&&dir<0))e.preventDefault();
  },{passive:false});
 });
 </script>

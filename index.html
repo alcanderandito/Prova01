@@ -1,10 +1,9 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Team Due Mori (Mobile Only)</title>
-
   <style>
     /* RESET & BASE */
     *{margin:0;padding:0;box-sizing:border-box;}
@@ -18,82 +17,68 @@
       .overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:-1;pointer-events:none;}
 
       /* HEADER iniziale */
-      header{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;
-              text-align:center;color:#fff;padding:0 20px;}
+      header{height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:0 20px;}
       h1{font-size:2.2rem;font-weight:700;letter-spacing:.05em;text-shadow:0 1px 4px rgba(0,0,0,.7);margin-bottom:.3em;}
       .subtitle{font-size:.95rem;text-shadow:0 1px 3px rgba(0,0,0,.7);margin-bottom:1em;}
       #scrollIndicator{font-size:2rem;color:#fff;cursor:pointer;animation:pulse 1.5s ease-in-out infinite;}
       @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.3);}}
 
-      /* GRID 2×N fissa */
+      /* GRID */
       main{position:relative;z-index:1;min-height:200vh;padding:40px 20px 80px;}
       .nav{display:grid;gap:20px;justify-items:center;grid-template-columns:repeat(2,1fr);margin:0 auto;max-width:480px;}
-      .nav a{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-             font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;background:rgba(255,255,255,.5);
-             backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);
-             opacity:0;transform:scale(0);animation:popIn .5s ease forwards,breath 3s ease-in-out infinite .6s;}
-      @keyframes popIn{0%{opacity:0;transform:scale(0);}60%{opacity:1;transform:scale(1.2);}100%{opacity:1;transform:scale(1);} }
-      @keyframes breath{0%,100%{transform:scale(1);}50%{transform:scale(1.05);} }
+      .nav a{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.9rem;font-weight:600;color:#fff;text-decoration:none;background:rgba(255,255,255,.5);backdrop-filter:blur(4px);border:1px solid rgba(255,255,255,.3);box-shadow:0 4px 12px rgba(0,0,0,.2);opacity:0;transform:scale(0);animation:popIn .5s ease forwards,breath 3s ease-in-out infinite .6s;}
+      @keyframes popIn{0%{opacity:0;transform:scale(0);}60%{opacity:1;transform:scale(1.2);}100%{opacity:1;transform:scale(1);}}
+      @keyframes breath{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
       .nav a:hover{box-shadow:0 0 8px rgba(255,255,255,.8),0 0 16px rgba(255,255,255,.6);transform:translateY(-4px) scale(1.05);} 
       .nav a:active{transform:translateY(0) scale(1.02);box-shadow:inset 0 2px 6px rgba(0,0,0,.3);} 
 
-      /* CHAT FULL‑SCREEN stile WhatsApp */
-      #chatToggle{position:fixed;bottom:1.2rem;right:1.2rem;width:64px;height:64px;border:none;border-radius:50%;
-                  background:#25d366 url("https://img.icons8.com/ios-glyphs/60/ffffff/chat--v1.png") center/60% no-repeat;
-                  cursor:pointer;z-index:1000;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .15s;}
+      /* CHAT BUTTON */
+      #chatToggle{position:fixed;top:1rem;right:1rem;width:60px;height:60px;border:none;border-radius:50%;background:#25d366 url("https://img.icons8.com/ios-glyphs/60/ffffff/chat--v1.png") center/60% no-repeat;cursor:pointer;z-index:1000;box-shadow:0 4px 14px rgba(0,0,0,.25);transition:transform .15s;}
       #chatToggle:active{transform:scale(.93);} 
 
-      #chatContainer{position:fixed;inset:0;width:100vw;height:100vh;display:none;z-index:1100;background:#ece5dd;flex-direction:column;}
+      /* CHAT FULLSCREEN */
+      #chatContainer{position:fixed;inset:0;width:100vw;height:100dvh;display:none;z-index:1100;background:#ece5dd;flex-direction:column;}
       .chatBox{flex:1;display:flex;flex-direction:column;}
-
-      /* Barra superiore stile WhatsApp */
-      .chatBar{background:#075e54;color:#fff;padding:14px 16px;font-weight:700;display:flex;align-items:center;
-               font-size:16px;box-shadow:0 1px 2px rgba(0,0,0,.25);}
-
+      .chatBar{background:#075e54;color:#fff;padding:14px 16px;font-weight:700;display:flex;align-items:center;font-size:16px;box-shadow:0 1px 2px rgba(0,0,0,.25);} 
       .chatBody{flex:1;overflow-y:auto;padding:10px 12px;display:flex;flex-direction:column;gap:6px;}
       .chatBody .msg{display:flex;}
       .chatBody .bot .bubble{background:#fff;color:#000;align-self:flex-start;border-radius:0 8px 8px 8px;}
       .chatBody .user .bubble{background:#dcf8c6;color:#000;align-self:flex-end;border-radius:8px 0 8px 8px;}
       .bubble{padding:8px 10px;max-width:80%;word-wrap:break-word;font-size:14px;line-height:1.3;box-shadow:0 1px 1px rgba(0,0,0,.1);}      
-
-      /* Input bar bottom */
       .chatInput{display:flex;align-items:center;padding:8px;background:#f0f0f0;gap:6px;}
       .chatInput input{flex:1;padding:10px 12px;border:none;border-radius:20px;font-size:15px;background:#fff;}
-      .chatInput button{width:48px;height:48px;border:none;border-radius:50%;background:#25d366;color:#fff;font-size:20px;cursor:pointer;
-                       display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.2);}      
+      .chatInput button{width:48px;height:48px;border:none;border-radius:50%;background:#25d366;color:#fff;font-size:20px;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 1px 3px rgba(0,0,0,.2);}      
     }
 
-    /* ----------  BLOCCA DESKTOP (≥601 px) ---------- */
+    /* ----------  DESKTOP BLOCK ---------- */
     @media (min-width:601px){
       header,main,#chatToggle,#chatContainer,.bg,.overlay{display:none!important;}
-      body::before{content:"🛑 Questo sito è ottimizzato solo per smartphone.\A  Aprilo dal tuo telefono, gigante! 😜";
-        white-space:pre-line;display:flex;align-items:center;justify-content:center;height:100vh;width:100%;text-align:center;
-        font-size:2.5rem;font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff;padding:0 5vw;}
+      body::before{content:"🛑 Questo sito è ottimizzato solo per smartphone.\A  Aprilo dal tuo telefono, gigante! 😜";white-space:pre-line;display:flex;align-items:center;justify-content:center;height:100vh;width:100%;text-align:center;font-size:2.5rem;font-family:Arial,Helvetica,sans-serif;background:#000;color:#fff;padding:0 5vw;}
       html,body{overflow:hidden;}
     }
   </style>
 </head>
 <body>
   <!-- BACKGROUND -->
-  <img src="home1.PNG" class="bg" id="bg" alt="">
+  <img src="home1.PNG" class="bg" id="bg" alt="sfondo" />
   <div class="overlay"></div>
 
   <!-- CHAT TOGGLE -->
   <button id="chatToggle" aria-label="Apri chat"></button>
 
-  <!-- CHAT CONTAINER full‑screen -->
+  <!-- CHAT CONTAINER -->
   <div id="chatContainer">
     <div class="chatBox" id="chatBox">
       <div class="chatBar">Don Alfred 🤵🏻‍♂️ <span id="chatClose" style="margin-left:auto;cursor:pointer;font-weight:400;font-size:24px;">✕</span></div>
       <div class="chatBody" id="chatBody"></div>
       <form class="chatInput" id="chatForm" autocomplete="off">
-        <input id="chatInput" placeholder="Scrivi un messaggio…"/>
+        <input id="chatInput" placeholder="Scrivi un messaggio…" />
         <button type="submit">➤</button>
       </form>
     </div>
   </div>
 
-  <!-- CONTENUTO -->
+  <!-- CONTENUTO PRINCIPALE -->
   <header>
     <h1>Team Due Mori</h1>
     <div class="subtitle">Sfoglia le schede del Dream‑Team.</div>
@@ -105,45 +90,30 @@
   <script>
     /* BG zoom e scroll indicator */
     window.addEventListener('scroll',()=>{
-      const f=Math.min(window.scrollY/200,1);
-      document.getElementById('bg').style.transform=`translate(-50%,-50%) scale(${1+f*0.5})`;
+      const f=Math.min(scrollY/200,1);
+      bg.style.transform=`translate(-50%,-50%) scale(${1+f*0.5})`;
     });
-    document.getElementById('scrollIndicator').onclick=()=>document.getElementById('teamNav').scrollIntoView({behavior:'smooth'});
+    scrollIndicator.onclick=()=>teamNav.scrollIntoView({behavior:'smooth'});
 
-    /* LOGICA CHAT */
-    const chatToggle=document.getElementById('chatToggle');
-    const chatContainer=document.getElementById('chatContainer');
-    const chatClose=document.getElementById('chatClose');
-    const chatBody=document.getElementById('chatBody');
-    const chatForm=document.getElementById('chatForm');
-    const chatInput=document.getElementById('chatInput');
-    const history=[];
+    /* CHAT LOGIC */
+    const chatToggle=document.getElementById('chatToggle'),chatContainer=document.getElementById('chatContainer'),chatClose=document.getElementById('chatClose'),chatBody=document.getElementById('chatBody'),chatForm=document.getElementById('chatForm'),chatInput=document.getElementById('chatInput'),history=[];
 
-    chatToggle.addEventListener('click',()=>{
-      chatContainer.style.display='flex';
-      chatInput.focus();
-    });
-    chatClose.addEventListener('click',()=>chatContainer.style.display='none');
+    chatToggle.onclick=()=>{chatContainer.style.display='flex';chatInput.focus();};
+    chatClose.onclick=()=>chatContainer.style.display='none';
+
+    function append(who,txt){const d=document.createElement('div');d.className='msg '+who;d.innerHTML=`<div class="bubble">${txt}</div>`;chatBody.appendChild(d);chatBody.scrollTop=chatBody.scrollHeight;}
 
     chatForm.addEventListener('submit',async e=>{
       e.preventDefault();
-      const text=chatInput.value.trim();
-      if(!text)return;
-      append('user',text);history.push({role:'user',content:text});
-      chatInput.value='';
+      const t=chatInput.value.trim();
+      if(!t)return;
+      append('user',t);history.push({role:'user',content:t});chatInput.value='';
       try{
-        const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history})});
-        const {reply}=await res.json();
+        const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:t,history})});
+        const {reply}=await r.json();
         append('bot',reply);history.push({role:'assistant',content:reply});
       }catch{append('bot','Errore di connessione 😢');}
     });
-
-    function append(who,txt){
-      const row=document.createElement('div');row.className='msg '+who;
-      row.innerHTML=`<div class="bubble">${txt}</div>`;
-      chatBody.appendChild(row);
-      chatBody.scrollTop=chatBody.scrollHeight;
-    }
   </script>
 </body>
 </html>

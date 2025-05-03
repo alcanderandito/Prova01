@@ -17,22 +17,21 @@
       --safeB:env(safe-area-inset-bottom);
       --safeL:env(safe-area-inset-left);
       --safeR:env(safe-area-inset-right);
-      --kbInset:var(--safeB);   /* aggiornato da JS */
-      --vvTop:0px;              /* offset virtual viewport */
+      --kbInset:var(--safeB);
     }
 
-    /* quando la tastiera è aperta, POSIZIONA #log più in alto ma NON bloccarne lo scroll */
+    /* quando la tastiera è aperta, #log resta incastrato tra header e input-bar */
     html.kb-open #log {
+      /* top direttamente sotto l’header */
+      top:    calc(var(--safeT) + 48px) !important;
       bottom: calc(var(--kbInset) + 56px) !important;
       overflow-y: auto !important;
-      /* riduci la sua altezza quando la tastiera è aperta */
-      height: 150px !important;
     }
 
-    /* HEADER: sempre in cima, segue la visualViewport */
+    /* HEADER: sempre fisso in cima */
     header{
       position:fixed;
-      top: calc(var(--vvTop) + var(--safeT));
+      top:var(--safeT);
       left:var(--safeL);
       right:var(--safeR);
       height:48px; line-height:48px;
@@ -40,7 +39,6 @@
       display:flex; align-items:center; gap:12px;
       padding:0 16px; font-weight:500; font-size:18px;
       z-index:200;
-      transition:top .1s;
     }
     header a{font-size:28px; text-decoration:none; color:inherit}
     header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -138,12 +136,6 @@
         const inset = overlap > 0 ? overlap + safeB : safeB;
         document.documentElement.style.setProperty('--kbInset', inset + 'px');
         document.documentElement.classList.toggle('kb-open', overlap > 0);
-
-        // Calcola offset virtual viewport per mantenere header visibile
-        const vvTop = vv
-          ? (vv.pageTop !== undefined ? vv.pageTop : window.scrollY)
-          : window.scrollY;
-        document.documentElement.style.setProperty('--vvTop', vvTop + 'px');
       }
 
       update();
@@ -153,7 +145,6 @@
       }
       window.addEventListener('resize', update);
       window.addEventListener('orientationchange', update);
-      window.addEventListener('scroll', update);
       inp.addEventListener('focus', update);
       inp.addEventListener('blur', update);
     })();

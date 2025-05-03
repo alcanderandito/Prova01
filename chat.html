@@ -20,6 +20,11 @@
       --kbInset:var(--safeB);  /* verrà aggiornato da JS */
     }
 
+    /* quando la tastiera è aperta, blocca lo scroll dei messaggi */
+    html.kb-open #log {
+      overflow-y: hidden;
+    }
+
     /* HEADER */
     header{
       position:fixed;
@@ -116,13 +121,19 @@
     const form = document.getElementById('bar');
     const vv = window.visualViewport;
 
-    // sincronizza --kbInset con l’altezza della tastiera
+    // sincronizza --kbInset e classe kb-open
     (function syncKbInset(){
       function update(){
         const safeB = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safeB'));
         const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0;
         const inset = overlap > 0 ? overlap + safeB : safeB;
         document.documentElement.style.setProperty('--kbInset', inset + 'px');
+        // toggle classe per bloccare lo scroll
+        if(overlap > 0){
+          document.documentElement.classList.add('kb-open');
+        } else {
+          document.documentElement.classList.remove('kb-open');
+        }
       }
       update();
       if(vv){

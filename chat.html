@@ -11,47 +11,47 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
   height:100%;
-  overflow:hidden;                      /* stop scroll pagina */
+  overflow:hidden;                      /* nessun scroll pagina */
   font:15px/48px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
   overscroll-behavior:none;
 }
 
-/* SAFE‑AREA VARS ---------------------------------------------------- */
+/* SAFE‑AREA & VARS -------------------------------------------------- */
 :root{
   --safeT:env(safe-area-inset-top);
   --safeB:env(safe-area-inset-bottom);
   --safeL:env(safe-area-inset-left);
   --safeR:env(safe-area-inset-right);
-  --vh:100svh;    /* altezza viewport visibile (JS) */
+  --vh:100svh;         /* altezza visibile (JS) */
+  --bottom:var(--safeB);  /* padding low dinamico (JS) */
 }
 
 /* CONTENITORE CHAT -------------------------------------------------- */
 #chat{
-  position:fixed;inset:0;
-  width:100vw;height:var(--vh);
+  position:fixed;inset:0;width:100vw;height:var(--vh);
   display:flex;flex-direction:column;
 
   background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")
-            0/540px repeat;background-blend-mode:luminosity;
+          0/540px repeat;background-blend-mode:luminosity;
 
-  padding:var(--safeT) var(--safeR) var(--safeB) var(--safeL);
+  padding:var(--safeT) var(--safeR) var(--bottom) var(--safeL);
   touch-action:pan-y;overscroll-behavior:contain;
 }
 
-/* keyboard‑inset (iOS 15+) → niente gap fra input e tastiera -------- */
+/* Con tastiera aperta (iOS 15+) Safari fornisce env(keyboard‑inset) */
 @supports (padding:env(keyboard-inset-height)){
-  #chat{ padding-bottom:calc(env(keyboard-inset-height) + var(--safeB)); }
+  #chat.keyboard-open{ padding-bottom:env(keyboard-inset-height); }
 }
 
 /* HEADER ------------------------------------------------------------ */
 .header{
-  flex:none;height:48px;line-height:48px;     /* elimina hair‑line */
+  flex:none;height:48px;line-height:48px;
   background:#075e54;color:#fff;
   display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500}
 .header a{font-size:28px;text-decoration:none;color:inherit}
 .header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* LISTA MESSAGGI ---------------------------------------------------- */
+/* LISTA ------------------------------------------------------------- */
 #msgs{
   flex:1 1 auto;display:flex;flex-direction:column;gap:6px;
   overflow-y:auto;padding:12px;scroll-behavior:smooth}
@@ -101,32 +101,46 @@ html,body{
 </div>
 
 <script>
-/* SHORTCUTS --------------------------------------------------------- */
+/* SHORTCUT ---------------------------------------------------------- */
 const $ = s => document.querySelector(s);
-const list = $('#msgs'), form = $('#chatForm'), inp = $('#chatInput');
+const chat = $('#chat'), list = $('#msgs'), form = $('#chatForm'), inp = $('#chatInput');
 let history = [];
 
-/* 1. Ricalcola --vh (altezza visibile) ------------------------------ */
-function updateVH(){
-  const vv = window.visualViewport;
-  const vh = vv ? vv.height : innerHeight;
-  document.documentElement.style.setProperty('--vh', vh + 'px');
-  list.scrollTop = list.scrollHeight;          // ancora in fondo
-}
-updateVH();
+/* === SYNC LAYOUT (altezza + padding) ============================== */
+function syncLayout(){
+  const vv    = window.visualViewport;
+  const winH  = innerHeight;
+  const vh    = vv ? vv.height : winH;                // spazio effettivo
+  const offset= Math.max(0, winH - vh - (vv ? vv.offsetTop : 0)); // tastiera o URL‑bar
 
-/* 2. Blocca QUALSIASI scroll del documento ------------------------- */
+  /* altura container */
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+
+  /* padding bottom preciso */
+  if(offset > 0){
+    chat.classList.add('keyboard-open');
+    chat.style.setProperty('--bottom', offset + 'px');
+  }else{
+    chat.classList.remove('keyboard-open');
+    chat.style.setProperty('--bottom', 'var(--safeB)');
+  }
+
+  list.scrollTop = list.scrollHeight;   // resta in fondo
+}
+syncLayout();
+
+/* === BLOCCA QUALSIASI SCROLL ESTERNO ============================== */
 function lockScroll(){ window.scrollTo(0,0); }
 
-/* Listener universale ---------------------------------------------- */
+/* Eventi malefici --------------------------------------------------- */
 ['scroll','focusin','focusout','resize','orientationchange'].forEach(ev=>{
   window.addEventListener(ev, () => {
     lockScroll();
-    updateVH();
+    syncLayout();
   }, { passive:true });
 });
 
-/* 3. Blocca rubber‑band dentro la lista ---------------------------- */
+/* BLOCCA RUBBER‑BAND LISTA ----------------------------------------- */
 list.addEventListener('touchmove', e=>{
   const atTop = list.scrollTop === 0,
         atBot = Math.abs(list.scrollHeight - list.scrollTop - list.clientHeight) < 1,
@@ -134,7 +148,7 @@ list.addEventListener('touchmove', e=>{
   if ((atTop && dir > 0) || (atBot && dir < 0)) e.preventDefault();
 },{passive:false});
 
-/* 4. Funzioni chat -------------------------------------------------- */
+/* BOLLA ------------------------------------------------------------- */
 function bubble(who,text){
   const h = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   list.insertAdjacentHTML('beforeend',
@@ -142,6 +156,7 @@ function bubble(who,text){
   list.scrollTop = list.scrollHeight;
 }
 
+/* INVIO ------------------------------------------------------------- */
 form.addEventListener('submit', async e=>{
   e.preventDefault();
   const t = inp.value.trim(); if(!t) return;

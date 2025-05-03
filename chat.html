@@ -11,8 +11,8 @@
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
   height:100%;
-  overflow:hidden;                /* Safari non può scrollare il <body> */
-  font:15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
+  overflow:hidden;                      /* stop scroll pagina */
+  font:15px/48px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
   overscroll-behavior:none;
 }
 
@@ -22,13 +22,13 @@ html,body{
   --safeB:env(safe-area-inset-bottom);
   --safeL:env(safe-area-inset-left);
   --safeR:env(safe-area-inset-right);
-  --vh:100svh;    /* altezza viewport visibile (JS la regola) */
+  --vh:100svh;    /* altezza viewport visibile (JS) */
 }
 
 /* CONTENITORE CHAT -------------------------------------------------- */
 #chat{
   position:fixed;inset:0;
-  width:100vw;height:var(--vh);   /* si adatta live */
+  width:100vw;height:var(--vh);
   display:flex;flex-direction:column;
 
   background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")
@@ -38,16 +38,17 @@ html,body{
   touch-action:pan-y;overscroll-behavior:contain;
 }
 
-/* keyboard‑inset (iOS 15+) → niente gap fra input e tastiera -------- */
+/* keyboard‑inset (iOS 15+) → niente gap fra input e tastiera -------- */
 @supports (padding:env(keyboard-inset-height)){
   #chat{ padding-bottom:calc(env(keyboard-inset-height) + var(--safeB)); }
 }
 
 /* HEADER ------------------------------------------------------------ */
 .header{
-  flex:none;height:48px;background:#075e54;color:#fff;
+  flex:none;height:48px;line-height:48px;     /* elimina hair‑line */
+  background:#075e54;color:#fff;
   display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500}
-.header a{font-size:28px;line-height:1;text-decoration:none;color:inherit}
+.header a{font-size:28px;text-decoration:none;color:inherit}
 .header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
 /* LISTA MESSAGGI ---------------------------------------------------- */
@@ -60,7 +61,7 @@ html,body{
   flex:none;height:56px;background:#f0f0f0;
   display:flex;align-items:center;gap:8px;padding:0 8px}
 .input input{
-  flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;background:#fff;min-width:0}
+  flex:1;border:none;border-radius:20px;padding:10px 14px;background:#fff;font-size:15px;min-width:0}
 .input button{
   border:none;width:46px;height:46px;border-radius:50%;background:#25d366;
   display:flex;align-items:center;justify-content:center}
@@ -105,32 +106,27 @@ const $ = s => document.querySelector(s);
 const list = $('#msgs'), form = $('#chatForm'), inp = $('#chatInput');
 let history = [];
 
-/* === 1. Ricalcola altezza visibile & blocca scroll ================= */
-function updateVH() {
+/* 1. Ricalcola --vh (altezza visibile) ------------------------------ */
+function updateVH(){
   const vv = window.visualViewport;
-  let vh = vv ? vv.height : innerHeight;
-
-  /* Safari: se il documento è scrollato (floating URL‑bar), togli l’offset */
-  const pageY = window.scrollY || window.pageYOffset;
-  if (pageY > 0) vh -= pageY;
-
+  const vh = vv ? vv.height : innerHeight;
   document.documentElement.style.setProperty('--vh', vh + 'px');
-  // scroll lista in fondo
-  list.scrollTop = list.scrollHeight;
+  list.scrollTop = list.scrollHeight;          // ancora in fondo
 }
 updateVH();
 
-/* Guardiano: impedisce ogni scroll del documento */
-function lockScroll() { window.scrollTo(0, 0); }
+/* 2. Blocca QUALSIASI scroll del documento ------------------------- */
+function lockScroll(){ window.scrollTo(0,0); }
 
-/* Eventi che scatenano i pasticci di Safari ------------------------- */
-['focusin','focusout','resize','orientationchange'].forEach(ev=>{
+/* Listener universale ---------------------------------------------- */
+['scroll','focusin','focusout','resize','orientationchange'].forEach(ev=>{
   window.addEventListener(ev, () => {
-    setTimeout(() => { lockScroll(); updateVH(); }, 0);
+    lockScroll();
+    updateVH();
   }, { passive:true });
 });
 
-/* === 2. Blocca rubber‑band interno alla lista ---------------------- */
+/* 3. Blocca rubber‑band dentro la lista ---------------------------- */
 list.addEventListener('touchmove', e=>{
   const atTop = list.scrollTop === 0,
         atBot = Math.abs(list.scrollHeight - list.scrollTop - list.clientHeight) < 1,
@@ -138,7 +134,7 @@ list.addEventListener('touchmove', e=>{
   if ((atTop && dir > 0) || (atBot && dir < 0)) e.preventDefault();
 },{passive:false});
 
-/* === 3. Funzioni chat (bolle + fetch) ------------------------------ */
+/* 4. Funzioni chat -------------------------------------------------- */
 function bubble(who,text){
   const h = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   list.insertAdjacentHTML('beforeend',
@@ -148,12 +144,12 @@ function bubble(who,text){
 
 form.addEventListener('submit', async e=>{
   e.preventDefault();
-  const t = inp.value.trim(); if (!t) return;
+  const t = inp.value.trim(); if(!t) return;
   bubble('me', t); history.push({role:'user', content:t}); inp.value='';
   try{
     const r = await fetch('/api/chat',{
       method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:t,history})
+      body:JSON.stringify({message:t, history})
     });
     const {reply} = await r.json();
     bubble('you', reply); history.push({role:'assistant', content:reply});

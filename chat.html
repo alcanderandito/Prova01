@@ -1,183 +1,182 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-<meta charset="utf-8">
-<!-- blocca lo zoom su focus e mantiene viewport stabile -->
-<meta name="viewport" 
-      content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
-<title>Chat • Don Alfred</title>
+  <meta charset="utf-8">
+  <!-- blocca lo zoom su focus e mantiene viewport stabile -->
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <title>Chat • Don Alfred</title>
+  <style>
+    /* RESET & BASE */
+    *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
 
-<style>
-/* RESET ---------------------------------------------------------------- */
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
+    /* SAFE-AREA & VAR */
+    :root{
+      --safeT:env(safe-area-inset-top);
+      --safeB:env(safe-area-inset-bottom);
+      --safeL:env(safe-area-inset-left);
+      --safeR:env(safe-area-inset-right);
+      /* fallback JS imposta --kbInset */
+      --kbInset:var(--safeB);
+    }
 
-/* SAFE-AREA & VAR ----------------------------------------------------- */
-:root{
-  --safeT:env(safe-area-inset-top);
-  --safeB:env(safe-area-inset-bottom);
-  --safeL:env(safe-area-inset-left);
-  --safeR:env(safe-area-inset-right);
-  /* fallback JS imposta --kbInset */
-  --kbInset:var(--safeB);
-}
+    /* quando la tastiera è aperta, blocca lo scroll dei messaggi */
+    html.kb-open #log {
+      overflow-y: hidden;
+    }
 
-/* quando c’è keyboard, disabilita lo scroll dei messaggi */
-html.kb-open #log {
-  overflow-y: hidden;
-}
+    /* HEADER SEMPRE VISIBILE */
+    header{
+      position:fixed;
+      top:var(--safeT); left:var(--safeL); right:var(--safeR);
+      height:48px; line-height:48px;
+      background:#075e54; color:#fff;
+      display:flex; align-items:center; gap:12px;
+      padding:0 16px; font-weight:500; font-size:18px;
+      z-index:100;
+    }
+    header a{font-size:28px; text-decoration:none; color:inherit}
+    header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
 
-/* HEADER SEMPRE VISIBILE --------------------------------------------- */
-header{
-  position:fixed;
-  top:var(--safeT); left:var(--safeL); right:var(--safeR);
-  height:48px; line-height:48px;
-  background:#075e54; color:#fff;
-  display:flex; align-items:center; gap:12px;
-  padding:0 16px; font-weight:500; font-size:18px;
-  z-index:100;
-}
-header a{font-size:28px; text-decoration:none; color:inherit}
-header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+    /* INPUT-BAR FISSA SULLA TASTIERA */
+    #bar{
+      position:fixed;
+      left:var(--safeL); right:var(--safeR);
+      bottom:env(keyboard-inset-height, var(--kbInset));
+      height:56px;
+      background:#f0f0f0;
+      display:flex; align-items:center; gap:8px;
+      padding:0 8px; z-index:90;
+    }
+    #bar input{
+      flex:1;
+      border:none;
+      border-radius:20px;
+      padding:10px 14px;
+      font-size:16px;
+      background:#fff;
+    }
+    #bar button{
+      border:none;
+      width:46px; height:46px;
+      border-radius:50%;
+      background:#25d366;
+      display:flex; align-items:center; justify-content:center;
+    }
 
-/* INPUT-BAR FISSA SULLA TASTIERA -------------------------------------- */
-#bar{
-  position:fixed;
-  left:var(--safeL); right:var(--safeR);
-  bottom:env(keyboard-inset-height, var(--kbInset));
-  height:56px;
-  background:#f0f0f0;
-  display:flex; align-items:center; gap:8px;
-  padding:0 8px; z-index:90;
-}
-#bar input{
-  flex:1;
-  border:none;
-  border-radius:20px;
-  padding:10px 14px;
-  font-size:16px;
-  background:#fff;
-}
-#bar button{
-  border:none;
-  width:46px; height:46px;
-  border-radius:50%;
-  background:#25d366;
-  display:flex; align-items:center; justify-content:center;
-}
+    /* AREA MESSAGGI TRA HEADER E INPUT */
+    #log{
+      position:fixed;
+      top:calc(var(--safeT) + 48px);
+      left:var(--safeL); right:var(--safeR);
+      bottom:calc(env(keyboard-inset-height, var(--kbInset)) + 56px);
+      overflow-y:auto;
+      padding:12px;
+      background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
+      background-blend-mode:luminosity;
+      display:flex; flex-direction:column; gap:6px;
+      scroll-behavior:smooth;
+    }
 
-/* AREA MESSAGGI STATICO TRA HEADER E INPUT -------------------------- */
-#log{
-  position:fixed;
-  top:calc(var(--safeT) + 48px);
-  left:var(--safeL); right:var(--safeR);
-  bottom:calc(env(keyboard-inset-height, var(--kbInset)) + 56px);
-  overflow-y:auto;
-  padding:12px;
-  background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
-  background-blend-mode:luminosity;
-  display:flex; flex-direction:column; gap:6px;
-  scroll-behavior:smooth;
-}
+    /* BOLLE stile WhatsApp */
+    .msg{max-width:80%;position:relative;font-size:14px;line-height:1.35}
+    .bub{padding:6px 8px 18px;border-radius:8px;box-shadow:0 1px 1px #0001}
+    .tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
+    .me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;margin-left:auto}
+    .me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
+    .you .bub{background:#fff;border-radius:0 8px 8px 8px}
 
-/* BOLLE stile WhatsApp ------------------------------------------------ */
-.msg{max-width:80%;position:relative;font-size:14px;line-height:1.35}
-.bub{padding:6px 8px 18px;border-radius:8px;box-shadow:0 1px 1px #0001}
-.tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
-.me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;margin-left:auto}
-.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
-.you .bub{background:#fff;border-radius:0 8px 8px 8px}
-
-/* NASCONDI SU DESKTOP ------------------------------------------------ */
-@media(min-width:601px){
-  body::before{
-    content:'🛑 Apri da smartphone';
-    display:flex;align-items:center;justify-content:center;
-    height:100vh;width:100%;font-size:2.5rem;
-    background:#000;color:#fff;text-align:center
-  }
-  header,#log,#bar{display:none}
-}
-</style>
+    /* NASCONDI SU DESKTOP */
+    @media(min-width:601px){
+      body::before{
+        content:'🛑 Apri da smartphone';
+        display:flex;align-items:center;justify-content:center;
+        height:100vh;width:100%;font-size:2.5rem;
+        background:#000;color:#fff;text-align:center;
+      }
+      header,#log,#bar{display:none}
+    }
+  </style>
 </head>
 <body>
 
-<header>
-  <a href="index.html">‹</a>
-  <span class="title">Don Alfred 🤵🏻‍♂️</span>
-</header>
+  <header>
+    <a href="index.html">‹</a>
+    <span class="title">Don Alfred 🤵🏻‍♂️</span>
+  </header>
 
-<div id="log" role="log" aria-live="polite"></div>
+  <div id="log" role="log" aria-live="polite"></div>
 
-<form id="bar" autocomplete="off">
-  <input id="txt" placeholder="Messaggio" enterkeyhint="send">
-  <button type="submit" aria-label="Invia">
-    <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="" style="width:24px">
-  </button>
-</form>
+  <form id="bar" autocomplete="off">
+    <input id="txt" placeholder="Messaggio" enterkeyhint="send">
+    <button type="submit" aria-label="Invia">
+      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="" style="width:24px">
+    </button>
+  </form>
 
-<script>
-// ── VARIABILI & SHORTCUT ────────────────────────────────────────────
-const log = document.getElementById('log');
-const inp = document.getElementById('txt');
-const form = document.getElementById('bar');
-const vv = window.visualViewport;
+  <script>
+    // SHORTCUTS
+    const log = document.getElementById('log');
+    const inp = document.getElementById('txt');
+    const form = document.getElementById('bar');
+    const vv = window.visualViewport;
 
-// ── 1. gestione --kbInset e classe kb-open ──────────────────────────
-(function syncKbInset(){
-  function update(){
-    const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0;
-    if(overlap > 0){
-      document.documentElement.classList.add('kb-open');
-      document.documentElement.style.setProperty('--kbInset', overlap + 'px');
-    } else {
-      document.documentElement.classList.remove('kb-open');
-      document.documentElement.style.setProperty('--kbInset', 'var(--safeB)');
+    // 1) Sincronizza --kbInset e classe kb-open
+    (function syncKbInset(){
+      function update(){
+        const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0;
+        if(overlap > 0){
+          document.documentElement.classList.add('kb-open');
+          document.documentElement.style.setProperty('--kbInset', overlap + 'px');
+        } else {
+          document.documentElement.classList.remove('kb-open');
+          document.documentElement.style.setProperty('--kbInset', 'var(--safeB)');
+        }
+      }
+      update();
+      if(vv){
+        vv.addEventListener('resize', update);
+        vv.addEventListener('scroll', update);
+      }
+      window.addEventListener('orientationchange', update);
+    })();
+
+    // 2) Scrolla sempre il log in fondo
+    function scrollBottom(){ log.scrollTop = log.scrollHeight; }
+
+    // 3) Crea e mostra le bolle
+    function bubble(who, text){
+      const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      log.insertAdjacentHTML('beforeend',
+        `<div class="msg ${who}">
+           <div class="bub">${text}<span class="tim">${time}</span></div>
+         </div>`);
+      scrollBottom();
     }
-  }
-  update();
-  if(vv){
-    vv.addEventListener('resize', update);
-    vv.addEventListener('scroll', update);
-  }
-  window.addEventListener('orientationchange', update);
-})();
 
-// ── 2. scrolla SEMPRE il log in fondo ─────────────────────────────────
-function scrollBottom(){ log.scrollTop = log.scrollHeight; }
-
-// ── 3. crea e mostra le bolle ─────────────────────────────────────────
-function bubble(who, text){
-  const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  log.insertAdjacentHTML('beforeend',
-    `<div class="msg ${who}">
-       <div class="bub">${text}<span class="tim">${time}</span></div>
-     </div>`);
-  scrollBottom();
-}
-
-// ── 4. invio messaggio ─────────────────────────────────────────────────
-let history = [];
-form.addEventListener('submit', async e => {
-  e.preventDefault();
-  const t = inp.value.trim();
-  if(!t) return;
-  bubble('me', t);
-  history.push({role:'user',content:t});
-  inp.value = '';
-  try {
-    const res = await fetch('/api/chat', {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({message:t,history})
+    // 4) Invio messaggio
+    let history = [];
+    form.addEventListener('submit', async e => {
+      e.preventDefault();
+      const t = inp.value.trim();
+      if(!t) return;
+      bubble('me', t);
+      history.push({role:'user',content:t});
+      inp.value = '';
+      try {
+        const res = await fetch('/api/chat', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body: JSON.stringify({message:t,history})
+        });
+        const { reply } = await res.json();
+        bubble('you', reply);
+        history.push({role:'assistant',content:reply});
+      } catch {
+        bubble('you','Errore di rete 😢');
+      }
     });
-    const { reply } = await res.json();
-    bubble('you', reply);
-    history.push({role:'assistant',content:reply});
-  } catch {
-    bubble('you','Errore di rete 😢');
-  }
-});
-</script>
+  </script>
 </body>
 </html>

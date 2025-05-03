@@ -20,12 +20,14 @@
       --kbInset:var(--safeB);  /* aggiornato da JS */
     }
 
-    /* quando la tastiera è aperta, blocca OGNI scroll di #log */
+    /* quando la tastiera è aperta, POSIZIONA #log più in alto ma NON bloccarne lo scroll */
     html.kb-open #log {
-      overflow: hidden !important;
+      /* tolto overflow:hidden per permettere lo scroll manuale */
+      bottom: calc(var(--kbInset) + 56px) !important;
+      overflow-y: auto !important;
     }
 
-    /* HEADER */
+    /* HEADER: sempre in cima, z-index alto */
     header{
       position:fixed;
       top:var(--safeT); left:var(--safeL); right:var(--safeR);
@@ -33,7 +35,7 @@
       background:#075e54; color:#fff;
       display:flex; align-items:center; gap:12px;
       padding:0 16px; font-weight:500; font-size:18px;
-      z-index:100;
+      z-index:200;
     }
     header a{font-size:28px; text-decoration:none; color:inherit}
     header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -46,7 +48,7 @@
       height:56px;
       background:#f0f0f0;
       display:flex; align-items:center; gap:8px;
-      padding:0 8px; z-index:90;
+      padding:0 8px; z-index:190;
       transition:bottom .2s;
     }
     #bar input{
@@ -77,6 +79,7 @@
       background-blend-mode:luminosity;
       display:flex; flex-direction:column; gap:6px;
       scroll-behavior:smooth;
+      z-index:100;
     }
 
     /* BOLLE stile WhatsApp */
@@ -121,29 +124,29 @@
     const form = document.getElementById('bar');
     const vv = window.visualViewport;
 
-    // sincronizza --kbInset e classe kb-open
     (function syncKbInset(){
       function update(){
-        const safeB = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safeB'));
-        const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0;
+        const safeB = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safeB')) || 0;
+        const vh = vv ? vv.height : window.innerHeight;
+        const vo = vv ? vv.offsetTop : 0;
+        const overlap = window.innerHeight - vh - vo;
         const inset = overlap > 0 ? overlap + safeB : safeB;
         document.documentElement.style.setProperty('--kbInset', inset + 'px');
-        // classe per bloccare lo scroll di #log
-        if(overlap > 0){
-          document.documentElement.classList.add('kb-open');
-        } else {
-          document.documentElement.classList.remove('kb-open');
-        }
+        document.documentElement.classList.toggle('kb-open', overlap > 0);
       }
       update();
+
       if(vv){
         vv.addEventListener('resize', update);
         vv.addEventListener('scroll', update);
       }
+      // NUOVE RIGHE PER SUPPORTARE PIÙ BROWSER
+      window.addEventListener('resize', update);
       window.addEventListener('orientationchange', update);
+      inp.addEventListener('focus', update);
+      inp.addEventListener('blur', update);
     })();
 
-    // scrollBottom diventa *niente* quando kb-open è attiva
     function scrollBottom(){
       if (!document.documentElement.classList.contains('kb-open')) {
         log.scrollTop = log.scrollHeight;

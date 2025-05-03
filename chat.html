@@ -9,8 +9,11 @@
 <style>
 /* RESET ---------------------------------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,
-          Segoe UI,Roboto,Arial,sans-serif;overscroll-behavior:none}
+html,body{
+  height:100%;
+  font:15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
+  overscroll-behavior:none;
+}
 
 /* VARIABILI VIEWPORT --------------------------------------------------- */
 :root{
@@ -18,14 +21,16 @@ html,body{height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,
   --safeB:env(safe-area-inset-bottom);
   --safeL:env(safe-area-inset-left);
   --safeR:env(safe-area-inset-right);
-  /* unità “*vh” a prova di tastiera (Safari 17 +/ Chrome 119 +) */
-  --vh:100svh;
+  --vh:100svh;   /* altezza viewport “attiva” */
+  --kb:0px;      /* altezza tastiera (settata via JS) */
 }
 
 /* CONTENITORE CHAT ----------------------------------------------------- */
 #chat{
-  position:fixed;inset:0;display:flex;flex-direction:column;
-  width:100vw;height:var(--vh);
+  position:fixed;inset:0;
+  width:100vw;
+  height:calc(var(--vh) - var(--kb));   /* magia anti‑salto */
+  display:flex;flex-direction:column;
   background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")
             0/540px repeat;background-blend-mode:luminosity;
   padding:var(--safeT) var(--safeR) var(--safeB) var(--safeL);
@@ -34,9 +39,10 @@ html,body{height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,
 
 /* HEADER --------------------------------------------------------------- */
 .header{
-  flex:none;display:flex;align-items:center;gap:12px;
-  height:48px;background:#075e54;color:#fff;padding:0 16px;
-  font-weight:500;z-index:1}
+  flex:none;height:48px;
+  background:#075e54;color:#fff;
+  display:flex;align-items:center;gap:12px;
+  padding:0 16px;font-weight:500;z-index:1}
 .header a{font-size:28px;line-height:1;text-decoration:none;color:inherit}
 .header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
@@ -47,11 +53,10 @@ html,body{height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,
 
 /* INPUT BAR ------------------------------------------------------------ */
 .input{
-  flex:none;display:flex;align-items:center;gap:8px;
-  height:56px;background:#f0f0f0;padding:0 8px;z-index:1}
+  flex:none;height:56px;background:#f0f0f0;
+  display:flex;align-items:center;gap:8px;padding:0 8px;z-index:1}
 .input input{
-  flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;
-  background:#fff;min-width:0}
+  flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;background:#fff;min-width:0}
 .input button{
   border:none;width:46px;height:46px;border-radius:50%;
   background:#25d366;display:flex;align-items:center;justify-content:center}
@@ -87,8 +92,7 @@ html,body{height:100%;font:15px/1.4 -apple-system,BlinkMacSystemFont,
   <form class="input" id="chatForm" autocomplete="off">
     <input id="chatInput" placeholder="Messaggio" enterkeyhint="send">
     <button type="submit" aria-label="Invia">
-      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png"
-           alt="" style="width:24px">
+      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="" style="width:24px">
     </button>
   </form>
 </div>
@@ -99,15 +103,26 @@ const $=s=>document.querySelector(s);
 const list=$('#msgs'),form=$('#chatForm'),inp=$('#chatInput');
 let history=[];
 
-/* RICALCOLA --vh SE CAMBIA LA VIEWPORT (tastiera) -------------------- */
-function setVH(){
-  const h=window.visualViewport?.height||innerHeight;
-  document.documentElement.style.setProperty('--vh',h+'px');
-}
-setVH();
-(window.visualViewport||window).addEventListener('resize',setVH);
+/* === RICALCOLO VIEWPORT & KEYBOARD ================================== */
+function refreshViewport(){
+  const winH = window.innerHeight;                    // altezza piena
+  const vv    = window.visualViewport;
+  const vvH   = vv ? vv.height : winH;                // se tastiera aperta → più corto
+  const top   = vv ? vv.offsetTop : 0;                // iOS a volte trasla invece
+  const kb    = Math.max(0, winH - vvH - top);        // altezza tastiera stimata
 
-/* SCORREZIONE “RUBBER BAND” iOS -------------------------------------- */
+  document.documentElement.style.setProperty('--vh', vvH + 'px');
+  document.documentElement.style.setProperty('--kb', kb  + 'px');
+
+  // mantiene il log ancorato in fondo
+  list.scrollTop = list.scrollHeight;
+}
+refreshViewport();
+(window.visualViewport||window).addEventListener('resize', refreshViewport);
+(window.visualViewport||window).addEventListener('scroll', refreshViewport);  // iOS
+window.addEventListener('orientationchange', refreshViewport);
+
+/* BLOCCA RUBBER‑BAND IOS --------------------------------------------- */
 list.addEventListener('touchmove',e=>{
   const atTop=list.scrollTop===0,
         atBot=Math.abs(list.scrollHeight-list.scrollTop-list.clientHeight)<1,

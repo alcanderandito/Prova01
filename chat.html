@@ -17,12 +17,12 @@
       --safeB:env(safe-area-inset-bottom);
       --safeL:env(safe-area-inset-left);
       --safeR:env(safe-area-inset-right);
-      --kbInset:var(--safeB);  /* verrà aggiornato da JS */
+      --kbInset:var(--safeB);  /* aggiornato da JS */
     }
 
-    /* quando la tastiera è aperta, blocca lo scroll dei messaggi */
+    /* quando la tastiera è aperta, blocca OGNI scroll di #log */
     html.kb-open #log {
-      overflow-y: hidden;
+      overflow: hidden !important;
     }
 
     /* HEADER */
@@ -128,7 +128,7 @@
         const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0;
         const inset = overlap > 0 ? overlap + safeB : safeB;
         document.documentElement.style.setProperty('--kbInset', inset + 'px');
-        // toggle classe per bloccare lo scroll
+        // classe per bloccare lo scroll di #log
         if(overlap > 0){
           document.documentElement.classList.add('kb-open');
         } else {
@@ -143,7 +143,12 @@
       window.addEventListener('orientationchange', update);
     })();
 
-    function scrollBottom(){ log.scrollTop = log.scrollHeight; }
+    // scrollBottom diventa *niente* quando kb-open è attiva
+    function scrollBottom(){
+      if (!document.documentElement.classList.contains('kb-open')) {
+        log.scrollTop = log.scrollHeight;
+      }
+    }
 
     function bubble(who, text){
       const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});

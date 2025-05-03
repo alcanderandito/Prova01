@@ -17,25 +17,28 @@
       --safeB:env(safe-area-inset-bottom);
       --safeL:env(safe-area-inset-left);
       --safeR:env(safe-area-inset-right);
-      --kbInset:var(--safeB);  /* aggiornato da JS */
+      --kbInset:var(--safeB);   /* aggiornato da JS */
+      --vvTop:0px;              /* nuova variabile per visualViewport offset */
     }
 
     /* quando la tastiera è aperta, POSIZIONA #log più in alto ma NON bloccarne lo scroll */
     html.kb-open #log {
-      /* tolto overflow:hidden per permettere lo scroll manuale */
       bottom: calc(var(--kbInset) + 56px) !important;
       overflow-y: auto !important;
     }
 
-    /* HEADER: sempre in cima, z-index alto */
+    /* HEADER: sempre in cima, z-index alto, e segue la visualViewport */
     header{
       position:fixed;
-      top:var(--safeT); left:var(--safeL); right:var(--safeR);
+      top: calc(var(--vvTop) + var(--safeT));
+      left:var(--safeL);
+      right:var(--safeR);
       height:48px; line-height:48px;
       background:#075e54; color:#fff;
       display:flex; align-items:center; gap:12px;
       padding:0 16px; font-weight:500; font-size:18px;
       z-index:200;
+      transition:top .1s;
     }
     header a{font-size:28px; text-decoration:none; color:inherit}
     header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
@@ -126,6 +129,7 @@
 
     (function syncKbInset(){
       function update(){
+        // calcola inset tastiera
         const safeB = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safeB')) || 0;
         const vh = vv ? vv.height : window.innerHeight;
         const vo = vv ? vv.offsetTop : 0;
@@ -133,16 +137,23 @@
         const inset = overlap > 0 ? overlap + safeB : safeB;
         document.documentElement.style.setProperty('--kbInset', inset + 'px');
         document.documentElement.classList.toggle('kb-open', overlap > 0);
-      }
-      update();
 
+        // NUOVA LOGICA: mantieni header sempre visibile
+        const vvTop = vv 
+          ? (vv.pageTop !== undefined ? vv.pageTop : window.scrollY) 
+          : window.scrollY;
+        document.documentElement.style.setProperty('--vvTop', vvTop + 'px');
+      }
+
+      update();
       if(vv){
         vv.addEventListener('resize', update);
         vv.addEventListener('scroll', update);
       }
-      // NUOVE RIGHE PER SUPPORTARE PIÙ BROWSER
+      // copriamo tutti i casi di panning/browser
       window.addEventListener('resize', update);
       window.addEventListener('orientationchange', update);
+      window.addEventListener('scroll', update);
       inp.addEventListener('focus', update);
       inp.addEventListener('blur', update);
     })();

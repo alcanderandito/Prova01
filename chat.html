@@ -7,27 +7,27 @@
 <title>Chat • Don Alfred</title>
 
 <style>
-/* RESET -------------------------------------------------------------- */
+/* RESET + BLOCCO SCROLL PAGINA -------------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
   height:100%;
+  overflow:hidden;           /* ← la pagina NON scrolla più */
   font:15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
   overscroll-behavior:none;
 }
 
-/* VARIABILI ---------------------------------------------------------- */
+/* SAFE‑AREA & VIEWPORT ---------------------------------------------- */
 :root{
   --safeT:env(safe-area-inset-top);
   --safeB:env(safe-area-inset-bottom);
   --safeL:env(safe-area-inset-left);
   --safeR:env(safe-area-inset-right);
-  --vh:100svh;          /* altezza reale zona visibile (JS) */
 }
 
-/* CONTENITORE CHAT --------------------------------------------------- */
+/* CONTENITORE CHAT (FIXED) ------------------------------------------ */
 #chat{
   position:fixed;inset:0;
-  width:100vw;height:var(--vh);        /* tocca SEMPRE la tastiera */
+  width:100vw;height:100svh;       /* sempre = visual viewport */
   display:flex;flex-direction:column;
 
   background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")
@@ -44,7 +44,7 @@ html,body{
 .header a{font-size:28px;line-height:1;text-decoration:none;color:inherit}
 .header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* MESSAGGI ----------------------------------------------------------- */
+/* LISTA MESSAGGI ----------------------------------------------------- */
 #msgs{
   flex:1 1 auto;display:flex;flex-direction:column;gap:6px;
   overflow-y:auto;padding:12px;scroll-behavior:smooth}
@@ -68,7 +68,7 @@ html,body{
                  font-size:11px;color:#34b7f1;font-weight:700}
 .you .bub{background:#fff;border-radius:0 8px 8px 8px}
 
-/* BLOCCO DESKTOP ----------------------------------------------------- */
+/* BLOCCA DESKTOP ----------------------------------------------------- */
 @media(min-width:601px){
   body::before{
     content:'🛑 Apri questa pagina da smartphone';display:flex;
@@ -96,23 +96,17 @@ html,body{
 </div>
 
 <script>
-/* SCORCIATOIE -------------------------------------------------------- */
+/* UTILITY ----------------------------------------------------------- */
 const $=s=>document.querySelector(s);
 const list=$('#msgs'),form=$('#chatForm'),inp=$('#chatInput');
 let history=[];
 
-/* === ALTEZZA VIEWPORT DINAMICA ===================================== */
-function setVH(){
-  const vv = window.visualViewport;
-  const h  = vv ? vv.height : innerHeight;   // area realmente visibile
-  document.documentElement.style.setProperty('--vh', h + 'px');
-  // tiene il log ancorato in fondo
-  list.scrollTop = list.scrollHeight;
+/* RICALCOLO ALTEZZA VISIBILE (solo per scroll‑lock lista) ----------- */
+function keepBottom(){
+  list.scrollTop=list.scrollHeight;
 }
-setVH();
-(window.visualViewport||window).addEventListener('resize', setVH);
-(window.visualViewport||window).addEventListener('scroll',  setVH); // iOS scroll‑hack
-window.addEventListener('orientationchange', setVH);
+keepBottom();
+list.addEventListener('resize',keepBottom);
 
 /* BLOCCA RUBBER‑BAND IOS ------------------------------------------- */
 list.addEventListener('touchmove',e=>{
@@ -127,7 +121,7 @@ function bubble(who,text){
   const h=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   list.insertAdjacentHTML('beforeend',
     `<div class="msg ${who}"><div class="bub">${text}<span class="tim">${h}</span></div></div>`);
-  list.scrollTop=list.scrollHeight;
+  keepBottom();
 }
 
 /* INVIO ------------------------------------------------------------- */

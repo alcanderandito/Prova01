@@ -1,172 +1,28 @@
-<!DOCTYPE html><html lang="it"><head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Don Alfred Chat</title>
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Home • Team Due Mori</title>
 
-<style>
-*{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+  <style>
+    /* mini‑reset + center */
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{height:100%;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif}
 
-/* --------------- SOLO MOBILE 0‑600 px ---------------- */
-@media (max-width:600px){
-:root{
-  /* fallback per iOS ≤15.5: verrà aggiornato da JS */
-  --dvh:1vh;
-  --safeT: env(safe-area-inset-top);
-  --safeB: env(safe-area-inset-bottom);
-  --safeL: env(safe-area-inset-left);
-  --safeR: env(safe-area-inset-right);
-}
+    #goChat{
+      width:70px;height:70px;border:none;border-radius:50%;
+      background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat;
+      box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+    #goChat:active{transform:scale(.9)}
+  </style>
+</head>
+<body>
 
-/* pulsante flottante */
-#openChat{
-  position:fixed;top:1rem;right:1rem;width:60px;height:60px;border:none;border-radius:50%;
-  background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/65% no-repeat;
-  box-shadow:0 4px 14px rgba(0,0,0,.25);z-index:1000;cursor:pointer}
-#openChat:active{transform:scale(.9)}
+  <!-- Clicca e vai a chat.html -->
+  <a href="chat.html" aria-label="Apri chat">
+    <button id="goChat"></button>
+  </a>
 
-/* contenitore chat = colonna flex --------------------- */
-#chatBox{
-  position:fixed;inset:0;display:none;flex-direction:column;width:100vw;
-  height:100dvh;                       /* Safari 15.6+ / Chrome */
-  height:calc(var(--dvh)*100);         /* fallback runtime      */
-  background:#ece5dd;z-index:1100;
-  padding:var(--safeT) var(--safeR) var(--safeB) var(--safeL);
-  overscroll-behavior:contain;touch-action:pan-y;}
-#chatBox::before{
-  content:"";position:absolute;inset:0;
-  background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
-  opacity:.15;pointer-events:none;}
-
-/* barra superiore ------------------------------------ */
-.header{
-  flex:none;height:44px;background:#075e54;color:#fff;
-  display:flex;align-items:center;gap:10px;padding:0 16px;font-weight:500;font-size:15px;}
-.header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.header button{background:none;border:none;color:#fff;font-size:24px;cursor:pointer;line-height:0}
-
-/* lista messaggi (occupy flex‑1) --------------------- */
-#msgList{
-  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
-  padding:10px;scroll-behavior:smooth;}
-
-/* barra input (flex‑none) ----------------------------- */
-.inputBar{
-  flex:none;height:56px;background:#f0f0f0;display:flex;align-items:center;
-  gap:8px;padding:0 8px;}
-.inputBar input{flex:1;border:none;border-radius:20px;padding:10px 12px;background:#fff;font-size:15px;}
-.inputBar button{width:46px;height:46px;border:none;border-radius:50%;background:#25d366;
-                 display:flex;align-items:center;justify-content:center;}
-
-/* bolle ----------------------------------------------- */
-.msg{max-width:80%;display:flex;flex-direction:column;font-size:14px;position:relative}
-.bubble{padding:6px 8px 18px;border-radius:8px;line-height:1.35;
-        box-shadow:0 1px 1px rgba(0,0,0,.06);}
-.time{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
-.me  .bubble{background:#d1f8c6;border-radius:8px 0 8px 8px;align-self:flex-end}
-.me  .bubble::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;
-                    color:#34b7f1;font-weight:700}
-.you .bubble{background:#fff;border-radius:0 8px 8px 8px}
-
-/* blocca rubber‑band iOS all’interno della chat ------ */
-#chatBox{overscroll-behavior-y:contain}
-}
-
-/* --------------- DESKTOP: blocco -------------------- */
-@media (min-width:601px){
-body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;
-             font-size:2.5rem;background:#000;color:#fff;text-align:center}
-#openChat,#chatBox{display:none!important}}
-</style>
-</head><body>
-
-<!-- pulsante -->
-<button id="openChat" aria-label="Apri chat"></button>
-
-<!-- chat -->
-<div id="chatBox">
-  <div class="header">
-    <span class="title">Don Alfred 🤵🏻‍♂️</span>
-    <button id="closeChat">✕</button>
-  </div>
-
-  <div id="msgList"></div>
-
-  <form class="inputBar" id="chatForm" autocomplete="off">
-    <input id="msgInput" placeholder="Messaggio">
-    <button type="submit">
-      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px;">
-    </button>
-  </form>
-</div>
-
-<script>
-/* ---------- ELEMENTI ---------------------------------------------- */
-const $=q=>document.querySelector(q);
-const openBtn = $('#openChat'),
-      chatBox = $('#chatBox'),
-      closeBtn= $('#closeChat'),
-      list    = $('#msgList'),
-      form    = $('#chatForm'),
-      input   = $('#msgInput');
-
-let history=[];
-
-/* ---------- OPEN / CLOSE ------------------------------------------ */
-openBtn.onclick = () => {
-  chatBox.style.display='flex';
-  document.body.style.overflow='hidden';
-  input.focus();
-  updateDVH();            /* in caso di iOS vecchio */
-};
-closeBtn.onclick = () => {
-  chatBox.style.display='none';
-  document.body.style.overflow='';
-};
-
-/* ---------- BUBBLE ------------------------------------------------- */
-function addBubble(who,text){
-  const t=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  list.insertAdjacentHTML('beforeend',
-    `<div class="msg ${who}"><div class="bubble">${text}<span class="time">${t}</span></div></div>`);
-  list.scrollTop=list.scrollHeight;
-}
-
-/* ---------- SEND --------------------------------------------------- */
-form.addEventListener('submit',async e=>{
-  e.preventDefault();
-  const txt=input.value.trim();
-  if(!txt) return;
-  addBubble('me',txt);
-  history.push({role:'user',content:txt});
-  input.value='';
-  try{
-    const r=await fetch('/api/chat',{
-       method:'POST',headers:{'Content-Type':'application/json'},
-       body:JSON.stringify({message:txt,history})});
-    const {reply}=await r.json();
-    addBubble('you',reply);
-    history.push({role:'assistant',content:reply});
-  }catch{ addBubble('you','Errore di rete 😢'); }
-});
-
-/* ---------- Fallback --dvh per iOS ≤15.5 --------------------------- */
-function updateDVH(){
-  const vh = window.visualViewport ? visualViewport.height : innerHeight;
-  document.documentElement.style.setProperty('--dvh',`${vh*0.01}px`);
-}
-updateDVH();
-(window.visualViewport||window).addEventListener('resize',updateDVH);
-
-/* ---------- Blocca overscroll iOS --------------------------------- */
-['touchstart','touchmove'].forEach(ev=>{
-  chatBox.addEventListener(ev, e=>{
-    if(e.touches.length>1) return;              /* pinch OK */
-    const atTop = list.scrollTop===0,
-          atBot = Math.abs(list.scrollHeight - list.scrollTop - list.clientHeight)<1,
-          dir   = Math.sign(e.touches[0].clientY - e.touches[0].screenY);
-    if((atTop && dir>0)||(atBot && dir<0)) e.preventDefault();
-  }, {passive:false});
-});
-</script>
-</body></html>
+</body>
+</html>

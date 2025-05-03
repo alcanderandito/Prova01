@@ -7,27 +7,28 @@
 <title>Chat • Don Alfred</title>
 
 <style>
-/* RESET + BLOCCO SCROLL PAGINA -------------------------------------- */
+/* RESET + BLOCCO SCROLL DOCUMENTO ---------------------------------- */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html,body{
   height:100%;
-  overflow:hidden;           /* ← la pagina NON scrolla più */
+  overflow:hidden;                /* Safari non può scrollare il <body> */
   font:15px/1.4 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
   overscroll-behavior:none;
 }
 
-/* SAFE‑AREA & VIEWPORT ---------------------------------------------- */
+/* SAFE‑AREA VARS ---------------------------------------------------- */
 :root{
   --safeT:env(safe-area-inset-top);
   --safeB:env(safe-area-inset-bottom);
   --safeL:env(safe-area-inset-left);
   --safeR:env(safe-area-inset-right);
+  --vh:100svh;    /* altezza viewport visibile (JS la regola) */
 }
 
-/* CONTENITORE CHAT (FIXED) ------------------------------------------ */
+/* CONTENITORE CHAT -------------------------------------------------- */
 #chat{
   position:fixed;inset:0;
-  width:100vw;height:100svh;       /* sempre = visual viewport */
+  width:100vw;height:var(--vh);   /* si adatta live */
   display:flex;flex-direction:column;
 
   background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")
@@ -37,43 +38,46 @@ html,body{
   touch-action:pan-y;overscroll-behavior:contain;
 }
 
-/* HEADER ------------------------------------------------------------- */
+/* keyboard‑inset (iOS 15+) → niente gap fra input e tastiera -------- */
+@supports (padding:env(keyboard-inset-height)){
+  #chat{ padding-bottom:calc(env(keyboard-inset-height) + var(--safeB)); }
+}
+
+/* HEADER ------------------------------------------------------------ */
 .header{
   flex:none;height:48px;background:#075e54;color:#fff;
   display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500}
 .header a{font-size:28px;line-height:1;text-decoration:none;color:inherit}
 .header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* LISTA MESSAGGI ----------------------------------------------------- */
+/* LISTA MESSAGGI ---------------------------------------------------- */
 #msgs{
   flex:1 1 auto;display:flex;flex-direction:column;gap:6px;
   overflow-y:auto;padding:12px;scroll-behavior:smooth}
 
-/* INPUT BAR ---------------------------------------------------------- */
+/* INPUT BAR --------------------------------------------------------- */
 .input{
   flex:none;height:56px;background:#f0f0f0;
   display:flex;align-items:center;gap:8px;padding:0 8px}
 .input input{
   flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;background:#fff;min-width:0}
 .input button{
-  border:none;width:46px;height:46px;border-radius:50%;
-  background:#25d366;display:flex;align-items:center;justify-content:center}
+  border:none;width:46px;height:46px;border-radius:50%;background:#25d366;
+  display:flex;align-items:center;justify-content:center}
 
-/* BOLLE -------------------------------------------------------------- */
+/* BOLLE ------------------------------------------------------------- */
 .msg{max-width:80%;font-size:14px;position:relative;display:flex}
 .bub{padding:6px 8px 18px;border-radius:8px;box-shadow:0 1px 1px #0001}
 .tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
 .me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;margin-left:auto}
-.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;
-                 font-size:11px;color:#34b7f1;font-weight:700}
+.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
 .you .bub{background:#fff;border-radius:0 8px 8px 8px}
 
-/* BLOCCA DESKTOP ----------------------------------------------------- */
+/* BLOCCO DESKTOP ---------------------------------------------------- */
 @media(min-width:601px){
   body::before{
-    content:'🛑 Apri questa pagina da smartphone';display:flex;
-    align-items:center;justify-content:center;height:100vh;width:100%;
-    font-size:2.5rem;background:#000;color:#fff;text-align:center}
+    content:'🛑 Apri da smartphone';display:flex;align-items:center;justify-content:center;
+    height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
   #chat{display:none}
 }
 </style>
@@ -96,44 +100,63 @@ html,body{
 </div>
 
 <script>
-/* UTILITY ----------------------------------------------------------- */
-const $=s=>document.querySelector(s);
-const list=$('#msgs'),form=$('#chatForm'),inp=$('#chatInput');
-let history=[];
+/* SHORTCUTS --------------------------------------------------------- */
+const $ = s => document.querySelector(s);
+const list = $('#msgs'), form = $('#chatForm'), inp = $('#chatInput');
+let history = [];
 
-/* RICALCOLO ALTEZZA VISIBILE (solo per scroll‑lock lista) ----------- */
-function keepBottom(){
-  list.scrollTop=list.scrollHeight;
+/* === 1. Ricalcola altezza visibile & blocca scroll ================= */
+function updateVH() {
+  const vv = window.visualViewport;
+  let vh = vv ? vv.height : innerHeight;
+
+  /* Safari: se il documento è scrollato (floating URL‑bar), togli l’offset */
+  const pageY = window.scrollY || window.pageYOffset;
+  if (pageY > 0) vh -= pageY;
+
+  document.documentElement.style.setProperty('--vh', vh + 'px');
+  // scroll lista in fondo
+  list.scrollTop = list.scrollHeight;
 }
-keepBottom();
-list.addEventListener('resize',keepBottom);
+updateVH();
 
-/* BLOCCA RUBBER‑BAND IOS ------------------------------------------- */
-list.addEventListener('touchmove',e=>{
-  const atTop=list.scrollTop===0,
-        atBot=Math.abs(list.scrollHeight-list.scrollTop-list.clientHeight)<1,
-        dir=Math.sign(e.touches[0].clientY-e.touches[0].screenY);
-  if((atTop&&dir>0)||(atBot&&dir<0))e.preventDefault();
+/* Guardiano: impedisce ogni scroll del documento */
+function lockScroll() { window.scrollTo(0, 0); }
+
+/* Eventi che scatenano i pasticci di Safari ------------------------- */
+['focusin','focusout','resize','orientationchange'].forEach(ev=>{
+  window.addEventListener(ev, () => {
+    setTimeout(() => { lockScroll(); updateVH(); }, 0);
+  }, { passive:true });
+});
+
+/* === 2. Blocca rubber‑band interno alla lista ---------------------- */
+list.addEventListener('touchmove', e=>{
+  const atTop = list.scrollTop === 0,
+        atBot = Math.abs(list.scrollHeight - list.scrollTop - list.clientHeight) < 1,
+        dir   = Math.sign(e.touches[0].clientY - e.touches[0].screenY);
+  if ((atTop && dir > 0) || (atBot && dir < 0)) e.preventDefault();
 },{passive:false});
 
-/* CREA & APPENDE UNA BOLLA ----------------------------------------- */
+/* === 3. Funzioni chat (bolle + fetch) ------------------------------ */
 function bubble(who,text){
-  const h=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  const h = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
   list.insertAdjacentHTML('beforeend',
     `<div class="msg ${who}"><div class="bub">${text}<span class="tim">${h}</span></div></div>`);
-  keepBottom();
+  list.scrollTop = list.scrollHeight;
 }
 
-/* INVIO ------------------------------------------------------------- */
-form.addEventListener('submit',async e=>{
+form.addEventListener('submit', async e=>{
   e.preventDefault();
-  const t=inp.value.trim(); if(!t)return;
-  bubble('me',t); history.push({role:'user',content:t}); inp.value='';
+  const t = inp.value.trim(); if (!t) return;
+  bubble('me', t); history.push({role:'user', content:t}); inp.value='';
   try{
-    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
-               body:JSON.stringify({message:t,history})});
-    const {reply}=await r.json();
-    bubble('you',reply); history.push({role:'assistant',content:reply});
+    const r = await fetch('/api/chat',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:t,history})
+    });
+    const {reply} = await r.json();
+    bubble('you', reply); history.push({role:'assistant', content:reply});
   }catch{
     bubble('you','Errore di rete 😢');
   }

@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<!-- evitiamo lo zoom su focus e manteniamo viewport stabile -->
+<!-- blocca lo zoom su focus e mantiene viewport stabile -->
 <meta name="viewport" 
       content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Chat • Don Alfred</title>
@@ -22,6 +22,11 @@ html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFo
   --kbInset:var(--safeB);
 }
 
+/* quando c’è keyboard, disabilita lo scroll dei messaggi */
+html.kb-open #log {
+  overflow-y: hidden;
+}
+
 /* HEADER SEMPRE VISIBILE --------------------------------------------- */
 header{
   position:fixed;
@@ -39,7 +44,6 @@ header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsi
 #bar{
   position:fixed;
   left:var(--safeL); right:var(--safeR);
-  /* se il browser supporta env(keyboard-inset-height) lo usa, altrimenti --kbInset */
   bottom:env(keyboard-inset-height, var(--kbInset));
   height:56px;
   background:#f0f0f0;
@@ -51,7 +55,7 @@ header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsi
   border:none;
   border-radius:20px;
   padding:10px 14px;
-  font-size:16px;        /* >=16px per evitare zoom iOS */
+  font-size:16px;
   background:#fff;
 }
 #bar button{
@@ -86,7 +90,12 @@ header .title{flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsi
 
 /* NASCONDI SU DESKTOP ------------------------------------------------ */
 @media(min-width:601px){
-  body::before{content:'🛑 Apri da smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
+  body::before{
+    content:'🛑 Apri da smartphone';
+    display:flex;align-items:center;justify-content:center;
+    height:100vh;width:100%;font-size:2.5rem;
+    background:#000;color:#fff;text-align:center
+  }
   header,#log,#bar{display:none}
 }
 </style>
@@ -114,14 +123,17 @@ const inp = document.getElementById('txt');
 const form = document.getElementById('bar');
 const vv = window.visualViewport;
 
-// ── 1. fallback per browser senza env(keyboard-inset-height) ─────────
+// ── 1. gestione --kbInset e classe kb-open ──────────────────────────
 (function syncKbInset(){
   function update(){
-    // overlap = spazio sottratto da tastiera o barra URL flottante
     const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0;
-    // se overlap>0 usalo, altrimenti safe-area-bottom
-    const val = overlap>0 ? overlap + 'px' : 'var(--safeB)';
-    document.documentElement.style.setProperty('--kbInset', val);
+    if(overlap > 0){
+      document.documentElement.classList.add('kb-open');
+      document.documentElement.style.setProperty('--kbInset', overlap + 'px');
+    } else {
+      document.documentElement.classList.remove('kb-open');
+      document.documentElement.style.setProperty('--kbInset', 'var(--safeB)');
+    }
   }
   update();
   if(vv){

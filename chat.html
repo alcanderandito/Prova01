@@ -1,1 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chat • Don Alfred</title>
 
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;overflow:hidden}
+
+/* ---- MOBILE (0‑600 px) ------------------------------------------- */
+@media (max-width:600px){
+:root{
+  /* unità dinamica per iOS ≤15.5 (aggiornata via JS) */
+  --dvh:1vh;
+  /* margini safe‑area */
+  --safeT:env(safe-area-inset-top);
+  --safeB:env(safe-area-inset-bottom);
+  --safeL:env(safe-area-inset-left);
+  --safeR:env(safe-area-inset-right);
+}
+
+/* contenitore chat = colonna flex 100%dvh -------------------------- */
+#chat{
+  position:fixed;inset:0;display:flex;flex-direction:column;width:100vw;
+  height:100dvh;               /* Safari 15.6+ / Chrome */
+  height:calc(var(--dvh)*100); /* fallback iOS ≤15.5     */
+  background:#ece5dd;
+  padding:var(--safeT) var(--safeR) var(--safeB) var(--safeL);
+  overscroll-behavior:contain;touch-action:pan-y;z-index:10;
+}
+#chat::before{content:"";position:absolute;inset:0;pointer-events:none;
+  background:url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;opacity:.15}
+
+/* barra superiore -------------------------------------------------- */
+.header{
+  flex:none;height:44px;background:#075e54;color:#fff;
+  display:flex;align-items:center;gap:10px;padding:0 16px;font-weight:500;font-size:15px;z-index:2}
+.header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.header a{color:#fff;text-decoration:none;font-size:24px;line-height:0}
+
+/* lista messaggi ---------------------------------------------------- */
+#msgs{
+  flex:1 1 auto;overflow-y:auto;display:flex;flex-direction:column;gap:6px;
+  padding:10px;scroll-behavior:smooth}
+
+/* barra input ------------------------------------------------------- */
+.input{
+  flex:none;height:56px;background:#f0f0f0;display:flex;align-items:center;gap:8px;padding:0 8px;z-index:2}
+.input input{flex:1;border:none;border-radius:20px;padding:10px 12px;background:#fff;font-size:15px}
+.input button{width:46px;height:46px;border:none;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center}
+
+/* bolle ------------------------------------------------------------- */
+.msg{max-width:80%;display:flex;flex-direction:column;font-size:14px;position:relative}
+.bub{padding:6px 8px 18px;border-radius:8px;line-height:1.35;box-shadow:0 1px 1px rgba(0,0,0,.06)}
+.tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
+.me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;align-self:flex-end}
+.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
+.you .bub{background:#fff;border-radius:0 8px 8px 8px}
+
+/* blocco rubber‑band iOS ------------------------------------------- */
+#chat{overscroll-behavior-y:contain}
+}
+
+/* ---- DESKTOP: blocco completo ------------------------------------ */
+@media (min-width:601px){
+body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;
+             height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
+#chat{display:none!important}}
+</style>
+</head>
+<body>
+
+<div id="chat">
+  <!-- header con pulsante “indietro”-->
+  <div class="header">
+    <a href="index.html" aria-label="Indietro">‹</a>
+    <span class="title">Don Alfred 🤵🏻‍♂️</span>
+  </div>
+
+  <!-- lista -->
+  <div id="msgs"></div>
+
+  <!-- input -->
+  <form class="input" id="chatForm" autocomplete="off">
+    <input id="chatInput" placeholder="Messaggio">
+    <button type="submit">
+      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" style="width:24px">
+    </button>
+  </form>
+</div>
+
+<script>
+/* elementi ---------------------------------------------------------- */
+const $=s=>document.querySelector(s);
+const list=$('#msgs'),form=$('#chatForm'),inp=$('#chatInput');
+let history=[];
+
+/* aggiunge bolla ---------------------------------------------------- */
+function bubble(who,text){
+  const h=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  list.insertAdjacentHTML('beforeend',
+    `<div class="msg ${who}"><div class="bub">${text}<span class="tim">${h}</span></div></div>`);
+  list.scrollTop=list.scrollHeight;
+}
+
+/* invio ------------------------------------------------------------- */
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const t=inp.value.trim(); if(!t) return;
+  bubble('me',t); history.push({role:'user',content:t}); inp.value='';
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+               body:JSON.stringify({message:t,history})});
+    const {reply}=await r.json(); bubble('you',reply); history.push({role:'assistant',content:reply});
+  }catch{ bubble('you','Errore di rete 😢'); }
+});
+
+/* fallback dvh per iOS 15 ------------------------------------------ */
+function upd(){const h=window.visualViewport?visualViewport.height:innerHeight;
+              document.documentElement.style.setProperty('--dvh',`${h*0.01}px`)}
+upd();(window.visualViewport||window).addEventListener('resize',upd);
+
+/* stop rubber‑band -------------------------------------------------- */
+['touchstart','touchmove'].forEach(ev=>{
+  document.getElementById('chat').addEventListener(ev,e=>{
+    if(e.touches.length>1)return;
+    const atTop=list.scrollTop===0,
+          atBot=Math.abs(list.scrollHeight-list.scrollTop-list.clientHeight)<1,
+          dir=Math.sign(e.touches[0].clientY-e.touches[0].screenY);
+    if((atTop&&dir>0)||(atBot&&dir<0))e.preventDefault();
+  },{passive:false});
+});
+</script>
+</body>
+</html>

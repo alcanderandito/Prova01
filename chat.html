@@ -2,76 +2,104 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Chat • Don Alfred</title>
   <style>
-    /* RESET & BASE */
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box }
-    html, body { height:100%; overflow:hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif }
-
-    /* SAFE-AREA INSETS */
-    :root {
-      --safeT: env(safe-area-inset-top);
-      --safeB: env(safe-area-inset-bottom);
+    /* Layout a colonna piena */
+    body, html {
+      margin: 0; padding: 0;
+      height: 100%; width: 100%;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      display: flex; flex-direction: column;
     }
-
-    /* HEADER */
+    /* Header fisso in alto */
     header {
-      position: fixed;
-      top: var(--safeT);
-      left: 0; right: 0;
-      height: 60px; line-height: 60px;
-      background: #075e54; color: #fff;
-      padding: 0 16px; font-size: 18px; font-weight: 500;
-      display: flex; align-items: center; gap: 12px;
-      z-index: 1000;
+      height: 56px;
+      background: #075e54;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 18px;
+      font-weight: 500;
+      flex-shrink: 0;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
-    header a { color: inherit; text-decoration: none; font-size: 24px }
-    header .title { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis }
-
-    /* AREA MESSAGGI */
+    header a {
+      margin-right: 12px;
+      color: inherit; text-decoration: none;
+      font-size: 24px;
+    }
+    header .title {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    /* Contenitore messaggi che si espande */
     #messages {
-      position: absolute;
-      top: calc(var(--safeT) + 60px);
-      left: 0; right: 0;
-      bottom: calc(var(--safeB) + 60px);
+      flex: 1;
+      overflow-y: auto;
       padding: 12px;
       background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat;
-      overflow-y: auto;
-      display: flex; flex-direction: column; gap: 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
       scroll-behavior: smooth;
     }
-
-    /* BOLLE */
-    .msg { max-width: 80%; position: relative; font-size: 14px; line-height: 1.4 }
-    .bub { padding: 8px 12px 18px; border-radius: 8px; box-shadow: 0 1px 1px rgba(0,0,0,0.1); }
-    .msg.me .bub { background: #d1f8c6; margin-left:auto; border-radius: 8px 0 8px 8px }
-    .msg.you .bub { background: #fff; border-radius: 0 8px 8px 8px }
-    .tim { position:absolute; bottom:2px; right:6px; font-size:11px; opacity:.6 }
-
-    /* INPUT BAR */
-    #input-bar {
-      position: fixed;
-      left: 0; right: 0;
-      bottom: var(--safeB);
-      height: 60px;
+    /* Stile bolle */
+    .msg {
+      max-width: 80%;
+      position: relative;
+      font-size: 14px;
+      line-height: 1.4;
+    }
+    .msg .bub {
+      padding: 8px 12px 18px;
+      border-radius: 8px;
+      box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+    }
+    .msg.me {
+      align-self: flex-end;
+    }
+    .msg.me .bub {
+      background: #d1f8c6;
+      border-radius: 8px 0 8px 8px;
+    }
+    .msg.you .bub {
       background: #fff;
-      display: flex; align-items: center; gap: 8px;
-      padding: 0 12px; border-top: 1px solid #ccc;
-      z-index: 900;
+      border-radius: 0 8px 8px 8px;
+    }
+    .tim {
+      position: absolute;
+      bottom: 2px; right: 6px;
+      font-size: 11px; opacity: .6;
+    }
+    /* Barra input fissa in basso */
+    #input-bar {
+      height: 56px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-top: 1px solid #ccc;
+      background: #fff;
     }
     #input-bar input {
-      flex: 1; height: 36px;
-      border: 1px solid #ccc; border-radius: 18px;
-      padding: 0 12px; font-size: 16px;
+      flex: 1;
+      height: 36px;
+      border: 1px solid #ccc;
+      border-radius: 18px;
+      padding: 0 12px;
+      font-size: 16px;
     }
     #input-bar button {
-      width: 44px; height: 44px; border:none; border-radius:50%;
-      background: #25d366; display:flex; align-items:center; justify-content:center;
+      width: 44px; height: 44px;
+      margin-left: 8px;
+      border: none;
+      border-radius: 50%;
+      background: #25d366;
+      display: flex; align-items: center; justify-content: center;
     }
-
-    /* ICONA INVIO */
     #input-bar button img {
       width: 20px; height: 20px;
     }
@@ -101,12 +129,12 @@
 
     function addMessage(who, text) {
       const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-      const msg = document.createElement('div');
-      msg.className = 'msg ' + who;
-      msg.innerHTML = \`
+      const wrapper = document.createElement('div');
+      wrapper.className = 'msg ' + who;
+      wrapper.innerHTML = \`
         <div class="bub">\${text}<span class="tim">\${time}</span></div>
       \`;
-      messagesEl.appendChild(msg);
+      messagesEl.appendChild(wrapper);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
@@ -131,7 +159,7 @@
       }
     });
 
-    // invia con Invio
+    // Invia anche con tasto Invio senza shift
     inputEl.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
@@ -139,6 +167,5 @@
       }
     });
   </script>
-
 </body>
 </html>

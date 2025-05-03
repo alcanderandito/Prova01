@@ -2,84 +2,170 @@
 <html lang="it">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Demo tastiera virtuale</title>
-<style>
-/* layout di pagina minimo */
-body{font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;margin:0;display:flex;flex-direction:column;height:100vh}
-main{flex:1;display:flex;flex-direction:column;gap:8px;padding:16px;overflow:auto}
-input{padding:8px 10px;font-size:16px;border:1px solid #ccc;border-radius:6px;width:100%}
-button{padding:8px 14px;font-size:16px}
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chat • Don Alfred</title>
 
-#vk{position:fixed;left:0;right:0;bottom:0;background:#e5e5e5;box-shadow:0 -2px 5px #0003;padding:8px 4px;display:none;z-index:99}
+<style>
+/* ========== RESET & BASE ========================================== */
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;font:15px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
+:root{
+  --safeT:env(safe-area-inset-top);
+  --safeB:env(safe-area-inset-bottom);
+  --safeL:env(safe-area-inset-left);
+  --safeR:env(safe-area-inset-right);
+  --dynB:var(--safeB);  /* aggiornato da JS tastiera di sistema */
+}
+
+/* ========== HEADER ================================================= */
+header{
+  position:fixed;top:var(--safeT);left:var(--safeL);right:var(--safeR);
+  height:48px;line-height:48px;background:#075e54;color:#fff;z-index:3;
+  display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500}
+header a{font-size:28px;text-decoration:none;color:inherit}
+header span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ========== INPUT‑BAR ============================================= */
+#bar{
+  position:fixed;left:var(--safeL);right:var(--safeR);bottom:var(--dynB);
+  height:56px;background:#f0f0f0;display:flex;align-items:center;gap:8px;
+  padding:0 8px;z-index:3}
+#txt{flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;background:#fff}
+#bar button{border:none;width:46px;height:46px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center}
+
+/* ========== LISTA MESSAGGI ======================================== */
+#log{
+  position:fixed;
+  top:calc(var(--safeT) + 48px);
+  left:var(--safeL);right:var(--safeR);
+  bottom:calc(var(--dynB) + 56px);
+  overflow-y:auto;padding:12px;scroll-behavior:smooth;
+  background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;background-blend-mode:luminosity;
+  display:flex;flex-direction:column;gap:6px}
+
+/* BOLLE */
+.msg{max-width:80%;font-size:14px;position:relative}
+.bub{padding:6px 8px 18px;border-radius:8px;box-shadow:0 1px 1px #0001}
+.tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
+.me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;margin-left:auto}
+.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
+.you .bub{background:#fff;border-radius:0 8px 8px 8px}
+
+/* ========== TASTIERA VIRTUALE ===================================== */
+#vk{position:fixed;left:0;right:0;bottom:0;background:#e5e5e5;box-shadow:0 -2px 5px #0003;
+    padding:8px 4px;display:none;z-index:5}
 #vk .row{display:flex;justify-content:center;gap:4px;margin-bottom:6px}
 #vk button{flex:1;min-width:0;padding:12px 0;font-size:17px;border:none;border-radius:6px;background:#fff;box-shadow:0 1px 2px #0002}
 #vk button.func{flex:1.5;background:#d0d0d0}
 #vk button:active{background:#c0ffc0}
+
+/* BLOCCO DESKTOP (opzionale) --------------------------------------- */
+@media(min-width:601px){
+ body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
+ header,#log,#bar,#vk{display:none}
+}
 </style>
 </head>
 <body>
 
-<main>
-  <h2>Prova la tastiera virtuale</h2>
-  <input class="use-vk" placeholder="Scrivi qui…">
-  <input class="use-vk" placeholder="…o qui">
-  <button onclick="alert('Normale bottone, la tastiera non si apre')">Altro controllo</button>
-</main>
+<header><a href="index.html">‹</a><span>Don Alfred 🤵🏻‍♂️</span></header>
 
-<!-- contenedor tastiera -->
+<div id="log" role="log" aria-live="polite"></div>
+
+<form id="bar" autocomplete="off">
+  <input id="txt" class="use-vk" placeholder="Messaggio" enterkeyhint="send">
+  <button type="submit" aria-label="Invia">
+    <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="" style="width:24px">
+  </button>
+</form>
+
+<!-- TASTIERA VIRTUALE -->
 <div id="vk"></div>
 
 <script>
-/* ---------- dati layout ---------- */
-const rows = [
-  ['q','w','e','r','t','y','u','i','o','p'],
-  ['a','s','d','f','g','h','j','k','l'],
-  ['Shift','z','x','c','v','b','n','m','←'],
-  ['123','Space','Invio']
-];
+/* ========== SHORTCUTS & DATA ====================================== */
+const log=$('#log'),inp=$('#txt'),form=$('#bar'),vk=$('#vk');
+let history=[],shift=false,target=null;
 
-let shift = false, target = null;   // stato corrente
+/* Layout QWERTY+funzioni */
+const rows=[['q','w','e','r','t','y','u','i','o','p'],
+            ['a','s','d','f','g','h','j','k','l'],
+            ['Shift','z','x','c','v','b','n','m','←'],
+            ['Space','Invio']];
 
-/* ---------- crea tastiera ---------- */
-const vk = document.getElementById('vk');
+/* Costruisci tastiera virtuale */
 rows.forEach(r=>{
-  const div = document.createElement('div');
-  div.className='row';
-  r.forEach(key=>{
+  const row=document.createElement('div');row.className='row';
+  r.forEach(k=>{
     const b=document.createElement('button');
-    b.textContent=key==='Space'?'␣':key;
-    if(/Shift|←|Invio|123/.test(key)) b.className='func';
-    b.dataset.key=key;
-    div.appendChild(b);
+    b.textContent=(k==='Space')?'␣':k;b.dataset.key=k;
+    if(/Shift|←|Invio/.test(k))b.className='func';
+    row.appendChild(b);
   });
-  vk.appendChild(div);
+  vk.appendChild(row);
 });
 
-/* ---------- apertura / chiusura ---------- */
+/* ========== 1. padding‑bottom dinamico (tastiera OS) ============== */
+(function dynBottom(){
+  const vv=window.visualViewport;
+  const set=()=>{
+    const overlap=vv?innerHeight-vv.height-vv.offsetTop:0;
+    document.documentElement.style.setProperty('--dynB',
+      overlap>0?overlap+'px':'env(safe-area-inset-bottom)');
+  };
+  set();
+  if(vv){vv.addEventListener('resize',set);vv.addEventListener('scroll',set);}
+  addEventListener('orientationchange',set);
+})();
+
+/* ========== 2. blocca scroll pagina (titolo fisso) ================ */
+(function lock(){const keep=()=>scrollTo(0,0);keep();
+['scroll','focusin','focusout','resize','orientationchange']
+.forEach(ev=>addEventListener(ev,keep,{passive:true}));})();
+
+/* ========== 3. LOGICA CHAT ======================================== */
+function bottom(){log.scrollTop=log.scrollHeight;}
+function bubble(who,text){
+  const h=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  log.insertAdjacentHTML('beforeend',
+   `<div class="msg ${who}"><div class="bub">${text}<span class="tim">${h}</span></div></div>`);
+  bottom();
+}
+
+form.addEventListener('submit',async e=>{
+  e.preventDefault();
+  const t=inp.value.trim();if(!t)return;
+  bubble('me',t);history.push({role:'user',content:t});inp.value='';
+  vk.style.display='none';          /* chiudi tastiera virtuale */
+  try{
+    const r=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+               body:JSON.stringify({message:t,history})});
+    const {reply}=await r.json();
+    bubble('you',reply);history.push({role:'assistant',content:reply});
+  }catch{bubble('you','Errore di rete 😢');}
+});
+
+/* ========== 4. tastiera virtuale ================================== */
+/* apertura */
 document.addEventListener('focusin',e=>{
   if(e.target.classList.contains('use-vk')){
-    target=e.target; vk.style.display='block'; window.scrollTo(0,document.body.scrollHeight);
+    target=e.target;vk.style.display='block';bottom();
   }
 });
+/* chiusura se perdi focus */
 document.addEventListener('focusout',e=>{
-  if(e.target===target) setTimeout(()=>{ if(!vk.contains(document.activeElement)) vk.style.display='none'; },10);
+  if(e.target===target)setTimeout(()=>{if(!vk.contains(document.activeElement))vk.style.display='none';},10);
 });
-
-/* ---------- gestione click ---------- */
+/* click tasti */
 vk.addEventListener('click',e=>{
   if(e.target.tagName!=='BUTTON'||!target)return;
   const k=e.target.dataset.key;
-  if(k==='Shift'){shift=!shift; e.target.classList.toggle('active',shift);return;}
+  if(k==='Shift'){shift=!shift;e.target.classList.toggle('active',shift);return;}
   if(k==='←'){target.value=target.value.slice(0,-1);return;}
   if(k==='Space'){target.value+=' ';return;}
-  if(k==='Invio'){vk.style.display='none';target.dispatchEvent(new Event('change'));target.blur();return;}
-  if(k==='123'){/* esempio cambio layout numerico */return;}
+  if(k==='Invio'){form.requestSubmit();target.blur();return;}
   target.value+=shift?k.toUpperCase():k;
 });
-
-/* opzionale: chiudi tastiera con ESC su desktop */
-addEventListener('keydown',e=>{if(e.key==='Escape')vk.style.display='none';});
 </script>
 </body>
 </html>

@@ -1,176 +1,106 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="it">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Chat • Don Alfred</title>
-
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chat demo • Alfred</title>
 <style>
-/* RESET + BLOCCO SCROLL DOCUMENTO ---------------------------------- */
+/* RESET + blocco scroll documento */
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{
-  height:100%;
-  overflow:hidden;                      /* nessun scroll pagina */
-  font:15px/48px -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif;
-  overscroll-behavior:none;
-}
+html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
 
-/* SAFE‑AREA & VARS -------------------------------------------------- */
-:root{
-  --safeT:env(safe-area-inset-top);
-  --safeB:env(safe-area-inset-bottom);
-  --safeL:env(safe-area-inset-left);
-  --safeR:env(safe-area-inset-right);
-  --vh:100svh;         /* altezza visibile (JS) */
-  --bottom:var(--safeB);  /* padding low dinamico (JS) */
-}
-
-/* CONTENITORE CHAT -------------------------------------------------- */
-#chat{
-  position:fixed;inset:0;width:100vw;height:var(--vh);
+/* ────────────── LAYOUT PRINCIPALE ────────────── */
+#app{
+  position:fixed;inset:0;               /* riempie SEMPRE il viewport visibile */
   display:flex;flex-direction:column;
-
-  background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")
-          0/540px repeat;background-blend-mode:luminosity;
-
-  padding:var(--safeT) var(--safeR) var(--bottom) var(--safeL);
-  touch-action:pan-y;overscroll-behavior:contain;
+  background:#ece5dd;
+  /* il padding‑bottom verrà sovrascritto da JS */
+  padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
 }
 
-/* Con tastiera aperta (iOS 15+) Safari fornisce env(keyboard‑inset) */
-@supports (padding:env(keyboard-inset-height)){
-  #chat.keyboard-open{ padding-bottom:env(keyboard-inset-height); }
-}
-
-/* HEADER ------------------------------------------------------------ */
-.header{
-  flex:none;height:48px;line-height:48px;
-  background:#075e54;color:#fff;
+/* header */
+header{
+  flex:none;height:48px;line-height:48px;background:#075e54;color:#fff;
   display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500}
-.header a{font-size:28px;text-decoration:none;color:inherit}
-.header .title{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header a{font-size:28px;text-decoration:none;color:inherit}
+header span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* LISTA ------------------------------------------------------------- */
-#msgs{
-  flex:1 1 auto;display:flex;flex-direction:column;gap:6px;
-  overflow-y:auto;padding:12px;scroll-behavior:smooth}
-
-/* INPUT BAR --------------------------------------------------------- */
-.input{
-  flex:none;height:56px;background:#f0f0f0;
-  display:flex;align-items:center;gap:8px;padding:0 8px}
-.input input{
-  flex:1;border:none;border-radius:20px;padding:10px 14px;background:#fff;font-size:15px;min-width:0}
-.input button{
-  border:none;width:46px;height:46px;border-radius:50%;background:#25d366;
-  display:flex;align-items:center;justify-content:center}
-
-/* BOLLE ------------------------------------------------------------- */
-.msg{max-width:80%;font-size:14px;position:relative;display:flex}
-.bub{padding:6px 8px 18px;border-radius:8px;box-shadow:0 1px 1px #0001}
-.tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
-.me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;margin-left:auto}
-.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
-.you .bub{background:#fff;border-radius:0 8px 8px 8px}
-
-/* BLOCCO DESKTOP ---------------------------------------------------- */
-@media(min-width:601px){
-  body::before{
-    content:'🛑 Apri da smartphone';display:flex;align-items:center;justify-content:center;
-    height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
-  #chat{display:none}
+/* lista messaggi */
+#log{
+  flex:1 1 auto;overflow-y:auto;padding:12px;display:flex;flex-direction:column;gap:6px;
 }
+
+/* input bar */
+form{
+  flex:none;height:56px;background:#f0f0f0;display:flex;align-items:center;gap:8px;padding:0 8px}
+form input{flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;background:#fff}
+form button{border:none;width:46px;height:46px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center}
+
+/* bolle (minime per demo) */
+.bubble{max-width:75%;padding:8px 10px;border-radius:8px;font-size:14px;line-height:1.35}
+.me  {align-self:flex-end;background:#d1f8c6;border-radius:8px 0 8px 8px}
+.you {align-self:flex-start;background:#fff;border-radius:0 8px 8px 8px}
 </style>
 </head>
 <body>
-<div id="chat">
-  <div class="header">
-    <a href="index.html" aria-label="Indietro">‹</a>
-    <span class="title">Don Alfred 🤵🏻‍♂️</span>
-  </div>
 
-  <div id="msgs" role="log" aria-live="polite"></div>
+<div id="app">
+  <header><a href="#">‹</a><span>Don Alfred 🤵🏻‍♂️</span></header>
 
-  <form class="input" id="chatForm" autocomplete="off">
-    <input id="chatInput" placeholder="Messaggio" enterkeyhint="send">
-    <button type="submit" aria-label="Invia">
-      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="" style="width:24px">
-    </button>
+  <div id="log" role="log" aria-live="polite"></div>
+
+  <form id="chatForm" autocomplete="off">
+    <input id="txt" placeholder="Messaggio" enterkeyhint="send">
+    <button type="submit">▶</button>
   </form>
 </div>
 
 <script>
-/* SHORTCUT ---------------------------------------------------------- */
+/* ───── UTIL ───── */
 const $ = s => document.querySelector(s);
-const chat = $('#chat'), list = $('#msgs'), form = $('#chatForm'), inp = $('#chatInput');
-let history = [];
+const log = $('#log'), txt = $('#txt'), form = $('#chatForm');
 
-/* === SYNC LAYOUT (altezza + padding) ============================== */
-function syncLayout(){
-  const vv    = window.visualViewport;
-  const winH  = innerHeight;
-  const vh    = vv ? vv.height : winH;                // spazio effettivo
-  const offset= Math.max(0, winH - vh - (vv ? vv.offsetTop : 0)); // tastiera o URL‑bar
+/* ───── 1.  ADATTA IL LAYOUT ALLA KEYBOARD ───── */
+function adapt(){
+  const vv = window.visualViewport;
+  // h = altezza visibile (esclude tastiera & url‑bar fluttuante)
+  const h = vv ? vv.height : innerHeight;
+  // distanza tra viewport "pieno" e visibile → tastiera | url bar | nulla
+  const bottomPad = innerHeight - h - (vv ? vv.offsetTop : 0);
 
-  /* altura container */
-  document.documentElement.style.setProperty('--vh', vh + 'px');
+  // aggiorna altezza app + padding bottom
+  document.getElementById('app').style.height = h + 'px';
+  document.getElementById('app').style.paddingBottom = `calc(env(safe-area-inset-bottom) + ${bottomPad}px)`;
 
-  /* padding bottom preciso */
-  if(offset > 0){
-    chat.classList.add('keyboard-open');
-    chat.style.setProperty('--bottom', offset + 'px');
-  }else{
-    chat.classList.remove('keyboard-open');
-    chat.style.setProperty('--bottom', 'var(--safeB)');
-  }
-
-  list.scrollTop = list.scrollHeight;   // resta in fondo
+  // tieni il log scrollato in fondo
+  log.scrollTop = log.scrollHeight;
 }
-syncLayout();
+// prima chiamata
+adapt();
+// eventi che cambiano viewport
+(window.visualViewport||window).addEventListener('resize', adapt);
+(window.visualViewport||window).addEventListener('scroll',  adapt);
+window.addEventListener('orientationchange', adapt);
 
-/* === BLOCCA QUALSIASI SCROLL ESTERNO ============================== */
-function lockScroll(){ window.scrollTo(0,0); }
+/* ───── 2.  BLOCCA QUALSIASI SCROLL DEL DOCUMENTO ───── */
+addEventListener('scroll', ()=>scrollTo(0,0));
 
-/* Eventi malefici --------------------------------------------------- */
-['scroll','focusin','focusout','resize','orientationchange'].forEach(ev=>{
-  window.addEventListener(ev, () => {
-    lockScroll();
-    syncLayout();
-  }, { passive:true });
-});
-
-/* BLOCCA RUBBER‑BAND LISTA ----------------------------------------- */
-list.addEventListener('touchmove', e=>{
-  const atTop = list.scrollTop === 0,
-        atBot = Math.abs(list.scrollHeight - list.scrollTop - list.clientHeight) < 1,
-        dir   = Math.sign(e.touches[0].clientY - e.touches[0].screenY);
-  if ((atTop && dir > 0) || (atBot && dir < 0)) e.preventDefault();
-},{passive:false});
-
-/* BOLLA ------------------------------------------------------------- */
-function bubble(who,text){
-  const h = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-  list.insertAdjacentHTML('beforeend',
-    `<div class="msg ${who}"><div class="bub">${text}<span class="tim">${h}</span></div></div>`);
-  list.scrollTop = list.scrollHeight;
+/* ───── 3.  INVIO MESSAGGIO DEMO (niente backend) ───── */
+function addBubble(cls,txtContent){
+  const div = document.createElement('div');
+  div.className = `bubble ${cls}`;
+  div.textContent = txtContent;
+  log.appendChild(div);
+  adapt();                               // ricentra dopo append
 }
 
-/* INVIO ------------------------------------------------------------- */
-form.addEventListener('submit', async e=>{
+form.addEventListener('submit', e=>{
   e.preventDefault();
-  const t = inp.value.trim(); if(!t) return;
-  bubble('me', t); history.push({role:'user', content:t}); inp.value='';
-  try{
-    const r = await fetch('/api/chat',{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({message:t, history})
-    });
-    const {reply} = await r.json();
-    bubble('you', reply); history.push({role:'assistant', content:reply});
-  }catch{
-    bubble('you','Errore di rete 😢');
-  }
+  const t = txt.value.trim();
+  if(!t) return;
+  addBubble('me', t);
+  txt.value = '';
+  setTimeout(()=>addBubble('you', 'Risposta di test 😉'), 400);
 });
 </script>
 </body>

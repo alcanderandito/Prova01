@@ -1,95 +1,125 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Chat • Don Alfred</title>
-<style>
-/* RESET ------------------------------------------------------------- */
-*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-html,body{height:100%;overflow:hidden;font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
+<title>Chat • Don Alfred</title>
 
-/* SAFE‑AREA --------------------------------------------------------- */
+<style>
+/*************** RESET & BASE *****************************************/
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;overflow:hidden;font:15px/1.35 -apple-system,BlinkMacSystemFont,Segoe UI,Roboto,Arial,sans-serif}
+
+/*************** SAFE‑AREA & VAR DINAMICA *****************************/
 :root{
   --safeT:env(safe-area-inset-top);
   --safeB:env(safe-area-inset-bottom);
   --safeL:env(safe-area-inset-left);
   --safeR:env(safe-area-inset-right);
-  --dynB:var(--safeB);            /* sarà sovrascritta via JS */
+  --dynB:var(--safeB);       /* riempito da JS (tastiera / home‑bar) */
 }
 
-/* HEADER fisso ------------------------------------------------------ */
+/*************** HEADER FIXED *****************************************/
 header{
   position:fixed;top:var(--safeT);left:var(--safeL);right:var(--safeR);
   height:48px;line-height:48px;background:#075e54;color:#fff;
-  display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500;z-index:2}
+  display:flex;align-items:center;gap:12px;padding:0 16px;font-weight:500;
+  z-index:3}
 header a{font-size:28px;text-decoration:none;color:inherit}
-header span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+header span{flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 
-/* INPUTBAR fisso ---------------------------------------------------- */
+/*************** INPUT‑BAR FIXED **************************************/
 #bar{
-  position:fixed;left:var(--safeL);right:var(--safeR);
-  bottom:calc(var(--dynB));       /* solo uno: tastiera O home‑bar */
-  height:56px;background:#f0f0f0;display:flex;align-items:center;gap:8px;padding:0 8px;z-index:2}
+  position:fixed;left:var(--safeL);right:var(--safeR);bottom:var(--dynB);
+  height:56px;background:#f0f0f0;display:flex;align-items:center;gap:8px;
+  padding:0 8px;z-index:3}
 #bar input{flex:1;border:none;border-radius:20px;padding:10px 14px;font-size:15px;background:#fff}
 #bar button{border:none;width:46px;height:46px;border-radius:50%;background:#25d366;display:flex;align-items:center;justify-content:center}
 
-/* LISTA messaggi ---------------------------------------------------- */
+/*************** AREA MESSAGGI ****************************************/
 #log{
   position:fixed;
   top:calc(var(--safeT) + 48px);
   left:var(--safeL);right:var(--safeR);
   bottom:calc(var(--dynB) + 56px);
-  overflow-y:auto;padding:12px;background:#ece5dd;
-  display:flex;flex-direction:column;gap:6px;
-}
+  overflow-y:auto;padding:12px;
+  background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;background-blend-mode:luminosity;
+  display:flex;flex-direction:column;gap:6px;scroll-behavior:smooth}
 
-/* BOLLE ------------------------------------------------------------- */
-.bubble{max-width:75%;padding:8px 10px;font-size:14px;line-height:1.35;border-radius:8px}
-.me{align-self:flex-end;background:#d1f8c6;border-radius:8px 0 8px 8px}
-.you{align-self:flex-start;background:#fff;border-radius:0 8px 8px 8px}
+/*************** BOLLE ************************************************/
+.msg{max-width:80%;position:relative;font-size:14px}
+.bub{padding:6px 8px 18px;border-radius:8px;box-shadow:0 1px 1px #0001}
+.tim{position:absolute;bottom:2px;right:6px;font-size:11px;opacity:.6}
+.me  .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;margin-left:auto}
+.me  .bub::after{content:"✔✔";position:absolute;bottom:2px;right:-18px;font-size:11px;color:#34b7f1;font-weight:700}
+.you .bub{background:#fff;border-radius:0 8px 8px 8px}
 
-/* SOLO smartphone --------------------------------------------------- */
+/*************** BLOCCO DESKTOP ***************************************/
 @media(min-width:601px){
- body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
- header,#log,#bar{display:none}
+  body::before{content:'🛑 Solo smartphone';display:flex;align-items:center;justify-content:center;height:100vh;width:100%;font-size:2.5rem;background:#000;color:#fff;text-align:center}
+  header,#log,#bar{display:none}
 }
 </style>
 </head>
 <body>
 
-<header><a href="#">‹</a><span>Don Alfred 🤵🏻‍♂️</span></header>
+<header><a href="index.html">‹</a><span>Don Alfred 🤵🏻‍♂️</span></header>
+
 <div id="log" role="log" aria-live="polite"></div>
 
 <form id="bar" autocomplete="off">
   <input id="txt" placeholder="Messaggio" enterkeyhint="send">
-  <button type="submit">▶</button>
+  <button type="submit" aria-label="Invia">
+    <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="" style="width:24px">
+  </button>
 </form>
 
 <script>
-/* ---------- adatta var(--dynB) ---------- */
-const vv = window.visualViewport;
-function upB(){
-  /* altezza UI sovrapposta (keyboard o URL‑bar) */
-  const over = vv ? innerHeight - vv.height - vv.offsetTop : 0;
-  const val = over > 0 ? over + 'px' : 'env(safe-area-inset-bottom)';
-  document.documentElement.style.setProperty('--dynB', val);
-}
-upB();
-if(vv){
-  vv.addEventListener('resize', upB);
-  vv.addEventListener('scroll', upB);
-}
-window.addEventListener('orientationchange', upB);
+/**************** VAR SHORTCUTS ***************************************/
+const $   = s => document.querySelector(s);
+const log = $('#log'), inp = $('#txt'), form = $('#bar');
 
-/* ---------- demo messaggi --------- */
-const log = document.getElementById('log');
-document.getElementById('bar').addEventListener('submit',e=>{
+/**************** 1. GESTIONE SPESSORE BOTTOM *************************/
+(function dynBottom(){
+  const vv = window.visualViewport;
+  function set(){
+    const overlap = vv ? innerHeight - vv.height - vv.offsetTop : 0; // tastiera+url
+    const val = overlap > 0 ? overlap + 'px' : 'env(safe-area-inset-bottom)';
+    document.documentElement.style.setProperty('--dynB', val);
+  }
+  set();
+  if(vv){ vv.addEventListener('resize', set); vv.addEventListener('scroll', set); }
+  addEventListener('orientationchange', set);
+})();
+
+/**************** 2. BLOCCA SCROLL PAGINA (titolo fisso) **************/
+(function lockPage(){
+  const keep=()=>scrollTo(0,0); keep();
+  ['focusin','focusout','resize','scroll','orientationchange']
+    .forEach(ev=>addEventListener(ev,keep,{passive:true}));
+})();
+
+/**************** 3. FUNZIONI CHAT ************************************/
+function bottom(){ log.scrollTop = log.scrollHeight; }
+function bubble(who,text){
+  const h=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+  log.insertAdjacentHTML('beforeend',
+    `<div class="msg ${who}"><div class="bub">${text}<span class="tim">${h}</span></div></div>`); bottom();
+}
+
+let history=[];
+form.addEventListener('submit',async e=>{
   e.preventDefault();
-  const inp=document.getElementById('txt');
   const t=inp.value.trim(); if(!t)return;
-  log.insertAdjacentHTML('beforeend',`<div class="bubble me">${t}</div>`);
-  inp.value=''; log.scrollTop=log.scrollHeight;
+  bubble('me',t); history.push({role:'user',content:t}); inp.value='';
+  try{
+    const r=await fetch('/api/chat',{
+      method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({message:t,history})
+    });
+    const {reply}=await r.json();
+    bubble('you',reply); history.push({role:'assistant',content:reply});
+  }catch{ bubble('you','Errore di rete 😢'); }
 });
 </script>
 </body>

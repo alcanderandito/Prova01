@@ -18,16 +18,18 @@
       --safeL:env(safe-area-inset-left);
       --safeR:env(safe-area-inset-right);
       --kbInset:var(--safeB);   /* aggiornato da JS */
-      --vvTop:0px;              /* nuova variabile per visualViewport offset */
+      --vvTop:0px;              /* offset virtual viewport */
     }
 
     /* quando la tastiera è aperta, POSIZIONA #log più in alto ma NON bloccarne lo scroll */
     html.kb-open #log {
       bottom: calc(var(--kbInset) + 56px) !important;
       overflow-y: auto !important;
+      /* riduci la sua altezza quando la tastiera è aperta */
+      height: 150px !important;
     }
 
-    /* HEADER: sempre in cima, z-index alto, e segue la visualViewport */
+    /* HEADER: sempre in cima, segue la visualViewport */
     header{
       position:fixed;
       top: calc(var(--vvTop) + var(--safeT));
@@ -129,7 +131,6 @@
 
     (function syncKbInset(){
       function update(){
-        // calcola inset tastiera
         const safeB = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safeB')) || 0;
         const vh = vv ? vv.height : window.innerHeight;
         const vo = vv ? vv.offsetTop : 0;
@@ -138,9 +139,9 @@
         document.documentElement.style.setProperty('--kbInset', inset + 'px');
         document.documentElement.classList.toggle('kb-open', overlap > 0);
 
-        // NUOVA LOGICA: mantieni header sempre visibile
-        const vvTop = vv 
-          ? (vv.pageTop !== undefined ? vv.pageTop : window.scrollY) 
+        // Calcola offset virtual viewport per mantenere header visibile
+        const vvTop = vv
+          ? (vv.pageTop !== undefined ? vv.pageTop : window.scrollY)
           : window.scrollY;
         document.documentElement.style.setProperty('--vvTop', vvTop + 'px');
       }
@@ -150,7 +151,6 @@
         vv.addEventListener('resize', update);
         vv.addEventListener('scroll', update);
       }
-      // copriamo tutti i casi di panning/browser
       window.addEventListener('resize', update);
       window.addEventListener('orientationchange', update);
       window.addEventListener('scroll', update);

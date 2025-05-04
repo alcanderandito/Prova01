@@ -2,118 +2,132 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+  <!-- Viewport critico: disabilita zoom, imposta larghezza, usa safe area -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Chat • Don Alfred</title>
   <style>
     :root {
-      --vh: 1vh;
+      /* Definiamo le altezze come variabili CSS per coerenza */
       --header-height: 56px;
       --input-height: 56px;
+      /* Safe area per notch/barre inferiori su iOS */
+      --safe-area-inset-top: env(safe-area-inset-top, 0px);
+      --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
     }
 
-    html {
-      height: 100%; width: 100%;
-      overflow: hidden; /* Blocca scroll html */
-    }
-
-    body {
-      margin:0; padding:0;
-      /* Altezza legata alla VISUAL viewport */
-      height: calc(var(--vh) * 100);
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%; /* Altezza base per #chat-wrapper */
       width: 100%;
-      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      overflow: hidden; /* Body NON deve scrollare */
-      /* Layout Flexbox per organizzare header, messages, input */
-      display: flex;
-      flex-direction: column;
-      background-color: #f0f0f0; /* Sfondo di fallback */
+      overflow: hidden; /* Impedisce qualsiasi scroll esterno */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
     }
 
-    /* Header: STICKY in cima */
+    /* Contenitore Principale: Isola tutto il resto */
+    #chat-wrapper {
+      position: relative; /* Contesto per posizionamento assoluto interno */
+      width: 100%;
+      height: 100%; /* Occupa tutta l'altezza del body/html iniziale */
+      overflow: hidden; /* Non deve scrollare! */
+      background-color: #f0f0f0; /* Sfondo di fallback */
+      /* Aggiunge padding per le safe area iOS */
+      padding-top: var(--safe-area-inset-top);
+      padding-bottom: var(--safe-area-inset-bottom);
+      box-sizing: border-box;
+    }
+
+    /* Header: Posizionato assolutamente IN ALTO dentro il wrapper */
     header {
+      position: absolute;
+      top: var(--safe-area-inset-top); /* Considera safe area */
+      left: 0;
+      width: 100%;
       height: var(--header-height);
       line-height: var(--header-height);
-      /* BACKGROUND SOLIDO FONDAMENTALE per sticky */
-      background:#075e54;
-      color:#fff;
-      display:flex; align-items:center; padding:0 16px;
-      font-size:18px; font-weight:500;
+      background: #075e54; /* Sfondo solido essenziale */
+      color: #fff;
+      display: flex;
+      align-items: center;
+      padding: 0 16px;
+      font-size: 18px;
+      font-weight: 500;
       box-sizing: border-box;
-      /* Sticky */
-      position: sticky;
-      top: 0;
-      z-index: 1; /* Sopra #messages durante lo scroll relativo */
-      flex-shrink: 0; /* Non si restringe */
-      box-shadow:0 1px 2px rgba(0,0,0,0.2); /* Ombra opzionale */
+      z-index: 2; /* Sopra i messaggi */
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
     }
     header a { color:inherit; text-decoration:none; font-size:24px; margin-right:12px; }
     header .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* Area Messaggi: Occupa spazio rimanente e scrolla */
+    /* Area Messaggi: Assoluta TRA header e input, SCROLLABILE */
     #messages {
-      flex: 1 1 auto; /* Occupa lo spazio disponibile */
-      overflow-y: auto; /* Scroll VERTICALE INTERNO */
-      -webkit-overflow-scrolling: touch; /* Scrolling inerziale iOS */
-      padding: 12px; /* Padding per le bolle */
+      position: absolute;
+      top: calc(var(--header-height) + var(--safe-area-inset-top)); /* Sotto l'header */
+      bottom: calc(var(--input-height) + var(--safe-area-inset-bottom)); /* Sopra l'input */
+      left: 0;
+      width: 100%;
+      /* Altezza determinata da top/bottom */
+      padding: 12px; /* Padding interno per le bolle */
       box-sizing: border-box;
-      background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
+      overflow-y: auto; /* SOLO QUESTO DEVE SCROLLARE */
+      -webkit-overflow-scrolling: touch; /* Momentum scroll iOS */
+      background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat;
       display: flex;
       flex-direction: column;
       gap: 8px;
       scroll-behavior: smooth;
-      /* Se #messages scrolla, header/input dovrebbero rimanere sticky */
+      z-index: 1; /* Sotto header/input */
     }
 
     /* Bolle e Timestamp invariati... */
     .msg{max-width:80%;position:relative;font-size:14px;line-height:1.4;word-wrap:break-word;} .msg .bub{padding:8px 12px 18px;border-radius:8px;box-shadow:0 1px 1px rgba(0,0,0,.1);position:relative;} .msg.me{align-self:flex-end;} .msg.me .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;} .msg.you{align-self:flex-start;} .msg.you .bub{background:#fff;border-radius:0 8px 8px 8px;} .tim{position:absolute;bottom:3px;right:8px;font-size:11px;opacity:.6;user-select:none;}
 
-    /* Input Bar: STICKY in fondo */
+    /* Input Bar: Posizionata assolutamente IN BASSO dentro il wrapper */
     #input-bar {
+      position: absolute;
+      bottom: var(--safe-area-inset-bottom); /* Considera safe area */
+      left: 0;
+      width: 100%;
       height: var(--input-height);
-      display:flex;
-      align-items:center;
-      padding:0 12px;
-      border-top:1px solid #ccc;
-      /* BACKGROUND SOLIDO FONDAMENTALE per sticky */
-      background:#fff;
+      display: flex;
+      align-items: center;
+      padding: 0 12px;
+      border-top: 1px solid #ccc;
+      background: #fff; /* Sfondo solido essenziale */
       box-sizing: border-box;
-      /* Sticky */
-      position: sticky;
-      bottom: 0;
-      z-index: 1; /* Sopra #messages durante lo scroll relativo */
-      flex-shrink: 0; /* Non si restringe */
+      z-index: 2; /* Sopra i messaggi */
     }
     /* Stili interni input-bar invariati... */
     #input-bar input[type="text"]{flex:1;height:36px;border:1px solid #ccc;border-radius:18px;padding:0 16px;font-size:16px;outline:none;} #input-bar input[type="text"]:disabled{background-color:#f0f0f0;cursor:not-allowed;} #input-bar button{width:44px;height:44px;margin-left:8px;border:none;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .2s ease;} #input-bar button:hover{background-color:#128c7e;} #input-bar button:disabled{background-color:#9deab7;cursor:not-allowed;} #input-bar button svg{width:24px;height:24px;fill:currentColor;display:block;}
 
-    /* Nascondi su desktop invariato, ma rimuove sticky */
+
+    /* Nascondi su desktop (ora nasconde il wrapper) */
     @media(min-width:601px){
-      html { height: auto; overflow: auto; }
-      body { height: auto; overflow: auto; position: static; }
-      header { position: static; } /* Rimuove sticky */
-      #input-bar { position: static; } /* Rimuove sticky */
+      html, body { height: auto; overflow: auto; } /* Ripristina scroll */
+      #chat-wrapper { display: none; } /* Nasconde tutto */
       body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }
-      header, #messages, #input-bar { filter:blur(5px); pointer-events:none; }
     }
   </style>
 </head>
 <body>
-  <!-- Struttura Flex: Header (sticky), Messages (scrollable), Input (sticky) -->
-  <header>
-    <a href="index.html" aria-label="Indietro">‹</a>
-    <span class="title">Don Alfred 🤵🏻‍♂️</span>
-  </header>
+  <!-- Il Wrapper contiene e isola tutta la chat -->
+  <div id="chat-wrapper">
+    <header>
+      <a href="index.html" aria-label="Indietro">‹</a>
+      <span class="title">Don Alfred 🤵🏻‍♂️</span>
+    </header>
 
-  <div id="messages" role="log" aria-live="polite">
-    <!-- Messaggi qui -->
-  </div>
+    <div id="messages" role="log" aria-live="polite">
+      <!-- Messaggi qui -->
+    </div>
 
-  <form id="input-bar" autocomplete="off">
-    <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
-    <button type="submit" aria-label="Invia messaggio" id="send-button">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
-    </button>
-  </form>
+    <form id="input-bar" autocomplete="off">
+      <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
+      <button type="submit" aria-label="Invia messaggio" id="send-button">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </form>
+  </div> <!-- Fine #chat-wrapper -->
 
   <script>
     const messagesEl = document.getElementById('messages');
@@ -122,53 +136,38 @@
     const sendButton = document.getElementById('send-button');
     let history = [];
 
-    // --- Gestione Altezza e Scroll ---
-    function adjustLayoutAndScroll() {
-      // Calcola --vh basato su window.innerHeight
-      const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', `${vh}px`);
-
-      // Forza scroll in fondo a #messages
-      // Usiamo setTimeout 0 per metterlo alla fine della coda eventi
+    // Funzione per scrollare in fondo #messages
+    function scrollToBottom() {
+      // Usiamo setTimeout 0 per assicurarci che avvenga
+      // dopo eventuali aggiornamenti del DOM / layout
       setTimeout(() => {
-        // Verifica se l'elemento esiste ancora (buona pratica)
         if (messagesEl) {
           messagesEl.scrollTop = messagesEl.scrollHeight;
         }
       }, 0);
     }
 
-    // Listener principali
-    window.addEventListener('resize', adjustLayoutAndScroll);
-    window.addEventListener('orientationchange', adjustLayoutAndScroll);
-    document.addEventListener('DOMContentLoaded', adjustLayoutAndScroll);
-
-    // Listener specifici per il focus (quando si tocca l'input)
+    // --- Listener per eventi chiave ---
+    // Focus sull'input: scrolla in fondo dopo un delay per la tastiera
     inputEl.addEventListener('focus', () => {
-        // Aspetta che la tastiera appaia e il resize sia (si spera) processato
-        setTimeout(() => {
-            adjustLayoutAndScroll();
-            // Potremmo anche provare a scrollare il body a 0,
-            // se dovesse ancora spostarsi
-            // document.body.scrollTop = 0; // Per browser più vecchi
-            // document.documentElement.scrollTop = 0; // Per browser moderni
-        }, 300);
+      setTimeout(scrollToBottom, 300); // Delay per animazione tastiera iOS
     });
 
-    // --- Funzione addMessage (INVARIATA) ---
+    // Aggiunta messaggio: scrolla subito dopo il render DOM
     function addMessage(who, text) {
       const time=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
       const msgDiv=document.createElement('div');msgDiv.className=`msg ${who}`;
       const bubDiv=document.createElement('div');bubDiv.className='bub';bubDiv.textContent=text;
       const timeSpan=document.createElement('span');timeSpan.className='tim';timeSpan.textContent=time;
       bubDiv.appendChild(timeSpan);msgDiv.appendChild(bubDiv);messagesEl.appendChild(msgDiv);
-      requestAnimationFrame(()=>{if(messagesEl){messagesEl.scrollTop = messagesEl.scrollHeight;}});
+      // Scroll immediato (requestAnimationFrame è ideale qui)
+      requestAnimationFrame(scrollToBottom);
     }
 
-    // --- Benvenuto (INVARIATO, chiama adjustLayout) ---
-    window.addEventListener('load', ()=>{setTimeout(()=>{addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!'); adjustLayoutAndScroll();}, 600);});
+    // Benvenuto: aggiunge messaggio e scrolla
+    window.addEventListener('load', ()=>{setTimeout(()=>{addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!'); scrollToBottom();}, 600);});
 
-    // --- Gestione Invio (INVARIATO, chiama scroll nel finally) ---
+    // Gestione Invio: aggiunge messaggio e scrolla nel finally
     formEl.addEventListener('submit', async (e) => {
       e.preventDefault();const text=inputEl.value.trim();if(!text)return;
       inputEl.disabled=true;sendButton.disabled=true;inputEl.placeholder="Invio in corso...";
@@ -182,12 +181,22 @@
       }catch(error){console.error("Errore durante l'invio o la ricezione del messaggio:", error);addMessage('you','Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢');}
       finally{
         inputEl.disabled=false;sendButton.disabled=false;inputEl.placeholder="Scrivi un messaggio a Don Alfred…";
-        setTimeout(()=>{if(messagesEl){messagesEl.scrollTop = messagesEl.scrollHeight;}}, 50);
+        // Non forzare il focus
+        setTimeout(scrollToBottom, 50); // Scrolla dopo un breve delay
       }
     });
 
-    // --- Invio con Enter (INVARIATO) ---
+    // Invio con Enter (INVARIATO)
     inputEl.addEventListener('keydown',(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendButton.disabled){formEl.requestSubmit();}}});
+
+    // Non abbiamo più bisogno di listener resize/orientation per --vh
+    // Ma potremmo voler forzare uno scroll al cambio orientamento
+    window.addEventListener('orientationchange', () => {
+        setTimeout(scrollToBottom, 100); // Scroll dopo cambio orientamento
+    });
+
+    // Chiamata iniziale per sicurezza (layout potrebbe caricare male)
+    document.addEventListener('DOMContentLoaded', scrollToBottom);
 
   </script>
 </body>

@@ -10,10 +10,11 @@
 
     html, body {
       margin:0; padding:0;
-      height:100%; width:100%;
+      /* MODIFICA 1: Impostata altezza con --vh e rimosso overflow:hidden */
+      height: calc(var(--vh) * 100); width:100%;
       display:flex; flex-direction:column;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      overflow:hidden; /* Impedisce lo scroll dell'intera pagina */
+      /* overflow:hidden; <- RIMOSSO: Causava la scomparsa dell'header */
     }
 
     /* HEADER fisso in cima */
@@ -32,8 +33,8 @@
     /* AREA MESSAGGI: occupa tutta la viewport vera meno header+input */
     #messages {
       flex: 1 1 auto; /* Occupa lo spazio rimanente e può crescere/restringersi */
-      /* Altezza calcolata dinamicamente con JS o fallback con calc */
-      height: calc((var(--vh) * 100) - 112px); /* 56px header + 56px input bar */
+      /* MODIFICA 2: Rimossa altezza fissa calcolata. Flexbox la gestirà */
+      /* height: calc((var(--vh) * 100) - 112px); <- RIMOSSO */
       overflow-y:auto; /* Scroll verticale se necessario */
       padding:12px;
       background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
@@ -101,7 +102,7 @@
       border:none;
       border-radius:50%;
       background:#25d366;
-      color: #fff; /* Colore icona se fosse testo */
+      color: #fff; /* Colore icona se fosse testo o SVG */
       display:flex;
       align-items:center;
       justify-content:center;
@@ -115,11 +116,15 @@
       background-color: #9deab7; /* Verde più chiaro quando disabilitato */
       cursor: not-allowed;
     }
-    #input-bar button img {
-       width:20px;
-       height:20px;
-       display: block; /* Evita spazi extra sotto l'immagine */
+    /* MODIFICA 3: Stile per SVG (per dimensione e colore) */
+    #input-bar button svg {
+       width: 24px; /* Adattato per SVG */
+       height: 24px; /* Adattato per SVG */
+       fill: currentColor; /* Usa il colore del testo del bottone (#fff) */
+       display: block; /* Evita spazi extra */
      }
+     /* Rimosso lo stile per img non più presente */
+     /* #input-bar button img { ... } */
 
     /* Nascondi su desktop */
     @media(min-width:601px){
@@ -131,9 +136,6 @@
         background:#000c; color:#fff; text-align:center;
         padding: 20px; z-index: 2000; backdrop-filter: blur(5px);
       }
-      /* Nascondiamo comunque gli elementi principali */
-      /* header, #messages, #input-bar { display:none } */
-      /* Oppure potresti sfocarli/renderli non interagibili */
        header, #messages, #input-bar {
          filter: blur(5px);
          pointer-events: none;
@@ -157,7 +159,11 @@
   <form id="input-bar" autocomplete="off">
     <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
     <button type="submit" aria-label="Invia messaggio" id="send-button">
-      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt=""/> <!-- Alt vuoto perché il button ha aria-label -->
+      <!-- MODIFICA 4: Sostituito <img> con SVG inline per l'icona "invia" -->
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+      </svg>
+      <!-- <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt=""/> <-- RIMOSSO -->
     </button>
   </form>
 
@@ -166,6 +172,13 @@
     function setVh() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
+      // MODIFICA 5: Forziamo lo scroll in fondo quando la tastiera cambia l'altezza (potrebbe aiutare)
+      // Questo va chiamato *dopo* che il DOM ha avuto tempo di ridisegnarsi
+      // setTimeout(() => {
+      //    if (document.activeElement === inputEl) { // Scrolla solo se l'input ha il focus (tastiera probabilmente aperta)
+      //        messagesEl.scrollTop = messagesEl.scrollHeight;
+      //    }
+      // }, 100); // Piccolo ritardo
     }
     window.addEventListener('resize', setVh);
     window.addEventListener('orientationchange', setVh);
@@ -295,6 +308,18 @@
         }
       }
     });
+
+    /* MODIFICA 6 (Opzionale, commentata): Event listener aggiuntivo per il focus sull'input
+       per tentare di correggere eventuali problemi residui di scroll quando la tastiera appare.
+       A volte 'resize' non è sufficiente su tutti i device.
+       Decommenta le righe qui sotto se noti ancora problemi quando tocchi l'input. */
+    // inputEl.addEventListener('focus', () => {
+    //    // Diamo un piccolo delay per permettere al browser di ridimensionare la vista
+    //    setTimeout(() => {
+    //        messagesEl.scrollTop = messagesEl.scrollHeight;
+    //        // Potrebbe essere necessario forzare un reflow o usare requestAnimationFrame
+    //    }, 150);
+    // });
 
   </script>
 </body>

@@ -13,7 +13,7 @@
 
     html {
       height: 100%; width: 100%;
-      overflow: hidden; /* Blocco scroll globale */
+      overflow: hidden; /* Blocca scroll html */
     }
 
     body {
@@ -23,74 +23,82 @@
       width: 100%;
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
       overflow: hidden; /* Body NON deve scrollare */
-      position: relative; /* Contesto per #messages posizionato assolutamente */
-      background-color: #f0f0f0; /* Sfondo visibile solo se qualcosa va storto */
+      /* Layout Flexbox per organizzare header, messages, input */
+      display: flex;
+      flex-direction: column;
+      background-color: #f0f0f0; /* Sfondo di fallback */
     }
 
-    /* Header: FIXED in cima */
+    /* Header: STICKY in cima */
     header {
       height: var(--header-height);
       line-height: var(--header-height);
-      background:#075e54; color:#fff;
+      /* BACKGROUND SOLIDO FONDAMENTALE per sticky */
+      background:#075e54;
+      color:#fff;
       display:flex; align-items:center; padding:0 16px;
       font-size:18px; font-weight:500;
       box-sizing: border-box;
-      position: fixed; /* Fisso */
+      /* Sticky */
+      position: sticky;
       top: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1001;
-      box-shadow:0 1px 2px rgba(0,0,0,0.2);
+      z-index: 1; /* Sopra #messages durante lo scroll relativo */
+      flex-shrink: 0; /* Non si restringe */
+      box-shadow:0 1px 2px rgba(0,0,0,0.2); /* Ombra opzionale */
     }
     header a { color:inherit; text-decoration:none; font-size:24px; margin-right:12px; }
     header .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* Area Messaggi: Posizionata ASSOLUTAMENTE tra header e input */
+    /* Area Messaggi: Occupa spazio rimanente e scrolla */
     #messages {
-      box-sizing: border-box;
-      position: absolute; /* Posizionamento relativo al body */
-      top: var(--header-height); /* Sotto l'header */
-      bottom: var(--input-height); /* Sopra l'input bar */
-      left: 0;
-      width: 100%;
-      /* Altezza implicita data da top/bottom */
-      padding: 12px; /* Padding interno per le bolle */
+      flex: 1 1 auto; /* Occupa lo spazio disponibile */
       overflow-y: auto; /* Scroll VERTICALE INTERNO */
       -webkit-overflow-scrolling: touch; /* Scrolling inerziale iOS */
+      padding: 12px; /* Padding per le bolle */
+      box-sizing: border-box;
       background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
       display: flex;
       flex-direction: column;
       gap: 8px;
       scroll-behavior: smooth;
+      /* Se #messages scrolla, header/input dovrebbero rimanere sticky */
     }
 
     /* Bolle e Timestamp invariati... */
     .msg{max-width:80%;position:relative;font-size:14px;line-height:1.4;word-wrap:break-word;} .msg .bub{padding:8px 12px 18px;border-radius:8px;box-shadow:0 1px 1px rgba(0,0,0,.1);position:relative;} .msg.me{align-self:flex-end;} .msg.me .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;} .msg.you{align-self:flex-start;} .msg.you .bub{background:#fff;border-radius:0 8px 8px 8px;} .tim{position:absolute;bottom:3px;right:8px;font-size:11px;opacity:.6;user-select:none;}
 
-    /* Input Bar: FIXED in fondo */
+    /* Input Bar: STICKY in fondo */
     #input-bar {
       height: var(--input-height);
       display:flex;
       align-items:center;
       padding:0 12px;
       border-top:1px solid #ccc;
+      /* BACKGROUND SOLIDO FONDAMENTALE per sticky */
       background:#fff;
       box-sizing: border-box;
-      position: fixed; /* Fisso */
+      /* Sticky */
+      position: sticky;
       bottom: 0;
-      left: 0;
-      width: 100%;
-      z-index: 1001;
+      z-index: 1; /* Sopra #messages durante lo scroll relativo */
+      flex-shrink: 0; /* Non si restringe */
     }
     /* Stili interni input-bar invariati... */
     #input-bar input[type="text"]{flex:1;height:36px;border:1px solid #ccc;border-radius:18px;padding:0 16px;font-size:16px;outline:none;} #input-bar input[type="text"]:disabled{background-color:#f0f0f0;cursor:not-allowed;} #input-bar button{width:44px;height:44px;margin-left:8px;border:none;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .2s ease;} #input-bar button:hover{background-color:#128c7e;} #input-bar button:disabled{background-color:#9deab7;cursor:not-allowed;} #input-bar button svg{width:24px;height:24px;fill:currentColor;display:block;}
 
-    /* Nascondi su desktop invariato */
-    @media(min-width:601px){/* ... */ html{height:auto;overflow:auto;}body{height:auto;overflow:auto;position:static;}#messages{position:static;height:auto;}body::before{content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.';display:flex;align-items:center;justify-content:center;position:fixed;top:0;left:0;height:100vh;width:100%;font-size:2rem;font-weight:bold;background:#000c;color:#fff;text-align:center;padding:20px;z-index:2000;backdrop-filter:blur(5px);}header, #messages, #input-bar{filter:blur(5px);pointer-events:none;}}
+    /* Nascondi su desktop invariato, ma rimuove sticky */
+    @media(min-width:601px){
+      html { height: auto; overflow: auto; }
+      body { height: auto; overflow: auto; position: static; }
+      header { position: static; } /* Rimuove sticky */
+      #input-bar { position: static; } /* Rimuove sticky */
+      body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }
+      header, #messages, #input-bar { filter:blur(5px); pointer-events:none; }
+    }
   </style>
 </head>
 <body>
-  <!-- Header (fixed), Messages (absolute, scrollable), Input (fixed) -->
+  <!-- Struttura Flex: Header (sticky), Messages (scrollable), Input (sticky) -->
   <header>
     <a href="index.html" aria-label="Indietro">‹</a>
     <span class="title">Don Alfred 🤵🏻‍♂️</span>
@@ -116,15 +124,17 @@
 
     // --- Gestione Altezza e Scroll ---
     function adjustLayoutAndScroll() {
-      // Imposta --vh basato sull'altezza INTERNA della finestra (più stabile a volte)
+      // Calcola --vh basato su window.innerHeight
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
 
       // Forza scroll in fondo a #messages
-      // Usiamo setTimeout 0 per metterlo alla fine della coda eventi,
-      // dopo che il browser ha ricalcolato il layout
+      // Usiamo setTimeout 0 per metterlo alla fine della coda eventi
       setTimeout(() => {
-        messagesEl.scrollTop = messagesEl.scrollHeight;
+        // Verifica se l'elemento esiste ancora (buona pratica)
+        if (messagesEl) {
+          messagesEl.scrollTop = messagesEl.scrollHeight;
+        }
       }, 0);
     }
 
@@ -135,52 +145,49 @@
 
     // Listener specifici per il focus (quando si tocca l'input)
     inputEl.addEventListener('focus', () => {
-        // Diamo un piccolo delay per permettere alla tastiera di apparire
-        // e al resize di essere processato prima di scrollare.
+        // Aspetta che la tastiera appaia e il resize sia (si spera) processato
         setTimeout(() => {
             adjustLayoutAndScroll();
-             // Tentativo extra: assicurati che l'input stesso sia visibile
-             // Questo a volte contrasta lo scroll "strano" di iOS
-             // inputEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }, 300); // Potrebbe essere necessario aggiustare questo valore (150-400ms)
+            // Potremmo anche provare a scrollare il body a 0,
+            // se dovesse ancora spostarsi
+            // document.body.scrollTop = 0; // Per browser più vecchi
+            // document.documentElement.scrollTop = 0; // Per browser moderni
+        }, 300);
     });
 
     // --- Funzione addMessage (INVARIATA) ---
     function addMessage(who, text) {
-      const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
+      const time=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
       const msgDiv=document.createElement('div');msgDiv.className=`msg ${who}`;
       const bubDiv=document.createElement('div');bubDiv.className='bub';bubDiv.textContent=text;
       const timeSpan=document.createElement('span');timeSpan.className='tim';timeSpan.textContent=time;
       bubDiv.appendChild(timeSpan);msgDiv.appendChild(bubDiv);messagesEl.appendChild(msgDiv);
-      // Scroll dopo il render DOM
-      requestAnimationFrame(()=>{messagesEl.scrollTop = messagesEl.scrollHeight;});
+      requestAnimationFrame(()=>{if(messagesEl){messagesEl.scrollTop = messagesEl.scrollHeight;}});
     }
 
-    // --- Benvenuto (INVARIATO, ma chiama adjustLayout) ---
+    // --- Benvenuto (INVARIATO, chiama adjustLayout) ---
     window.addEventListener('load', ()=>{setTimeout(()=>{addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!'); adjustLayoutAndScroll();}, 600);});
 
     // --- Gestione Invio (INVARIATO, chiama scroll nel finally) ---
     formEl.addEventListener('submit', async (e) => {
-      e.preventDefault(); const text = inputEl.value.trim(); if (!text) return;
-      inputEl.disabled = true; sendButton.disabled = true; inputEl.placeholder = "Invio in corso...";
-      addMessage('me', text); history.push({ role: 'user', content: text }); inputEl.value = '';
-      try {
-        const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history: history }) });
-        if (!response.ok) { throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`); }
-        const data = await response.json();
-        if (data && data.reply) { const reply = data.reply; addMessage('you', reply); history.push({ role: 'assistant', content: reply }); }
-        else { console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data); addMessage('you', 'Ho ricevuto una risposta inaspettata. 🤔'); }
-      } catch (error) { console.error("Errore durante l'invio o la ricezione del messaggio:", error); addMessage('you', 'Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢'); }
-      finally {
-        inputEl.disabled = false; sendButton.disabled = false; inputEl.placeholder = "Scrivi un messaggio a Don Alfred…";
-        // Non forziamo il focus su mobile, può essere fastidioso
-        // inputEl.focus();
-        setTimeout(() => { messagesEl.scrollTop = messagesEl.scrollHeight; }, 50);
+      e.preventDefault();const text=inputEl.value.trim();if(!text)return;
+      inputEl.disabled=true;sendButton.disabled=true;inputEl.placeholder="Invio in corso...";
+      addMessage('me', text);history.push({role:'user',content:text});inputEl.value='';
+      try{
+        const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:history})});
+        if(!response.ok){throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`);}
+        const data=await response.json();
+        if(data&&data.reply){const reply=data.reply;addMessage('you',reply);history.push({role:'assistant',content:reply});}
+        else{console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data);addMessage('you','Ho ricevuto una risposta inaspettata. 🤔');}
+      }catch(error){console.error("Errore durante l'invio o la ricezione del messaggio:", error);addMessage('you','Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢');}
+      finally{
+        inputEl.disabled=false;sendButton.disabled=false;inputEl.placeholder="Scrivi un messaggio a Don Alfred…";
+        setTimeout(()=>{if(messagesEl){messagesEl.scrollTop = messagesEl.scrollHeight;}}, 50);
       }
     });
 
     // --- Invio con Enter (INVARIATO) ---
-    inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendButton.disabled) { formEl.requestSubmit(); } } });
+    inputEl.addEventListener('keydown',(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendButton.disabled){formEl.requestSubmit();}}});
 
   </script>
 </body>

@@ -5,37 +5,98 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Chat • Don Alfred</title>
   <style>
-    /* CSS Identico alla Versione #11 (Flex su Body) */
-     :root {
-      --header-height: 56px; --input-height: 56px;
+    :root {
+      --header-height: 56px;
+      --input-height: 56px;
       --safe-area-top: env(safe-area-inset-top, 0px);
       --safe-area-bottom: env(safe-area-inset-bottom, 0px);
-      --min-chat-height: calc(var(--header-height) + var(--input-height) + 20px); /* Altezza minima logica */
     }
-    html, body { padding: 0; margin: 0; width: 100%; height: 100vh; /* Altezza iniziale */ overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; position: relative; overscroll-behavior: contain; }
-    body { display: flex; flex-direction: column; background-color: #eee; padding-top: var(--safe-area-top); padding-bottom: var(--safe-area-bottom); box-sizing: border-box; /* L'altezza verrà gestita da JS */ }
-    header { height: var(--header-height); line-height: var(--header-height); background: #075e54; color: #fff; display: flex; align-items: center; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    header a {color:inherit;text-decoration:none;font-size:24px;margin-right:12px;} header .title {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    #messages { flex-grow: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; box-sizing: border-box; background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; z-index: 1; }
+
+    html {
+      height: 100%; width: 100%;
+      overflow: hidden; /* Blocca scroll globale */
+    }
+
+    body {
+      margin: 0; padding: 0;
+      width: 100%;
+      /* Altezza "fill available" - Hack per iOS */
+      height: 100%; /* Fallback */
+      height: -webkit-fill-available; /* Prova a usare l'altezza disponibile reale */
+      overflow: hidden; /* Body non deve scrollare */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      position: relative; /* Contesto per elementi fissi */
+      background-color: #f0f0f0;
+    }
+
+    /* Header: FIXED */
+    header {
+      position: fixed;
+      top: var(--safe-area-top); left: 0; width: 100%;
+      height: var(--header-height); line-height: var(--header-height);
+      background: #075e54; color: #fff;
+      display: flex; align-items: center; padding: 0 16px;
+      box-sizing: border-box; z-index: 100;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    header a {color:inherit;text-decoration:none;font-size:24px;margin-right:12px;}
+    header .title {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+    /* Area Messaggi: Occupa TUTTA l'altezza, scrolla, con padding */
+    #messages {
+      /* Occupa tutta l'altezza disponibile */
+      height: 100%;
+      width: 100%;
+      box-sizing: border-box;
+      /* Padding per NON andare sotto header/input fissi */
+      padding: calc(var(--header-height) + var(--safe-area-top) + 12px) /* top */
+               12px /* right */
+               calc(var(--input-height) + var(--safe-area-bottom) + 12px) /* bottom */
+               12px; /* left */
+      overflow-y: auto; /* Scroll solo qui */
+      -webkit-overflow-scrolling: touch;
+      background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat;
+      display: flex; flex-direction: column; gap: 8px;
+      scroll-behavior: smooth;
+      z-index: 1; /* Sotto header/input */
+    }
+
+    /* Bolle e Timestamp (invariati)... */
     .msg{max-width:80%;position:relative;font-size:14px;line-height:1.4;word-wrap:break-word;} .msg .bub{padding:8px 12px 18px;border-radius:8px;box-shadow:0 1px 1px rgba(0,0,0,.1);position:relative;} .msg.me{align-self:flex-end;} .msg.me .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;} .msg.you{align-self:flex-start;} .msg.you .bub{background:#fff;border-radius:0 8px 8px 8px;} .tim{position:absolute;bottom:3px;right:8px;font-size:11px;opacity:.6;user-select:none;}
-    #input-bar { height: var(--input-height); display: flex; align-items: center; padding: 0 12px; border-top: 1px solid #ccc; background: #fff; box-sizing: border-box; flex-shrink: 0; z-index: 2; }
-    #input-bar input[type="text"]{flex:1;height:36px;border:1px solid #ccc;border-radius:18px;padding:0 16px;font-size:16px;outline:none;} #input-bar input[type="text"]:disabled{background-color:#f0f0f0;cursor:not-allowed;} #input-bar button{width:44px;height:44px;margin-left:8px;border:none;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .2s ease;} #input-bar button:hover{background-color:#128c7e;} #input-bar button:disabled{background-color:#9deab7;cursor:not-allowed;} #input-bar button svg{width:24px;height:24px;fill:currentColor;display:block;}
-    @media(min-width:601px){ html, body { height: auto; overflow: auto; position: static; padding:0; overscroll-behavior: auto;} body { display: block; } header, #messages, #input-bar { display: none; } body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }}
+
+    /* Input Bar: FIXED */
+    #input-bar {
+      position: fixed;
+      bottom: var(--safe-area-bottom); left: 0; width: 100%;
+      height: var(--input-height);
+      display: flex; align-items: center; padding: 0 12px;
+      border-top: 1px solid #ccc; background: #fff;
+      box-sizing: border-box; z-index: 100;
+    }
+    /* Stili interni (invariati)... */
+     #input-bar input[type="text"]{flex:1;height:36px;border:1px solid #ccc;border-radius:18px;padding:0 16px;font-size:16px;outline:none;} #input-bar input[type="text"]:disabled{background-color:#f0f0f0;cursor:not-allowed;} #input-bar button{width:44px;height:44px;margin-left:8px;border:none;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .2s ease;} #input-bar button:hover{background-color:#128c7e;} #input-bar button:disabled{background-color:#9deab7;cursor:not-allowed;} #input-bar button svg{width:24px;height:24px;fill:currentColor;display:block;}
+
+    /* Nascondi su desktop */
+    @media(min-width:601px){
+      html, body { height: auto; overflow: auto; position: static; }
+      header, #messages, #input-bar { display: none; }
+      body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }
+    }
   </style>
 </head>
-<body> <!-- Body è il contenitore Flex -->
-    <header><!-- ... --></header>
-    <div id="messages"><!-- ... --></div>
-    <form id="input-bar"><!-- ... --></form>
+<body>
+  <!-- Struttura fissa semplice -->
+  <header><!-- ... --></header>
+  <div id="messages"><!-- ... --></div>
+  <form id="input-bar"><!-- ... --></form>
 
   <script>
+    // JS ridotto al minimo: solo scroll e logica base
     const messagesEl = document.getElementById('messages');
     const inputEl    = document.getElementById('message-input');
     const formEl     = document.getElementById('input-bar');
     const sendButton = document.getElementById('send-button');
     let history = [];
-    // Memorizza l'altezza "normale" della finestra (senza tastiera)
-    let normalWindowHeight = window.innerHeight;
 
     function scrollToBottom(behavior = 'auto') {
       requestAnimationFrame(() => {
@@ -45,90 +106,31 @@
       });
     }
 
-    // --- FUNZIONE CHIAVE: Adatta l'altezza del BODY con controlli ---
-    function adaptBodyHeight() {
-      const currentWindowHeight = window.innerHeight; // Altezza finestra attuale
-      let targetHeight = currentWindowHeight; // Inizia con l'altezza attuale
-
-      if (window.visualViewport) {
-        const vv = window.visualViewport;
-        const viewportHeight = vv.height;
-        console.log(`adaptBodyHeight - Window.innerHeight: ${currentWindowHeight}, visualViewport.height: ${viewportHeight}`);
-
-        // **Controllo:** Usa visualViewport.height SOLO se è plausibile
-        // e DIVERSO dall'altezza normale della finestra (indica tastiera aperta).
-        // Confrontiamo con normalWindowHeight per rilevare l'apertura/chiusura.
-        // Aggiungiamo una tolleranza (es. 50px) perché le altezze potrebbero non coincidere mai perfettamente.
-        if (viewportHeight < normalWindowHeight - 50 && viewportHeight > 150) {
-            console.log(`   -> Keyboard likely open. Using visualViewport height: ${viewportHeight}px`);
-            targetHeight = viewportHeight;
-        } else {
-             console.log(`   -> Keyboard likely closed or vvHeight invalid. Using window.innerHeight: ${currentWindowHeight}px`);
-             targetHeight = currentWindowHeight;
-             // Aggiorna l'altezza normale se la finestra è stata ridimensionata senza tastiera
-             if(Math.abs(currentWindowHeight - viewportHeight) < 50) {
-                 normalWindowHeight = currentWindowHeight;
-                 console.log(`   -> Updated normalWindowHeight to: ${normalWindowHeight}`);
-             }
-        }
-      } else {
-          // Fallback senza visualViewport: usa solo window.innerHeight
-          console.log(`adaptBodyHeight - No visualViewport. Using window.innerHeight: ${currentWindowHeight}px`);
-          targetHeight = currentWindowHeight;
-          normalWindowHeight = currentWindowHeight; // Aggiorna altezza normale
-      }
-
-      // Applica l'altezza calcolata al BODY
-      console.log(`   -> Applying height to body: ${targetHeight}px`);
-      document.body.style.height = `${targetHeight}px`;
-
-      // Scrolla in fondo dopo aver impostato l'altezza
-      scrollToBottom('auto');
-    }
-
-    // --- Listener visualViewport (se disponibile) ---
-    if (window.visualViewport) {
-      let vvTicking = false;
-      const vvResizeHandler = () => {
-        if (!vvTicking) {
-          window.requestAnimationFrame(() => {
-            adaptBodyHeight();
-            vvTicking = false;
-          });
-          vvTicking = true;
-        }
-      };
-      window.visualViewport.addEventListener('resize', vvResizeHandler);
-    } else {
-      // Fallback: ascolta resize della finestra
-       window.addEventListener('resize', () => setTimeout(adaptBodyHeight, 50));
-    }
-
-    // --- Listener FOCUS (Scrolla dopo delay) ---
+    // FOCUS: Scrolla in fondo dopo un delay
     inputEl.addEventListener('focus', () => {
       console.log("Input focused - Scrolling bottom after delay");
-      // Il resize di vv dovrebbe gestire l'altezza, noi scrolliamo solo
       setTimeout(() => scrollToBottom('auto'), 350);
     });
 
-    // --- Funzione addMessage (Scrolla) ---
+    // Funzione addMessage (Scrolla)
     function addMessage(who, text) { /* ... codice inv. ... */
         const time=new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});const msgDiv=document.createElement('div');msgDiv.className=`msg ${who}`;const bubDiv=document.createElement('div');bubDiv.className='bub';bubDiv.textContent=text;const timeSpan=document.createElement('span');timeSpan.className='tim';timeSpan.textContent=time;bubDiv.appendChild(timeSpan);msgDiv.appendChild(bubDiv);messagesEl.appendChild(msgDiv);
         scrollToBottom('auto');
     }
-    // --- Benvenuto (Chiama adaptBodyHeight) ---
-    window.addEventListener('load', ()=>{setTimeout(()=>{addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!'); adaptBodyHeight();}, 600);});
-    // --- Gestione Invio (Scrolla) ---
+    // Benvenuto (Scrolla)
+    window.addEventListener('load', ()=>{setTimeout(()=>{addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!'); scrollToBottom('auto');}, 600);});
+    // Gestione Invio (Scrolla)
     formEl.addEventListener('submit', async (e) => { /* ... codice inv. ... */
         e.preventDefault();const text=inputEl.value.trim();if(!text)return;inputEl.disabled=true;sendButton.disabled=true;inputEl.placeholder="Invio in corso...";addMessage('me', text);history.push({role:'user',content:text});inputEl.value='';
         try{const response=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:text,history:history})});if(!response.ok){throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`);}const data=await response.json();if(data&&data.reply){const reply=data.reply;addMessage('you',reply);history.push({role:'assistant',content:reply});}else{console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data);addMessage('you','Ho ricevuto una risposta inaspettata. 🤔');}}catch(error){console.error("Errore durante l'invio o la ricezione del messaggio:", error);addMessage('you','Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢');}finally{inputEl.disabled=false;sendButton.disabled=false;inputEl.placeholder="Scrivi un messaggio a Don Alfred…";setTimeout(scrollToBottom, 50);}
     });
-    // --- Invio con Enter (INVARIATO) ---
+    // Invio con Enter (INVARIATO)
     inputEl.addEventListener('keydown',(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendButton.disabled){formEl.requestSubmit();}}});
-    // --- Orientamento e Caricamento ---
-    window.addEventListener('orientationchange', () => { normalWindowHeight = window.innerHeight; setTimeout(adaptBodyHeight, 100);});
-    document.addEventListener('DOMContentLoaded', () => { normalWindowHeight = window.innerHeight; adaptBodyHeight();});
+    // Orientamento e Caricamento (Solo scroll)
+    window.addEventListener('orientationchange', () => setTimeout(()=>scrollToBottom('auto'), 100));
+    document.addEventListener('DOMContentLoaded', () => setTimeout(()=>scrollToBottom('auto'), 0));
 
+    // Rimuoviamo completamente i listener resize/visualViewport
   </script>
 </body>
 </html>

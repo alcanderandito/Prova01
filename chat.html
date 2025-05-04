@@ -2,106 +2,104 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport"
+        content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
   <title>Chat • Don Alfred</title>
   <style>
-    /* Layout a colonna piena */
-    body, html {
-      margin: 0; padding: 0;
-      height: 100%; width: 100%;
+    /* RESET & BASE */
+    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box }
+    html, body { 
+      height:100%; width:100%; 
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
-      display: flex; flex-direction: column;
+      overflow:hidden;
     }
-    /* Header fisso in alto */
+
+    /* SAFE-AREA INSETS */
+    :root {
+      --safeT: env(safe-area-inset-top);
+      --safeB: env(safe-area-inset-bottom);
+    }
+
+    /* HEADER */
     header {
-      height: 56px;
-      background: #075e54;
-      color: #fff;
-      display: flex;
-      align-items: center;
-      padding: 0 16px;
-      font-size: 18px;
-      font-weight: 500;
-      flex-shrink: 0;
-      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+      position: fixed;
+      top: var(--safeT); left:0; right:0;
+      height:56px; line-height:56px;
+      background:#075e54; color:#fff;
+      padding:0 16px; font-size:18px; font-weight:500;
+      display:flex; align-items:center; gap:12px;
+      z-index:1000;
+      box-shadow:0 1px 2px rgba(0,0,0,0.2);
     }
-    header a {
-      margin-right: 12px;
-      color: inherit; text-decoration: none;
-      font-size: 24px;
-    }
-    header .title {
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    /* Contenitore messaggi che si espande */
+    header a { color:inherit; text-decoration:none; font-size:24px }
+    header .title { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+
+    /* MESSAGGI */
     #messages {
-      flex: 1;
+      position: absolute;
+      top: calc(var(--safeT) + 56px);
+      left:0; right:0;
+      /* bottom e height ve li calcola JS */
       overflow-y: auto;
-      padding: 12px;
-      background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat;
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      scroll-behavior: smooth;
+      padding:12px;
+      display:flex; flex-direction:column; gap:8px;
+      background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
+      scroll-behavior:smooth;
     }
-    /* Stile bolle */
+
+    /* BOLLE */
     .msg {
-      max-width: 80%;
-      position: relative;
-      font-size: 14px;
-      line-height: 1.4;
+      max-width:80%;
+      position:relative;
+      font-size:14px; line-height:1.4;
     }
     .msg .bub {
-      padding: 8px 12px 18px;
-      border-radius: 8px;
-      box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+      padding:8px 12px 18px;
+      border-radius:8px;
+      box-shadow:0 1px 1px rgba(0,0,0,0.1);
     }
-    .msg.me {
-      align-self: flex-end;
-    }
-    .msg.me .bub {
-      background: #d1f8c6;
-      border-radius: 8px 0 8px 8px;
-    }
-    .msg.you .bub {
-      background: #fff;
-      border-radius: 0 8px 8px 8px;
-    }
+    .msg.me { align-self:flex-end }
+    .msg.me .bub { background:#d1f8c6; border-radius:8px 0 8px 8px }
+    .msg.you .bub { background:#fff; border-radius:0 8px 8px 8px }
     .tim {
-      position: absolute;
-      bottom: 2px; right: 6px;
-      font-size: 11px; opacity: .6;
+      position:absolute; bottom:2px; right:6px;
+      font-size:11px; opacity:.6;
     }
-    /* Barra input fissa in basso */
+
+    /* INPUT-BAR */
     #input-bar {
-      height: 56px;
-      flex-shrink: 0;
-      display: flex;
-      align-items: center;
-      padding: 0 12px;
-      border-top: 1px solid #ccc;
-      background: #fff;
+      position: fixed;
+      left:0; right:0;
+      bottom: var(--safeB);
+      height:56px;
+      background:#fff;
+      display:flex; align-items:center; gap:8px;
+      padding:0 12px;
+      border-top:1px solid #ccc;
+      z-index:900;
     }
     #input-bar input {
-      flex: 1;
-      height: 36px;
-      border: 1px solid #ccc;
-      border-radius: 18px;
-      padding: 0 12px;
-      font-size: 16px;
+      flex:1; height:36px;
+      border:1px solid #ccc; border-radius:18px;
+      padding:0 12px; font-size:16px;
     }
     #input-bar button {
-      width: 44px; height: 44px;
-      margin-left: 8px;
-      border: none;
-      border-radius: 50%;
-      background: #25d366;
-      display: flex; align-items: center; justify-content: center;
+      width:44px; height:44px;
+      border:none; border-radius:50%;
+      background:#25d366;
+      display:flex; align-items:center; justify-content:center;
     }
-    #input-bar button img {
-      width: 20px; height: 20px;
+    #input-bar button img { width:20px; height:20px }
+
+    /* NASCONDI SU DESKTOP */
+    @media(min-width:601px){
+      body::before {
+        content:'🛑 Apri da smartphone';
+        display:flex; align-items:center; justify-content:center;
+        height:100vh; width:100%; font-size:2.5rem;
+        background:#000; color:#fff; text-align:center;
+      }
+      header,#messages,#input-bar { display:none }
     }
   </style>
 </head>
@@ -115,18 +113,40 @@
   <div id="messages" role="log" aria-live="polite"></div>
 
   <form id="input-bar" autocomplete="off">
-    <input id="message-input" type="text" placeholder="Scrivi un messaggio…" enterkeyhint="send" />
+    <input id="message-input" type="text" placeholder="Scrivi un messaggio…" enterkeyhint="send"/>
     <button type="submit" aria-label="Invia">
       <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="Invia"/>
     </button>
   </form>
 
   <script>
+    const headerEl   = document.querySelector('header');
+    const barEl      = document.getElementById('input-bar');
     const messagesEl = document.getElementById('messages');
     const inputEl    = document.getElementById('message-input');
-    const formEl     = document.getElementById('input-bar');
-    let history = [];
+    let history      = [];
 
+    // Calcola e imposta l'altezza di #messages
+    function adjustMessagesHeight() {
+      const vv = window.visualViewport;
+      const viewH = vv ? vv.height : window.innerHeight;
+      const hh = headerEl.offsetHeight;
+      const bh = barEl.offsetHeight;
+      messagesEl.style.height = (viewH - hh - bh) + 'px';
+    }
+
+    // Inizializza e lega agli eventi
+    window.addEventListener('load', adjustMessagesHeight);
+    window.addEventListener('resize', adjustMessagesHeight);
+    window.addEventListener('orientationchange', adjustMessagesHeight);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', adjustMessagesHeight);
+      window.visualViewport.addEventListener('scroll', adjustMessagesHeight);
+    }
+    inputEl.addEventListener('focus', adjustMessagesHeight);
+    inputEl.addEventListener('blur',  adjustMessagesHeight);
+
+    // Aggiunge una bolla e autoscroll
     function addMessage(who, text) {
       const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
       const wrapper = document.createElement('div');
@@ -138,34 +158,36 @@
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    formEl.addEventListener('submit', async e => {
+    // Gestione submit
+    document.getElementById('input-bar').addEventListener('submit', async e => {
       e.preventDefault();
-      const text = inputEl.value.trim();
-      if (!text) return;
-      addMessage('me', text);
-      history.push({ role: 'user', content: text });
+      const txt = inputEl.value.trim();
+      if (!txt) return;
+      addMessage('me', txt);
+      history.push({role:'user',content:txt});
       inputEl.value = '';
       try {
         const res = await fetch('/api/chat', {
-          method: 'POST',
+          method:'POST',
           headers: {'Content-Type':'application/json'},
-          body: JSON.stringify({ message: text, history })
+          body: JSON.stringify({message:txt,history})
         });
         const { reply } = await res.json();
         addMessage('you', reply);
-        history.push({ role: 'assistant', content: reply });
+        history.push({role:'assistant',content:reply});
       } catch {
-        addMessage('you', 'Errore di rete 😢');
+        addMessage('you','Errore di rete 😢');
       }
     });
 
-    // Invia anche con tasto Invio senza shift
+    // Invio con Invio (senza Shift)
     inputEl.addEventListener('keydown', e => {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        formEl.requestSubmit();
+        e.target.form.requestSubmit();
       }
     });
   </script>
+
 </body>
 </html>

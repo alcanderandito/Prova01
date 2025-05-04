@@ -5,133 +5,297 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Chat • Don Alfred</title>
   <style>
-    /* ... (CSS rimane identico a prima) ... */
+    /* 1vh corretto su mobile */
     :root { --vh: 1vh; }
-    html, body { margin:0; padding:0; height:100%; width:100%; display:flex; flex-direction:column; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; overflow:hidden; }
-    header { height:56px; line-height:56px; background:#075e54; color:#fff; display:flex; align-items:center; padding:0 16px; font-size:18px; font-weight:500; flex-shrink:0; z-index:1000; box-shadow:0 1px 2px rgba(0,0,0,0.2); }
+
+    html, body {
+      margin:0; padding:0;
+      height:100%; width:100%;
+      display:flex; flex-direction:column;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+      overflow:hidden; /* Impedisce lo scroll dell'intera pagina */
+    }
+
+    /* HEADER fisso in cima */
+    header {
+      height:56px; line-height:56px;
+      background:#075e54; color:#fff;
+      display:flex; align-items:center; padding:0 16px;
+      font-size:18px; font-weight:500;
+      flex-shrink:0; /* Non si riduce */
+      z-index:1000;
+      box-shadow:0 1px 2px rgba(0,0,0,0.2);
+    }
     header a { color:inherit; text-decoration:none; font-size:24px; margin-right:12px; }
     header .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-    #messages { flex:none; height: calc((var(--vh) * 100) - 112px); overflow-y:auto; padding:12px; background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat; display:flex; flex-direction:column; gap:8px; scroll-behavior:smooth; }
-    .msg { max-width:80%; position:relative; font-size:14px; line-height:1.4; }
-    .msg .bub { padding:8px 12px 18px; border-radius:8px; box-shadow:0 1px 1px rgba(0,0,0,0.1); }
-    .msg.me { align-self:flex-end; }
+
+    /* AREA MESSAGGI: occupa tutta la viewport vera meno header+input */
+    #messages {
+      flex: 1 1 auto; /* Occupa lo spazio rimanente e può crescere/restringersi */
+      /* Altezza calcolata dinamicamente con JS o fallback con calc */
+      height: calc((var(--vh) * 100) - 112px); /* 56px header + 56px input bar */
+      overflow-y:auto; /* Scroll verticale se necessario */
+      padding:12px;
+      background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
+      display:flex;
+      flex-direction:column;
+      gap:8px; /* Spazio tra i messaggi */
+      scroll-behavior:smooth; /* Scroll più fluido */
+    }
+
+    /* BOLLE come WhatsApp */
+    .msg {
+      max-width:80%;
+      position:relative;
+      font-size:14px;
+      line-height:1.4;
+      word-wrap: break-word; /* Va a capo se le parole sono lunghe */
+    }
+    .msg .bub {
+      padding:8px 12px 18px; /* Spazio per timestamp sotto */
+      border-radius:8px;
+      box-shadow:0 1px 1px rgba(0,0,0,0.1);
+      position: relative; /* Necessario per posizionare il timestamp */
+    }
+    .msg.me { align-self:flex-end; } /* Allinea a destra */
     .msg.me .bub { background:#d1f8c6; border-radius:8px 0 8px 8px; }
+    .msg.you { align-self:flex-start; } /* Allinea a sinistra (default, ma esplicito) */
     .msg.you .bub { background:#fff; border-radius:0 8px 8px 8px; }
-    .tim { position:absolute; bottom:2px; right:6px; font-size:11px; opacity:.6; }
-    #input-bar { height:56px; display:flex; align-items:center; padding:0 12px; border-top:1px solid #ccc; background:#fff; flex-shrink:0; }
-    #input-bar input { flex:1; height:36px; border:1px solid #ccc; border-radius:18px; padding:0 12px; font-size:16px; }
-    #input-bar button { width:44px; height:44px; margin-left:8px; border:none; border-radius:50%; background:#25d366; display:flex; align-items:center; justify-content:center; }
-    #input-bar button img { width:20px; height:20px; }
-    @media(min-width:601px){ body::before { content:'🛑 Apri da smartphone'; display:flex; align-items:center; justify-content:center; height:100vh; width:100%; font-size:2.5rem; background:#000; color:#fff; text-align:center; } header,#messages,#input-bar { display:none } }
+
+    .tim {
+      position:absolute;
+      bottom:3px; /* Leggermente alzato */
+      right:8px; /* Leggermente spostato */
+      font-size:11px;
+      opacity:.6;
+      user-select: none; /* Non selezionabile */
+    }
+
+    /* INPUT BAR in basso */
+    #input-bar {
+      height:56px;
+      display:flex;
+      align-items:center;
+      padding:0 12px;
+      border-top:1px solid #ccc;
+      background:#fff;
+      flex-shrink:0; /* Non si riduce */
+    }
+    #input-bar input[type="text"] {
+      flex:1; /* Occupa lo spazio disponibile */
+      height:36px;
+      border:1px solid #ccc;
+      border-radius:18px;
+      padding:0 16px; /* Più padding laterale */
+      font-size:16px;
+      outline: none; /* Rimuove bordo al focus */
+    }
+    #input-bar input[type="text"]:disabled {
+      background-color: #f0f0f0; /* Feedback visivo quando disabilitato */
+      cursor: not-allowed;
+    }
+    #input-bar button {
+      width:44px;
+      height:44px;
+      margin-left:8px;
+      border:none;
+      border-radius:50%;
+      background:#25d366;
+      color: #fff; /* Colore icona se fosse testo */
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition: background-color 0.2s ease; /* Transizione hover */
+    }
+    #input-bar button:hover {
+      background-color: #128c7e; /* Colore leggermente più scuro */
+    }
+    #input-bar button:disabled {
+      background-color: #9deab7; /* Verde più chiaro quando disabilitato */
+      cursor: not-allowed;
+    }
+    #input-bar button img {
+       width:20px;
+       height:20px;
+       display: block; /* Evita spazi extra sotto l'immagine */
+     }
+
+    /* Nascondi su desktop */
+    @media(min-width:601px){
+      body::before {
+        content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.';
+        display:flex; align-items:center; justify-content:center;
+        position: fixed; top: 0; left: 0;
+        height:100vh; width:100%; font-size:2rem; font-weight: bold;
+        background:#000c; color:#fff; text-align:center;
+        padding: 20px; z-index: 2000; backdrop-filter: blur(5px);
+      }
+      /* Nascondiamo comunque gli elementi principali */
+      /* header, #messages, #input-bar { display:none } */
+      /* Oppure potresti sfocarli/renderli non interagibili */
+       header, #messages, #input-bar {
+         filter: blur(5px);
+         pointer-events: none;
+       }
+
+    }
   </style>
 </head>
 <body>
   <header>
-    <a href="index.html">‹</a>
+    <a href="index.html" aria-label="Indietro">‹</a>
     <span class="title">Don Alfred 🤵🏻‍♂️</span>
   </header>
 
-  <div id="messages" role="log" aria-live="polite"></div>
+  <!-- Area dove verranno visualizzati i messaggi -->
+  <div id="messages" role="log" aria-live="polite">
+    <!-- I messaggi verranno aggiunti qui da JavaScript -->
+  </div>
 
+  <!-- Barra di input in basso -->
   <form id="input-bar" autocomplete="off">
-    <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send"/>
-    <button type="submit" aria-label="Invia">
-      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="Invia"/>
+    <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
+    <button type="submit" aria-label="Invia messaggio" id="send-button">
+      <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt=""/> <!-- Alt vuoto perché il button ha aria-label -->
     </button>
   </form>
 
   <script>
-    // Hack --vh per viewport mobile
+    // Hack per --vh che considera la vera altezza viewport su mobile
     function setVh() {
       const vh = window.innerHeight * 0.01;
-      document.documentElement.style.setProperty('--vh', vh + 'px');
+      document.documentElement.style.setProperty('--vh', `${vh}px`);
     }
     window.addEventListener('resize', setVh);
     window.addEventListener('orientationchange', setVh);
-    setVh();
+    setVh(); // Chiamata iniziale
 
-    // Chat logic
+    // Elementi del DOM
     const messagesEl = document.getElementById('messages');
     const inputEl    = document.getElementById('message-input');
     const formEl     = document.getElementById('input-bar');
+    const sendButton = document.getElementById('send-button');
+
+    // Cronologia dei messaggi (utile per l'invio all'API)
     let history = [];
 
+    /**
+     * Aggiunge un messaggio alla UI della chat.
+     * @param {string} who - Chi invia il messaggio ('me' o 'you').
+     * @param {string} text - Il testo del messaggio.
+     */
     function addMessage(who, text) {
       const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-      const div = document.createElement('div');
-      div.className = 'msg ' + who;
-      // Usiamo textContent per sicurezza contro XSS nel testo
+
+      // Crea elementi DOM in modo sicuro
+      const msgDiv = document.createElement('div');
+      msgDiv.className = `msg ${who}`; // Aggiunge classi 'msg' e 'me'/'you'
+
       const bubDiv = document.createElement('div');
       bubDiv.className = 'bub';
-      bubDiv.textContent = text;
+      bubDiv.textContent = text; // Usa textContent per sicurezza (previene XSS)
+
       const timeSpan = document.createElement('span');
       timeSpan.className = 'tim';
       timeSpan.textContent = time;
+
+      // Assembla gli elementi
       bubDiv.appendChild(timeSpan);
-      div.appendChild(bubDiv);
-      messagesEl.appendChild(div);
+      msgDiv.appendChild(bubDiv);
+
+      // Aggiunge il messaggio completo all'area messaggi
+      messagesEl.appendChild(msgDiv);
+
+      // Scrolla fino all'ultimo messaggio aggiunto
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    // Benvenuto di Don Alfred
+    // Messaggio di benvenuto da Don Alfred (con leggero ritardo)
     window.addEventListener('load', () => {
-       addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!');
+      setTimeout(() => {
+        addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!');
+        // Opzionale: Aggiungere il benvenuto alla history se l'API lo richiede
+        // history.push({role:'assistant', content: 'Ciao, sono Don Alfred. Dimmi pure!'});
+      }, 600); // Ritardo di 600ms
     });
 
-    formEl.addEventListener('submit', async e => {
-      e.preventDefault();
-      const txt = inputEl.value.trim();
-      if (!txt) return;
-      addMessage('me', txt);
-      history.push({role:'user',content:txt});
-      inputEl.value = '';
-      try {
-        // --- QUESTA CHIAMATA RIMANE INVARIATA ---
-        const res = await fetch('/api/chat', {
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body: JSON.stringify({message:txt,history})
-        });
-        // --- FINE CHIAMATA INVARIATA ---
+    // Gestione dell'invio del form
+    formEl.addEventListener('submit', async (e) => {
+      e.preventDefault(); // Impedisce il ricaricamento della pagina
 
-        // Controllo se la risposta HTTP è OK (status 200-299)
-        if (!res.ok) {
-            // Se lo status non è OK (es. 404 Not Found, 500 Internal Server Error)
-            // lancia un errore che verrà catturato dal catch.
-            throw new Error(`Errore HTTP! Status: ${res.status}`);
+      const text = inputEl.value.trim();
+      if (!text) return; // Non inviare messaggi vuoti
+
+      // --- UI Feedback: Inizio invio ---
+      inputEl.disabled = true;
+      sendButton.disabled = true;
+      inputEl.placeholder = "Invio in corso..."; // Feedback visivo
+
+      // Aggiunge il messaggio dell'utente alla UI e alla history
+      addMessage('me', text);
+      history.push({ role: 'user', content: text });
+
+      // Pulisce l'input solo dopo aver aggiunto il messaggio alla UI
+      inputEl.value = '';
+
+      try {
+        // --- Chiamata API (INVARIATA come richiesto) ---
+        const response = await fetch('/api/chat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ message: text, history: history }) // Invia messaggio corrente e history
+        });
+        // --- Fine Chiamata API ---
+
+        // Controlla se la risposta HTTP è andata a buon fine (status 2xx)
+        if (!response.ok) {
+          // Se lo status non è OK (es. 404, 500), crea un errore specifico
+          throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`);
         }
 
-        // Se la risposta è OK, prova a leggerla come JSON
-        const data = await res.json(); // Qui potrebbe fallire se la risposta non è JSON valido
+        // Prova a leggere la risposta come JSON
+        const data = await response.json();
 
         // Verifica che il JSON contenga la chiave 'reply'
         if (data && data.reply) {
-            const reply = data.reply;
-            addMessage('you', reply);
-            history.push({role:'assistant',content:reply});
+          const reply = data.reply;
+          addMessage('you', reply); // Aggiunge la risposta di Don Alfred
+          history.push({ role: 'assistant', content: reply }); // Aggiunge la risposta alla history
         } else {
-            // Il server ha risposto 200 OK ma il JSON non contiene 'reply'
-            addMessage('you', 'Ho ricevuto una risposta inaspettata 🤔');
-            console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data);
+          // Il server ha risposto OK ma il JSON non era quello atteso
+          console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data);
+          addMessage('you', 'Ho ricevuto una risposta inaspettata. 🤔');
+          // Potresti voler aggiungere un placeholder alla history qui?
+          // history.push({ role: 'assistant', content: '[Risposta Inaspettata]' });
         }
 
       } catch (error) {
-        // Questo blocco viene eseguito se:
-        // 1. La chiamata fetch fallisce completamente (es. rete irraggiungibile, DNS error)
-        // 2. L'endpoint /api/chat non esiste (spesso risulta in errore di rete o 404 catturato sopra)
-        // 3. La risposta del server non è OK (res.ok è false, es. status 404, 500)
-        // 4. La risposta non è JSON valido e res.json() fallisce
-        console.error("Errore durante la chiamata API o l'elaborazione della risposta:", error);
-        addMessage('you','Errore di rete 😢'); // Messaggio generico di fallimento
+        // Gestisce errori di rete, HTTP, o di parsing JSON
+        console.error("Errore durante l'invio o la ricezione del messaggio:", error);
+        addMessage('you', 'Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢');
+        // Non aggiungiamo l'errore alla history ufficiale della conversazione
+      } finally {
+        // --- UI Feedback: Fine invio (sia successo che errore) ---
+        inputEl.disabled = false;
+        sendButton.disabled = false;
+        inputEl.placeholder = "Scrivi un messaggio a Don Alfred…"; // Ripristina placeholder
+        inputEl.focus(); // Rimette il focus sull'input per scrivere subito un altro messaggio
       }
     });
 
-    inputEl.addEventListener('keydown', e => {
-      if (e.key==='Enter' && !e.shiftKey) {
-        e.preventDefault();
-        formEl.requestSubmit();
+    // Permette l'invio anche premendo Invio (senza Shift)
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault(); // Impedisce di andare a capo nell'input
+        // Simula il click sul bottone (se non è disabilitato)
+        if (!sendButton.disabled) {
+            formEl.requestSubmit(); // Usa il metodo standard per inviare il form
+           // sendButton.click(); // Alternativa, ma requestSubmit è più semantico
+        }
       }
     });
+
   </script>
 </body>
 </html>

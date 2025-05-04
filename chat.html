@@ -2,81 +2,64 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport"
-        content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Chat • Don Alfred</title>
   <style>
-    /* RESET & BASE */
-    *, *::before, *::after { margin:0; padding:0; box-sizing:border-box }
-    html, body { 
-      height:100%; width:100%; 
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    /* 1vh corretto su mobile */
+    :root { --vh: 1vh; }
+
+    html, body {
+      margin:0; padding:0;
+      height:100%; width:100%;
+      display:flex; flex-direction:column;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
       overflow:hidden;
     }
 
-    /* SAFE-AREA INSETS */
-    :root {
-      --safeT: env(safe-area-inset-top);
-      --safeB: env(safe-area-inset-bottom);
-    }
-
-    /* HEADER */
+    /* HEADER fisso in cima */
     header {
-      position: fixed;
-      top: var(--safeT); left:0; right:0;
       height:56px; line-height:56px;
       background:#075e54; color:#fff;
-      padding:0 16px; font-size:18px; font-weight:500;
-      display:flex; align-items:center; gap:12px;
-      z-index:1000;
+      display:flex; align-items:center; padding:0 16px;
+      font-size:18px; font-weight:500;
+      flex-shrink:0; z-index:1000;
       box-shadow:0 1px 2px rgba(0,0,0,0.2);
     }
-    header a { color:inherit; text-decoration:none; font-size:24px }
-    header .title { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+    header a { color:inherit; text-decoration:none; font-size:24px; margin-right:12px; }
+    header .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* MESSAGGI */
+    /* AREA MESSAGGI: occupa tutta la viewport vera meno header+input */
     #messages {
-      position: absolute;
-      top: calc(var(--safeT) + 56px);
-      left:0; right:0;
-      /* bottom e height ve li calcola JS */
-      overflow-y: auto;
+      flex:none;
+      height: calc((var(--vh) * 100) - 112px); /* 56+56 */
+      overflow-y:auto;
       padding:12px;
-      display:flex; flex-direction:column; gap:8px;
       background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
+      display:flex; flex-direction:column; gap:8px;
       scroll-behavior:smooth;
     }
 
-    /* BOLLE */
+    /* BOLLE come WhatsApp */
     .msg {
-      max-width:80%;
-      position:relative;
-      font-size:14px; line-height:1.4;
+      max-width:80%; position:relative; font-size:14px; line-height:1.4;
     }
     .msg .bub {
-      padding:8px 12px 18px;
-      border-radius:8px;
+      padding:8px 12px 18px; border-radius:8px;
       box-shadow:0 1px 1px rgba(0,0,0,0.1);
     }
-    .msg.me { align-self:flex-end }
-    .msg.me .bub { background:#d1f8c6; border-radius:8px 0 8px 8px }
-    .msg.you .bub { background:#fff; border-radius:0 8px 8px 8px }
+    .msg.me { align-self:flex-end; }
+    .msg.me .bub { background:#d1f8c6; border-radius:8px 0 8px 8px; }
+    .msg.you .bub { background:#fff; border-radius:0 8px 8px 8px; }
     .tim {
-      position:absolute; bottom:2px; right:6px;
-      font-size:11px; opacity:.6;
+      position:absolute; bottom:2px; right:6px; font-size:11px; opacity:.6;
     }
 
-    /* INPUT-BAR */
+    /* INPUT BAR in basso */
     #input-bar {
-      position: fixed;
-      left:0; right:0;
-      bottom: var(--safeB);
       height:56px;
-      background:#fff;
-      display:flex; align-items:center; gap:8px;
-      padding:0 12px;
-      border-top:1px solid #ccc;
-      z-index:900;
+      display:flex; align-items:center; padding:0 12px;
+      border-top:1px solid #ccc; background:#fff;
+      flex-shrink:0;
     }
     #input-bar input {
       flex:1; height:36px;
@@ -84,14 +67,13 @@
       padding:0 12px; font-size:16px;
     }
     #input-bar button {
-      width:44px; height:44px;
-      border:none; border-radius:50%;
-      background:#25d366;
+      width:44px; height:44px; margin-left:8px;
+      border:none; border-radius:50%; background:#25d366;
       display:flex; align-items:center; justify-content:center;
     }
-    #input-bar button img { width:20px; height:20px }
+    #input-bar button img { width:20px; height:20px; }
 
-    /* NASCONDI SU DESKTOP */
+    /* Nascondi su desktop */
     @media(min-width:601px){
       body::before {
         content:'🛑 Apri da smartphone';
@@ -104,7 +86,6 @@
   </style>
 </head>
 <body>
-
   <header>
     <a href="index.html">‹</a>
     <span class="title">Don Alfred 🤵🏻‍♂️</span>
@@ -113,53 +94,43 @@
   <div id="messages" role="log" aria-live="polite"></div>
 
   <form id="input-bar" autocomplete="off">
-    <input id="message-input" type="text" placeholder="Scrivi un messaggio…" enterkeyhint="send"/>
+    <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send"/>
     <button type="submit" aria-label="Invia">
       <img src="https://img.icons8.com/ios/50/ffffff/filled-sent.png" alt="Invia"/>
     </button>
   </form>
 
   <script>
-    const headerEl   = document.querySelector('header');
-    const barEl      = document.getElementById('input-bar');
+    // Hack --vh per viewport mobile con tastiera
+    function setVh() {
+      const vh = window.innerHeight * 0.01;
+      document.documentElement.style.setProperty('--vh', vh + 'px');
+    }
+    window.addEventListener('resize', setVh);
+    window.addEventListener('orientationchange', setVh);
+    setVh();
+
+    // Chat logic
     const messagesEl = document.getElementById('messages');
     const inputEl    = document.getElementById('message-input');
-    let history      = [];
+    const formEl     = document.getElementById('input-bar');
+    let history = [];
 
-    // Calcola e imposta l'altezza di #messages
-    function adjustMessagesHeight() {
-      const vv = window.visualViewport;
-      const viewH = vv ? vv.height : window.innerHeight;
-      const hh = headerEl.offsetHeight;
-      const bh = barEl.offsetHeight;
-      messagesEl.style.height = (viewH - hh - bh) + 'px';
-    }
-
-    // Inizializza e lega agli eventi
-    window.addEventListener('load', adjustMessagesHeight);
-    window.addEventListener('resize', adjustMessagesHeight);
-    window.addEventListener('orientationchange', adjustMessagesHeight);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', adjustMessagesHeight);
-      window.visualViewport.addEventListener('scroll', adjustMessagesHeight);
-    }
-    inputEl.addEventListener('focus', adjustMessagesHeight);
-    inputEl.addEventListener('blur',  adjustMessagesHeight);
-
-    // Aggiunge una bolla e autoscroll
     function addMessage(who, text) {
       const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
-      const wrapper = document.createElement('div');
-      wrapper.className = 'msg ' + who;
-      wrapper.innerHTML = \`
-        <div class="bub">\${text}<span class="tim">\${time}</span></div>
-      \`;
-      messagesEl.appendChild(wrapper);
+      const div = document.createElement('div');
+      div.className = 'msg ' + who;
+      div.innerHTML = `<div class="bub">${text}<span class="tim">${time}</span></div>`;
+      messagesEl.appendChild(div);
       messagesEl.scrollTop = messagesEl.scrollHeight;
     }
 
-    // Gestione submit
-    document.getElementById('input-bar').addEventListener('submit', async e => {
+    // Benvenuto di Don Alfred
+    window.addEventListener('load', () => {
+      addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!');
+    });
+
+    formEl.addEventListener('submit', async e => {
       e.preventDefault();
       const txt = inputEl.value.trim();
       if (!txt) return;
@@ -169,7 +140,7 @@
       try {
         const res = await fetch('/api/chat', {
           method:'POST',
-          headers: {'Content-Type':'application/json'},
+          headers:{'Content-Type':'application/json'},
           body: JSON.stringify({message:txt,history})
         });
         const { reply } = await res.json();
@@ -180,14 +151,12 @@
       }
     });
 
-    // Invio con Invio (senza Shift)
     inputEl.addEventListener('keydown', e => {
-      if (e.key === 'Enter' && !e.shiftKey) {
+      if (e.key==='Enter' && !e.shiftKey) {
         e.preventDefault();
-        e.target.form.requestSubmit();
+        formEl.requestSubmit();
       }
     });
   </script>
-
 </body>
 </html>

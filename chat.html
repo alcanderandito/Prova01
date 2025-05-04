@@ -2,88 +2,69 @@
 <html lang="it">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"> <!-- Aggiunto viewport-fit=cover, utile su iOS con notch -->
   <title>Chat • Don Alfred</title>
   <style>
-    /* 1vh corretto su mobile */
     :root { --vh: 1vh; }
 
     html, body {
       margin:0; padding:0;
-      /* MODIFICA 1: Altezza gestita principalmente dagli elementi fissi/scrollabili */
-      height:100%; /* O potremmo usare calc(var(--vh) * 100) se necessario */
-      width:100%;
+      height:100%; width:100%; /* Occupa lo spazio iniziale */
       font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
-      /* Rimuoviamo display:flex dal body, non serve più con position:fixed */
-      /* display:flex; flex-direction:column; <- RIMOSSO */
-      overflow: hidden; /* Impedisce lo scroll del body stesso */
+      overflow:hidden; /* Impedisce lo scroll del body */
     }
 
-    /* HEADER fisso in cima */
+    /* MODIFICA 1: Contenitore principale */
+    #app-container {
+      display: flex;
+      flex-direction: column;
+      /* Altezza legata alla viewport visibile calcolata con JS */
+      height: calc(var(--vh) * 100);
+      width: 100%;
+      overflow: hidden; /* Contiene tutto, impedisce overflow strano */
+      background-color: #ece5dd; /* Sfondo base, visibile se qualcosa va storto */
+    }
+
+    /* Header: torna ad essere un elemento flex */
     header {
       height:56px; line-height:56px;
       background:#075e54; color:#fff;
       display:flex; align-items:center; padding:0 16px;
       font-size:18px; font-weight:500;
-      /* flex-shrink:0; <- Rimosso, non più in contesto flex */
-      /* MODIFICA 2: Posizionamento fisso */
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%; /* Occupa tutta la larghezza */
-      z-index:1001; /* Sopra il contenuto */
+      flex-shrink:0; /* Non si riduce (IMPORTANTE) */
+      /* Rimosso position: fixed e z-index */
       box-shadow:0 1px 2px rgba(0,0,0,0.2);
-      box-sizing: border-box; /* Padding incluso nella larghezza */
+      box-sizing: border-box;
     }
     header a { color:inherit; text-decoration:none; font-size:24px; margin-right:12px; }
     header .title { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 
-    /* AREA MESSAGGI: occupa tutta l'altezza e scrolla internamente */
+    /* Area Messaggi: torna ad occupare lo spazio flex rimanente */
     #messages {
-      /* flex: 1 1 auto; <- Rimosso, non più in contesto flex */
-      /* MODIFICA 3: Deve occupare tutta l'altezza e scrollare */
-      height: 100%; /* Occupa tutta l'altezza del body */
-      /* O potremmo provare height: calc(var(--vh) * 100); */
-      overflow-y:auto; /* Scroll verticale se necessario */
-      /* MODIFICA 4: Padding per evitare sovrapposizione con header/input */
-      padding: calc(56px + 12px) 12px calc(56px + 12px) 12px; /* top=header+gap, bottom=input+gap, left/right=original */
-      box-sizing: border-box; /* Il padding è incluso nell'altezza/larghezza */
+      flex: 1 1 auto; /* Occupa lo spazio disponibile e può ridursi/espandersi (IMPORTANTE) */
+      overflow-y:auto; /* Scroll verticale interno */
+      /* Ripristinato padding semplice */
+      padding:12px;
+      /* Rimosso height: 100% e padding calcolato */
+      box-sizing: border-box;
       background:#ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png")0/540px repeat;
       display:flex;
       flex-direction:column;
-      gap:8px; /* Spazio tra i messaggi */
-      scroll-behavior:smooth; /* Scroll più fluido */
+      gap:8px;
+      scroll-behavior:smooth;
     }
 
-    /* BOLLE come WhatsApp */
-    .msg {
-      max-width:80%;
-      position:relative;
-      font-size:14px;
-      line-height:1.4;
-      word-wrap: break-word;
-    }
-    .msg .bub {
-      padding:8px 12px 18px;
-      border-radius:8px;
-      box-shadow:0 1px 1px rgba(0,0,0,0.1);
-      position: relative;
-    }
+    /* Bolle e Timestamp invariati... */
+    .msg { max-width:80%; position:relative; font-size:14px; line-height:1.4; word-wrap: break-word; }
+    .msg .bub { padding:8px 12px 18px; border-radius:8px; box-shadow:0 1px 1px rgba(0,0,0,0.1); position: relative; }
     .msg.me { align-self:flex-end; }
     .msg.me .bub { background:#d1f8c6; border-radius:8px 0 8px 8px; }
     .msg.you { align-self:flex-start; }
     .msg.you .bub { background:#fff; border-radius:0 8px 8px 8px; }
+    .tim { position:absolute; bottom:3px; right:8px; font-size:11px; opacity:.6; user-select: none; }
 
-    .tim {
-      position:absolute;
-      bottom:3px;
-      right:8px;
-      font-size:11px;
-      opacity:.6;
-      user-select: none;
-    }
 
-    /* INPUT BAR in basso */
+    /* Input Bar: torna ad essere un elemento flex */
     #input-bar {
       height:56px;
       display:flex;
@@ -91,128 +72,75 @@
       padding:0 12px;
       border-top:1px solid #ccc;
       background:#fff;
-      /* flex-shrink:0; <- Rimosso, non più in contesto flex */
-      /* MODIFICA 5: Posizionamento fisso */
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      width: 100%; /* Occupa tutta la larghezza */
-      z-index: 1001; /* Sopra il contenuto */
-      box-sizing: border-box; /* Padding incluso nella larghezza */
+      flex-shrink:0; /* Non si riduce (IMPORTANTE) */
+      /* Rimosso position: fixed e z-index */
+      box-sizing: border-box;
     }
-    #input-bar input[type="text"] {
-      flex:1;
-      height:36px;
-      border:1px solid #ccc;
-      border-radius:18px;
-      padding:0 16px;
-      font-size:16px;
-      outline: none;
-    }
-    #input-bar input[type="text"]:disabled {
-      background-color: #f0f0f0;
-      cursor: not-allowed;
-    }
-    #input-bar button {
-      width:44px;
-      height:44px;
-      margin-left:8px;
-      border:none;
-      border-radius:50%;
-      background:#25d366;
-      color: #fff;
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition: background-color 0.2s ease;
-    }
-    #input-bar button:hover {
-      background-color: #128c7e;
-    }
-    #input-bar button:disabled {
-      background-color: #9deab7;
-      cursor: not-allowed;
-    }
-    #input-bar button svg {
-       width: 24px;
-       height: 24px;
-       fill: currentColor;
-       display: block;
-     }
+    /* Stili interni input-bar invariati... */
+    #input-bar input[type="text"] { flex:1; height:36px; border:1px solid #ccc; border-radius:18px; padding:0 16px; font-size:16px; outline: none; }
+    #input-bar input[type="text"]:disabled { background-color: #f0f0f0; cursor: not-allowed; }
+    #input-bar button { width:44px; height:44px; margin-left:8px; border:none; border-radius:50%; background:#25d366; color: #fff; display:flex; align-items:center; justify-content:center; cursor:pointer; transition: background-color 0.2s ease; }
+    #input-bar button:hover { background-color: #128c7e; }
+    #input-bar button:disabled { background-color: #9deab7; cursor: not-allowed; }
+    #input-bar button svg { width: 24px; height: 24px; fill: currentColor; display: block; }
 
-    /* Nascondi su desktop */
+
+    /* Nascondi su desktop invariato */
     @media(min-width:601px){
-      body::before {
-        content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.';
-        display:flex; align-items:center; justify-content:center;
-        position: fixed; top: 0; left: 0;
-        height:100vh; width:100%; font-size:2rem; font-weight: bold;
-        background:#000c; color:#fff; text-align:center;
-        padding: 20px; z-index: 2000; backdrop-filter: blur(5px);
-      }
-       /* Manteniamo sfocatura, ma non serve più display:none */
-       header, #messages, #input-bar {
-         filter: blur(5px);
-         pointer-events: none;
-       }
+      /* ... */
+      body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position: fixed; top: 0; left: 0; height:100vh; width:100%; font-size:2rem; font-weight: bold; background:#000c; color:#fff; text-align:center; padding: 20px; z-index: 2000; backdrop-filter: blur(5px); }
+      #app-container { filter: blur(5px); pointer-events: none; } /* Applichiamo filtro/blocco al contenitore */
     }
   </style>
 </head>
 <body>
-  <!-- Header e Input Bar sono ora "fuori" dal flusso normale grazie a position:fixed -->
-  <header>
-    <a href="index.html" aria-label="Indietro">‹</a>
-    <span class="title">Don Alfred 🤵🏻‍♂️</span>
-  </header>
+  <!-- MODIFICA 2: Tutto dentro #app-container -->
+  <div id="app-container">
+    <header>
+      <a href="index.html" aria-label="Indietro">‹</a>
+      <span class="title">Don Alfred 🤵🏻‍♂️</span>
+    </header>
 
-  <!-- Area messaggi: occupa 100% altezza e scrolla internamente.
-       Il contenuto è distanziato da header/input bar tramite padding. -->
-  <div id="messages" role="log" aria-live="polite">
-    <!-- I messaggi verranno aggiunti qui da JavaScript -->
-  </div>
+    <div id="messages" role="log" aria-live="polite">
+      <!-- Messaggi qui -->
+    </div>
 
-  <!-- Barra di input in basso -->
-  <form id="input-bar" autocomplete="off">
-    <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
-    <button type="submit" aria-label="Invia messaggio" id="send-button">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
-      </svg>
-    </button>
-  </form>
+    <form id="input-bar" autocomplete="off">
+      <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
+      <button type="submit" aria-label="Invia messaggio" id="send-button">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
+        </svg>
+      </button>
+    </form>
+  </div> <!-- Fine #app-container -->
 
   <script>
-    // Hack per --vh (lo manteniamo, potrebbe ancora servire per casi limite o altri usi)
+    // Script --vh (invariato, sempre necessario)
     function setVh() {
       const vh = window.innerHeight * 0.01;
       document.documentElement.style.setProperty('--vh', `${vh}px`);
-       // MODIFICA 6: Lo scroll forzato qui è ORA PIÙ IMPORTANTE
-       // perché l'altezza di #messages è fissa (100%) e il suo contenuto
-       // potrebbe non riposizionarsi automaticamente in fondo quando
-       // la tastiera riduce lo spazio visibile.
-       setTimeout(() => {
-           messagesEl.scrollTop = messagesEl.scrollHeight;
-       }, 100); // Breve ritardo per dare tempo al repaint
+      // Lo scroll forzato qui rimane utile per assicurare che
+      // l'ultimo messaggio sia visibile dopo un resize (apertura tastiera)
+      setTimeout(() => {
+          // Verifica se l'input ha il focus potrebbe essere utile
+          // if (document.activeElement === inputEl || messagesEl.scrollTop !== messagesEl.scrollHeight) {
+             messagesEl.scrollTop = messagesEl.scrollHeight;
+          // }
+      }, 100); // Delay piccolo
     }
     window.addEventListener('resize', setVh);
     window.addEventListener('orientationchange', setVh);
-    setVh(); // Chiamata iniziale
+    setVh();
 
-    // Elementi del DOM
+    // Elementi DOM (invariato)
     const messagesEl = document.getElementById('messages');
     const inputEl    = document.getElementById('message-input');
     const formEl     = document.getElementById('input-bar');
     const sendButton = document.getElementById('send-button');
-
-    // Cronologia dei messaggi
     let history = [];
 
-    /**
-     * Aggiunge un messaggio alla UI della chat.
-     * @param {string} who - Chi invia il messaggio ('me' o 'you').
-     * @param {string} text - Il testo del messaggio.
-     */
+    // Funzione addMessage (invariata, ma lo scroll forzato qui è ancora importante)
     function addMessage(who, text) {
       const time = new Date().toLocaleTimeString('it-IT',{hour:'2-digit',minute:'2-digit'});
       const msgDiv = document.createElement('div');
@@ -226,86 +154,51 @@
       bubDiv.appendChild(timeSpan);
       msgDiv.appendChild(bubDiv);
       messagesEl.appendChild(msgDiv);
-      // Scrolla fino all'ultimo messaggio aggiunto
-      // MODIFICA 7: Assicuriamoci che lo scroll avvenga DOPO l'aggiunta del DOM
-      requestAnimationFrame(() => { // O setTimeout(..., 0)
+      // Scroll assicurato dopo il render
+      requestAnimationFrame(() => {
         messagesEl.scrollTop = messagesEl.scrollHeight;
       });
     }
 
-    // Messaggio di benvenuto
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!');
-      }, 600);
-    });
+    // Benvenuto (invariato)
+    window.addEventListener('load', () => { setTimeout(() => { addMessage('you', 'Ciao, sono Don Alfred. Dimmi pure!'); }, 600); });
 
-    // Gestione dell'invio del form
+    // Gestione Invio (invariato, incluso lo scroll forzato nel finally e sul focus)
     formEl.addEventListener('submit', async (e) => {
       e.preventDefault();
       const text = inputEl.value.trim();
       if (!text) return;
-      inputEl.disabled = true;
-      sendButton.disabled = true;
-      inputEl.placeholder = "Invio in corso...";
+      inputEl.disabled = true; sendButton.disabled = true; inputEl.placeholder = "Invio in corso...";
       addMessage('me', text);
       history.push({ role: 'user', content: text });
       inputEl.value = '';
 
       try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: text, history: history })
-        });
-        if (!response.ok) {
-          throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`);
-        }
+        const response = await fetch('/api/chat', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ message: text, history: history }) });
+        if (!response.ok) { throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`); }
         const data = await response.json();
         if (data && data.reply) {
           const reply = data.reply;
-          addMessage('you', reply);
-          history.push({ role: 'assistant', content: reply });
+          addMessage('you', reply); history.push({ role: 'assistant', content: reply });
         } else {
-          console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data);
-          addMessage('you', 'Ho ricevuto una risposta inaspettata. 🤔');
+          console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data); addMessage('you', 'Ho ricevuto una risposta inaspettata. 🤔');
         }
       } catch (error) {
-        console.error("Errore durante l'invio o la ricezione del messaggio:", error);
-        addMessage('you', 'Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢');
+        console.error("Errore durante l'invio o la ricezione del messaggio:", error); addMessage('you', 'Ops! C\'è stato un problema di connessione. Riprova tra poco. 😢');
       } finally {
-        inputEl.disabled = false;
-        sendButton.disabled = false;
-        inputEl.placeholder = "Scrivi un messaggio a Don Alfred…";
-        inputEl.focus();
-        // MODIFICA 8: Forziamo uno scroll anche qui per sicurezza
-        // Potrebbe essere utile se la risposta arriva molto velocemente
-        // e l'UI non ha ancora finito di sistemarsi dopo l'invio.
-        setTimeout(() => {
-           messagesEl.scrollTop = messagesEl.scrollHeight;
-        }, 50);
+        inputEl.disabled = false; sendButton.disabled = false; inputEl.placeholder = "Scrivi un messaggio a Don Alfred…"; inputEl.focus();
+        setTimeout(() => { messagesEl.scrollTop = messagesEl.scrollHeight; }, 50);
       }
     });
 
-    // Invio con Invio
-    inputEl.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey) {
-        e.preventDefault();
-        if (!sendButton.disabled) {
-            formEl.requestSubmit();
-        }
-      }
-    });
+    // Invio con Enter (invariato)
+    inputEl.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (!sendButton.disabled) { formEl.requestSubmit(); } } });
 
-    // MODIFICA 9: Aggiunto listener 'focus' per scrollare quando si tocca l'input
+    // Focus listener (invariato, ancora utile)
     inputEl.addEventListener('focus', () => {
-       // Diamo un piccolo delay per permettere al browser di ridimensionare la vista
-       // prima di provare a scrollare. Questo è spesso necessario su iOS.
        setTimeout(() => {
            messagesEl.scrollTop = messagesEl.scrollHeight;
-           // Potrebbe essere utile anche assicurarsi che l'input stesso sia visibile
-           // inputEl.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); // Opzionale
-       }, 200); // Aumentato leggermente il delay
+       }, 200);
     });
 
   </script>

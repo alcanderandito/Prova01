@@ -5,42 +5,112 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <title>Chat • Don Alfred</title>
   <style>
-    /* CSS INVARIATO DALL'ULTIMA VERSIONE (Flexbox + Adattamento JS) */
     :root {
-      --header-height: 56px; --input-height: 56px;
+      --header-height: 56px;
+      --input-height: 56px;
       --safe-area-top: env(safe-area-inset-top, 0px);
       --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+      /* Altezza minima per evitare collasso totale */
+      --min-chat-height: calc(var(--header-height) + var(--input-height) + 20px);
     }
-    html, body { padding: 0; margin: 0; height: 100%; width: 100%; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif; }
-    #chat-container { display: flex; flex-direction: column; width: 100%; height: 100%; overflow: hidden; background-color: #eee; padding-top: var(--safe-area-top); padding-bottom: var(--safe-area-bottom); box-sizing: border-box; /* transition: height 0.1s ease-out, transform 0.1s ease-out; */ }
-    header { height: var(--header-height); line-height: var(--header-height); background: #075e54; color: #fff; display: flex; align-items: center; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; z-index: 2; box-shadow: 0 1px 2px rgba(0,0,0,0.2); }
-    header a {color:inherit;text-decoration:none;font-size:24px;margin-right:12px;} header .title {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    #messages { flex-grow: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 12px; box-sizing: border-box; background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat; display: flex; flex-direction: column; gap: 8px; scroll-behavior: smooth; z-index: 1; }
+
+    html, body {
+      padding: 0;
+      margin: 0;
+      width: 100%;
+      height: 100vh; /* Altezza INIZIALE, JS la modificherà */
+      overflow: hidden; /* Blocca scroll esterno */
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+      position: relative; /* Necessario per alcuni comportamenti mobili */
+      /* Prevenire bounce/scroll esterno su iOS */
+       overscroll-behavior: contain;
+    }
+
+    /* BODY diventa il contenitore Flex principale */
+    body {
+      display: flex;
+      flex-direction: column;
+      /* Altezza gestita da JS basata su visualViewport */
+      background-color: #eee; /* Sfondo debug */
+      /* Padding per safe areas */
+      padding-top: var(--safe-area-top);
+      padding-bottom: var(--safe-area-bottom);
+      box-sizing: border-box;
+    }
+
+    /* Header: elemento flex normale */
+    header {
+      height: var(--header-height);
+      line-height: var(--header-height);
+      background: #075e54; color: #fff;
+      display: flex; align-items: center; padding: 0 16px;
+      box-sizing: border-box; flex-shrink: 0; z-index: 2;
+      box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+    }
+    header a {color:inherit;text-decoration:none;font-size:24px;margin-right:12px;}
+    header .title {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+
+    /* Area Messaggi: occupa spazio rimanente e scrolla */
+    #messages {
+      flex-grow: 1; /* Occupa tutto lo spazio verticale disponibile */
+       min-height: 0; /* Permette a flex-grow di funzionare correttamente */
+      overflow-y: auto; /* Scroll solo qui */
+      -webkit-overflow-scrolling: touch;
+      padding: 12px; box-sizing: border-box;
+      background: #ece5dd url("https://raw.githubusercontent.com/raj457036/whatsapp-chat-background/master/bg.png") 0/540px repeat;
+      display: flex; flex-direction: column; gap: 8px;
+      scroll-behavior: smooth; z-index: 1;
+    }
+
+    /* Bolle e Timestamp (invariati)... */
     .msg{max-width:80%;position:relative;font-size:14px;line-height:1.4;word-wrap:break-word;} .msg .bub{padding:8px 12px 18px;border-radius:8px;box-shadow:0 1px 1px rgba(0,0,0,.1);position:relative;} .msg.me{align-self:flex-end;} .msg.me .bub{background:#d1f8c6;border-radius:8px 0 8px 8px;} .msg.you{align-self:flex-start;} .msg.you .bub{background:#fff;border-radius:0 8px 8px 8px;} .tim{position:absolute;bottom:3px;right:8px;font-size:11px;opacity:.6;user-select:none;}
-    #input-bar { height: var(--input-height); display: flex; align-items: center; padding: 0 12px; border-top: 1px solid #ccc; background: #fff; box-sizing: border-box; flex-shrink: 0; z-index: 2; }
+
+    /* Input Bar: elemento flex normale */
+    #input-bar {
+      height: var(--input-height);
+      display: flex; align-items: center; padding: 0 12px;
+      border-top: 1px solid #ccc; background: #fff;
+      box-sizing: border-box; flex-shrink: 0; z-index: 2;
+    }
+    /* Stili interni (invariati)... */
     #input-bar input[type="text"]{flex:1;height:36px;border:1px solid #ccc;border-radius:18px;padding:0 16px;font-size:16px;outline:none;} #input-bar input[type="text"]:disabled{background-color:#f0f0f0;cursor:not-allowed;} #input-bar button{width:44px;height:44px;margin-left:8px;border:none;border-radius:50%;background:#25d366;color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:background-color .2s ease;} #input-bar button:hover{background-color:#128c7e;} #input-bar button:disabled{background-color:#9deab7;cursor:not-allowed;} #input-bar button svg{width:24px;height:24px;fill:currentColor;display:block;}
-    @media(min-width:601px){ html, body { height: auto; overflow: auto; } #chat-container { display: none; } body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }}
+
+    /* Nascondi su desktop */
+    @media(min-width:601px){
+       html, body { height: auto; overflow: auto; position: static; padding:0; overscroll-behavior: auto;}
+       body { display: block; } /* Rimuovi flex su desktop */
+       header, #messages, #input-bar { display: none; }
+       body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }
+    }
   </style>
 </head>
-<body>
-  <div id="chat-container">
-    <header><!-- ... --></header>
-    <div id="messages"><!-- ... --></div>
-    <form id="input-bar"><!-- ... --></form>
-  </div>
+<body> <!-- Ora il body è il contenitore principale -->
+    <header>
+      <a href="index.html" aria-label="Indietro">‹</a>
+      <span class="title">Don Alfred 🤵🏻‍♂️</span>
+    </header>
+
+    <div id="messages" role="log" aria-live="polite">
+      <!-- Messaggi qui -->
+    </div>
+
+    <form id="input-bar" autocomplete="off">
+      <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
+      <button type="submit" aria-label="Invia messaggio" id="send-button">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </form>
+  <!-- Non c'è più #chat-container -->
 
   <script>
-    const chatContainer = document.getElementById('chat-container');
     const messagesEl = document.getElementById('messages');
     const inputEl    = document.getElementById('message-input');
     const formEl     = document.getElementById('input-bar');
     const sendButton = document.getElementById('send-button');
     let history = [];
-    let isKeyboardOpen = false;
-    let adaptLayoutTimer = null; // Timer per ritardare l'adattamento
+    let lastViewportHeight = 0; // Memorizza l'ultima altezza valida
 
     function scrollToBottom(behavior = 'auto') {
-      // Usiamo requestAnimationFrame per scrollare dopo il paint
       requestAnimationFrame(() => {
         if (messagesEl) {
           messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: behavior });
@@ -48,78 +118,63 @@
       });
     }
 
-    // --- FUNZIONE CHIAVE: Adatta il layout ---
+    // --- FUNZIONE CHIAVE: Adatta l'altezza del BODY ---
     function adaptLayoutToViewport() {
-      // Cancella eventuali timer precedenti per evitare esecuzioni multiple
-      if (adaptLayoutTimer) clearTimeout(adaptLayoutTimer);
-
       if (!window.visualViewport) return;
 
       const vv = window.visualViewport;
-      const safeAreaTop = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-top')) || 0;
-      const safeAreaBottom = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--safe-area-bottom')) || 0;
-      const windowHeight = window.innerHeight;
       const viewportHeight = vv.height;
-      const viewportOffsetTop = vv.offsetTop;
 
-      console.log(`Adapting Layout - ViewportH: ${viewportHeight}, OffsetTop: ${viewportOffsetTop}`);
+      console.log(`Adapting Layout - ViewportH: ${viewportHeight}`);
 
-      const targetHeight = viewportHeight - safeAreaTop - safeAreaBottom;
-      // Assicurati che l'altezza non diventi negativa o troppo piccola
-      chatContainer.style.height = `${Math.max(0, targetHeight)}px`;
-
-      const effectiveOffset = viewportOffsetTop - safeAreaTop;
-
-      // Applica la trasformazione per compensare lo spostamento
-      // Aggiungiamo una piccola tolleranza per evitare trasformazioni inutili
-      if (effectiveOffset > 1) {
-          chatContainer.style.transform = `translateY(${-effectiveOffset}px)`;
-          isKeyboardOpen = true; // Probabilmente tastiera aperta
+      // **CONTROLLO DI SANITÀ:** Applica l'altezza solo se è un valore ragionevole.
+      // Se la nuova altezza è valida (es. > 150px), usala e memorizzala.
+      // Altrimenti, riutilizza l'ultima altezza valida conosciuta.
+      let heightToApply;
+      if (viewportHeight > 150) { // Valore minimo arbitrario, > header+input
+         heightToApply = viewportHeight;
+         lastViewportHeight = viewportHeight; // Aggiorna l'ultima altezza valida
+      } else if (lastViewportHeight > 150) {
+         console.warn(`VisualViewport height ${viewportHeight} seems too small, using last known height ${lastViewportHeight}`);
+         heightToApply = lastViewportHeight; // Usa l'ultima altezza valida
       } else {
-          chatContainer.style.transform = 'translateY(0px)';
-          if (isKeyboardOpen) { // Tastiera probabilmente chiusa
-              // Scrolla in fondo quando la tastiera si chiude e l'offset torna a 0
-              scrollToBottom('auto');
-          }
-          isKeyboardOpen = false;
+          console.warn(`VisualViewport height ${viewportHeight} AND last known height are too small, fallback to initial?`);
+          // Fallback estremo? Potrebbe essere 100vh o window.innerHeight
+          heightToApply = window.innerHeight; // O potremmo non fare nulla qui
       }
 
-      // Scrolla in fondo DOPO aver applicato gli stili
+      // Applica l'altezza calcolata (o l'ultima valida) al BODY
+      document.body.style.height = `${heightToApply}px`;
+
+      // Rimuoviamo completamente la logica transform/offset
+
+      // Scrolla in fondo dopo aver (potenzialmente) cambiato l'altezza
       scrollToBottom('auto');
     }
 
-    // --- Listener visualViewport (gestisce cambiamenti continui) ---
+    // --- Listener visualViewport ---
     if (window.visualViewport) {
       let vvTicking = false;
       const vvResizeHandler = () => {
         if (!vvTicking) {
           window.requestAnimationFrame(() => {
-            console.log("vv RESIZE");
-            adaptLayoutToViewport(); // Adatta subito al resize della visual viewport
+            adaptLayoutToViewport();
             vvTicking = false;
           });
           vvTicking = true;
         }
       };
       window.visualViewport.addEventListener('resize', vvResizeHandler);
-      window.visualViewport.addEventListener('scroll', vvResizeHandler); // Anche lo scroll vv è importante
+      // Non serve più ascoltare 'scroll' di vv se non usiamo l'offset
     } else {
       window.addEventListener('resize', () => setTimeout(scrollToBottom, 100)); // Fallback
     }
 
-    // --- Listener FOCUS (cruciale per lo stato iniziale) ---
+    // --- Listener FOCUS (Solo scroll, dopo delay) ---
     inputEl.addEventListener('focus', () => {
-      console.log("Input FOCUSED - Scheduling layout adaptation");
-      // Cancella timer precedenti se l'utente tocca velocemente
-      if (adaptLayoutTimer) clearTimeout(adaptLayoutTimer);
-
-      // **ATTENDI** prima di adattare, per dare tempo all'animazione iOS
-      // e al primo evento 'resize' di visualViewport di (potenzialmente)
-      // stabilizzare l'offset e l'altezza. 350ms è un buon punto di partenza.
-      adaptLayoutTimer = setTimeout(() => {
-        console.log("Executing DELAYED layout adaptation from FOCUS event");
-        adaptLayoutToViewport(); // FORZA l'adattamento dopo il delay
-      }, 350); // <-- Delay Aumentato/Aggiustabile
+      console.log("Input focused - Scrolling bottom after delay");
+      // Delay per dare tempo all'evento resize di visualViewport di fare il suo lavoro
+      setTimeout(() => scrollToBottom('auto'), 350);
     });
 
     // --- Funzione addMessage (Scrolla) ---
@@ -138,7 +193,11 @@
     inputEl.addEventListener('keydown',(e)=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();if(!sendButton.disabled){formEl.requestSubmit();}}});
     // --- Orientamento e Caricamento ---
     window.addEventListener('orientationchange', () => setTimeout(adaptLayoutToViewport, 100));
-    document.addEventListener('DOMContentLoaded', adaptLayoutToViewport);
+    document.addEventListener('DOMContentLoaded', () => {
+        // Imposta l'altezza iniziale valida
+        lastViewportHeight = window.innerHeight; // O visualViewport.height se disponibile subito
+        adaptLayoutToViewport();
+    });
 
   </script>
 </body>

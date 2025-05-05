@@ -1,20 +1,63 @@
-// ... (codice precedente invariato: import, handler, controlli POST, body, limite iterazioni, check parole chiave ristorante) ...
+/**
+ * /api/chat.js - Funzione serverless per Vercel
+ * Riceve { message, history? } e restituisce { reply } tramite OpenAI.
+ */
+
+export default async function handler(req, res) {
+  // --- Codice Originale Invariato ---
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ reply: "Solo POST, grazie." });
+  }
+
+  const { message = "", history = [] } = req.body || {};
+  if (!message.trim()) {
+    return res.status(400).json({ reply: "Messaggio mancante." });
+  }
+  // --- Fine Codice Originale Invariato ---
+
+  // Logica stateless per limitare a 30 iterazioni
+  const iteration = history.length + 1;
+  if (iteration > 30) {
+    // *** RISPOSTA LIMITE MESSAGGI AGGIORNATA (Come richiesto) ***
+    return res
+      .status(200)
+      .json({ reply: "Ehi, abbiamo già scambiato 30 messaggi. Se vuoi continuare, ricarica o apri una nuova chat. Ciao! 👋✨" });
+  }
+
+  // Rilevazione richieste prenotazione o info ristorante/menu
+  const lc = message.toLowerCase();
+  if (/(prenot|menu|ristorante|informazioni)/.test(lc)) {
+    // *** RISPOSTA INFO RISTORANTE AGGIORNATA (Come richiesto) ***
+    return res.status(200).json({ reply: `Certamente! Ecco le info ufficiali sul Team Due Mori. Ricorda, però: **non sono io** a prendere prenotazioni o ordinazioni, per quello devi usare i contatti qui sotto! 😉
+
+- **Antica Trattoria Due Mori** (non è una pizzeria!)
+- **Indirizzo**: Via San Marco 11 – 38122 Trento (TN) 🇮🇹
+- **Orari**: Martedì-Domenica 12:00-14:15 & 19:00-22:15 (Lunedì chiuso 😴)
+- **Telefono**: 0461 984251 (per prenotazioni chiamare tra le 10:00-15:00 e 19:00-23:00) 📞
+- **Cellulare**: 347 0352839 📱
+- **Email**: info@ristoranteduemori.com 📧
+- **Specialità**: Cucina tipica trentina, menù à la carte e fissi, ottima selezione di vini locali 🍷🍲
+- **Sito Web**: http://www.ristoranteduemori.com 🌐
+
+Spero ti sia utile! 😊` });
+  }
 
   try {
-    // Usa fetch nativo di Node 18+ o il tuo client preferito
+    // --- Chiamata API OpenAI (Logica Originale Invariata, eccetto il prompt di sistema) ---
     const openaiRes = await fetch("https://api.openai.com/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
+        Authorization: `Bearer ${process.env.OPENAI_API_KEY}` // Chiave API dalle variabili d'ambiente
       },
       body: JSON.stringify({
-        model: "gpt-4.1-nano", // o gpt-4o-mini se preferito
-        temperature: 1.0,
+        model: "gpt-4.1-nano", // Modello specificato nell'originale (o gpt-4o-mini se preferito/disponibile)
+        temperature: 1.0,     // Temperatura specificata nell'originale
         messages: [
           {
             role: "system",
-            // *** PROMPT DI SISTEMA AGGIORNATO CON DISTINZIONE PER SPRONARE AL LAVORO ***
+            // *** PROMPT DI SISTEMA AGGIORNATO (Come richiesto, con tutte le specifiche) ***
             content: `
 You are **Don Alfred 🤵🏻‍♂️**, chatbot ufficiale e “guardaspalle verbale” del ristorante **Team Due Mori** a Trento.
 
@@ -90,28 +133,33 @@ Sito: http://www.ristoranteduemori.com
 - **Limite 30 messaggi**: Se \`history.length + 1 > 30\`, la funzione esterna risponderà con il messaggio di chiusura appropriato. Non devi gestire tu questo caso nel prompt.
             `
           },
-          // Mappa la history correttamente mantenendo i ruoli originali
-          ...history.map(({ role, content }) => ({ role, content })),
-          { role: "user", content: message }
+          // --- Codice Originale Invariato ---
+          ...history.map(({ role, content }) => ({ role, content })), // Passa la history correttamente
+          { role: "user", content: message } // Aggiunge il nuovo messaggio dell'utente
+          // --- Fine Codice Originale Invariato ---
         ]
       })
     });
 
+    // --- Gestione Risposta/Errori OpenAI (Codice Originale Invariato) ---
     if (!openaiRes.ok) {
       const errText = await openaiRes.text();
       console.error("OpenAI error:", errText);
-      // *** RISPOSTA ERRORE OPENAI ORIGINALE (OK) ***
+      // Risposta di errore originale
       return res.status(500).json({ reply: "Errore OpenAI, riprova dopo." });
     }
 
     const data = await openaiRes.json();
-    // Estrae la risposta, gestendo il caso in cui non ci sia contenuto
+    // Estrae la risposta, gestendo il caso in cui non ci sia contenuto (Fallback aggiunto ma non modifica la gestione errore 500)
     const reply = data.choices[0]?.message?.content?.trim() || "Mmm, non so cosa rispondere... 🤔 Prova a riformulare! 😊";
     return res.status(200).json({ reply });
+    // --- Fine Gestione Risposta/Errori OpenAI ---
 
   } catch (err) {
+    // --- Gestione Errore Interno (Codice Originale Invariato) ---
     console.error("Server error:", err.message);
-    // *** RISPOSTA ERRORE INTERNO ORIGINALE (OK) ***
+    // Risposta di errore originale
     return res.status(500).json({ reply: "Errore interno del server." });
+    // --- Fine Gestione Errore Interno ---
   }
 }

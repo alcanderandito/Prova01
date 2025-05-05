@@ -1,4 +1,45 @@
-// ... (codice precedente invariato: import, handler, controlli POST, body, limite iterazioni, check parole chiave ristorante) ...
+/**
+ * /api/chat.js - Funzione serverless per Vercel
+ * Riceve { message, history? } e restituisce { reply } tramite OpenAI.
+ */
+
+export default async function handler(req, res) {
+  if (req.method !== "POST") {
+    res.setHeader("Allow", ["POST"]);
+    return res.status(405).json({ reply: "Solo POST, grazie." });
+  }
+
+  const { message = "", history = [] } = req.body || {};
+  if (!message.trim()) {
+    return res.status(400).json({ reply: "Messaggio mancante." });
+  }
+
+  // Logica stateless per limitare a 30 iterazioni
+  const iteration = history.length + 1;
+  if (iteration > 30) {
+    // *** RISPOSTA LIMITE MESSAGGI AGGIORNATA (OK) ***
+    return res
+      .status(200)
+      .json({ reply: "Ehi, abbiamo già scambiato 30 messaggi. Se vuoi continuare, ricarica o apri una nuova chat. Ciao! 👋✨" });
+  }
+
+  // Rilevazione richieste prenotazione o info ristorante/menu
+  const lc = message.toLowerCase();
+  if (/(prenot|menu|ristorante|informazioni)/.test(lc)) {
+    // *** RISPOSTA INFO RISTORANTE AGGIORNATA (OK) ***
+    return res.status(200).json({ reply: `Certamente! Ecco le info ufficiali sul Team Due Mori. Ricorda, però: **non sono io** a prendere prenotazioni o ordinazioni, per quello devi usare i contatti qui sotto! 😉
+
+- **Antica Trattoria Due Mori** (non è una pizzeria!)
+- **Indirizzo**: Via San Marco 11 – 38122 Trento (TN) 🇮🇹
+- **Orari**: Martedì-Domenica 12:00-14:15 & 19:00-22:15 (Lunedì chiuso 😴)
+- **Telefono**: 0461 984251 (per prenotazioni chiamare tra le 10:00-15:00 e 19:00-23:00) 📞
+- **Cellulare**: 347 0352839 📱
+- **Email**: info@ristoranteduemori.com 📧
+- **Specialità**: Cucina tipica trentina, menù à la carte e fissi, ottima selezione di vini locali 🍷🍲
+- **Sito Web**: http://www.ristoranteduemori.com 🌐
+
+Spero ti sia utile! 😊` });
+  }
 
   try {
     // Usa fetch nativo di Node 18+ o il tuo client preferito
@@ -14,7 +55,7 @@
         messages: [
           {
             role: "system",
-            // *** PROMPT DI SISTEMA AGGIORNATO CON CONSAPEVOLEZZA DEL CONTESTO ***
+            // *** PROMPT DI SISTEMA AGGIORNATO (OK) ***
             content: `
 You are **Don Alfred 🤵🏻‍♂️**, chatbot ufficiale e “guardaspalle verbale” del ristorante **Team Due Mori** a Trento.
 
@@ -91,11 +132,21 @@ Sito: http://www.ristoranteduemori.com
       })
     });
 
-    // ... (codice successivo invariato: gestione risposta OpenAI, errori, return) ...
+    if (!openaiRes.ok) {
+      const errText = await openaiRes.text();
+      console.error("OpenAI error:", errText);
+      // *** RISPOSTA ERRORE OPENAI RIPRISTINATA ALL'ORIGINALE ***
+      return res.status(500).json({ reply: "Errore OpenAI, riprova dopo." });
+    }
+
+    const data = await openaiRes.json();
+    // Estrae la risposta, gestendo il caso in cui non ci sia contenuto
+    const reply = data.choices[0]?.message?.content?.trim() || "Mmm, non so cosa rispondere... 🤔 Prova a riformulare! 😊"; // Manteniamo una risposta di fallback simpatica qui
+    return res.status(200).json({ reply });
 
   } catch (err) {
     console.error("Server error:", err.message);
-     // Mantiene la risposta di errore generica per l'utente
-    return res.status(500).json({ reply: "Errore nel mio circuito interno! 🛠️ Riprova più tardi." });
+    // *** RISPOSTA ERRORE INTERNO RIPRISTINATA ALL'ORIGINALE ***
+    return res.status(500).json({ reply: "Errore interno del server." });
   }
 }

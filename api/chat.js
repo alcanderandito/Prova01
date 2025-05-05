@@ -1,45 +1,4 @@
-/**
- * /api/chat.js - Funzione serverless per Vercel
- * Riceve { message, history? } e restituisce { reply } tramite OpenAI.
- */
-
-export default async function handler(req, res) {
-  if (req.method !== "POST") {
-    res.setHeader("Allow", ["POST"]);
-    return res.status(405).json({ reply: "Solo POST, grazie." });
-  }
-
-  const { message = "", history = [] } = req.body || {};
-  if (!message.trim()) {
-    return res.status(400).json({ reply: "Messaggio mancante." });
-  }
-
-  // Logica stateless per limitare a 30 iterazioni
-  const iteration = history.length + 1;
-  if (iteration > 30) {
-    // *** RISPOSTA LIMITE MESSAGGI AGGIORNATA ***
-    return res
-      .status(200)
-      .json({ reply: "Ehi, abbiamo già scambiato 30 messaggi. Se vuoi continuare, ricarica o apri una nuova chat. Ciao! 👋✨" });
-  }
-
-  // Rilevazione richieste prenotazione o info ristorante/menu
-  const lc = message.toLowerCase();
-  if (/(prenot|menu|ristorante|informazioni)/.test(lc)) {
-    // *** RISPOSTA INFO RISTORANTE AGGIORNATA ***
-    return res.status(200).json({ reply: `Certamente! Ecco le info ufficiali sul Team Due Mori. Ricorda, però: **non sono io** a prendere prenotazioni o ordinazioni, per quello devi usare i contatti qui sotto! 😉
-
-- **Antica Trattoria Due Mori** (non è una pizzeria!)
-- **Indirizzo**: Via San Marco 11 – 38122 Trento (TN) 🇮🇹
-- **Orari**: Martedì-Domenica 12:00-14:15 & 19:00-22:15 (Lunedì chiuso 😴)
-- **Telefono**: 0461 984251 (per prenotazioni chiamare tra le 10:00-15:00 e 19:00-23:00) 📞
-- **Cellulare**: 347 0352839 📱
-- **Email**: info@ristoranteduemori.com 📧
-- **Specialità**: Cucina tipica trentina, menù à la carte e fissi, ottima selezione di vini locali 🍷🍲
-- **Sito Web**: http://www.ristoranteduemori.com 🌐
-
-Spero ti sia utile! 😊` });
-  }
+// ... (codice precedente invariato: import, handler, controlli POST, body, limite iterazioni, check parole chiave ristorante) ...
 
   try {
     // Usa fetch nativo di Node 18+ o il tuo client preferito
@@ -50,12 +9,12 @@ Spero ti sia utile! 😊` });
         Authorization: `Bearer ${process.env.OPENAI_API_KEY}`
       },
       body: JSON.stringify({
-        model: "gpt-4.1-nano", // o gpt-4o-mini se disponibile e preferito
+        model: "gpt-4.1-nano", // o gpt-4o-mini se preferito
         temperature: 1.0,
         messages: [
           {
             role: "system",
-            // *** PROMPT DI SISTEMA AGGIORNATO ***
+            // *** PROMPT DI SISTEMA AGGIORNATO CON CONSAPEVOLEZZA DEL CONTESTO ***
             content: `
 You are **Don Alfred 🤵🏻‍♂️**, chatbot ufficiale e “guardaspalle verbale” del ristorante **Team Due Mori** a Trento.
 
@@ -80,20 +39,28 @@ Sito: http://www.ristoranteduemori.com
 - **Mai volgare**, se non strettamente opportuno e leggero.
 - Mai scontroso o offensivo verso l’utente.
 
+**Consapevolezza del Contesto**
+- **Ricorda la conversazione:** Presta molta attenzione alla cronologia dei messaggi (\`history\`). Sei cosciente del contesto, ricordi ciò che l'utente ti dice e segui il filo del discorso per dare risposte coerenti e pertinenti. 🧠💬
+
 **Intrattenimento & quiz**
 - Proponi **quiz** sulla cucina trentina (scelta multipla, indovinelli sui piatti tipici, curiosità) per coinvolgere e divertire.
 
 **Domande iniziali (una alla volta, solo se history è vuota)**
 1. Al primo messaggio dell'utente (history.length === 0), rispondi **solo** con: “Oh, ciao benedizione del Signore! Chi sei, per favore? 😉✨”
-2. Alla risposta dell'utente che si identifica, chiedi **solo**: “Bene [Nome Utente, se fornito, altrimenti ometti], e tu come stai oggi? 😊”
-3. Alla risposta successiva, proponi **solo**: “Vuoi sapere cosa posso fare per te? Posso intrattenerti con quiz di cucina trentina, darti info sul ristorante… 🎉 Scegli tu!”
+2. Alla risposta dell'utente che si identifica:
+    - **Verifica il nome:** Controlla se il nome fornito corrisponde a **Alejandro** (creatore) o a uno dei dipendenti: **Don Fabio, Lucia, Martina, Roberta, Marzio, Hamza, Max, Claudia, Gioele, Reby**.
+    - **Se corrisponde:** Saluta riconoscendolo/a specificamente, usando in modo simpatico e ironico qualche dettaglio dalle loro schede (es. "Ah, il grande Don Fabio! Sempre a controllare tutto, eh? 😉" oppure "Ciao Martina, trovata qualche super offerta oggi? ✈️"). Poi chiedi **solo**: “Bene [Nome Utente], e tu come stai oggi? 😊” (adattando leggermente se vuoi, es. "Come stai oggi, capo?").
+    - **Se NON corrisponde:** Trattalo come un utente normale. Chiedi **solo**: “Bene [Nome Utente, se fornito], e tu come stai oggi? 😊”
+3. Alla risposta successiva (alla domanda "come stai?"):
+    - **Se è staff/creatore:** Rispondi brevemente e poi **spronalo a tornare al lavoro** (vedi sotto).
+    - **Se è utente normale:** Proponi **solo**: “Vuoi sapere cosa posso fare per te? Posso intrattenerti con quiz di cucina trentina, darti info sul ristorante… 🎉 Scegli tu!”
 
 **Flussi dopo identificazione**
 - **Non chiedere mai più “chi sei”** dopo che l’utente si è presentato nelle prime interazioni. Prosegui la conversazione normalmente.
-- Se l’utente è **Alejandro (creatore)** o un **dipendente** (riconoscibile dai nomi: Don Fabio, Lucia, Martina, Roberta, Marzio, Hamza, Max, Claudia, Gioele, Reby):
-  - Interagisci usando il loro ruolo e caratteristiche specifiche in modo simpatico e ironico.
-  - Concludi la risposta spronandoli gentilmente a tornare al lavoro, tipo "Ora fila a lavorare, che qui si produce! 💪😂" o simile.
-- Se è un **utente normale**, intrattienilo con quiz di cucina trentina, domande sul cibo, correggi eventuali errori in modo simpatico, chiedi come sta, fai battute leggere.
+- **Interazione con Staff/Creatore:**
+    - Continua a interagire tenendo conto di chi sono, usando dettagli dalle loro schede in modo simpatico **e ricordando cosa vi siete detti**.
+    - **Alla fine di OGNI tua risposta a loro**, dopo il contenuto principale, aggiungi un **richiamo simpatico a tornare al lavoro**, tipo: "Forza, ora torna ai tuoi compiti! 💪😂", "Dai, meno chiacchiere e più lavoro! 😉", "Ok, ora sparisci e vai a produrre! 🚀".
+- **Interazione con Utente Normale:** Intrattienilo con quiz di cucina trentina, domande sul cibo, correggi eventuali errori in modo simpatico, chiedi come sta, fai battute leggere, **sempre tenendo conto del contesto della conversazione**.
 
 **Schede dei componenti (per tua conoscenza interna, non da esporre direttamente se non rilevante)**
 - **Don Fabio**: fondatore in pensione, deciso ma dolce, fetish di far dimagrire, odia il disordine.
@@ -124,17 +91,7 @@ Sito: http://www.ristoranteduemori.com
       })
     });
 
-    if (!openaiRes.ok) {
-      const errText = await openaiRes.text();
-      console.error("OpenAI error:", errText);
-      // Mantiene la risposta di errore generica per l'utente
-      return res.status(500).json({ reply: "Oops! Qualcosa è andato storto con il mio cervello artificiale. Riprova tra un po'! 🤖💥" });
-    }
-
-    const data = await openaiRes.json();
-    // Estrae la risposta, gestendo il caso in cui non ci sia contenuto
-    const reply = data.choices[0]?.message?.content?.trim() || "Mmm, non so cosa rispondere... 🤔 Prova a riformulare! 😊";
-    return res.status(200).json({ reply });
+    // ... (codice successivo invariato: gestione risposta OpenAI, errori, return) ...
 
   } catch (err) {
     console.error("Server error:", err.message);

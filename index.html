@@ -16,13 +16,13 @@
     .navbar {
       background-color: #333;
       padding: 10px 20px;
-      overflow: hidden; /* può influenzare stacking context, ma qui è ok */
-      position: relative; /* Aggiunto per creare uno stacking context per la navbar se necessario */
-      z-index: 500; /* Diamo un z-index anche alla navbar, per sicurezza */
+      /* overflow: hidden; */ /* RIMOSSA QUESTA RIGA PER EVITARE PROBLEMI DI STACKING */
+      position: relative; 
+      z-index: 500; 
     }
 
     .dropdown {
-      position: relative; /* Già presente, corretto */
+      position: relative; 
       display: inline-block;
     }
 
@@ -46,7 +46,7 @@
       background-color: #f9f9f9;
       min-width: 220px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 999; /* <<< --- QUESTA È LA CORREZIONE IMPORTANTE */
+      z-index: 999; /* Alto per stare sopra altri elementi, relativo alla navbar */
       border-radius: 5px;
       margin-top: 5px;
     }
@@ -116,6 +116,8 @@
     .main-content {
         padding: 20px;
         min-height: calc(100vh - 70px);
+        /* Questo elemento non dovrebbe avere uno z-index alto o creare uno stacking context
+           che possa coprire la navbar o il suo dropdown-content. */
     }
 
   </style>

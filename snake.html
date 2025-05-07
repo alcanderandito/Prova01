@@ -29,7 +29,7 @@
             border-radius: 15px;
             box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
             width: 100%;
-            max-width: 450px; /* Adattato per canvas più piccolo */
+            max-width: 450px;
             box-sizing: border-box;
         }
 
@@ -56,10 +56,10 @@
         }
 
         #gameCanvas {
-            border: 2px solid #00ff00; /* Bordo più sottile */
-            box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00; /* Ombra ridotta */
+            border: 2px solid #00ff00;
+            box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
             background-color: #000500;
-            border-radius: 4px; /* Raggio ridotto */
+            border-radius: 4px;
             display: block;
             margin-left: auto;
             margin-right: auto;
@@ -176,20 +176,20 @@
             }
 
             .controls {
-                width: 145px;   /* AUMENTATO */
-                height: 145px;  /* AUMENTATO */
-                gap: 8px;       /* AUMENTATO */
-                margin-top: 10px;
+                width: 160px;   /* VALORE AGGIORNATO */
+                height: 160px;  /* VALORE AGGIORNATO */
+                gap: 6px;       /* VALORE AGGIORNATO (ridotto per farli sembrare più uniti) */
+                margin-top: 12px; /* VALORE AGGIORNATO (leggero aumento se necessario) */
             }
             .control-btn {
-                font-size: 1.7em; /* AUMENTATO (frecce più grandi) */
-                border-radius: 8px; /* Leggermente più grande per bottoni più grandi */
+                font-size: 2.2em; /* VALORE AGGIORNATO (frecce più grandi) */
+                border-radius: 10px; /* VALORE AGGIORNATO (per bottoni più grandi) */
                 border-width: 1px;
             }
             .home-btn {
                 font-size: 0.85em;
                 padding: 7px 14px;
-                margin-top: 12px; /* RIDOTTO per compensare altezza controlli */
+                margin-top: 15px; /* VALORE AGGIORNATO (per dare spazio ai controlli più grandi) */
                 border-radius: 6px;
             }
             .message-overlay {
@@ -208,18 +208,19 @@
              h1 { font-size: 1.5em; margin-bottom: 5px;}
             .info-panel { font-size: 0.8em; margin-bottom: 8px;}
             .controls {
-                width: 130px;   /* AUMENTATO */
-                height: 130px;  /* AUMENTATO */
-                gap: 6px;       /* AUMENTATO */
-                margin-top: 8px;
+                width: 140px;   /* VALORE AGGIORNATO */
+                height: 140px;  /* VALORE AGGIORNATO */
+                gap: 5px;       /* VALORE AGGIORNATO */
+                margin-top: 10px; /* VALORE AGGIORNATO */
             }
             .control-btn {
-                font-size: 1.5em; /* AUMENTATO */
+                font-size: 1.8em; /* VALORE AGGIORNATO */
+                border-radius: 8px; /* VALORE AGGIORNATO */
             }
             .home-btn {
                 font-size: 0.8em;
                 padding: 6px 12px;
-                margin-top: 8px; /* RIDOTTO per compensare */
+                margin-top: 12px; /* VALORE AGGIORNATO */
             }
             .game-container { padding-top: 5px; padding-bottom: 5px; }
         }
@@ -263,15 +264,15 @@
         const restartButton = document.getElementById('restartButton');
 
         const gridSize = 20;
-        const tileSize = 12; 
-        const canvasSize = gridSize * tileSize; 
+        const tileSize = 12;
+        const canvasSize = gridSize * tileSize;
 
         canvas.width = canvasSize;
         canvas.height = canvasSize;
 
         let snake;
         let food;
-        let dx = tileSize; 
+        let dx = tileSize;
         let dy = 0;
         let score;
         let lives;
@@ -290,7 +291,7 @@
         let currentFoodEmoji;
 
         let lastFrameTime = 0;
-        const initialFrameInterval = 180; 
+        const initialFrameInterval = 180;
         let frameInterval = initialFrameInterval;
 
         const upBtn = document.getElementById('up-btn');
@@ -308,9 +309,9 @@
                 { x: tileSize * (Math.floor(gridSize / 2) - 1), y: tileSize * Math.floor(gridSize / 2) },
                 { x: tileSize * (Math.floor(gridSize / 2) - 2), y: tileSize * Math.floor(gridSize / 2) }
             ];
-            dx = tileSize; 
+            dx = tileSize;
             dy = 0;
-            frameInterval = initialFrameInterval; 
+            frameInterval = initialFrameInterval;
         }
 
         function spawnFood() {
@@ -337,19 +338,19 @@
             gameRunning = true;
             changingDirection = false;
             lastFrameTime = 0;
-            if (animationFrameId) cancelAnimationFrame(animationFrameId); 
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
             animationFrameId = requestAnimationFrame(gameLoop);
         }
 
-        function resetLevel() { 
+        function resetLevel() {
             hideMessage();
             gamePausedForMessage = false;
-            initSnake(); 
-            spawnFood(); 
-            updateUI(); 
+            initSnake();
+            spawnFood();
+            updateUI();
             gameRunning = true;
             changingDirection = false;
-            lastFrameTime = 0; 
+            lastFrameTime = 0;
             if (animationFrameId) cancelAnimationFrame(animationFrameId);
             animationFrameId = requestAnimationFrame(gameLoop);
         }
@@ -358,12 +359,12 @@
         function drawSnakePart(part, index) {
             const isHead = index === 0;
             ctx.shadowColor = '#00ff00';
-            ctx.shadowBlur = isHead ? Math.max(5, tileSize * 0.75) : Math.max(3, tileSize * 0.5); 
+            ctx.shadowBlur = isHead ? Math.max(5, tileSize * 0.75) : Math.max(3, tileSize * 0.5);
             ctx.fillStyle = isHead ? '#33ff33' : '#00cc00';
 
             ctx.fillRect(part.x, part.y, tileSize, tileSize);
             ctx.strokeStyle = '#003300';
-            ctx.lineWidth = 1; 
+            ctx.lineWidth = 1;
             ctx.strokeRect(part.x + 0.5, part.y + 0.5, tileSize -1, tileSize -1);
 
 
@@ -371,18 +372,18 @@
                 ctx.fillStyle = '#000';
                 ctx.shadowBlur = 0;
                 let eye1X, eye1Y, eye2X, eye2Y;
-                const eyeSize = Math.max(1, tileSize / 5); 
+                const eyeSize = Math.max(1, tileSize / 5);
 
-                if (dx > 0) { 
-                    eye1X = part.x + tileSize * 0.7 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2; 
-                    eye2X = part.x + tileSize * 0.7 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2; 
-                } else if (dx < 0) { 
+                if (dx > 0) {
+                    eye1X = part.x + tileSize * 0.7 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.7 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2;
+                } else if (dx < 0) {
                     eye1X = part.x + tileSize * 0.3 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.3 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2;
-                } else if (dy > 0) { 
+                } else if (dy > 0) {
                     eye1X = part.x + tileSize * 0.25 - eyeSize / 2; eye1Y = part.y + tileSize * 0.7 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.75 - eyeSize / 2; eye2Y = part.y + tileSize * 0.7 - eyeSize / 2;
-                } else { 
+                } else {
                     eye1X = part.x + tileSize * 0.25 - eyeSize / 2; eye1Y = part.y + tileSize * 0.3 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.75 - eyeSize / 2; eye2Y = part.y + tileSize * 0.3 - eyeSize / 2;
                 }
@@ -398,14 +399,14 @@
         }
 
         function drawFood() {
-            const fontSize = Math.max(tileSize, tileSize * 0.8 + 4); 
+            const fontSize = Math.max(tileSize, tileSize * 0.8 + 4);
             ctx.font = `${fontSize}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
 
             ctx.shadowColor = '#ffcc00';
-            ctx.shadowBlur = Math.max(3, tileSize * 0.4); 
-            ctx.fillStyle = '#fff'; 
+            ctx.shadowBlur = Math.max(3, tileSize * 0.4);
+            ctx.fillStyle = '#fff';
 
             ctx.fillText(currentFoodEmoji, food.x + tileSize / 2, food.y + tileSize / 2 + tileSize * 0.1);
 
@@ -427,14 +428,14 @@
             if (ateFood) {
                 score += 10;
                 spawnFood();
-                if (score % 50 === 0 && frameInterval > 60) { 
-                    frameInterval -= 10; 
+                if (score % 50 === 0 && frameInterval > 60) {
+                    frameInterval -= 10;
                 }
             } else {
                 snake.pop();
             }
 
-            checkCollision(); 
+            checkCollision();
         }
 
         function showMessage(text, showRestartBtn = true) {
@@ -453,16 +454,16 @@
             for (let i = 1; i < snake.length; i++) {
                 if (head.x === snake[i].x && head.y === snake[i].y) {
                     handleDeath();
-                    return; 
+                    return;
                 }
             }
         }
 
         function handleDeath() {
             lives--;
-            updateUI(); 
+            updateUI();
             if (lives > 0) {
-                gameRunning = false; 
+                gameRunning = false;
                 showMessage(`Hai perso una vita! Vite rimanenti: ${lives}.`, true);
             } else {
                 gameOver();
@@ -470,14 +471,14 @@
         }
 
         function gameOver() {
-            gameRunning = false; 
+            gameRunning = false;
             showMessage(`Game Over! Punteggio Finale: ${score}.`, true);
         }
 
 
         function clearCanvas() {
-            ctx.shadowColor = "rgba(0, 255, 0, 0.2)"; 
-            ctx.shadowBlur = Math.max(10, tileSize * 0.8); 
+            ctx.shadowColor = "rgba(0, 255, 0, 0.2)";
+            ctx.shadowBlur = Math.max(10, tileSize * 0.8);
             ctx.fillStyle = '#000500';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.shadowColor = 'transparent';
@@ -510,14 +511,14 @@
             } else if ((keyPressed === 'ArrowRight' || buttonId === 'right-btn') && !goingLeft) {
                 dx = tileSize; dy = 0;
             } else {
-                changingDirection = false; 
+                changingDirection = false;
             }
         }
 
-        let animationFrameId = null; 
+        let animationFrameId = null;
         function gameLoop(currentTime) {
             if (gamePausedForMessage) {
-                 animationFrameId = requestAnimationFrame(gameLoop); 
+                 animationFrameId = requestAnimationFrame(gameLoop);
                  return;
             }
             if (!gameRunning) {
@@ -527,19 +528,19 @@
             const deltaTime = currentTime - lastFrameTime;
 
             if (deltaTime > frameInterval) {
-                lastFrameTime = currentTime - (deltaTime % frameInterval); 
+                lastFrameTime = currentTime - (deltaTime % frameInterval);
                 changingDirection = false;
 
                 clearCanvas();
                 drawFood();
-                updateSnake(); 
-                if (gameRunning) { 
+                updateSnake();
+                if (gameRunning) {
                     drawSnake();
                 }
                 updateUI();
             }
 
-            if(gameRunning) { 
+            if(gameRunning) {
                animationFrameId = requestAnimationFrame(gameLoop);
             }
         }
@@ -551,10 +552,10 @@
         rightBtn.addEventListener('click', changeDirection);
 
         restartButton.addEventListener('click', () => {
-            if (lives > 0) { 
-                resetLevel(); 
-            } else { 
-                initGame(); 
+            if (lives > 0) {
+                resetLevel();
+            } else {
+                initGame();
             }
         });
 

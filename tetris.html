@@ -12,12 +12,13 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start;
+            justify-content: flex-start; /* Allinea game-area in alto */
             min-height: 100vh;
             margin: 0;
-            padding: 10px;
+            padding: 10px; /* Padding generale per non attaccare ai bordi schermo */
             box-sizing: border-box;
-            overflow-x: hidden;
+            overflow-x: hidden; /* Evita scroll orizzontale */
+            /* overflow-y: hidden; Potenzialmente utile per evitare scroll verticale globale, ma proviamo prima a far stare tutto */
         }
 
         .game-area {
@@ -25,16 +26,17 @@
             flex-direction: column;
             align-items: center;
             background-color: rgba(60, 45, 35, 0.85);
-            padding: 15px;
+            padding: 15px; /* Padding per desktop */
             border-radius: 15px;
             box-shadow: 0 0 15px #ffcc66, 0 0 30px #ffcc66, inset 0 0 10px #ffcc66;
             width: 100%;
-            max-width: 500px;
+            max-width: 500px; /* Max larghezza su desktop */
+            box-sizing: border-box;
         }
 
         h1 {
-            font-size: 2.2em;
-            margin-bottom: 10px;
+            font-size: 2.2em; /* Desktop */
+            margin-bottom: 10px; /* Desktop */
             color: #FFD700;
             text-shadow: 0 0 4px #DAA520, 0 0 8px #DAA520, 0 0 12px #DAA520, 0 0 16px #FFBF00, 0 0 24px #FFBF00;
             text-align: center;
@@ -44,7 +46,7 @@
         .main-content {
             display: flex;
             align-items: flex-start;
-            gap: 15px;
+            gap: 15px; /* Desktop */
             flex-wrap: wrap;
             justify-content: center;
             width: 100%;
@@ -55,18 +57,19 @@
         }
 
         #gameCanvas {
-            border: 3px solid #DAA520;
-            box-shadow: 0 0 8px #DAA520, 0 0 12px #DAA520;
+            border: 2px solid #DAA520; /* Bordo leggermente più sottile per blocchi più piccoli */
+            box-shadow: 0 0 6px #DAA520, 0 0 10px #DAA520; /* Ombra ridotta */
             background-color: #2a1f17;
-            border-radius: 6px;
+            border-radius: 4px; /* Raggio ridotto */
+            display: block; /* Assicura che non abbia spazio extra sotto */
         }
 
-        .info-and-next { /* Ora contiene solo il pannello info */
+        .info-and-next {
             display: flex;
             flex-direction: column;
-            align-items: center; /* Centra info-panel su desktop se non c'è 'next' */
-            gap: 10px;
-            min-width: 120px; /* Mantiene una larghezza minima per il pannello info */
+            align-items: center;
+            gap: 10px; /* Desktop */
+            min-width: 100px; /* Adattato per info-panel più piccolo */
             flex-grow: 1;
         }
 
@@ -74,22 +77,20 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 8px;
-            font-size: 1.1em;
+            gap: 8px; /* Desktop */
+            font-size: 1.1em; /* Desktop */
             background-color: rgba(90, 70, 55, 0.7);
-            padding: 10px;
+            padding: 10px; /* Desktop */
             border-radius: 8px;
             box-shadow: 0 0 6px #FFA500, inset 0 0 4px #FFA500;
-            width: 100%; /* Occupa lo spazio del genitore .info-and-next */
-            max-width: 200px; /* Limita larghezza del pannello info su desktop */
+            width: 100%;
+            max-width: 180px; /* Desktop, adattato a canvas più stretto */
         }
 
         .info-panel span {
             color: #FFFACD;
             text-shadow: 0 0 2px #F0E68C, 0 0 4px #F0E68C;
         }
-
-        /* Rimosse le regole per .next-piece-container e #nextCanvas */
 
         .message-overlay {
             position: fixed;
@@ -98,43 +99,45 @@
             transform: translate(-50%, -50%);
             background-color: rgba(42, 31, 23, 0.9);
             color: #FFFACD;
-            padding: 20px;
+            padding: 15px; /* Ridotto */
             border-radius: 10px;
             text-align: center;
             z-index: 100;
-            font-size: 1.2em;
+            font-size: 1.1em; /* Ridotto */
             box-shadow: 0 0 8px #FFFACD, 0 0 15px #FFFACD;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px;
-            min-width: 250px;
+            gap: 10px; /* Ridotto */
+            min-width: 220px; /* Ridotto */
             max-width: 90%;
         }
         .message-overlay p { margin: 0; line-height: 1.3; }
         .message-overlay button {
             margin-top: 0;
             font-size: 0.7em !important;
-            padding: 10px 18px !important;
+            padding: 8px 15px !important; /* Ridotto */
         }
 
         .controls {
-            margin-top: 20px;
+            margin-top: 20px; /* Desktop */
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 8px;
-            width: 180px;
-            height: 230px;
+            gap: 8px; /* Desktop */
+            /* Larghezza e altezza definite in base a BLOCK_SIZE per desktop
+               e sovrascritte in media query per mobile */
+            width: calc(10 * var(--block-size-ref, 16px) * 0.9); /* Esempio, meglio fisso o in media query */
+            height: calc(10 * var(--block-size-ref, 16px) * 1.2);
         }
 
         .control-btn {
             background-color: rgba(255, 215, 0, 0.15);
             border: 2px solid #FFD700;
             color: #FFD700;
-            font-size: 1.1em;
-            border-radius: 8px;
+            font-size: 1.1em; /* Desktop */
+            border-radius: 8px; /* Desktop */
             cursor: pointer;
             user-select: none;
             box-shadow: 0 0 4px #FFD700, 0 0 8px #FFD700, inset 0 0 4px rgba(255,215,0,0.5);
@@ -142,7 +145,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 5px;
+            padding: 5px; /* Desktop */
         }
         .control-btn:active {
             background-color: rgba(255, 215, 0, 0.3);
@@ -162,9 +165,9 @@
 
 
         .home-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 1em;
+            margin-top: 20px; /* Desktop */
+            padding: 10px 20px; /* Desktop */
+            font-size: 1em; /* Desktop */
             background-color: rgba(218, 165, 32, 0.3);
             border: 2px solid #DAA520;
             color: #DAA520;
@@ -179,42 +182,80 @@
         }
 
         /* Media query per layout su schermi piccoli */
-        @media (max-width: 520px) {
+        @media (max-width: 520px) { /* Breakpoint più generale */
+            body {
+                padding: 5px; /* Padding corpo ridotto */
+            }
             .game-area {
-                padding: 10px;
-                padding-top: 15px; /* Mantiene un po' di spazio sopra il titolo */
+                padding: 8px; /* Padding area gioco ridotto */
+                 /* Se il contenuto è ancora troppo alto, questa è l'ultima spiaggia:
+                 max-height: calc(100vh - 10px); /* Considera il padding del body */
+                 /* overflow-y: auto; /* Abilita scroll interno a game-area se necessario */
+                 /* padding-bottom: 20px; /* Spazio per non tagliare l'ultimo elemento se scrolla */
             }
             h1 {
-                font-size: 1.8em;
-                margin-bottom: 15px; /* Spazio per l'info panel che si sposta sopra */
+                font-size: 1.6em; /* Titolo più piccolo */
+                margin-bottom: 8px; /* Margine ridotto */
             }
             .main-content {
                 flex-direction: column;
                 align-items: center;
+                gap: 10px; /* Spazio tra canvas e info-panel ridotto */
             }
-            .info-and-next { /* Contenitore per info-panel */
-                order: -1; /* Mette info prima del canvas */
+            .info-and-next {
+                order: -1;
                 width: 100%;
                 display: flex;
-                justify-content: center; /* Centra .info-panel al suo interno */
-                margin-bottom: 15px; /* Spazio tra info-panel e canvas */
+                justify-content: center;
+                margin-bottom: 8px; /* Margine ridotto sotto info-panel */
             }
             .info-panel {
-                 /* Gli stili di base rimangono (colore, ombra, etc) */
-                 flex-direction: row; /* Dispone gli span interni orizzontalmente */
-                 justify-content: space-around; /* Distribuisce gli span */
+                 flex-direction: row;
+                 justify-content: space-around;
                  align-items: center;
-                 width: auto; /* Larghezza basata sul contenuto */
-                 max-width: 95%; /* Limita la larghezza massima del pannello info */
-                 padding: 8px 10px; /* Padding interno del pannello */
-                 flex-wrap: wrap; /* Se gli span sono troppi, vanno a capo */
-                 gap: 10px; /* Spazio tra gli span se vanno a capo */
+                 width: auto;
+                 max-width: 98%; /* Occupa quasi tutta la larghezza */
+                 padding: 6px 8px; /* Padding interno ridotto */
+                 gap: 8px; /* Spazio tra span se vanno a capo */
+                 font-size: 0.85em; /* Testo info più piccolo */
             }
             .info-panel span {
-                white-space: nowrap; /* Evita che il testo dello span vada a capo */
+                white-space: nowrap;
             }
+
+            /* Canvas non ha bisogno di modifiche dirette qui, le sue dimensioni sono da JS */
+
             .controls {
-                margin-top: 15px; /* Ridotto spazio sopra i controlli */
+                width: 150px; /* Larghezza controlli (circa 10 blocchi * 16px - un po' di margine) */
+                height: 160px; /* Altezza controlli ridotta */
+                gap: 6px; /* Spazio tra bottoni ridotto */
+                margin-top: 10px; /* Margine sopra controlli ridotto */
+            }
+            .control-btn {
+                font-size: 0.8em; /* Testo bottoni più piccolo */
+                padding: 3px; /* Padding interno bottoni ridotto */
+                border-radius: 5px; /* Raggio bordi ridotto */
+                border-width: 1px; /* Bordo più sottile */
+            }
+            .home-btn {
+                font-size: 0.85em; /* Testo Home più piccolo */
+                padding: 6px 12px; /* Padding Home ridotto */
+                margin-top: 10px; /* Margine sopra Home ridotto */
+                border-radius: 5px;
+            }
+        }
+         /* Media query specifica per schermi molto bassi, se necessario */
+        @media (max-height: 670px) and (max-width: 520px) {
+            h1 { font-size: 1.4em; margin-bottom: 5px; }
+            .info-panel { font-size: 0.8em; padding: 4px 6px; gap: 5px; margin-bottom: 5px;}
+            .controls { width: 140px; height: 150px; gap: 4px; margin-top: 8px;}
+            .control-btn { font-size: 0.75em; }
+            .home-btn { font-size: 0.8em; padding: 5px 10px; margin-top: 8px;}
+            .game-area {
+                 padding-top: 5px; padding-bottom: 5px;
+                 /* Attivare lo scroll interno se ancora troppo alto */
+                 /* max-height: calc(100vh - 10px); */
+                 /* overflow-y: auto; */
             }
         }
 
@@ -233,7 +274,6 @@
                     <span id="lives">Vite: 3</span>
                     <span id="level">Livello: 1</span>
                 </div>
-                <!-- next-piece-container rimosso -->
             </div>
         </div>
          <div id="messageOverlay" class="message-overlay">
@@ -259,7 +299,6 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        // Rimosso nextCanvas e nextCtx
 
         const scoreDisplay = document.getElementById('score');
         const livesDisplay = document.getElementById('lives');
@@ -271,12 +310,16 @@
 
         const COLS = 10;
         const ROWS = 20;
-        const BLOCK_SIZE = 24;
-        // Rimosso NEXT_CANVAS_GRID_SIZE
+        const BLOCK_SIZE = 16; // << RIDOTTO BLOCK_SIZE PER COMPATTEZZA MOBILE
 
+        // Imposta dinamicamente la dimensione del canvas basata su BLOCK_SIZE
+        // Questo assicura che il CSS per #gameCanvas non debba specificare width/height
         canvas.width = COLS * BLOCK_SIZE;
         canvas.height = ROWS * BLOCK_SIZE;
-        // Rimosse impostazioni dimensioni nextCanvas
+        // Le dimensioni dei controlli nel CSS potrebbero usare una variabile CSS --block-size-ref
+        // per coerenza, se necessario, ma per ora sono fisse nelle media queries.
+        document.documentElement.style.setProperty('--block-size-ref', `${BLOCK_SIZE}px`);
+
 
         const COLORS = [ null, '#FFD700', '#FFFACD', '#FFA500', '#F0E68C', '#DAA520', '#FFFFE0', '#FFBF00' ];
         const SHADOW_COLORS = [ null, '#DAA520', '#F0E68C', '#E69500', '#D8C970', '#B8860B', '#E0DDB0', '#D9A300' ];
@@ -294,7 +337,7 @@
 
         let board = createBoard();
         let currentPiece;
-        let nextPiece; // Variabile ancora necessaria per la logica di gioco
+        let nextPiece;
         let score;
         let lives;
         let level;
@@ -334,12 +377,12 @@
             } else {
                 ctxInstance.globalAlpha = 1.0;
                 ctxInstance.shadowColor = SHADOW_COLORS[colorIndex];
-                ctxInstance.shadowBlur = 6;
+                ctxInstance.shadowBlur = Math.max(1, Math.floor(bs / 6)); // Ombra proporzionale
                 ctxInstance.fillRect(x * bs, y * bs, bs, bs);
 
                 ctxInstance.shadowBlur = 0;
                 ctxInstance.strokeStyle = 'rgba(0,0,0,0.2)';
-                ctxInstance.lineWidth = 1;
+                ctxInstance.lineWidth = 1; // Mantenere 1 per leggibilità
                 ctxInstance.strokeRect(x * bs + 0.5, y * bs + 0.5, bs-1, bs-1);
             }
              ctxInstance.globalAlpha = 1.0;
@@ -355,15 +398,13 @@
             });
         }
 
-        // drawPiece ora usa solo ctx per il tabellone principale
-        function drawPiece(piece, ctxInstance = ctx, customOffsetX = 0, customOffsetY = 0, bs = BLOCK_SIZE) {
+        function drawPiece(piece, ctxInstance = ctx) { // Rimosso customOffset e bs non usati
             piece.shape.forEach((row, yRel) => {
                 row.forEach((value, xRel) => {
                     if (value !== 0) {
-                        // Disegna solo sul canvas principale
                         let drawX = piece.x + xRel;
                         let drawY = piece.y + yRel;
-                        drawBlock(ctxInstance, drawX, drawY, piece.colorIndex, bs);
+                        drawBlock(ctxInstance, drawX, drawY, piece.colorIndex, BLOCK_SIZE);
                     }
                 });
             });
@@ -386,8 +427,6 @@
                 });
             });
         }
-
-        // Rimossa la funzione drawNextPiece()
 
         function clearCanvas() {
             ctx.fillStyle = '#2a1f17';
@@ -422,18 +461,17 @@
                     rotated[y][x] = originalShape[originalShape.length - 1 - x][y];
                 }
             }
+            // Wall kick logica semplificata
             if (isValidMove(rotated, currentPiece.x, currentPiece.y)) {
                 currentPiece.shape = rotated;
-            } else {
-                if (isValidMove(rotated, currentPiece.x + 1, currentPiece.y)) {
-                    currentPiece.x += 1; currentPiece.shape = rotated;
-                } else if (isValidMove(rotated, currentPiece.x - 1, currentPiece.y)) {
-                    currentPiece.x -= 1; currentPiece.shape = rotated;
-                } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x - 2, currentPiece.y)) {
-                    currentPiece.x -= 2; currentPiece.shape = rotated;
-                } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x + 2, currentPiece.y)) {
-                    currentPiece.x += 2; currentPiece.shape = rotated;
-                }
+            } else if (isValidMove(rotated, currentPiece.x + 1, currentPiece.y)) { // Tenta a destra
+                currentPiece.x += 1; currentPiece.shape = rotated;
+            } else if (isValidMove(rotated, currentPiece.x - 1, currentPiece.y)) { // Tenta a sinistra
+                currentPiece.x -= 1; currentPiece.shape = rotated;
+            } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x - 2, currentPiece.y)) { // Tenta a sinistra (per pezzo I)
+                currentPiece.x -= 2; currentPiece.shape = rotated;
+            } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x + 2, currentPiece.y)) { // Tenta a destra (per pezzo I)
+                currentPiece.x += 2; currentPiece.shape = rotated;
             }
         }
 
@@ -482,7 +520,9 @@
                             handleGameOverCondition();
                             return;
                         }
-                        board[currentPiece.y + y][currentPiece.x + x] = currentPiece.colorIndex;
+                        if (currentPiece.y + y < ROWS) { // Controllo aggiuntivo per sicurezza
+                           board[currentPiece.y + y][currentPiece.x + x] = currentPiece.colorIndex;
+                        }
                     }
                 });
             });
@@ -491,9 +531,8 @@
 
             clearLines();
 
-            currentPiece = nextPiece; // nextPiece è stato generato in precedenza
-            nextPiece = getRandomPiece(); // Genera il nuovo "nextPiece" per il ciclo successivo
-            // Non c'è più drawNextPiece()
+            currentPiece = nextPiece;
+            nextPiece = getRandomPiece();
 
             if (currentPiece && !isValidMove(currentPiece.shape, currentPiece.x, currentPiece.y)) {
                 handleGameOverCondition();
@@ -517,7 +556,6 @@
             board = createBoard();
             currentPiece = getRandomPiece();
             nextPiece = getRandomPiece();
-            // Non c'è più drawNextPiece()
             dropCounter = 0;
             lastTime = performance.now();
             gameRunning = true;
@@ -603,8 +641,7 @@
             level = 1;
             dropInterval = initialDropInterval;
             currentPiece = getRandomPiece();
-            nextPiece = getRandomPiece(); // Prepara il pezzo successivo per la logica interna
-            // Non c'è più drawNextPiece()
+            nextPiece = getRandomPiece();
             updateUI();
             dropCounter = 0;
             gameRunning = true;
@@ -614,11 +651,13 @@
         }
 
         document.addEventListener('keydown', event => {
+            if (!currentPiece && gameRunning) return; // Se non c'è pezzo ma il gioco è attivo (es. all'inizio di un reset)
             if (!gameRunning || gamePausedForMessage || !currentPiece) return;
-            if (event.key === 'ArrowLeft' || event.key === 'a') pieceMove(-1);
-            else if (event.key === 'ArrowRight' || event.key === 'd') pieceMove(1);
-            else if (event.key === 'ArrowDown' || event.key === 's') pieceDrop();
-            else if (event.key === 'ArrowUp' || event.key === 'w' || event.key === 'x') pieceRotate();
+
+            if (event.key === 'ArrowLeft' || event.key === 'a' || event.key === 'A') pieceMove(-1);
+            else if (event.key === 'ArrowRight' || event.key === 'd' || event.key === 'D') pieceMove(1);
+            else if (event.key === 'ArrowDown' || event.key === 's' || event.key === 'S') pieceDrop();
+            else if (event.key === 'ArrowUp' || event.key === 'w' || event.key === 'W' || event.key === 'x' || event.key === 'X') pieceRotate();
             else if (event.key === ' ') {
                  event.preventDefault();
                  pieceDrop(true);
@@ -632,10 +671,15 @@
         document.getElementById('drop-btn').addEventListener('click', () => pieceDrop(true));
 
         restartButton.addEventListener('click', () => {
-            if (lives > 0 && !gameRunning) {
+            if (lives > 0 && !gameRunning) { // Se il gioco è in game over ma ci sono vite
                 resetBoard();
-            } else if (lives <= 0) {
+            } else if (lives <= 0) { // Se è game over definitivo
                 initGame();
+            } else if (gamePausedForMessage && gameRunning) { // Se è in pausa per un messaggio ma il gioco stava andando
+                 hideMessage();
+                 gamePausedForMessage = false;
+                 lastTime = performance.now(); // Riprende il tempo per il dropCounter
+                 if (!animationFrameId) gameLoop(); // Riavvia il loop se si era fermato
             }
         });
 

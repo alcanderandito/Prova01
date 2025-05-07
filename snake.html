@@ -5,55 +5,58 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Snake ai Due Mori</title>
     <style>
+        html, body {
+            height: 100%; /* Assicura che body possa occupare tutta l'altezza */
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden; /* Evita scroll orizzontale globale */
+        }
         body {
             background-color: #0a0a1f;
             color: #fff;
             font-family: 'Arial', sans-serif;
-            display: flex;
+            display: flex; /* Centra game-container se più stretto della viewport (desktop) */
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Allinea game-container in alto, utile se il contenuto è più alto della viewport */
-            min-height: 100vh;
-            margin: 0;
-            padding: 10px; /* Padding generale per non attaccare ai bordi schermo */
+            justify-content: center; /* Centra verticalmente su desktop se il contenuto è più piccolo */
+            padding: 10px; /* Margine esterno per schermi piccoli, non taglia il contenuto */
             box-sizing: border-box;
-            overflow-x: hidden;
         }
 
         .game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(10, 10, 31, 0.8);
-            padding: 20px; /* Desktop - Aumentato per dare più respiro */
-            border-radius: 15px;
+            /* justify-content gestito nelle media query per l'espansione verticale */
+            background-color: rgba(10, 10, 31, 0.85); /* Leggermente più opaco */
             box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
-            width: 100%;
-            max-width: 450px;
+            border-radius: 15px;
+            width: 100%; /* Occupa la larghezza del body (meno padding del body) */
+            max-width: 480px; /* Limite per desktop/tablet grandi, per non farlo troppo largo */
+            padding: 20px 15px; /* Default padding (verticale, orizzontale) */
             box-sizing: border-box;
+            /* Altezza gestita nelle media query */
         }
 
         h1 {
-            font-size: 2.5em; /* Desktop */
-            margin-bottom: 15px; /* Desktop - Aumentato */
+            font-size: 2.2em; /* Default */
+            margin-bottom: 15px; /* Default */
             color: #00ffff;
-            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff;
             text-align: center;
+            flex-shrink: 0; /* Non si restringe se lo spazio è poco */
         }
 
         .info-panel {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            max-width: 380px;
-            margin-bottom: 20px; /* Desktop - Aumentato */
-            font-size: 1.2em;
+            max-width: 360px; /* Default */
+            margin-bottom: 15px; /* Default */
+            font-size: 1.1em; /* Default */
+            flex-shrink: 0;
         }
-
-        .info-panel span {
-            color: #f0f;
-            text-shadow: 0 0 3px #f0f, 0 0 5px #f0f, 0 0 7px #f0f;
-        }
+        .info-panel span { color: #f0f; text-shadow: 0 0 3px #f0f, 0 0 5px #f0f; }
 
         #gameCanvas {
             border: 2px solid #00ff00;
@@ -63,161 +66,122 @@
             display: block;
             margin-left: auto;
             margin-right: auto;
-            /* margin-bottom: 20px; Spazio sotto il canvas, gestito dal margin-top dei controlli */
+            flex-shrink: 0;
+            /* margin-top e margin-bottom gestiti da space-between o margini degli altri elementi */
         }
 
         .message-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            background-color: rgba(0,0,0,0.85);
-            color: #fff;
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            z-index: 100;
-            font-size: 1.3em;
-            box-shadow: 0 0 10px #fff, 0 0 20px #fff;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            gap: 15px;
-            min-width: 250px;
-            max-width: 90%;
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.9); color: #fff; padding: 20px; border-radius: 10px;
+            text-align: center; z-index: 100; font-size: 1.2em; box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            gap: 15px; min-width: 250px; max-width: 90%;
         }
         .message-overlay p { margin: 0; line-height: 1.4; }
         .message-overlay button { margin-top: 0; font-size: 0.7em !important; padding: 10px 18px !important; }
 
-
         .controls {
-            margin-top: 25px; /* Desktop - Aumentato per staccare dal canvas */
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 10px; /* Desktop */
-            width: 160px; /* Desktop - Dimensione base controlli */
-            height: 160px; /* Desktop - Dimensione base controlli */
-            margin-left: auto;  /* NUOVA MODIFICA per centratura esplicita */
-            margin-right: auto; /* NUOVA MODIFICA per centratura esplicita */
+            gap: 8px; /* Default gap */
+            width: 160px;  /* Default width */
+            height: 160px; /* Default height */
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 20px; /* Default margin-top */
+            flex-shrink: 0;
         }
-
         .control-btn {
-            background-color: rgba(0, 255, 255, 0.1);
-            border: 2px solid #00ffff;
-            color: #00ffff;
-            font-size: 2.0em; /* Desktop, frecce - Leggermente aumentato */
-            border-radius: 10px;
-            cursor: pointer;
-            user-select: none;
+            background-color: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff; color: #00ffff;
+            font-size: 2.2em; /* Default font-size per frecce */
+            border-radius: 10px; cursor: pointer; user-select: none;
             box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
             transition: background-color 0.2s, box-shadow 0.2s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
+            display: flex; align-items: center; justify-content: center;
         }
-        .control-btn:active {
-            background-color: rgba(0, 255, 255, 0.3);
-            box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7);
-        }
+        .control-btn:active { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7); }
 
         #up-btn    { grid-column: 2; grid-row: 1; }
         #left-btn  { grid-column: 1; grid-row: 2; }
         #right-btn { grid-column: 3; grid-row: 2; }
         #down-btn  { grid-column: 2; grid-row: 3; }
-
         .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
 
-
         .home-btn {
-            margin-top: 30px; /* Desktop - Aumentato */
-            padding: 10px 20px;
-            font-size: 1em;
-            background-color: rgba(255, 0, 255, 0.2);
-            border: 2px solid #ff00ff;
-            color: #ff00ff;
-            text-decoration: none;
-            border-radius: 8px;
+            padding: 8px 18px; /* Default */
+            font-size: 0.9em; /* Default */
+            background-color: rgba(255, 0, 255, 0.2); border: 2px solid #ff00ff; color: #ff00ff;
+            text-decoration: none; border-radius: 8px;
             box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
             transition: background-color 0.2s, box-shadow 0.2s;
+            margin-top: 20px; /* Default margin-top */
+            flex-shrink: 0;
         }
-        .home-btn:hover, .home-btn:active {
-            background-color: rgba(255, 0, 255, 0.4);
-            box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff;
-        }
+        .home-btn:hover, .home-btn:active { background-color: rgba(255, 0, 255, 0.4); box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; }
 
-        /* Media query per layout su schermi piccoli */
-        @media (max-width: 480px) {
+
+        /* Media Query per Tablet (Portrait e Landscape più piccoli) e Cellulari */
+        @media (max-width: 768px) { /* Breakpoint più generale per dispositivi mobili */
             body {
-                padding: 5px;
+                justify-content: flex-start; /* Allinea game-container in alto */
+                padding: 5px; /* Margini laterali per il corpo su mobile */
             }
             .game-container {
-                padding: 15px 10px 25px 10px; /* VALORE AGGIORNATO (più padding verticale) */
+                min-height: calc(100vh - 10px); /* Occupa quasi tutta l'altezza (10px per padding body) */
+                /* Se 100vh - 10px è più grande dell'altezza del contenuto,
+                   justify-content distribuirà lo spazio. Altrimenti, il contenuto definirà l'altezza. */
+                justify-content: space-around; /* Distribuisce lo spazio tra gli elementi figli */
+                padding: 15px 10px; /* Padding interno game-container per mobile */
             }
             h1 {
-                font-size: 1.6em;
-                margin-bottom: 12px; /* VALORE AGGIORNATO */
+                font-size: 1.8em; /* Adattato per mobile */
+                margin-top: 0; /* space-around gestisce lo spazio sopra */
+                margin-bottom: 0; /* space-around gestisce lo spazio sotto h1 e sopra info-panel */
             }
             .info-panel {
-                font-size: 0.85em;
-                margin-bottom: 15px; /* VALORE AGGIORNATO */
-                flex-wrap: wrap;
-                justify-content: center;
-                gap: 10px;
+                font-size: 1em; /* Adattato per mobile */
+                max-width: 300px;
+                margin-top: 0; margin-bottom: 0; /* Lascia che space-around faccia il suo lavoro */
             }
-            .info-panel span {
-                white-space: nowrap;
+            #gameCanvas {
+                /* Le dimensioni sono da JS. space-around gestirà lo spazio sopra/sotto */
             }
-
             .controls {
-                width: 160px;   /* VALORE AGGIORNATO (non più largo di così per ora) */
-                height: 160px;  /* VALORE AGGIORNATO */
-                gap: 8px;
-                margin-top: 25px; /* VALORE AGGIORNATO (più staccato dal canvas) */
-                /* margin-left: auto; e margin-right: auto; ereditati dal default */
+                width: 170px;  /* Buona dimensione per pollici */
+                height: 170px;
+                gap: 10px;     /* Più spazio tra i bottoni */
+                margin-top: 0; /* space-around gestisce spazio sopra */
+                 /* margin-left/right auto già presenti */
             }
             .control-btn {
-                font-size: 2.2em; /* VALORE AGGIORNATO (frecce grandi per bottoni comodi) */
-                border-radius: 10px;
-                border-width: 1px;
+                font-size: 2.5em; /* Frecce grandi e comode */
+                border-radius: 12px;
             }
             .home-btn {
-                font-size: 0.9em;
-                padding: 8px 16px;
-                margin-top: 30px; /* VALORE AGGIORNATO (ben staccato dai controlli) */
-                border-radius: 7px;
+                font-size: 1em;
+                padding: 10px 20px;
+                margin-top: 0; /* space-around gestisce spazio sopra */
+                margin-bottom: 0; /* space-around gestisce spazio sotto */
             }
-            .message-overlay {
-                font-size: 1em; padding: 15px; gap: 10px; min-width: 200px;
-            }
-            .message-overlay button { font-size: 0.7em !important; padding: 8px 15px !important; }
         }
 
-        /* Media query specifica per schermi molto bassi, più restrittiva sugli spazi verticali */
-        @media (max-height: 660px) and (max-width: 480px) { /* Breakpoint altezza leggermente ridotto */
-            .game-container {
-                 padding-top: 10px;    /* VALORE AGGIORNATO */
-                 padding-bottom: 20px; /* VALORE AGGIORNATO */
+        /* Media Query per schermi molto bassi, per evitare eccessiva compressione */
+        @media (max-height: 600px) and (max-width: 768px) {
+             .game-container {
+                justify-content: center; /* Centra se non c'è abbastanza spazio per space-around */
+                min-height: auto; /* Lascia che il contenuto definisca l'altezza */
+                padding-top: 10px;
+                padding-bottom: 10px;
             }
-            h1 { font-size: 1.5em; margin-bottom: 8px; } /* VALORE AGGIORNATO */
-            .info-panel { font-size: 0.8em; margin-bottom: 12px; } /* VALORE AGGIORNATO */
-            .controls {
-                width: 150px;   /* VALORE AGGIORNATO (più piccolo per schermi bassi) */
-                height: 150px;  /* VALORE AGGIORNATO */
-                gap: 6px;
-                margin-top: 20px; /* VALORE AGGIORNATO */
-            }
-            .control-btn {
-                font-size: 2.0em; /* VALORE AGGIORNATO */
-                border-radius: 8px;
-            }
-            .home-btn {
-                font-size: 0.85em;
-                padding: 7px 14px;
-                margin-top: 25px; /* VALORE AGGIORNATO */
-            }
+            /* Riduci leggermente alcuni elementi se necessario, ma priorità a non sovrapporre */
+            h1 { font-size: 1.6em; margin-bottom: 10px; } /* Ripristina un po' di margine */
+            .info-panel { font-size: 0.9em; margin-bottom: 10px; }
+            .controls { width: 150px; height: 150px; gap: 8px; margin-top: 15px; }
+            .control-btn { font-size: 2.0em; border-radius: 10px; }
+            .home-btn { font-size: 0.9em; padding: 8px 15px; margin-top: 15px; }
         }
+
     </style>
     <!-- Il resto del body e lo script rimangono invariati -->
     <div class="game-container">

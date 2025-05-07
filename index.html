@@ -16,11 +16,13 @@
     .navbar {
       background-color: #333;
       padding: 10px 20px;
-      overflow: hidden;
+      overflow: hidden; /* può influenzare stacking context, ma qui è ok */
+      position: relative; /* Aggiunto per creare uno stacking context per la navbar se necessario */
+      z-index: 500; /* Diamo un z-index anche alla navbar, per sicurezza */
     }
 
     .dropdown {
-      position: relative;
+      position: relative; /* Già presente, corretto */
       display: inline-block;
     }
 
@@ -42,9 +44,9 @@
       display: none;
       position: absolute;
       background-color: #f9f9f9;
-      min-width: 220px; /* Aumentato per voci più lunghe */
+      min-width: 220px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 1;
+      z-index: 999; /* <<< --- QUESTA È LA CORREZIONE IMPORTANTE */
       border-radius: 5px;
       margin-top: 5px;
     }
@@ -69,34 +71,32 @@
 
     /* Stili specifici per il sottomenu */
     .dropdown-content ul li.submenu-item .submenu {
-      display: none; /* Sottomenu nascosto di default */
-      padding-left: 20px; /* Indentazione per il sottomenu */
-      background-color: #e9e9e9; /* Sfondo leggermente diverso per il sottomenu */
+      display: none;
+      padding-left: 20px;
+      background-color: #e9e9e9;
     }
 
     .dropdown-content ul li.submenu-item .submenu ul li a {
-        padding: 10px 15px; /* Padding specifico per voci sottomenu */
-        font-size: 0.9em; /* Carattere leggermente più piccolo */
+        padding: 10px 15px;
+        font-size: 0.9em;
     }
     .dropdown-content ul li.submenu-item .submenu ul li a:hover {
-        background-color: #ddd; /* Sfondo diverso all'hover per voci sottomenu */
+        background-color: #ddd;
     }
 
-    /* Classe per mostrare il sottomenu */
     .dropdown-content ul li.submenu-item .submenu.open {
       display: block;
     }
 
-    /* Stile per la freccetta del sottomenu */
     .submenu-trigger .arrow {
       display: inline-block;
       margin-left: 5px;
       transition: transform 0.3s ease;
-      font-size: 0.8em; /* Rende la freccia meno invadente */
+      font-size: 0.8em;
     }
 
     .submenu-trigger.open .arrow {
-      transform: rotate(180deg); /* Ruota la freccetta quando il sottomenu è aperto */
+      transform: rotate(180deg);
     }
 
     /* Stili per il Contenitore del Bottone Chat */
@@ -104,7 +104,7 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1000;
+        z-index: 1000; /* Il bottone chat resta sopra il menu a tendina */
     }
     #goChat{
       width:70px;height:70px;border:none;border-radius:50%;
@@ -113,17 +113,15 @@
     }
     #goChat:active{transform:scale(.9)}
 
-    /* Per eventuale altro contenuto principale della pagina */
     .main-content {
         padding: 20px;
-        min-height: calc(100vh - 70px); /* Esempio per occupare spazio se la pagina è corta */
+        min-height: calc(100vh - 70px);
     }
 
   </style>
 </head>
 <body>
 
-  <!-- Barra di Navigazione con Menu a Tendina -->
   <div class="navbar">
     <div class="dropdown">
       <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
@@ -134,14 +132,11 @@
     </div>
   </div>
 
-  <!-- Contenuto principale della pagina -->
   <div class="main-content">
     <h1>Benvenuto nella Home Page!</h1>
     <p>Questo è il contenuto principale della tua pagina. Il menu è in alto e la chat è in basso a destra.</p>
-    <!-- Qui puoi mettere il resto del contenuto della tua home page -->
   </div>
 
-  <!-- Bottone Chat (posizionato fisso in basso a destra) -->
   <div id="goChatContainer">
     <a href="chat.html" aria-label="Apri chat">
       <button id="goChat"></button>
@@ -154,9 +149,8 @@
       const menuContent = document.getElementById("menuContent");
       const isCurrentlyShown = menuContent.classList.contains("show");
 
-      // Se il menu sta per essere aperto e non è già stato caricato
       if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
-        fetch('menu.html') // Assicurati che menu.html sia nella stessa cartella o specifica il percorso corretto
+        fetch('menu.html')
           .then(response => {
             if (!response.ok) {
               throw new Error('Errore nel caricamento di menu.html: ' + response.status);
@@ -164,23 +158,22 @@
             return response.text();
           })
           .then(data => {
-            menuContent.innerHTML = data; // Inserisce il contenuto di menu.html
+            menuContent.innerHTML = data;
           })
           .catch(error => {
             menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
             console.error('Errore fetch menu.html:', error);
           });
       }
-      menuContent.classList.toggle("show"); // Mostra o nasconde il menu
+      menuContent.classList.toggle("show");
 
-      // Se il menu principale viene chiuso, chiudi anche tutti i sottomenu
       if (!menuContent.classList.contains("show")) {
         const openSubmenus = menuContent.querySelectorAll('.submenu.open');
         openSubmenus.forEach(submenu => {
           submenu.classList.remove('open');
           const trigger = submenu.previousElementSibling;
           if (trigger && trigger.classList.contains('submenu-trigger')) {
-              trigger.classList.remove('open'); // Resetta la classe per la freccia
+              trigger.classList.remove('open');
           }
         });
       }
@@ -188,32 +181,30 @@
 
     // Funzione per mostrare/nascondere i sottomenu
     function toggleSubmenu(event, triggerElement) {
-      event.preventDefault(); // Impedisce al link '#' di far saltare la pagina
-      event.stopPropagation(); // Impedisce che l'evento di click si propaga e chiuda il menu principale
+      event.preventDefault();
+      event.stopPropagation();
 
-      const submenu = triggerElement.nextElementSibling; // Il div .submenu è il fratello successivo dell'<a>
+      const submenu = triggerElement.nextElementSibling;
       if (submenu && submenu.classList.contains('submenu')) {
         submenu.classList.toggle('open');
-        triggerElement.classList.toggle('open'); // Per la freccia
+        triggerElement.classList.toggle('open');
       }
     }
 
     // Chiudi il menu principale se l'utente clicca fuori da esso
     window.onclick = function(event) {
       const menuContent = document.getElementById("menuContent");
-      const dropdownButton = document.querySelector('.dropdown-button'); // Il pulsante che apre il menu
+      const dropdownButton = document.querySelector('.dropdown-button');
 
-      // Verifica se menuContent esiste e se il click è avvenuto fuori dal pulsante e fuori dal contenuto del menu
       if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
         if (menuContent.classList.contains('show')) {
           menuContent.classList.remove('show');
-          // Chiudi anche tutti i sottomenu aperti
           const openSubmenus = menuContent.querySelectorAll('.submenu.open');
           openSubmenus.forEach(submenu => {
             submenu.classList.remove('open');
             const trigger = submenu.previousElementSibling;
             if (trigger && trigger.classList.contains('submenu-trigger')) {
-                trigger.classList.remove('open'); // Resetta la classe per la freccia
+                trigger.classList.remove('open');
             }
           });
         }

@@ -6,16 +6,16 @@
     <title>Tetris Polenta e Formai</title>
     <style>
         body {
-            background-color: #4a3b31; 
+            background-color: #4a3b31;
             color: #fff;
-            font-family: 'Georgia', serif; 
+            font-family: 'Georgia', serif;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; 
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
-            padding: 10px; /* Ridotto padding generale */
+            padding: 10px;
             box-sizing: border-box;
             overflow-x: hidden;
         }
@@ -24,18 +24,18 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(60, 45, 35, 0.85); 
-            padding: 15px; /* Ridotto padding */
-            border-radius: 15px; /* Ridotto raggio */
-            box-shadow: 0 0 15px #ffcc66, 0 0 30px #ffcc66, inset 0 0 10px #ffcc66; 
+            background-color: rgba(60, 45, 35, 0.85);
+            padding: 15px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px #ffcc66, 0 0 30px #ffcc66, inset 0 0 10px #ffcc66;
             width: 100%;
-            max-width: 500px; /* Limita la larghezza massima su desktop */
+            max-width: 500px;
         }
 
         h1 {
-            font-size: 2.2em; /* Ridotto */
-            margin-bottom: 10px; /* Ridotto */
-            color: #FFD700; 
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            color: #FFD700;
             text-shadow: 0 0 4px #DAA520, 0 0 8px #DAA520, 0 0 12px #DAA520, 0 0 16px #FFBF00, 0 0 24px #FFBF00;
             text-align: center;
             font-variant: small-caps;
@@ -43,115 +43,98 @@
 
         .main-content {
             display: flex;
-            /* flex-direction: row; Default per schermi larghi */
             align-items: flex-start;
-            gap: 15px; /* Ridotto */
-            flex-wrap: wrap; 
+            gap: 15px;
+            flex-wrap: wrap;
             justify-content: center;
             width: 100%;
         }
-        
+
         .game-board-container {
             /* Contenitore per il canvas principale */
         }
 
         #gameCanvas {
-            border: 3px solid #DAA520; /* Ridotto spessore */
+            border: 3px solid #DAA520;
             box-shadow: 0 0 8px #DAA520, 0 0 12px #DAA520;
-            background-color: #2a1f17; 
-            border-radius: 6px; /* Ridotto */
+            background-color: #2a1f17;
+            border-radius: 6px;
         }
-        
-        .info-and-next {
+
+        .info-and-next { /* Ora contiene solo il pannello info */
             display: flex;
             flex-direction: column;
-            align-items: center;
-            gap: 10px; /* Ridotto */
-            min-width: 120px; /* Ridotto */
-            flex-grow: 1; /* Permette di occupare spazio disponibile */
+            align-items: center; /* Centra info-panel su desktop se non c'è 'next' */
+            gap: 10px;
+            min-width: 120px; /* Mantiene una larghezza minima per il pannello info */
+            flex-grow: 1;
         }
 
         .info-panel {
             display: flex;
-            flex-direction: column; 
+            flex-direction: column;
             align-items: center;
-            gap: 8px; /* Ridotto */
-            font-size: 1.1em; /* Ridotto */
-            background-color: rgba(90, 70, 55, 0.7); 
-            padding: 10px; /* Ridotto */
-            border-radius: 8px; /* Ridotto */
-            box-shadow: 0 0 6px #FFA500, inset 0 0 4px #FFA500; 
-            width: 100%;
-            max-width: 200px; /* Limita larghezza del pannello info */
+            gap: 8px;
+            font-size: 1.1em;
+            background-color: rgba(90, 70, 55, 0.7);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0 0 6px #FFA500, inset 0 0 4px #FFA500;
+            width: 100%; /* Occupa lo spazio del genitore .info-and-next */
+            max-width: 200px; /* Limita larghezza del pannello info su desktop */
         }
 
         .info-panel span {
-            color: #FFFACD; 
-            text-shadow: 0 0 2px #F0E68C, 0 0 4px #F0E68C; 
+            color: #FFFACD;
+            text-shadow: 0 0 2px #F0E68C, 0 0 4px #F0E68C;
         }
-        
-        .next-piece-container {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .next-piece-container p {
-            margin: 0 0 5px 0;
-            font-size: 1em; /* Ridotto */
-            color: #FFA500; 
-            text-shadow: 0 0 2px #DAA520;
-        }
-        #nextCanvas {
-            border: 2px solid #F0E68C; 
-            background-color: rgba(42, 31, 23, 0.8); 
-            border-radius: 4px; /* Ridotto */
-            box-shadow: 0 0 4px #F0E68C;
-        }
-        
+
+        /* Rimosse le regole per .next-piece-container e #nextCanvas */
+
         .message-overlay {
-            position: fixed; /* Cambiato a fixed per essere sempre centrato nella viewport */
+            position: fixed;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
             background-color: rgba(42, 31, 23, 0.9);
             color: #FFFACD;
-            padding: 20px; /* Ridotto */
+            padding: 20px;
             border-radius: 10px;
             text-align: center;
             z-index: 100;
-            font-size: 1.2em; /* Ridotto */
+            font-size: 1.2em;
             box-shadow: 0 0 8px #FFFACD, 0 0 15px #FFFACD;
-            display: none; 
+            display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            gap: 15px; /* Ridotto */
-            min-width: 250px; /* Ridotto */
-            max-width: 90%; /* Limita larghezza su schermi piccoli */
+            gap: 15px;
+            min-width: 250px;
+            max-width: 90%;
         }
         .message-overlay p { margin: 0; line-height: 1.3; }
         .message-overlay button {
             margin-top: 0;
-            font-size: 0.7em !important; 
-            padding: 10px 18px !important; /* Ridotto */
+            font-size: 0.7em !important;
+            padding: 10px 18px !important;
         }
 
         .controls {
-            margin-top: 20px; /* Ridotto */
+            margin-top: 20px;
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr); 
-            gap: 8px; /* Ridotto */
-            width: 180px; /* Ridotto */
-            height: 230px; /* Ridotto */
+            grid-template-rows: repeat(3, 1fr);
+            gap: 8px;
+            width: 180px;
+            height: 230px;
         }
 
         .control-btn {
-            background-color: rgba(255, 215, 0, 0.15); 
+            background-color: rgba(255, 215, 0, 0.15);
             border: 2px solid #FFD700;
             color: #FFD700;
-            font-size: 1.1em; /* Ridotto per testo più lungo */
-            border-radius: 8px; /* Ridotto */
+            font-size: 1.1em;
+            border-radius: 8px;
             cursor: pointer;
             user-select: none;
             box-shadow: 0 0 4px #FFD700, 0 0 8px #FFD700, inset 0 0 4px rgba(255,215,0,0.5);
@@ -159,19 +142,19 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            padding: 5px; /* Aggiunto padding interno */
+            padding: 5px;
         }
         .control-btn:active {
             background-color: rgba(255, 215, 0, 0.3);
             box-shadow: 0 0 6px #FFD700, 0 0 12px #FFD700, inset 0 0 6px rgba(255,215,0,0.7);
         }
 
-        #up-btn    { grid-column: 2; grid-row: 1; } 
+        #up-btn    { grid-column: 2; grid-row: 1; }
         #left-btn  { grid-column: 1; grid-row: 2; }
         #right-btn { grid-column: 3; grid-row: 2; }
-        #down-btn  { grid-column: 2; grid-row: 2; } 
-        #drop-btn  { grid-column: 2; grid-row: 3; } 
-        
+        #down-btn  { grid-column: 2; grid-row: 2; }
+        #drop-btn  { grid-column: 2; grid-row: 3; }
+
         .empty-dpad-tl { grid-column: 1; grid-row: 1; visibility: hidden;}
         .empty-dpad-tr { grid-column: 3; grid-row: 1; visibility: hidden;}
         .empty-dpad-bl { grid-column: 1; grid-row: 3; visibility: hidden;}
@@ -179,14 +162,14 @@
 
 
         .home-btn {
-            margin-top: 20px; /* Ridotto */
-            padding: 10px 20px; /* Ridotto */
-            font-size: 1em; /* Ridotto */
-            background-color: rgba(218, 165, 32, 0.3); 
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: rgba(218, 165, 32, 0.3);
             border: 2px solid #DAA520;
             color: #DAA520;
             text-decoration: none;
-            border-radius: 8px; 
+            border-radius: 8px;
             box-shadow: 0 0 4px #DAA520, 0 0 8px #DAA520;
             transition: background-color 0.2s, box-shadow 0.2s;
         }
@@ -194,29 +177,44 @@
             background-color: rgba(218, 165, 32, 0.5);
             box-shadow: 0 0 6px #DAA520, 0 0 12px #DAA520;
         }
-        
+
         /* Media query per layout su schermi piccoli */
-        @media (max-width: 520px) { /* Punto di interruzione basato sulla larghezza del game-area */
+        @media (max-width: 520px) {
+            .game-area {
+                padding: 10px;
+                padding-top: 15px; /* Mantiene un po' di spazio sopra il titolo */
+            }
+            h1 {
+                font-size: 1.8em;
+                margin-bottom: 15px; /* Spazio per l'info panel che si sposta sopra */
+            }
             .main-content {
                 flex-direction: column;
-                align-items: center; /* Centra gli elementi quando sono in colonna */
+                align-items: center;
             }
-            .info-and-next {
-                order: -1; /* Mette info e next prima del canvas se vanno in colonna */
-                width: 100%; /* Occupa tutta la larghezza */
-                flex-direction: row; /* Info e next affiancati */
-                justify-content: space-around; /* Distribuisce lo spazio */
-                align-items: flex-start;
+            .info-and-next { /* Contenitore per info-panel */
+                order: -1; /* Mette info prima del canvas */
+                width: 100%;
+                display: flex;
+                justify-content: center; /* Centra .info-panel al suo interno */
+                margin-bottom: 15px; /* Spazio tra info-panel e canvas */
             }
             .info-panel {
-                 max-width: none; /* Permette al pannello info di espandersi */
-                 flex-basis: 150px; /* Base per flessibilità */
+                 /* Gli stili di base rimangono (colore, ombra, etc) */
+                 flex-direction: row; /* Dispone gli span interni orizzontalmente */
+                 justify-content: space-around; /* Distribuisce gli span */
+                 align-items: center;
+                 width: auto; /* Larghezza basata sul contenuto */
+                 max-width: 95%; /* Limita la larghezza massima del pannello info */
+                 padding: 8px 10px; /* Padding interno del pannello */
+                 flex-wrap: wrap; /* Se gli span sono troppi, vanno a capo */
+                 gap: 10px; /* Spazio tra gli span se vanno a capo */
             }
-            .next-piece-container{
-                 flex-basis: 120px; /* Base per flessibilità */
+            .info-panel span {
+                white-space: nowrap; /* Evita che il testo dello span vada a capo */
             }
-             h1 {
-                font-size: 1.8em;
+            .controls {
+                margin-top: 15px; /* Ridotto spazio sopra i controlli */
             }
         }
 
@@ -235,10 +233,7 @@
                     <span id="lives">Vite: 3</span>
                     <span id="level">Livello: 1</span>
                 </div>
-                <div class="next-piece-container">
-                    <p>Prossimo:</p>
-                    <canvas id="nextCanvas"></canvas>
-                </div>
+                <!-- next-piece-container rimosso -->
             </div>
         </div>
          <div id="messageOverlay" class="message-overlay">
@@ -247,15 +242,15 @@
         </div>
         <div class="controls">
             <div class="empty-dpad-tl"></div>
-            <button id="up-btn" class="control-btn">GIRA</button> 
+            <button id="up-btn" class="control-btn">GIRA</button>
             <div class="empty-dpad-tr"></div>
 
             <button id="left-btn" class="control-btn">◄</button>
-            <button id="down-btn" class="control-btn">▼</button> 
+            <button id="down-btn" class="control-btn">▼</button>
             <button id="right-btn" class="control-btn">►</button>
-            
+
             <div class="empty-dpad-bl"></div>
-            <button id="drop-btn" class="control-btn">CADE</button> 
+            <button id="drop-btn" class="control-btn">CADE</button>
             <div class="empty-dpad-br"></div>
         </div>
         <a href="index.html" class="home-btn">Torna alla Home</a>
@@ -264,55 +259,53 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const nextCanvas = document.getElementById('nextCanvas');
-        const nextCtx = nextCanvas.getContext('2d');
+        // Rimosso nextCanvas e nextCtx
 
         const scoreDisplay = document.getElementById('score');
         const livesDisplay = document.getElementById('lives');
         const levelDisplay = document.getElementById('level');
-        
+
         const messageOverlay = document.getElementById('messageOverlay');
         const messageText = document.getElementById('messageText');
         const restartButton = document.getElementById('restartButton');
 
         const COLS = 10;
         const ROWS = 20;
-        const BLOCK_SIZE = 24; // << RIDOTTO BLOCK_SIZE
-        const NEXT_CANVAS_GRID_SIZE = 4; 
+        const BLOCK_SIZE = 24;
+        // Rimosso NEXT_CANVAS_GRID_SIZE
 
         canvas.width = COLS * BLOCK_SIZE;
         canvas.height = ROWS * BLOCK_SIZE;
-        nextCanvas.width = NEXT_CANVAS_GRID_SIZE * BLOCK_SIZE;
-        nextCanvas.height = NEXT_CANVAS_GRID_SIZE * BLOCK_SIZE;
+        // Rimosse impostazioni dimensioni nextCanvas
 
         const COLORS = [ null, '#FFD700', '#FFFACD', '#FFA500', '#F0E68C', '#DAA520', '#FFFFE0', '#FFBF00' ];
         const SHADOW_COLORS = [ null, '#DAA520', '#F0E68C', '#E69500', '#D8C970', '#B8860B', '#E0DDB0', '#D9A300' ];
 
         const TETROMINOES = {
-            'I': { shape: [[1,1,1,1]], colorIndex: 1 }, 
-            'O': { shape: [[2,2],[2,2]], colorIndex: 2 }, 
-            'T': { shape: [[0,3,0],[3,3,3]], colorIndex: 3 }, 
-            'S': { shape: [[0,4,4],[4,4,0]], colorIndex: 4 }, 
-            'Z': { shape: [[5,5,0],[0,5,5]], colorIndex: 5 }, 
-            'J': { shape: [[6,0,0],[6,6,6]], colorIndex: 6 }, 
-            'L': { shape: [[0,0,7],[7,7,7]], colorIndex: 7 }  
+            'I': { shape: [[1,1,1,1]], colorIndex: 1 },
+            'O': { shape: [[2,2],[2,2]], colorIndex: 2 },
+            'T': { shape: [[0,3,0],[3,3,3]], colorIndex: 3 },
+            'S': { shape: [[0,4,4],[4,4,0]], colorIndex: 4 },
+            'Z': { shape: [[5,5,0],[0,5,5]], colorIndex: 5 },
+            'J': { shape: [[6,0,0],[6,6,6]], colorIndex: 6 },
+            'L': { shape: [[0,0,7],[7,7,7]], colorIndex: 7 }
         };
         const PIECE_KEYS = 'IOTZSLJ';
 
         let board = createBoard();
         let currentPiece;
-        let nextPiece;
+        let nextPiece; // Variabile ancora necessaria per la logica di gioco
         let score;
         let lives;
         let level;
         let dropCounter;
-        let dropInterval; 
+        let dropInterval;
         let gameRunning;
         let gamePausedForMessage = false;
 
         const initialLives = 3;
-        const initialDropInterval = 1000; 
-        const levelSpeedIncrease = 100; 
+        const initialDropInterval = 1000;
+        const levelSpeedIncrease = 100;
 
         function createBoard() {
             return Array.from({ length: ROWS }, () => Array(COLS).fill(0));
@@ -323,10 +316,10 @@
             const key = PIECE_KEYS[rand];
             const pieceData = TETROMINOES[key];
             return {
-                shape: pieceData.shape.map(row => row.slice()), 
+                shape: pieceData.shape.map(row => row.slice()),
                 colorIndex: pieceData.colorIndex,
                 x: Math.floor(COLS / 2) - Math.floor(pieceData.shape[0].length / 2),
-                y: 0  // Per i pezzi a T,S,Z,J,L a volte iniziano parzialmente fuori se y=-1
+                y: 0
             };
         }
 
@@ -334,22 +327,22 @@
             if (colorIndex === 0) return;
             ctxInstance.fillStyle = COLORS[colorIndex];
             if (isGhost) {
-                ctxInstance.globalAlpha = 0.25; // Più trasparente
+                ctxInstance.globalAlpha = 0.25;
                 ctxInstance.strokeStyle = COLORS[colorIndex];
-                ctxInstance.lineWidth = 1; // Bordo più sottile per ghost
-                ctxInstance.strokeRect(x * bs + 0.5, y * bs + 0.5, bs -1, bs -1); // Leggermente indentato
+                ctxInstance.lineWidth = 1;
+                ctxInstance.strokeRect(x * bs + 0.5, y * bs + 0.5, bs -1, bs -1);
             } else {
                 ctxInstance.globalAlpha = 1.0;
                 ctxInstance.shadowColor = SHADOW_COLORS[colorIndex];
-                ctxInstance.shadowBlur = 6; // Ridotto blur
+                ctxInstance.shadowBlur = 6;
                 ctxInstance.fillRect(x * bs, y * bs, bs, bs);
-                
+
                 ctxInstance.shadowBlur = 0;
-                ctxInstance.strokeStyle = 'rgba(0,0,0,0.2)'; // Bordo più leggero
+                ctxInstance.strokeStyle = 'rgba(0,0,0,0.2)';
                 ctxInstance.lineWidth = 1;
-                ctxInstance.strokeRect(x * bs + 0.5, y * bs + 0.5, bs-1, bs-1); // Aggiunge un bordo interno
+                ctxInstance.strokeRect(x * bs + 0.5, y * bs + 0.5, bs-1, bs-1);
             }
-             ctxInstance.globalAlpha = 1.0; 
+             ctxInstance.globalAlpha = 1.0;
         }
 
         function drawBoard() {
@@ -361,34 +354,25 @@
                 });
             });
         }
-        
-        // MODIFICATA: drawPiece per gestire correttamente il disegno su nextCtx
+
+        // drawPiece ora usa solo ctx per il tabellone principale
         function drawPiece(piece, ctxInstance = ctx, customOffsetX = 0, customOffsetY = 0, bs = BLOCK_SIZE) {
-            piece.shape.forEach((row, yRel) => { // yRel è y relativa alla forma del pezzo
-                row.forEach((value, xRel) => { // xRel è x relativa alla forma del pezzo
+            piece.shape.forEach((row, yRel) => {
+                row.forEach((value, xRel) => {
                     if (value !== 0) {
-                        let drawX, drawY;
-                        if (ctxInstance === nextCtx) {
-                            // Per nextCanvas, le coordinate sono relative all'angolo del nextCanvas + customOffset
-                            drawX = xRel + customOffsetX;
-                            drawY = yRel + customOffsetY;
-                        } else {
-                            // Per il canvas principale, le coordinate sono quelle del pezzo sul tabellone
-                            // customOffsetX e Y non vengono usati qui, ma passati come 0 di default
-                            drawX = piece.x + xRel; 
-                            drawY = piece.y + yRel; 
-                        }
+                        // Disegna solo sul canvas principale
+                        let drawX = piece.x + xRel;
+                        let drawY = piece.y + yRel;
                         drawBlock(ctxInstance, drawX, drawY, piece.colorIndex, bs);
                     }
                 });
             });
         }
-        
+
         function drawGhostPiece() {
-            if (!currentPiece || !gameRunning) return; // Non disegnare se non c'è pezzo o gioco non attivo
+            if (!currentPiece || !gameRunning) return;
             let ghostY = currentPiece.y;
-            // Crea una copia temporanea del pezzo per non modificarne la y originale
-            const ghostPieceShape = currentPiece.shape; 
+            const ghostPieceShape = currentPiece.shape;
             const ghostPieceX = currentPiece.x;
 
             while (isValidMove(ghostPieceShape, ghostPieceX, ghostY + 1)) {
@@ -403,28 +387,17 @@
             });
         }
 
+        // Rimossa la funzione drawNextPiece()
 
-        function drawNextPiece() {
-            nextCtx.fillStyle = 'rgba(42, 31, 23, 0.8)'; // Sfondo canvas next come da CSS
-            nextCtx.fillRect(0, 0, nextCanvas.width, nextCanvas.height);
-            if (nextPiece && nextPiece.shape) { // Assicurati che nextPiece e la sua forma esistano
-                const shape = nextPiece.shape;
-                const offsetX = Math.floor((NEXT_CANVAS_GRID_SIZE - shape[0].length) / 2);
-                const offsetY = Math.floor((NEXT_CANVAS_GRID_SIZE - shape.length) / 2);
-                // Chiama drawPiece con customOffsetX e customOffsetY specifici per nextCtx
-                drawPiece(nextPiece, nextCtx, offsetX, offsetY, BLOCK_SIZE); 
-            }
-        }
-        
         function clearCanvas() {
-            ctx.fillStyle = '#2a1f17'; 
+            ctx.fillStyle = '#2a1f17';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        function update() { 
+        function update() {
             if (!gameRunning || gamePausedForMessage) return;
-            
-            dropCounter += (performance.now() - lastTime); 
+
+            dropCounter += (performance.now() - lastTime);
             lastTime = performance.now();
 
             if (dropCounter > dropInterval) {
@@ -456,9 +429,9 @@
                     currentPiece.x += 1; currentPiece.shape = rotated;
                 } else if (isValidMove(rotated, currentPiece.x - 1, currentPiece.y)) {
                     currentPiece.x -= 1; currentPiece.shape = rotated;
-                } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x - 2, currentPiece.y)) { 
+                } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x - 2, currentPiece.y)) {
                     currentPiece.x -= 2; currentPiece.shape = rotated;
-                } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x + 2, currentPiece.y)) { 
+                } else if (currentPiece.shape[0].length > 2 && isValidMove(rotated, currentPiece.x + 2, currentPiece.y)) {
                     currentPiece.x += 2; currentPiece.shape = rotated;
                 }
             }
@@ -472,23 +445,23 @@
                     currentPiece.y++;
                     moved++;
                 }
-                if (moved > 0) score += Math.min(moved, 5); // Punti per hard drop, max 5 per evitare farming
-                solidifyPiece(); 
-            } else { 
+                if (moved > 0) score += Math.min(moved, 5);
+                solidifyPiece();
+            } else {
                 if (isValidMove(currentPiece.shape, currentPiece.x, currentPiece.y + 1)) {
                     currentPiece.y++;
                 } else {
                     solidifyPiece();
                 }
             }
-            dropCounter = 0; 
+            dropCounter = 0;
             updateUI();
         }
 
         function isValidMove(shape, x, y) {
             for (let r = 0; r < shape.length; r++) {
                 for (let c = 0; c < shape[r].length; c++) {
-                    if (shape[r][c] !== 0) { 
+                    if (shape[r][c] !== 0) {
                         let newX = x + c;
                         let newY = y + r;
                         if (newX < 0 || newX >= COLS || newY >= ROWS || (newY >= 0 && board[newY][newX] !== 0) ) {
@@ -501,33 +474,32 @@
         }
 
         function solidifyPiece() {
-            if(!currentPiece) return; // Sicurezza
+            if(!currentPiece) return;
             currentPiece.shape.forEach((row, y) => {
                 row.forEach((value, x) => {
                     if (value !== 0) {
-                        // Verifica se il pezzo è sopra la cima (game over)
-                        if (currentPiece.y + y < 0) { 
-                            handleGameOverCondition(); 
-                            return; // Esce dal loop forEach se game over
+                        if (currentPiece.y + y < 0) {
+                            handleGameOverCondition();
+                            return;
                         }
                         board[currentPiece.y + y][currentPiece.x + x] = currentPiece.colorIndex;
                     }
                 });
             });
 
-            if (!gameRunning) return; // Se handleGameOverCondition ha settato gameRunning a false
+            if (!gameRunning) return;
 
             clearLines();
-            
-            currentPiece = nextPiece;
-            nextPiece = getRandomPiece();
-            drawNextPiece(); // << AGGIORNAMENTO ESPLICITO DELL'ANTEPRIMA
+
+            currentPiece = nextPiece; // nextPiece è stato generato in precedenza
+            nextPiece = getRandomPiece(); // Genera il nuovo "nextPiece" per il ciclo successivo
+            // Non c'è più drawNextPiece()
 
             if (currentPiece && !isValidMove(currentPiece.shape, currentPiece.x, currentPiece.y)) {
-                handleGameOverCondition(); 
+                handleGameOverCondition();
             }
         }
-        
+
         function handleGameOverCondition() {
             gameRunning = false;
             lives--;
@@ -538,18 +510,18 @@
                 showMessage(`Game Over! Formaggio finito! Punteggio: ${score}`, true);
             }
         }
-        
-        function resetBoard() { 
+
+        function resetBoard() {
             hideMessage();
             gamePausedForMessage = false;
             board = createBoard();
-            currentPiece = getRandomPiece(); // Prende il primo pezzo
-            nextPiece = getRandomPiece();    // Prepara il successivo
-            drawNextPiece();                 // Disegna il successivo
+            currentPiece = getRandomPiece();
+            nextPiece = getRandomPiece();
+            // Non c'è più drawNextPiece()
             dropCounter = 0;
             lastTime = performance.now();
             gameRunning = true;
-            if (animationFrameId) cancelAnimationFrame(animationFrameId); // Cancella vecchio loop se esiste
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
             gameLoop();
         }
 
@@ -559,25 +531,25 @@
             for (let r = ROWS - 1; r >= 0; r--) {
                 if (board[r].every(cell => cell !== 0)) {
                     linesCleared++;
-                    board.splice(r, 1); 
-                    board.unshift(Array(COLS).fill(0)); 
-                    r++; 
+                    board.splice(r, 1);
+                    board.unshift(Array(COLS).fill(0));
+                    r++;
                 }
             }
             if (linesCleared > 0) {
                 if (linesCleared === 1) score += 40 * level;
                 else if (linesCleared === 2) score += 100 * level;
                 else if (linesCleared === 3) score += 300 * level;
-                else if (linesCleared >= 4) score += 1200 * level; 
-                
-                let newLevel = Math.floor(score / 800) + 1; // Aumenta livello ogni 800 punti
+                else if (linesCleared >= 4) score += 1200 * level;
+
+                let newLevel = Math.floor(score / 800) + 1;
                 if (newLevel > level) {
                     level = newLevel;
-                    dropInterval = Math.max(150, initialDropInterval - (level -1) * levelSpeedIncrease); 
+                    dropInterval = Math.max(150, initialDropInterval - (level -1) * levelSpeedIncrease);
                 }
             }
         }
-        
+
         function showMessage(text, showRestartBtn = true) {
             messageText.textContent = text;
             restartButton.style.display = showRestartBtn ? 'inline-block' : 'none';
@@ -597,10 +569,10 @@
         }
 
         let lastTime = 0;
-        let animationFrameId = null; // Per poter cancellare il loop
+        let animationFrameId = null;
         function gameLoop(time = 0) {
             if (gamePausedForMessage) {
-                animationFrameId = requestAnimationFrame(gameLoop); 
+                animationFrameId = requestAnimationFrame(gameLoop);
                 return;
             }
             if (!gameRunning) {
@@ -609,15 +581,15 @@
                 return;
             }
 
-            update(); 
-            
+            update();
+
             clearCanvas();
             drawBoard();
             if(currentPiece) {
                 drawGhostPiece();
-                drawPiece(currentPiece); // Usa i parametri di default per il canvas principale
+                drawPiece(currentPiece);
             }
-            
+
             lastTime = time;
             animationFrameId = requestAnimationFrame(gameLoop);
         }
@@ -631,39 +603,39 @@
             level = 1;
             dropInterval = initialDropInterval;
             currentPiece = getRandomPiece();
-            nextPiece = getRandomPiece();
-            drawNextPiece(); // << CHIAMATA ESPLICITA ALL'INIZIO
+            nextPiece = getRandomPiece(); // Prepara il pezzo successivo per la logica interna
+            // Non c'è più drawNextPiece()
             updateUI();
             dropCounter = 0;
             gameRunning = true;
-            lastTime = performance.now(); 
-            if (animationFrameId) cancelAnimationFrame(animationFrameId); // Cancella vecchio loop
+            lastTime = performance.now();
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
             gameLoop();
         }
-        
+
         document.addEventListener('keydown', event => {
-            if (!gameRunning || gamePausedForMessage || !currentPiece) return; // Aggiunto !currentPiece
+            if (!gameRunning || gamePausedForMessage || !currentPiece) return;
             if (event.key === 'ArrowLeft' || event.key === 'a') pieceMove(-1);
             else if (event.key === 'ArrowRight' || event.key === 'd') pieceMove(1);
-            else if (event.key === 'ArrowDown' || event.key === 's') pieceDrop(); 
-            else if (event.key === 'ArrowUp' || event.key === 'w' || event.key === 'x') pieceRotate(); 
-            else if (event.key === ' ') { 
-                 event.preventDefault(); 
+            else if (event.key === 'ArrowDown' || event.key === 's') pieceDrop();
+            else if (event.key === 'ArrowUp' || event.key === 'w' || event.key === 'x') pieceRotate();
+            else if (event.key === ' ') {
+                 event.preventDefault();
                  pieceDrop(true);
             }
         });
 
         document.getElementById('left-btn').addEventListener('click', () => pieceMove(-1));
         document.getElementById('right-btn').addEventListener('click', () => pieceMove(1));
-        document.getElementById('down-btn').addEventListener('click', () => pieceDrop()); 
-        document.getElementById('up-btn').addEventListener('click', () => pieceRotate()); 
-        document.getElementById('drop-btn').addEventListener('click', () => pieceDrop(true)); 
-        
+        document.getElementById('down-btn').addEventListener('click', () => pieceDrop());
+        document.getElementById('up-btn').addEventListener('click', () => pieceRotate());
+        document.getElementById('drop-btn').addEventListener('click', () => pieceDrop(true));
+
         restartButton.addEventListener('click', () => {
-            if (lives > 0 && !gameRunning) { 
-                resetBoard(); 
-            } else if (lives <= 0) { 
-                initGame(); 
+            if (lives > 0 && !gameRunning) {
+                resetBoard();
+            } else if (lives <= 0) {
+                initGame();
             }
         });
 

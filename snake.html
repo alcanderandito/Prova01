@@ -1,1 +1,471 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake ai Due Mori</title>
+    <style>
+        body {
+            background-color: #0a0a1f; /* Sfondo scuro per effetto neon */
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 10px;
+            box-sizing: border-box;
+            overflow-x: hidden; /* Previene scroll orizzontale su mobile */
+        }
 
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(10, 10, 31, 0.8); /* Sfondo container leggermente trasparente */
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff; /* Ombra neon magenta */
+        }
+
+        h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: #00ffff; /* Ciano neon */
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
+            text-align: center;
+        }
+
+        .info-panel {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 400px; /* Larghezza canvas */
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .info-panel span {
+            color: #f0f; /* Magenta neon per testo info */
+            text-shadow: 0 0 3px #f0f, 0 0 5px #f0f, 0 0 7px #f0f;
+        }
+
+        #gameCanvas {
+            border: 3px solid #00ff00; /* Verde neon per bordo canvas */
+            box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+            background-color: #000500; /* Sfondo canvas molto scuro */
+            border-radius: 5px;
+        }
+        
+        .message-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.7);
+            color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none; /* Nascosto di default */
+            z-index: 100;
+            font-size: 1.5em;
+            box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+        }
+        .message-overlay button {
+            margin-top: 15px;
+        }
+
+
+        .controls {
+            margin-top: 20px;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 10px;
+            width: 180px;
+            height: 180px;
+        }
+
+        .control-btn {
+            background-color: rgba(0, 255, 255, 0.1); /* Ciano neon trasparente */
+            border: 2px solid #00ffff;
+            color: #00ffff;
+            font-size: 2em;
+            border-radius: 10px;
+            cursor: pointer;
+            user-select: none; /* Impedisce la selezione del testo sui bottoni */
+            box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .control-btn:active {
+            background-color: rgba(0, 255, 255, 0.3);
+            box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7);
+        }
+
+        #up-btn    { grid-column: 2; grid-row: 1; }
+        #left-btn  { grid-column: 1; grid-row: 2; }
+        #right-btn { grid-column: 3; grid-row: 2; }
+        #down-btn  { grid-column: 2; grid-row: 3; }
+        
+        /* Nasconde il centro del D-pad */
+        .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
+
+
+        .home-btn {
+            margin-top: 25px;
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: rgba(255, 0, 255, 0.2); /* Magenta neon trasparente */
+            border: 2px solid #ff00ff;
+            color: #ff00ff;
+            text-decoration: none;
+            border-radius: 8px;
+            box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+            transition: background-color 0.2s, box-shadow 0.2s;
+        }
+        .home-btn:hover, .home-btn:active {
+            background-color: rgba(255, 0, 255, 0.4);
+            box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Snake ai Due Mori</h1>
+        <div class="info-panel">
+            <span id="lives">Vite: 5</span>
+            <span id="score">Score: 0</span>
+        </div>
+        <canvas id="gameCanvas"></canvas>
+        <div id="messageOverlay" class="message-overlay">
+            <p id="messageText"></p>
+            <button id="restartButton" class="control-btn" style="font-size: 1em; padding:10px;">Ricomincia</button>
+        </div>
+        <div class="controls">
+            <div></div> <!-- Placeholder for grid -->
+            <button id="up-btn" class="control-btn">▲</button>
+            <div></div> <!-- Placeholder for grid -->
+            <button id="left-btn" class="control-btn">◄</button>
+            <div class="center-fill"></div>
+            <button id="right-btn" class="control-btn">►</button>
+            <div></div> <!-- Placeholder for grid -->
+            <button id="down-btn" class="control-btn">▼</button>
+            <div></div> <!-- Placeholder for grid -->
+        </div>
+        <a href="index.html" class="home-btn">Torna alla Home</a>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const livesDisplay = document.getElementById('lives');
+        const scoreDisplay = document.getElementById('score');
+        
+        const messageOverlay = document.getElementById('messageOverlay');
+        const messageText = document.getElementById('messageText');
+        const restartButton = document.getElementById('restartButton');
+
+        const gridSize = 20; // Numero di celle
+        const canvasSize = 400; // Dimensione fissa del canvas
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        const tileSize = canvas.width / gridSize;
+
+        let snake;
+        let food;
+        let dx = tileSize; // Movimento orizzontale iniziale
+        let dy = 0;       // Movimento verticale iniziale
+        let score;
+        let lives;
+        let gameRunning;
+        let changingDirection; // Previene inversioni di 180° istantanee
+        let gamePausedForMessage = false;
+
+        const foodEmojis = ['🍎', '🍓', '🍒', '🍉', '🍇', '🍌', '🥭', '🍍', '🍑', '🥝', '🍕', '🍔', '🍟', '🍩', '🍪'];
+        let currentFoodEmoji;
+
+        let lastFrameTime = 0;
+        const initialFrameInterval = 180; // Millisecondi, velocità iniziale del serpente
+        let frameInterval = initialFrameInterval; 
+
+        // Elementi D-pad
+        const upBtn = document.getElementById('up-btn');
+        const downBtn = document.getElementById('down-btn');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+
+        function getRandomFoodEmoji() {
+            return foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
+        }
+
+        function initSnake() {
+            snake = [
+                { x: tileSize * Math.floor(gridSize / 2), y: tileSize * Math.floor(gridSize / 2) },
+                { x: tileSize * (Math.floor(gridSize / 2) - 1), y: tileSize * Math.floor(gridSize / 2) },
+                { x: tileSize * (Math.floor(gridSize / 2) - 2), y: tileSize * Math.floor(gridSize / 2) }
+            ];
+            dx = tileSize;
+            dy = 0;
+            frameInterval = initialFrameInterval; // Reset speed
+        }
+
+        function spawnFood() {
+            currentFoodEmoji = getRandomFoodEmoji();
+            food = {
+                x: Math.floor(Math.random() * gridSize) * tileSize,
+                y: Math.floor(Math.random() * gridSize) * tileSize
+            };
+            // Assicura che il cibo non spawni sul serpente
+            snake.forEach(part => {
+                if (part.x === food.x && part.y === food.y) {
+                    spawnFood();
+                }
+            });
+        }
+
+        function initGame() {
+            hideMessage();
+            gamePausedForMessage = false;
+            score = 0;
+            lives = 5;
+            initSnake();
+            spawnFood();
+            updateUI();
+            gameRunning = true;
+            changingDirection = false;
+            lastFrameTime = 0; // Reset lastFrameTime
+            gameLoop();
+        }
+        
+        function resetLevel() {
+            hideMessage();
+            gamePausedForMessage = false;
+            initSnake();
+            spawnFood(); // Potrebbe essere necessario un nuovo cibo
+            updateUI();
+            gameRunning = true;
+            changingDirection = false;
+            lastFrameTime = 0; 
+            gameLoop();
+        }
+
+        function drawSnakePart(part, index) {
+            const isHead = index === 0;
+            // Effetto Neon per il serpente
+            ctx.shadowColor = '#00ff00'; // Verde neon
+            ctx.shadowBlur = isHead ? 15 : 10;
+            ctx.fillStyle = isHead ? '#33ff33' : '#00cc00'; // Testa leggermente più brillante
+            
+            ctx.fillRect(part.x, part.y, tileSize, tileSize);
+            ctx.strokeStyle = '#003300'; // Bordo scuro per definizione
+            ctx.strokeRect(part.x, part.y, tileSize, tileSize);
+
+            // Occhi sulla testa (semplici)
+            if (isHead) {
+                ctx.fillStyle = '#000'; // Pupille nere
+                ctx.shadowBlur = 0; // No glow per gli occhi
+                let eye1X, eye1Y, eye2X, eye2Y;
+                const eyeSize = tileSize / 5;
+
+                if (dx > 0) { // Destra
+                    eye1X = part.x + tileSize * 0.7 - eyeSize / 2; eye1Y = part.y + tileSize * 0.2 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.7 - eyeSize / 2; eye2Y = part.y + tileSize * 0.8 - eyeSize / 2;
+                } else if (dx < 0) { // Sinistra
+                    eye1X = part.x + tileSize * 0.3 - eyeSize / 2; eye1Y = part.y + tileSize * 0.2 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.3 - eyeSize / 2; eye2Y = part.y + tileSize * 0.8 - eyeSize / 2;
+                } else if (dy > 0) { // Giù
+                    eye1X = part.x + tileSize * 0.2 - eyeSize / 2; eye1Y = part.y + tileSize * 0.7 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.8 - eyeSize / 2; eye2Y = part.y + tileSize * 0.7 - eyeSize / 2;
+                } else { // Su
+                    eye1X = part.x + tileSize * 0.2 - eyeSize / 2; eye1Y = part.y + tileSize * 0.3 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.8 - eyeSize / 2; eye2Y = part.y + tileSize * 0.3 - eyeSize / 2;
+                }
+                ctx.fillRect(eye1X, eye1Y, eyeSize, eyeSize);
+                ctx.fillRect(eye2X, eye2Y, eyeSize, eyeSize);
+            }
+             // Reset shadow per altri disegni
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        function drawSnake() {
+            snake.forEach(drawSnakePart);
+        }
+
+        function drawFood() {
+            ctx.font = `${tileSize * 0.8}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            
+            // Effetto Neon per il cibo (emoji)
+            // L'emoji stesso non prende shadow, ma possiamo dargli uno sfondo luminoso o un'aura
+            // Qui usiamo una shadow generica per il testo
+            ctx.shadowColor = '#ffcc00'; // Giallo/Arancio neon
+            ctx.shadowBlur = 8;
+            ctx.fillStyle = '#fff'; // L'emoji sarà il suo colore, ma la shadow dà l'effetto
+
+            ctx.fillText(currentFoodEmoji, food.x + tileSize / 2, food.y + tileSize / 2 + tileSize*0.05); // Aggiustamento per centrare meglio emoji
+
+            // Reset shadow
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        function updateSnake() {
+            if (!gameRunning) return;
+
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            // Attraversamento muri
+            if (head.x >= canvas.width) head.x = 0;
+            if (head.x < 0) head.x = canvas.width - tileSize;
+            if (head.y >= canvas.height) head.y = 0;
+            if (head.y < 0) head.y = canvas.height - tileSize;
+
+            snake.unshift(head); // Aggiunge la nuova testa
+
+            // Controlla se ha mangiato il cibo
+            const ateFood = head.x === food.x && head.y === food.y;
+            if (ateFood) {
+                score += 10;
+                spawnFood();
+                // Aumenta la velocità leggermente con il punteggio
+                if (score % 50 === 0 && frameInterval > 80) { // Non troppo veloce
+                    frameInterval -= 10;
+                }
+            } else {
+                snake.pop(); // Rimuove la coda se non ha mangiato
+            }
+
+            checkCollision();
+        }
+        
+        function showMessage(text, showRestartBtn = true) {
+            messageText.textContent = text;
+            restartButton.style.display = showRestartBtn ? 'inline-block' : 'none';
+            messageOverlay.style.display = 'flex';
+            gamePausedForMessage = true;
+        }
+
+        function hideMessage() {
+            messageOverlay.style.display = 'none';
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            // Collisione con se stesso
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    handleDeath();
+                    return;
+                }
+            }
+        }
+        
+        function handleDeath() {
+            gameRunning = false;
+            lives--;
+            if (lives > 0) {
+                showMessage(`Hai perso una vita! Vite: ${lives}`, true);
+                // resetLevel() sarà chiamato dal bottone o dopo un timeout
+            } else {
+                gameOver();
+            }
+            updateUI();
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            showMessage(`Game Over! Punteggio: ${score}`, true);
+        }
+
+
+        function clearCanvas() {
+            // Sfondo scuro con leggero glow ai bordi interni per profondità
+            ctx.shadowColor = "rgba(0, 255, 0, 0.3)"; // Verde neon leggero
+            ctx.shadowBlur = 20;
+            ctx.fillStyle = '#000500'; // Sfondo canvas molto scuro
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        function updateUI() {
+            scoreDisplay.textContent = `Score: ${score}`;
+            livesDisplay.textContent = `Vite: ${lives}`;
+        }
+
+        function changeDirection(event) {
+            if (changingDirection || !gameRunning) return;
+            changingDirection = true;
+
+            const keyPressed = event.key; // Per tastiera
+            const buttonId = event.target ? event.target.id : null; // Per D-pad
+
+            const goingUp = dy === -tileSize;
+            const goingDown = dy === tileSize;
+            const goingLeft = dx === -tileSize;
+            const goingRight = dx === tileSize;
+
+            if ((keyPressed === 'ArrowUp' || buttonId === 'up-btn') && !goingDown) {
+                dx = 0; dy = -tileSize;
+            } else if ((keyPressed === 'ArrowDown' || buttonId === 'down-btn') && !goingUp) {
+                dx = 0; dy = tileSize;
+            } else if ((keyPressed === 'ArrowLeft' || buttonId === 'left-btn') && !goingRight) {
+                dx = -tileSize; dy = 0;
+            } else if ((keyPressed === 'ArrowRight' || buttonId === 'right-btn') && !goingLeft) {
+                dx = tileSize; dy = 0;
+            } else {
+                changingDirection = false; // Non era una mossa valida o nessuna mossa
+            }
+        }
+
+        function gameLoop(currentTime) {
+            if (gamePausedForMessage) return; // Non esegue il loop se il messaggio è attivo
+            if (!gameRunning) {
+                 // Se il gioco non è in esecuzione (es. dopo game over e prima di restart)
+                 // si potrebbe disegnare lo stato finale o un messaggio sul canvas qui
+                 // ma per ora lo gestiamo con l'overlay HTML
+                return;
+            }
+
+            const deltaTime = currentTime - lastFrameTime;
+
+            if (deltaTime > frameInterval) {
+                lastFrameTime = currentTime;
+                changingDirection = false; // Permetti nuovo input di direzione
+
+                clearCanvas();
+                drawFood(); // Disegna il cibo prima del serpente
+                updateSnake(); // Aggiorna la logica del serpente (movimento, collisioni)
+                drawSnake();   // Disegna il serpente
+                updateUI();    // Aggiorna punteggio e vite
+            }
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Event Listeners
+        document.addEventListener('keydown', changeDirection);
+        upBtn.addEventListener('click', changeDirection);
+        downBtn.addEventListener('click', changeDirection);
+        leftBtn.addEventListener('click', changeDirection);
+        rightBtn.addEventListener('click', changeDirection);
+        
+        restartButton.addEventListener('click', () => {
+            if (lives > 0) {
+                resetLevel();
+            } else {
+                initGame(); // Ricomincia il gioco da zero se game over
+            }
+        });
+
+        // Inizia il gioco
+        initGame();
+
+    </script>
+</body>
+</html>

@@ -1,88 +1,509 @@
-        /* ... (CSS per body, game-container, h1, info-panel rimane simile) ... */
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Snake ai Due Mori</title>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            overflow-x: hidden;
+        }
+        body {
+            background-color: #0a0a1f;
+            color: #fff;
+            font-family: 'Arial', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center; /* Centra .game-container su desktop */
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .game-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: rgba(10, 10, 31, 0.85);
+            box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
+            border-radius: 15px;
+            width: 100%;
+            max-width: 480px;
+            padding: 20px 10px; /* Default padding (verticale, orizzontale), orizzontale ridotto */
+            box-sizing: border-box;
+        }
+
+        h1 {
+            font-size: 2.2em; margin-bottom: 15px; color: #00ffff;
+            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff;
+            text-align: center; flex-shrink: 0;
+        }
+
+        .info-panel {
+            display: flex; justify-content: space-around; width: 100%; max-width: 360px;
+            margin-bottom: 15px; font-size: 1.1em; flex-shrink: 0;
+        }
+        .info-panel span { color: #f0f; text-shadow: 0 0 3px #f0f, 0 0 5px #f0f; }
 
         .canvas-position-anchor {
-            position: relative; /* Fondamentale per il posizionamento assoluto dei controlli */
-            /* La larghezza sarà determinata dal canvas al suo interno */
-            /* Aggiungeremo padding-bottom per fare spazio ai controlli posizionati assolutamente */
-            /* La sua larghezza sarà quella del canvas.
-               Viene centrato da align-items:center del game-container. */
+            position: relative; /* Per posizionamento assoluto dei .controls */
+            /* La larghezza sarà quella del canvas. Centrato da align-items:center del .game-container. */
+            /* Altezza e padding-bottom gestiti nelle media query per fare spazio ai controlli */
             flex-shrink: 0;
+            /* Aggiungiamo una larghezza esplicita per coerenza con il canvas se necessario,
+               ma dovrebbe adattarsi al canvas figlio block. */
+             width: 240px; /* Esattamente la larghezza del canvas (12 * 20) */
+             margin-left: auto; /* Centra l'ancora se .game-container fosse più largo */
+             margin-right: auto;
         }
 
         #gameCanvas {
-            /* ... (stili esistenti per bordo, ombra, sfondo) ... */
-            display: block; /* Per evitare spazio extra sotto se fosse inline */
-            /* Non servono margini auto se il genitore .canvas-position-anchor è centrato
-               e il canvas ne occupa la larghezza (o il wrapper si adatta al canvas) */
+            border: 2px solid #00ff00; box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
+            background-color: #000500; border-radius: 4px;
+            display: block; /* Rimuove eventuale spazio extra sotto */
+            /* Dimensioni da JS (width: 240px, height: 240px) */
         }
+
+        .message-overlay {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            background-color: rgba(0,0,0,0.9); color: #fff; padding: 20px; border-radius: 10px;
+            text-align: center; z-index: 100; font-size: 1.2em; box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+            display: none; flex-direction: column; align-items: center; justify-content: center;
+            gap: 15px; min-width: 250px; max-width: 90%;
+        }
+        .message-overlay p { margin: 0; line-height: 1.4; }
+        .message-overlay button { margin-top: 0; font-size: 0.7em !important; padding: 10px 18px !important; }
 
         .controls {
             position: absolute;
             left: 50%;
             transform: translateX(-50%);
-            /* Posizionamento verticale sotto il canvas: */
-            top: 100%; /* Inizia subito dopo la fine del .canvas-position-anchor (cioè il canvas) */
+            top: 100%; /* Subito dopo la fine del .canvas-position-anchor (cioè il canvas) */
             margin-top: 15px; /* Spazio desiderato tra canvas e controlli */
 
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 8px;
-            width: 166px;  /* Larghezza che non dovrebbe tagliare il pulsante destro */
-            height: 166px; /* Mantenuto proporzionale */
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+            gap: 8px; width: 166px; height: 166px; /* Dimensioni che non dovrebbero tagliare i bottoni */
             box-sizing: border-box;
-            /* Non più margin-left/right: auto qui perché il posizionamento assoluto gestisce la centratura */
         }
+        .control-btn {
+            background-color: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff; color: #00ffff;
+            font-size: 2.5em; /* Grandi per comodità */
+            border-radius: 12px; cursor: pointer; user-select: none;
+            box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
+            transition: background-color 0.2s, box-shadow 0.2s;
+            display: flex; align-items: center; justify-content: center; box-sizing: border-box;
+        }
+        .control-btn:active { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7); }
 
-        /* Nelle Media Query, dobbiamo gestire il padding-bottom del .canvas-position-anchor */
+        #up-btn    { grid-column: 2; grid-row: 1; }
+        #left-btn  { grid-column: 1; grid-row: 2; }
+        #right-btn { grid-column: 3; grid-row: 2; }
+        #down-btn  { grid-column: 2; grid-row: 3; }
+        .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
+
+        .home-btn {
+            padding: 10px 20px; font-size: 1em;
+            background-color: rgba(255, 0, 255, 0.2); border: 2px solid #ff00ff; color: #ff00ff;
+            text-decoration: none; border-radius: 8px;
+            box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
+            transition: background-color 0.2s, box-shadow 0.2s;
+            /* margin-top gestito da space-around o nella media query per schermi bassi */
+            flex-shrink: 0;
+        }
+        .home-btn:hover, .home-btn:active { background-color: rgba(255, 0, 255, 0.4); box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; }
+
+
+        /* Media Query per Tablet (Portrait e Landscape più piccoli) e Cellulari */
         @media (max-width: 768px) {
-            /* ... (stili per body, game-container, h1, info-panel) ... */
-            /* justify-content: space-around su .game-container per distribuire:
-               h1, info-panel, canvas-position-anchor, home-btn */
+            body {
+                justify-content: flex-start;
+                padding: 5px;
+            }
+            .game-container {
+                min-height: calc(100vh - 10px);
+                justify-content: space-around;
+                padding: 15px 10px;
+            }
+            h1 { font-size: 1.8em; margin-top: 0; margin-bottom: 0; }
+            .info-panel { font-size: 1em; max-width: 300px; margin-top: 0; margin-bottom: 0; }
 
             .canvas-position-anchor {
-                /* Calcola padding-bottom = altezza controlli + margine sopra controlli + un po' di respiro extra */
-                /* Altezza controlli (166px) + margin-top controlli (15px) = 181px.  Aggiungiamo un po' per sicurezza. */
-                padding-bottom: 190px; /* SPAZIO PER I CONTROLLI ASSOLUTI SOTTO */
-                margin-top: 0; /* space-around gestisce lo spazio sopra l'ancora */
-                margin-bottom: 0; /* space-around gestisce lo spazio sotto l'ancora (prima del home-btn) */
+                /* padding-bottom = altezza controlli (166px) + margin-top controlli (15px) = 181px.
+                   Diamo un po' di più per sicurezza e per separare dal home-btn se space-around non basta. */
+                padding-bottom: calc(166px + 15px); /* Spazio ESATTO per i controlli */
+                margin-top: 0; margin-bottom: 0; /* space-around gestisce lo spazio attorno a questo blocco */
             }
+            /* Non è necessario re-definire .controls e .control-btn qui se le versioni default
+               (width: 166px, font-size: 2.5em etc.) sono quelle desiderate per questa media query.
+               Le regole di .controls (position:absolute etc) sono già definite sopra. */
 
-            .controls {
-                width: 166px; height: 166px; gap: 8px;
-                margin-top: 15px; /* Spazio sotto il canvas */
-                /* position, left, transform ereditati */
-            }
-            .control-btn { font-size: 2.5em; border-radius: 12px; }
-
-            .home-btn {
-                /* ... (stili esistenti per home-btn) ... */
-                /* margin-top sarà gestito da space-around rispetto al .canvas-position-anchor */
-            }
+            .home-btn { margin-top: 0; margin-bottom: 0; }
         }
 
-        @media (max-height: 680px) and (max-width: 768px) { /* Breakpoint altezza modificato per più granularità */
-            /* Su schermi molto bassi, il posizionamento assoluto potrebbe diventare problematico se non c'è abbastanza spazio.
-               Potremmo dover tornare a un flusso normale o ridurre drasticamente.
-               Per ora, tentiamo di mantenere la logica, ma con dimensioni ridotte. */
-            .game-container{
-                justify-content: center; /* Per evitare che space-around faccia casini */
-                 min-height: auto; /* Lascia che il contenuto definisca l'altezza */
+        /* Media Query per schermi molto bassi */
+        @media (max-height: 680px) and (max-width: 768px) { /* Breakpoint altezza leggermente più generoso */
+             .game-container {
+                justify-content: center;
+                min-height: auto;
+                padding-top: 10px; padding-bottom: 10px;
             }
-             h1 { font-size: 1.6em; margin-bottom: 10px; }
+            h1 { font-size: 1.6em; margin-bottom: 10px; }
             .info-panel { font-size: 0.9em; margin-bottom: 10px; }
 
             .canvas-position-anchor {
-                /* Altezza controlli (146px) + margin-top (10px) = 156px.  */
-                padding-bottom: 165px; /* Spazio per controlli più piccoli */
-                margin-top: 10px; /* Spazio sopra l'ancora */
-                margin-bottom: 10px; /* Spazio sotto l'ancora */
-
+                /* padding-bottom = altezza controlli (146px) + margin-top (10px) = 156px */
+                padding-bottom: calc(146px + 10px);
+                margin-top: 10px;
+                margin-bottom: 10px;
+                 width: 240px; /* Ripetuto per specificità se necessario */
             }
             .controls {
                 width: 146px; height: 146px; gap: 6px;
                 margin-top: 10px; /* Spazio sotto il canvas */
             }
             .control-btn { font-size: 2.0em; border-radius: 10px; }
-            .home-btn { margin-top: 15px; /* Spazio sopra il pulsante home */ }
+            .home-btn { font-size: 0.9em; padding: 8px 15px; margin-top: 15px; }
         }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h1>Snake ai Due Mori</h1>
+        <div class="info-panel">
+            <span id="lives">Vite: 5</span>
+            <span id="score">Score: 0</span>
+        </div>
+
+        <div class="canvas-position-anchor">
+            <canvas id="gameCanvas"></canvas>
+            <div class="controls">
+                <div></div> <button id="up-btn" class="control-btn">▲</button> <div></div>
+                <button id="left-btn" class="control-btn">◄</button> <div class="center-fill"></div> <button id="right-btn" class="control-btn">►</button>
+                <div></div> <button id="down-btn" class="control-btn">▼</button> <div></div>
+            </div>
+        </div>
+
+        <div id="messageOverlay" class="message-overlay">
+            <p id="messageText"></p>
+            <button id="restartButton" class="control-btn">Ricomincia</button>
+        </div>
+        <a href="index.html" class="home-btn">Torna alla Home</a>
+    </div>
+
+    <script>
+        // JavaScript rimane invariato
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const livesDisplay = document.getElementById('lives');
+        const scoreDisplay = document.getElementById('score');
+
+        const messageOverlay = document.getElementById('messageOverlay');
+        const messageText = document.getElementById('messageText');
+        const restartButton = document.getElementById('restartButton');
+
+        const gridSize = 20;
+        const tileSize = 12;
+        const canvasSize = gridSize * tileSize; // 240
+
+        canvas.width = canvasSize;
+        canvas.height = canvasSize;
+        // Aggiungiamo la larghezza del canvas come variabile CSS per .canvas-position-anchor
+        // document.documentElement.style.setProperty('--canvas-width', `${canvasSize}px`);
+
+        let snake;
+        let food;
+        let dx = tileSize;
+        let dy = 0;
+        let score;
+        let lives;
+        let gameRunning;
+        let changingDirection;
+        let gamePausedForMessage = false;
+
+        const foodEmojis = [
+            '🍎', '🍓', '🍒', '🍉', '🍇', '🍌', '🥭', '🍍', '🍑', '🥝', '🍕', '🍔', '🍟', '🍩', '🍪',
+            '🍊', '🍋', '🍐', '🥥', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅',
+            '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🥞', '🧇', '🥓', '🥩', '🍗',
+            '🍖', '🌭', '🌮', '🌯', '🥙', '🧆', '🥗', '🍲', '🍜', '🍝', '🍣', '🍱', '🍛', '🍙',
+            '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮',
+            '🍭', '🍬', '🍫', '🍿', '🌰', '🥜', '🍯', '🥛', '☕', '🍵', '🧃', '🥤', '🧋', '🧉'
+        ];
+        let currentFoodEmoji;
+
+        let lastFrameTime = 0;
+        const initialFrameInterval = 180;
+        let frameInterval = initialFrameInterval;
+
+        const upBtn = document.getElementById('up-btn');
+        const downBtn = document.getElementById('down-btn');
+        const leftBtn = document.getElementById('left-btn');
+        const rightBtn = document.getElementById('right-btn');
+
+        function getRandomFoodEmoji() {
+            return foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
+        }
+
+        function initSnake() {
+            snake = [
+                { x: tileSize * Math.floor(gridSize / 2), y: tileSize * Math.floor(gridSize / 2) },
+                { x: tileSize * (Math.floor(gridSize / 2) - 1), y: tileSize * Math.floor(gridSize / 2) },
+                { x: tileSize * (Math.floor(gridSize / 2) - 2), y: tileSize * Math.floor(gridSize / 2) }
+            ];
+            dx = tileSize;
+            dy = 0;
+            frameInterval = initialFrameInterval;
+        }
+
+        function spawnFood() {
+            currentFoodEmoji = getRandomFoodEmoji();
+            food = {
+                x: Math.floor(Math.random() * gridSize) * tileSize,
+                y: Math.floor(Math.random() * gridSize) * tileSize
+            };
+            snake.forEach(part => {
+                if (part.x === food.x && part.y === food.y) {
+                    spawnFood();
+                }
+            });
+        }
+
+        function initGame() {
+            hideMessage();
+            gamePausedForMessage = false;
+            score = 0;
+            lives = 5;
+            initSnake();
+            spawnFood();
+            updateUI();
+            gameRunning = true;
+            changingDirection = false;
+            lastFrameTime = 0;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+        function resetLevel() {
+            hideMessage();
+            gamePausedForMessage = false;
+            initSnake();
+            spawnFood();
+            updateUI();
+            gameRunning = true;
+            changingDirection = false;
+            lastFrameTime = 0;
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            animationFrameId = requestAnimationFrame(gameLoop);
+        }
+
+
+        function drawSnakePart(part, index) {
+            const isHead = index === 0;
+            ctx.shadowColor = '#00ff00';
+            ctx.shadowBlur = isHead ? Math.max(5, tileSize * 0.75) : Math.max(3, tileSize * 0.5);
+            ctx.fillStyle = isHead ? '#33ff33' : '#00cc00';
+
+            ctx.fillRect(part.x, part.y, tileSize, tileSize);
+            ctx.strokeStyle = '#003300';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(part.x + 0.5, part.y + 0.5, tileSize -1, tileSize -1);
+
+
+            if (isHead) {
+                ctx.fillStyle = '#000';
+                ctx.shadowBlur = 0;
+                let eye1X, eye1Y, eye2X, eye2Y;
+                const eyeSize = Math.max(1, tileSize / 5);
+
+                if (dx > 0) {
+                    eye1X = part.x + tileSize * 0.7 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.7 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2;
+                } else if (dx < 0) {
+                    eye1X = part.x + tileSize * 0.3 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.3 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2;
+                } else if (dy > 0) {
+                    eye1X = part.x + tileSize * 0.25 - eyeSize / 2; eye1Y = part.y + tileSize * 0.7 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.75 - eyeSize / 2; eye2Y = part.y + tileSize * 0.7 - eyeSize / 2;
+                } else {
+                    eye1X = part.x + tileSize * 0.25 - eyeSize / 2; eye1Y = part.y + tileSize * 0.3 - eyeSize / 2;
+                    eye2X = part.x + tileSize * 0.75 - eyeSize / 2; eye2Y = part.y + tileSize * 0.3 - eyeSize / 2;
+                }
+                ctx.fillRect(eye1X, eye1Y, eyeSize, eyeSize);
+                ctx.fillRect(eye2X, eye2Y, eyeSize, eyeSize);
+            }
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        function drawSnake() {
+            snake.forEach(drawSnakePart);
+        }
+
+        function drawFood() {
+            const fontSize = Math.max(tileSize, tileSize * 0.8 + 4);
+            ctx.font = `${fontSize}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+
+            ctx.shadowColor = '#ffcc00';
+            ctx.shadowBlur = Math.max(3, tileSize * 0.4);
+            ctx.fillStyle = '#fff';
+
+            ctx.fillText(currentFoodEmoji, food.x + tileSize / 2, food.y + tileSize / 2 + tileSize * 0.1);
+
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        function updateSnake() {
+            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
+
+            if (head.x >= canvasSize) head.x = 0;
+            if (head.x < 0) head.x = canvasSize - tileSize;
+            if (head.y >= canvasSize) head.y = 0;
+            if (head.y < 0) head.y = canvasSize - tileSize;
+
+            snake.unshift(head);
+
+            const ateFood = head.x === food.x && head.y === food.y;
+            if (ateFood) {
+                score += 10;
+                spawnFood();
+                if (score % 50 === 0 && frameInterval > 60) {
+                    frameInterval -= 10;
+                }
+            } else {
+                snake.pop();
+            }
+
+            checkCollision();
+        }
+
+        function showMessage(text, showRestartBtn = true) {
+            messageText.textContent = text;
+            restartButton.style.display = showRestartBtn ? 'inline-block' : 'none';
+            messageOverlay.style.display = 'flex';
+            gamePausedForMessage = true;
+        }
+
+        function hideMessage() {
+            messageOverlay.style.display = 'none';
+        }
+
+        function checkCollision() {
+            const head = snake[0];
+            for (let i = 1; i < snake.length; i++) {
+                if (head.x === snake[i].x && head.y === snake[i].y) {
+                    handleDeath();
+                    return;
+                }
+            }
+        }
+
+        function handleDeath() {
+            lives--;
+            updateUI();
+            if (lives > 0) {
+                gameRunning = false;
+                showMessage(`Hai perso una vita! Vite rimanenti: ${lives}.`, true);
+            } else {
+                gameOver();
+            }
+        }
+
+        function gameOver() {
+            gameRunning = false;
+            showMessage(`Game Over! Punteggio Finale: ${score}.`, true);
+        }
+
+
+        function clearCanvas() {
+            ctx.shadowColor = "rgba(0, 255, 0, 0.2)";
+            ctx.shadowBlur = Math.max(10, tileSize * 0.8);
+            ctx.fillStyle = '#000500';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
+        }
+
+        function updateUI() {
+            scoreDisplay.textContent = `Score: ${score}`;
+            livesDisplay.textContent = `Vite: ${lives}`;
+        }
+
+        function changeDirection(event) {
+            if (changingDirection || !gameRunning || gamePausedForMessage) return;
+            changingDirection = true;
+
+            const keyPressed = event.key;
+            const buttonId = event.target ? event.target.id : null;
+
+            const goingUp = dy === -tileSize;
+            const goingDown = dy === tileSize;
+            const goingLeft = dx === -tileSize;
+            const goingRight = dx === tileSize;
+
+            if ((keyPressed === 'ArrowUp' || buttonId === 'up-btn') && !goingDown) {
+                dx = 0; dy = -tileSize;
+            } else if ((keyPressed === 'ArrowDown' || buttonId === 'down-btn') && !goingUp) {
+                dx = 0; dy = tileSize;
+            } else if ((keyPressed === 'ArrowLeft' || buttonId === 'left-btn') && !goingRight) {
+                dx = -tileSize; dy = 0;
+            } else if ((keyPressed === 'ArrowRight' || buttonId === 'right-btn') && !goingLeft) {
+                dx = tileSize; dy = 0;
+            } else {
+                changingDirection = false;
+            }
+        }
+
+        let animationFrameId = null;
+        function gameLoop(currentTime) {
+            if (gamePausedForMessage) {
+                 animationFrameId = requestAnimationFrame(gameLoop);
+                 return;
+            }
+            if (!gameRunning) {
+                return;
+            }
+
+            const deltaTime = currentTime - lastFrameTime;
+
+            if (deltaTime > frameInterval) {
+                lastFrameTime = currentTime - (deltaTime % frameInterval);
+                changingDirection = false;
+
+                clearCanvas();
+                drawFood();
+                updateSnake();
+                if (gameRunning) {
+                    drawSnake();
+                }
+                updateUI();
+            }
+
+            if(gameRunning) {
+               animationFrameId = requestAnimationFrame(gameLoop);
+            }
+        }
+
+        document.addEventListener('keydown', changeDirection);
+        upBtn.addEventListener('click', changeDirection);
+        downBtn.addEventListener('click', changeDirection);
+        leftBtn.addEventListener('click', changeDirection);
+        rightBtn.addEventListener('click', changeDirection);
+
+        restartButton.addEventListener('click', () => {
+            if (lives > 0) {
+                resetLevel();
+            } else {
+                initGame();
+            }
+        });
+
+        initGame();
+
+    </script>
+</body>
+</html>

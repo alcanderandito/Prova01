@@ -19,51 +19,49 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding: 10px;
+            padding: 10px; /* Margine esterno per schermi piccoli */
             box-sizing: border-box;
         }
 
         .game-container {
             display: flex;
             flex-direction: column;
-            align-items: center;
+            align-items: center; /* Centra orizzontalmente i figli come .canvas-and-controls-wrapper */
             background-color: rgba(10, 10, 31, 0.85);
             box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
             border-radius: 15px;
             width: 100%;
             max-width: 480px;
-            padding: 20px 15px;
+            padding: 20px 10px; /* Default padding (verticale, orizzontale) */
             box-sizing: border-box;
         }
 
         h1 {
-            font-size: 2.2em;
-            margin-bottom: 15px;
-            color: #00ffff;
+            font-size: 2.2em; margin-bottom: 15px; color: #00ffff;
             text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff;
-            text-align: center;
-            flex-shrink: 0;
+            text-align: center; flex-shrink: 0;
         }
 
         .info-panel {
-            display: flex;
-            justify-content: space-around;
-            width: 100%;
-            max-width: 360px;
-            margin-bottom: 15px;
-            font-size: 1.1em;
-            flex-shrink: 0;
+            display: flex; justify-content: space-around; width: 100%; max-width: 360px;
+            margin-bottom: 15px; font-size: 1.1em; flex-shrink: 0;
         }
         .info-panel span { color: #f0f; text-shadow: 0 0 3px #f0f, 0 0 5px #f0f; }
 
+        /* NUOVO WRAPPER PER CANVAS E CONTROLLI */
+        .canvas-and-controls-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center; /* Centra #gameCanvas e .controls al suo interno */
+            /* width: auto; o width: max-content; per adattarsi al canvas. Non specificare width: 100% qui. */
+            /* Se non si specifica, un flex item di un flex container column si adatta alla larghezza del contenuto */
+            flex-shrink: 0;
+        }
+
         #gameCanvas {
-            border: 2px solid #00ff00;
-            box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
-            background-color: #000500;
-            border-radius: 4px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+            border: 2px solid #00ff00; box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
+            background-color: #000500; border-radius: 4px;
+            display: block; /* margin-left/right auto non necessari se il parent (.wrapper) lo centra */
             flex-shrink: 0;
         }
 
@@ -78,26 +76,18 @@
         .message-overlay button { margin-top: 0; font-size: 0.7em !important; padding: 10px 18px !important; }
 
         .controls {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            gap: 8px;
-            width: 160px;
-            height: 160px;
-            margin-left: auto;
-            margin-right: auto;
-            margin-top: 20px;
-            flex-shrink: 0;
-            box-sizing: border-box; /* Aggiunto per sicurezza, anche se il problema è più sul contenuto */
+            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
+            gap: 8px; width: 160px; height: 160px; /* Default - dimensioni adatte a non sforare */
+            margin-left: auto; margin-right: auto; /* Mantenuto per sicurezza */
+            margin-top: 15px; /* Spazio MINIMO tra canvas e controlli dentro il wrapper */
+            flex-shrink: 0; box-sizing: border-box;
         }
         .control-btn {
             background-color: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff; color: #00ffff;
-            font-size: 2.2em;
-            border-radius: 10px; cursor: pointer; user-select: none;
+            font-size: 2.2em; border-radius: 10px; cursor: pointer; user-select: none;
             box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
             transition: background-color 0.2s, box-shadow 0.2s;
-            display: flex; align-items: center; justify-content: center;
-            box-sizing: border-box; /* Assicura che padding e border siano inclusi nella dimensione */
+            display: flex; align-items: center; justify-content: center; box-sizing: border-box;
         }
         .control-btn:active { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7); }
 
@@ -108,13 +98,12 @@
         .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
 
         .home-btn {
-            padding: 8px 18px;
-            font-size: 0.9em;
+            padding: 8px 18px; font-size: 0.9em;
             background-color: rgba(255, 0, 255, 0.2); border: 2px solid #ff00ff; color: #ff00ff;
             text-decoration: none; border-radius: 8px;
             box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
             transition: background-color 0.2s, box-shadow 0.2s;
-            margin-top: 20px;
+            margin-top: 15px; /* Spazio MINIMO sopra il pulsante home */
             flex-shrink: 0;
         }
         .home-btn:hover, .home-btn:active { background-color: rgba(255, 0, 255, 0.4); box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; }
@@ -128,86 +117,77 @@
             }
             .game-container {
                 min-height: calc(100vh - 10px);
-                justify-content: space-around;
+                justify-content: space-around; /* Distribuisce i figli: h1, info, wrapper, home */
                 padding: 15px 10px;
             }
-            h1 {
-                font-size: 1.8em;
-                margin-top: 0;
-                margin-bottom: 0;
-            }
-            .info-panel {
-                font-size: 1em;
-                max-width: 300px;
-                margin-top: 0; margin-bottom: 0;
-            }
+            h1 { font-size: 1.8em; margin-top: 0; margin-bottom: 0; }
+            .info-panel { font-size: 1em; max-width: 300px; margin-top: 0; margin-bottom: 0; }
 
+            .canvas-and-controls-wrapper{
+                margin-top: 0; margin-bottom: 0; /* Lascia che space-around gestisca lo spazio */
+            }
             .controls {
-                width: 166px;  /* VALORE RIDOTTO per evitare overflow laterale */
-                height: 166px; /* Mantenuto proporzionale */
-                gap: 8px;      /* Ridotto leggermente se necessario, ma 10px era OK */
-                margin-top: 0;
+                width: 166px;  /* Larghezza che non dovrebbe tagliare il pulsante destro */
+                height: 166px;
+                gap: 8px;
+                margin-top: 15px; /* Spazio tra canvas e controlli */
             }
-            .control-btn {
-                font-size: 2.5em; /* Mantenuto grande per comodità */
-                border-radius: 12px;
-            }
-            .home-btn {
-                font-size: 1em;
-                padding: 10px 20px;
-                margin-top: 0;
-                margin-bottom: 0;
-            }
+            .control-btn { font-size: 2.5em; border-radius: 12px; }
+            .home-btn { font-size: 1em; padding: 10px 20px; margin-top: 0; margin-bottom: 0; }
         }
 
         /* Media Query per schermi molto bassi */
-        @media (max-height: 600px) and (max-width: 768px) {
+        @media (max-height: 640px) and (max-width: 768px) { /* Breakpoint altezza aggiustato */
              .game-container {
-                justify-content: center;
+                justify-content: center; /* Per evitare troppo spazio se gli elementi non ci stanno bene con space-around */
                 min-height: auto;
-                padding-top: 10px;
-                padding-bottom: 10px;
+                padding-top: 10px; padding-bottom: 10px;
             }
+            /* Ripristina margini per un flusso più controllato */
             h1 { font-size: 1.6em; margin-bottom: 10px; }
             .info-panel { font-size: 0.9em; margin-bottom: 10px; }
+            .canvas-and-controls-wrapper{
+                /* Mantiene il comportamento di default */
+            }
             .controls {
-                width: 146px;  /* VALORE RIDOTTO proporzionalmente */
-                height: 146px; /* VALORE RIDOTTO proporzionalmente */
-                gap: 6px;      /* Ridotto per adattarsi alla larghezza minore */
-                margin-top: 15px;
+                width: 146px; height: 146px; gap: 6px; margin-top: 10px; /* Leggermente più piccolo e più vicino */
             }
             .control-btn { font-size: 2.0em; border-radius: 10px; }
-            .home-btn { font-size: 0.9em; padding: 8px 15px; margin-top: 15px; }
+            .home-btn { font-size: 0.9em; padding: 8px 15px; margin-top: 10px; /* Più vicino */ }
         }
-
     </style>
-    <!-- ... resto del HTML ... -->
+    <!-- HTML con il .canvas-and-controls-wrapper come definito nella chat precedente -->
     <div class="game-container">
         <h1>Snake ai Due Mori</h1>
         <div class="info-panel">
             <span id="lives">Vite: 5</span>
             <span id="score">Score: 0</span>
         </div>
-        <canvas id="gameCanvas"></canvas>
+
+        <div class="canvas-and-controls-wrapper">
+            <canvas id="gameCanvas"></canvas>
+            <div class="controls">
+                <div></div>
+                <button id="up-btn" class="control-btn">▲</button>
+                <div></div>
+                <button id="left-btn" class="control-btn">◄</button>
+                <div class="center-fill"></div>
+                <button id="right-btn" class="control-btn">►</button>
+                <div></div>
+                <button id="down-btn" class="control-btn">▼</button>
+                <div></div>
+            </div>
+        </div>
+
         <div id="messageOverlay" class="message-overlay">
             <p id="messageText"></p>
             <button id="restartButton" class="control-btn">Ricomincia</button>
-        </div>
-        <div class="controls">
-            <div></div>
-            <button id="up-btn" class="control-btn">▲</button>
-            <div></div>
-            <button id="left-btn" class="control-btn">◄</button>
-            <div class="center-fill"></div>
-            <button id="right-btn" class="control-btn">►</button>
-            <div></div>
-            <button id="down-btn" class="control-btn">▼</button>
-            <div></div>
         </div>
         <a href="index.html" class="home-btn">Torna alla Home</a>
     </div>
 
     <script>
+        // JavaScript rimane invariato
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const livesDisplay = document.getElementById('lives');

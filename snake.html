@@ -158,14 +158,14 @@
                 justify-content: flex-start;
             }
             .game-container {
-                padding: 10px 10px 15px 10px; /* VALORE AGGIORNATO (padding-bottom aumentato) */
+                padding: 10px 10px 20px 10px; /* VALORE AGGIORNATO (padding-bottom aumentato per dare spazio al home-btn più in basso) */
             }
             h1 {
-                font-size: 1.7em;
+                font-size: 1.6em; /* Leggermente ridotto per compensare aumento altezza controlli/margini */
                 margin-bottom: 8px;
             }
             .info-panel {
-                font-size: 0.9em;
+                font-size: 0.85em; /* Leggermente ridotto */
                 margin-bottom: 10px;
                 flex-wrap: wrap;
                 justify-content: center;
@@ -176,21 +176,21 @@
             }
 
             .controls {
-                width: 160px;
-                height: 160px;
-                gap: 6px;
-                margin-top: 20px; /* VALORE AGGIORNATO */
+                width: 175px;   /* VALORE AGGIORNATO */
+                height: 175px;  /* VALORE AGGIORNATO */
+                gap: 8px;       /* VALORE AGGIORNATO (aumentato leggermente per più respiro) */
+                margin-top: 15px; /* VALORE AGGIORNATO (leggermente ridotto se i controlli sono molto più grandi) */
             }
             .control-btn {
-                font-size: 2.2em;
-                border-radius: 10px;
+                font-size: 2.5em; /* VALORE AGGIORNATO (frecce notevolmente più grandi) */
+                border-radius: 12px; /* VALORE AGGIORNATO (per bottoni più grandi) */
                 border-width: 1px;
             }
             .home-btn {
-                font-size: 0.85em;
-                padding: 7px 14px;
-                margin-top: 30px; /* VALORE AGGIORNATO */
-                border-radius: 6px;
+                font-size: 0.9em; /* VALORE AGGIORNATO (un po' più grande) */
+                padding: 8px 16px; /* VALORE AGGIORNATO (un po' più grande) */
+                margin-top: 35px; /* VALORE AGGIORNATO (maggiore separazione) */
+                border-radius: 7px; /* VALORE AGGIORNATO */
             }
             .message-overlay {
                 font-size: 1em;
@@ -204,29 +204,29 @@
             }
         }
         /* Media query specifica per schermi molto bassi */
-        @media (max-height: 680px) and (max-width: 480px) {
+        @media (max-height: 700px) and (max-width: 480px) { /* Breakpoint altezza leggermente aumentato */
              h1 { font-size: 1.5em; margin-bottom: 5px;}
             .info-panel { font-size: 0.8em; margin-bottom: 8px;}
             .game-container {
                  padding-top: 5px;
                  padding-left: 5px;
                  padding-right: 5px;
-                 padding-bottom: 10px; /* VALORE AGGIORNATO */
+                 padding-bottom: 15px; /* VALORE AGGIORNATO */
             }
             .controls {
-                width: 140px;
-                height: 140px;
-                gap: 5px;
-                margin-top: 15px; /* VALORE AGGIORNATO */
+                width: 155px;   /* VALORE AGGIORNATO */
+                height: 155px;  /* VALORE AGGIORNATO */
+                gap: 6px;       /* VALORE AGGIORNATO */
+                margin-top: 12px; /* VALORE AGGIORNATO */
             }
             .control-btn {
-                font-size: 1.8em;
-                border-radius: 8px;
+                font-size: 2.0em; /* VALORE AGGIORNATO */
+                border-radius: 10px; /* VALORE AGGIORNATO */
             }
             .home-btn {
-                font-size: 0.8em;
-                padding: 6px 12px;
-                margin-top: 20px; /* VALORE AGGIORNATO */
+                font-size: 0.85em; /* VALORE AGGIORNATO */
+                padding: 7px 14px; /* VALORE AGGIORNATO */
+                margin-top: 25px; /* VALORE AGGIORNATO */
             }
         }
     </style>

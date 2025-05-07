@@ -6,20 +6,20 @@
     <title>Snake ai Due Mori</title>
     <style>
         html, body {
-            height: 100%; /* Assicura che body possa occupare tutta l'altezza */
+            height: 100%;
             margin: 0;
             padding: 0;
-            overflow-x: hidden; /* Evita scroll orizzontale globale */
+            overflow-x: hidden;
         }
         body {
             background-color: #0a0a1f;
             color: #fff;
             font-family: 'Arial', sans-serif;
-            display: flex; /* Centra game-container se più stretto della viewport (desktop) */
+            display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Centra verticalmente su desktop se il contenuto è più piccolo */
-            padding: 10px; /* Margine esterno per schermi piccoli, non taglia il contenuto */
+            justify-content: center;
+            padding: 10px;
             box-sizing: border-box;
         }
 
@@ -27,33 +27,31 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            /* justify-content gestito nelle media query per l'espansione verticale */
-            background-color: rgba(10, 10, 31, 0.85); /* Leggermente più opaco */
+            background-color: rgba(10, 10, 31, 0.85);
             box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
             border-radius: 15px;
-            width: 100%; /* Occupa la larghezza del body (meno padding del body) */
-            max-width: 480px; /* Limite per desktop/tablet grandi, per non farlo troppo largo */
-            padding: 20px 15px; /* Default padding (verticale, orizzontale) */
+            width: 100%;
+            max-width: 480px;
+            padding: 20px 15px;
             box-sizing: border-box;
-            /* Altezza gestita nelle media query */
         }
 
         h1 {
-            font-size: 2.2em; /* Default */
-            margin-bottom: 15px; /* Default */
+            font-size: 2.2em;
+            margin-bottom: 15px;
             color: #00ffff;
             text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff;
             text-align: center;
-            flex-shrink: 0; /* Non si restringe se lo spazio è poco */
+            flex-shrink: 0;
         }
 
         .info-panel {
             display: flex;
             justify-content: space-around;
             width: 100%;
-            max-width: 360px; /* Default */
-            margin-bottom: 15px; /* Default */
-            font-size: 1.1em; /* Default */
+            max-width: 360px;
+            margin-bottom: 15px;
+            font-size: 1.1em;
             flex-shrink: 0;
         }
         .info-panel span { color: #f0f; text-shadow: 0 0 3px #f0f, 0 0 5px #f0f; }
@@ -67,7 +65,6 @@
             margin-left: auto;
             margin-right: auto;
             flex-shrink: 0;
-            /* margin-top e margin-bottom gestiti da space-between o margini degli altri elementi */
         }
 
         .message-overlay {
@@ -84,21 +81,23 @@
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             grid-template-rows: repeat(3, 1fr);
-            gap: 8px; /* Default gap */
-            width: 160px;  /* Default width */
-            height: 160px; /* Default height */
+            gap: 8px;
+            width: 160px;
+            height: 160px;
             margin-left: auto;
             margin-right: auto;
-            margin-top: 20px; /* Default margin-top */
+            margin-top: 20px;
             flex-shrink: 0;
+            box-sizing: border-box; /* Aggiunto per sicurezza, anche se il problema è più sul contenuto */
         }
         .control-btn {
             background-color: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff; color: #00ffff;
-            font-size: 2.2em; /* Default font-size per frecce */
+            font-size: 2.2em;
             border-radius: 10px; cursor: pointer; user-select: none;
             box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
             transition: background-color 0.2s, box-shadow 0.2s;
             display: flex; align-items: center; justify-content: center;
+            box-sizing: border-box; /* Assicura che padding e border siano inclusi nella dimensione */
         }
         .control-btn:active { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7); }
 
@@ -109,81 +108,80 @@
         .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
 
         .home-btn {
-            padding: 8px 18px; /* Default */
-            font-size: 0.9em; /* Default */
+            padding: 8px 18px;
+            font-size: 0.9em;
             background-color: rgba(255, 0, 255, 0.2); border: 2px solid #ff00ff; color: #ff00ff;
             text-decoration: none; border-radius: 8px;
             box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
             transition: background-color 0.2s, box-shadow 0.2s;
-            margin-top: 20px; /* Default margin-top */
+            margin-top: 20px;
             flex-shrink: 0;
         }
         .home-btn:hover, .home-btn:active { background-color: rgba(255, 0, 255, 0.4); box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; }
 
 
         /* Media Query per Tablet (Portrait e Landscape più piccoli) e Cellulari */
-        @media (max-width: 768px) { /* Breakpoint più generale per dispositivi mobili */
+        @media (max-width: 768px) {
             body {
-                justify-content: flex-start; /* Allinea game-container in alto */
-                padding: 5px; /* Margini laterali per il corpo su mobile */
+                justify-content: flex-start;
+                padding: 5px;
             }
             .game-container {
-                min-height: calc(100vh - 10px); /* Occupa quasi tutta l'altezza (10px per padding body) */
-                /* Se 100vh - 10px è più grande dell'altezza del contenuto,
-                   justify-content distribuirà lo spazio. Altrimenti, il contenuto definirà l'altezza. */
-                justify-content: space-around; /* Distribuisce lo spazio tra gli elementi figli */
-                padding: 15px 10px; /* Padding interno game-container per mobile */
+                min-height: calc(100vh - 10px);
+                justify-content: space-around;
+                padding: 15px 10px;
             }
             h1 {
-                font-size: 1.8em; /* Adattato per mobile */
-                margin-top: 0; /* space-around gestisce lo spazio sopra */
-                margin-bottom: 0; /* space-around gestisce lo spazio sotto h1 e sopra info-panel */
+                font-size: 1.8em;
+                margin-top: 0;
+                margin-bottom: 0;
             }
             .info-panel {
-                font-size: 1em; /* Adattato per mobile */
+                font-size: 1em;
                 max-width: 300px;
-                margin-top: 0; margin-bottom: 0; /* Lascia che space-around faccia il suo lavoro */
+                margin-top: 0; margin-bottom: 0;
             }
-            #gameCanvas {
-                /* Le dimensioni sono da JS. space-around gestirà lo spazio sopra/sotto */
-            }
+
             .controls {
-                width: 170px;  /* Buona dimensione per pollici */
-                height: 170px;
-                gap: 10px;     /* Più spazio tra i bottoni */
-                margin-top: 0; /* space-around gestisce spazio sopra */
-                 /* margin-left/right auto già presenti */
+                width: 166px;  /* VALORE RIDOTTO per evitare overflow laterale */
+                height: 166px; /* Mantenuto proporzionale */
+                gap: 8px;      /* Ridotto leggermente se necessario, ma 10px era OK */
+                margin-top: 0;
             }
             .control-btn {
-                font-size: 2.5em; /* Frecce grandi e comode */
+                font-size: 2.5em; /* Mantenuto grande per comodità */
                 border-radius: 12px;
             }
             .home-btn {
                 font-size: 1em;
                 padding: 10px 20px;
-                margin-top: 0; /* space-around gestisce spazio sopra */
-                margin-bottom: 0; /* space-around gestisce spazio sotto */
+                margin-top: 0;
+                margin-bottom: 0;
             }
         }
 
-        /* Media Query per schermi molto bassi, per evitare eccessiva compressione */
+        /* Media Query per schermi molto bassi */
         @media (max-height: 600px) and (max-width: 768px) {
              .game-container {
-                justify-content: center; /* Centra se non c'è abbastanza spazio per space-around */
-                min-height: auto; /* Lascia che il contenuto definisca l'altezza */
+                justify-content: center;
+                min-height: auto;
                 padding-top: 10px;
                 padding-bottom: 10px;
             }
-            /* Riduci leggermente alcuni elementi se necessario, ma priorità a non sovrapporre */
-            h1 { font-size: 1.6em; margin-bottom: 10px; } /* Ripristina un po' di margine */
+            h1 { font-size: 1.6em; margin-bottom: 10px; }
             .info-panel { font-size: 0.9em; margin-bottom: 10px; }
-            .controls { width: 150px; height: 150px; gap: 8px; margin-top: 15px; }
+            .controls {
+                width: 146px;  /* VALORE RIDOTTO proporzionalmente */
+                height: 146px; /* VALORE RIDOTTO proporzionalmente */
+                gap: 6px;      /* Ridotto per adattarsi alla larghezza minore */
+                margin-top: 15px;
+            }
             .control-btn { font-size: 2.0em; border-radius: 10px; }
             .home-btn { font-size: 0.9em; padding: 8px 15px; margin-top: 15px; }
         }
 
     </style>
-    <!-- Il resto del body e lo script rimangono invariati -->
+    <!-- ... resto del HTML ... -->
     <div class="game-container">
         <h1>Snake ai Due Mori</h1>
         <div class="info-panel">

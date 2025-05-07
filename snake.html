@@ -12,7 +12,7 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: flex-start; /* Allinea game-container in alto */
+            justify-content: flex-start;
             min-height: 100vh;
             margin: 0;
             padding: 10px;
@@ -158,7 +158,7 @@
                 justify-content: flex-start;
             }
             .game-container {
-                padding: 10px;
+                padding: 10px 10px 15px 10px; /* VALORE AGGIORNATO (padding-bottom aumentato) */
             }
             h1 {
                 font-size: 1.7em;
@@ -176,20 +176,20 @@
             }
 
             .controls {
-                width: 160px;   /* VALORE AGGIORNATO */
-                height: 160px;  /* VALORE AGGIORNATO */
-                gap: 6px;       /* VALORE AGGIORNATO (ridotto per farli sembrare più uniti) */
-                margin-top: 12px; /* VALORE AGGIORNATO (leggero aumento se necessario) */
+                width: 160px;
+                height: 160px;
+                gap: 6px;
+                margin-top: 20px; /* VALORE AGGIORNATO */
             }
             .control-btn {
-                font-size: 2.2em; /* VALORE AGGIORNATO (frecce più grandi) */
-                border-radius: 10px; /* VALORE AGGIORNATO (per bottoni più grandi) */
+                font-size: 2.2em;
+                border-radius: 10px;
                 border-width: 1px;
             }
             .home-btn {
                 font-size: 0.85em;
                 padding: 7px 14px;
-                margin-top: 15px; /* VALORE AGGIORNATO (per dare spazio ai controlli più grandi) */
+                margin-top: 30px; /* VALORE AGGIORNATO */
                 border-radius: 6px;
             }
             .message-overlay {
@@ -207,27 +207,30 @@
         @media (max-height: 680px) and (max-width: 480px) {
              h1 { font-size: 1.5em; margin-bottom: 5px;}
             .info-panel { font-size: 0.8em; margin-bottom: 8px;}
+            .game-container {
+                 padding-top: 5px;
+                 padding-left: 5px;
+                 padding-right: 5px;
+                 padding-bottom: 10px; /* VALORE AGGIORNATO */
+            }
             .controls {
-                width: 140px;   /* VALORE AGGIORNATO */
-                height: 140px;  /* VALORE AGGIORNATO */
-                gap: 5px;       /* VALORE AGGIORNATO */
-                margin-top: 10px; /* VALORE AGGIORNATO */
+                width: 140px;
+                height: 140px;
+                gap: 5px;
+                margin-top: 15px; /* VALORE AGGIORNATO */
             }
             .control-btn {
-                font-size: 1.8em; /* VALORE AGGIORNATO */
-                border-radius: 8px; /* VALORE AGGIORNATO */
+                font-size: 1.8em;
+                border-radius: 8px;
             }
             .home-btn {
                 font-size: 0.8em;
                 padding: 6px 12px;
-                margin-top: 12px; /* VALORE AGGIORNATO */
+                margin-top: 20px; /* VALORE AGGIORNATO */
             }
-            .game-container { padding-top: 5px; padding-bottom: 5px; }
         }
-
     </style>
-</head>
-<body>
+    <!-- Il resto del body e lo script rimangono invariati -->
     <div class="game-container">
         <h1>Snake ai Due Mori</h1>
         <div class="info-panel">

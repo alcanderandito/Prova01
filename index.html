@@ -3,26 +3,170 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Home • Team Due Mori</title>
+  <title>Home • Team Due Mori</title>
 
   <style>
-    /* mini‑reset + center */
+    /* mini‑reset */
     *{margin:0;padding:0;box-sizing:border-box}
-    html,body{height:100%;display:flex;align-items:center;justify-content:center;font-family:-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+    html,body{
+      font-family:-apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      /* Rimosso height:100% e flex dal body per un layout più standard con menu in alto */
+    }
 
+    /* Stili per il Menu a Tendina */
+    .navbar { /* Contenitore per il menu, per posizionarlo in alto */
+      background-color: #333; /* Colore di sfondo per la barra del menu */
+      padding: 10px 20px;
+      overflow: hidden; /* Per contenere elementi floatati se ce ne fossero */
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block; /* Il menu si adatta al contenuto del pulsante */
+    }
+
+    .dropdown-button {
+      background-color: #4CAF50; /* Un verde per il pulsante menu */
+      color: white;
+      padding: 10px 15px;
+      font-size: 16px;
+      border: none;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+
+    .dropdown-button:hover, .dropdown-button:focus {
+      background-color: #45a049;
+    }
+
+    .dropdown-content {
+      display: none; /* Nascosto di default */
+      position: absolute; /* Posizionato rispetto al .dropdown */
+      background-color: #f9f9f9;
+      min-width: 180px; /* Larghezza minima del menu */
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 1; /* Per stare sopra altro contenuto */
+      border-radius: 5px;
+      margin-top: 5px; /* Piccola distanza dal pulsante */
+    }
+
+    /* Stili per il contenuto di menu.html (es. se usi una lista di link) */
+    /* Assumiamo che menu.html contenga una <ul> con link */
+    .dropdown-content ul {
+      list-style-type: none; /* Rimuove i pallini dalla lista */
+    }
+    .dropdown-content ul li a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block; /* Fa sì che il link occupi tutta la larghezza del suo contenitore (li) */
+    }
+    .dropdown-content ul li a:hover {
+      background-color: #f1f1f1;
+    }
+
+    /* Classe per mostrare il contenuto del menu (aggiunta via JavaScript) */
+    .show {
+      display: block;
+    }
+
+    /* Stili per il Contenitore del Bottone Chat */
+    #goChatContainer {
+        position: fixed; /* Fisso rispetto alla viewport */
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000; /* Assicura che sia sopra la maggior parte degli altri elementi */
+    }
     #goChat{
       width:70px;height:70px;border:none;border-radius:50%;
       background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat;
-      box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer}
+      box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;
+    }
     #goChat:active{transform:scale(.9)}
+
+    /* Per eventuale altro contenuto principale della pagina, se vuoi centrarlo */
+    .main-content {
+        padding: 20px; /* Spazio attorno al contenuto */
+        /* Se vuoi centrare un blocco di contenuto specifico:
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: calc(100vh - 70px); /* Altezza viewport meno la barra menu (circa) */
+    }
+
   </style>
 </head>
 <body>
 
-  <!-- Clicca e vai a chat.html -->
-  <a href="chat.html" aria-label="Apri chat">
-    <button id="goChat"></button>
-  </a>
+  <!-- Barra di Navigazione con Menu a Tendina -->
+  <div class="navbar">
+    <div class="dropdown">
+      <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
+      <div id="menuContent" class="dropdown-content">
+        <!-- Il contenuto di menu.html verrà caricato qui -->
+        <p style="padding: 10px; color: #555;">Caricamento menu...</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Contenuto principale della pagina -->
+  <div class="main-content">
+    <!-- Qui puoi mettere il resto del contenuto della tua home page -->
+    <!-- Ad esempio, se avevi altro contenuto che prima era centrato dal body,
+         puoi metterlo qui e usare gli stili .main-content per centrarlo. -->
+    <p>Benvenuto nella Home Page!</p>
+  </div>
+
+  <!-- Bottone Chat (posizionato fisso in basso a destra) -->
+  <div id="goChatContainer">
+    <a href="chat.html" aria-label="Apri chat">
+      <button id="goChat"></button>
+    </a>
+  </div>
+
+  <script>
+    // Funzione per caricare e mostrare/nascondere il menu
+    function toggleMenu() {
+      const menuContent = document.getElementById("menuContent");
+      const isCurrentlyShown = menuContent.classList.contains("show");
+
+      // Se il menu sta per essere aperto e non è già stato caricato
+      // (verifichiamo che il contenuto sia ancora il placeholder o vuoto)
+      if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
+        fetch('menu.html') // Assicurati che menu.html sia nella stessa cartella o specifica il percorso corretto
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Errore nel caricamento di menu.html: ' + response.status);
+            }
+            return response.text();
+          })
+          .then(data => {
+            menuContent.innerHTML = data; // Inserisce il contenuto di menu.html
+          })
+          .catch(error => {
+            menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
+            console.error('Errore fetch menu.html:', error);
+          });
+      }
+      menuContent.classList.toggle("show"); // Mostra o nasconde il menu
+    }
+
+    // Chiudi il menu se l'utente clicca fuori da esso
+    window.onclick = function(event) {
+      // Controlla che il click non sia sul pulsante del menu
+      // e che non sia all'interno del contenuto del menu stesso.
+      if (!event.target.matches('.dropdown-button') && !document.getElementById('menuContent').contains(event.target)) {
+        const dropdowns = document.getElementsByClassName("dropdown-content");
+        for (let i = 0; i < dropdowns.length; i++) {
+          let openDropdown = dropdowns[i];
+          if (openDropdown.classList.contains('show')) {
+            openDropdown.classList.remove('show');
+          }
+        }
+      }
+    }
+  </script>
 
 </body>
 </html>

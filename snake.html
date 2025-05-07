@@ -6,7 +6,7 @@
     <title>Snake ai Due Mori</title>
     <style>
         body {
-            background-color: #0a0a1f; /* Sfondo scuro per effetto neon */
+            background-color: #0a0a1f;
             color: #fff;
             font-family: 'Arial', sans-serif;
             display: flex;
@@ -17,23 +17,23 @@
             margin: 0;
             padding: 10px;
             box-sizing: border-box;
-            overflow-x: hidden; /* Previene scroll orizzontale su mobile */
+            overflow-x: hidden;
         }
 
         .game-container {
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(10, 10, 31, 0.8); /* Sfondo container leggermente trasparente */
+            background-color: rgba(10, 10, 31, 0.8);
             padding: 20px;
             border-radius: 15px;
-            box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff; /* Ombra neon magenta */
+            box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
         }
 
         h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
-            color: #00ffff; /* Ciano neon */
+            color: #00ffff;
             text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff, 0 0 30px #0ff, 0 0 40px #0ff;
             text-align: center;
         }
@@ -42,20 +42,20 @@
             display: flex;
             justify-content: space-around;
             width: 100%;
-            max-width: 400px; /* Larghezza canvas */
+            max-width: 400px;
             margin-bottom: 15px;
             font-size: 1.2em;
         }
 
         .info-panel span {
-            color: #f0f; /* Magenta neon per testo info */
+            color: #f0f;
             text-shadow: 0 0 3px #f0f, 0 0 5px #f0f, 0 0 7px #f0f;
         }
 
         #gameCanvas {
-            border: 3px solid #00ff00; /* Verde neon per bordo canvas */
+            border: 3px solid #00ff00;
             box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
-            background-color: #000500; /* Sfondo canvas molto scuro */
+            background-color: #000500;
             border-radius: 5px;
         }
         
@@ -64,18 +64,33 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background-color: rgba(0,0,0,0.7);
+            background-color: rgba(0,0,0,0.85); /* Leggermente più opaco */
             color: #fff;
-            padding: 20px;
+            padding: 25px; /* Aumentato padding per più spazio */
             border-radius: 10px;
             text-align: center;
-            display: none; /* Nascosto di default */
+            /* display: none; Nascosto di default, gestito da JS */
             z-index: 100;
-            font-size: 1.5em;
+            font-size: 1.4em; /* Leggermente ridotto per messaggi lunghi */
             box-shadow: 0 0 10px #fff, 0 0 20px #fff;
+            
+            /* Modifiche per layout del contenuto dell'overlay */
+            display: none; /* Mantenuto per la logica JS di show/hide */
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 20px; /* Spazio tra il testo e il bottone */
+            min-width: 280px; /* Larghezza minima per evitare che sia troppo stretto */
+        }
+        .message-overlay p {
+            margin: 0; /* Rimuove margini default del paragrafo */
+            line-height: 1.4; /* Migliore leggibilità per testo multi-linea */
         }
         .message-overlay button {
-            margin-top: 15px;
+            margin-top: 0; /* Rimosso, ora gestito da 'gap' del flex container */
+            /* Stile ereditato da .control-btn, ma possiamo sovrascrivere se necessario */
+            font-size: 0.8em !important; /* Ridimensionato per essere meno invasivo nell'overlay */
+            padding: 12px 20px !important;
         }
 
 
@@ -90,13 +105,13 @@
         }
 
         .control-btn {
-            background-color: rgba(0, 255, 255, 0.1); /* Ciano neon trasparente */
+            background-color: rgba(0, 255, 255, 0.1);
             border: 2px solid #00ffff;
             color: #00ffff;
             font-size: 2em;
             border-radius: 10px;
             cursor: pointer;
-            user-select: none; /* Impedisce la selezione del testo sui bottoni */
+            user-select: none;
             box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
             transition: background-color 0.2s, box-shadow 0.2s;
         }
@@ -110,7 +125,6 @@
         #right-btn { grid-column: 3; grid-row: 2; }
         #down-btn  { grid-column: 2; grid-row: 3; }
         
-        /* Nasconde il centro del D-pad */
         .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
 
 
@@ -118,7 +132,7 @@
             margin-top: 25px;
             padding: 10px 20px;
             font-size: 1em;
-            background-color: rgba(255, 0, 255, 0.2); /* Magenta neon trasparente */
+            background-color: rgba(255, 0, 255, 0.2);
             border: 2px solid #ff00ff;
             color: #ff00ff;
             text-decoration: none;
@@ -140,20 +154,20 @@
             <span id="score">Score: 0</span>
         </div>
         <canvas id="gameCanvas"></canvas>
-        <div id="messageOverlay" class="message-overlay">
+        <div id="messageOverlay" class="message-overlay"> <!-- display:flex sarà applicato da JS -->
             <p id="messageText"></p>
-            <button id="restartButton" class="control-btn" style="font-size: 1em; padding:10px;">Ricomincia</button>
+            <button id="restartButton" class="control-btn">Ricomincia</button>
         </div>
         <div class="controls">
-            <div></div> <!-- Placeholder for grid -->
+            <div></div> 
             <button id="up-btn" class="control-btn">▲</button>
-            <div></div> <!-- Placeholder for grid -->
+            <div></div> 
             <button id="left-btn" class="control-btn">◄</button>
             <div class="center-fill"></div>
             <button id="right-btn" class="control-btn">►</button>
-            <div></div> <!-- Placeholder for grid -->
+            <div></div> 
             <button id="down-btn" class="control-btn">▼</button>
-            <div></div> <!-- Placeholder for grid -->
+            <div></div> 
         </div>
         <a href="index.html" class="home-btn">Torna alla Home</a>
     </div>
@@ -168,30 +182,37 @@
         const messageText = document.getElementById('messageText');
         const restartButton = document.getElementById('restartButton');
 
-        const gridSize = 20; // Numero di celle
-        const canvasSize = 400; // Dimensione fissa del canvas
+        const gridSize = 20; 
+        const canvasSize = 400; 
         canvas.width = canvasSize;
         canvas.height = canvasSize;
         const tileSize = canvas.width / gridSize;
 
         let snake;
         let food;
-        let dx = tileSize; // Movimento orizzontale iniziale
-        let dy = 0;       // Movimento verticale iniziale
+        let dx = tileSize; 
+        let dy = 0;       
         let score;
         let lives;
         let gameRunning;
-        let changingDirection; // Previene inversioni di 180° istantanee
+        let changingDirection; 
         let gamePausedForMessage = false;
 
-        const foodEmojis = ['🍎', '🍓', '🍒', '🍉', '🍇', '🍌', '🥭', '🍍', '🍑', '🥝', '🍕', '🍔', '🍟', '🍩', '🍪'];
+        // Array di emoji di cibo espanso
+        const foodEmojis = [
+            '🍎', '🍓', '🍒', '🍉', '🍇', '🍌', '🥭', '🍍', '🍑', '🥝', '🍕', '🍔', '🍟', '🍩', '🍪',
+            '🍊', '🍋', '🍐', '🥥', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅',
+            '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🥞', '🧇', '🥓', '🥩', '🍗',
+            '🍖', '🌭', '🌮', '🌯', '🥙', '🧆', '🥗', '🍲', '🍜', ' Spaghetti', '🍣', '🍱', '🍛', '🍙',
+            '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮',
+            '🍭', '🍬', '🍫', '🍿', '🌰', '🥜', '🍯', '🥛', '☕', '🍵', '🧃', '🥤', '🧋', '🧉' 
+        ];
         let currentFoodEmoji;
 
         let lastFrameTime = 0;
-        const initialFrameInterval = 180; // Millisecondi, velocità iniziale del serpente
+        const initialFrameInterval = 180; 
         let frameInterval = initialFrameInterval; 
 
-        // Elementi D-pad
         const upBtn = document.getElementById('up-btn');
         const downBtn = document.getElementById('down-btn');
         const leftBtn = document.getElementById('left-btn');
@@ -209,7 +230,7 @@
             ];
             dx = tileSize;
             dy = 0;
-            frameInterval = initialFrameInterval; // Reset speed
+            frameInterval = initialFrameInterval;
         }
 
         function spawnFood() {
@@ -218,7 +239,6 @@
                 x: Math.floor(Math.random() * gridSize) * tileSize,
                 y: Math.floor(Math.random() * gridSize) * tileSize
             };
-            // Assicura che il cibo non spawni sul serpente
             snake.forEach(part => {
                 if (part.x === food.x && part.y === food.y) {
                     spawnFood();
@@ -236,7 +256,7 @@
             updateUI();
             gameRunning = true;
             changingDirection = false;
-            lastFrameTime = 0; // Reset lastFrameTime
+            lastFrameTime = 0; 
             gameLoop();
         }
         
@@ -244,7 +264,7 @@
             hideMessage();
             gamePausedForMessage = false;
             initSnake();
-            spawnFood(); // Potrebbe essere necessario un nuovo cibo
+            spawnFood(); 
             updateUI();
             gameRunning = true;
             changingDirection = false;
@@ -254,39 +274,36 @@
 
         function drawSnakePart(part, index) {
             const isHead = index === 0;
-            // Effetto Neon per il serpente
-            ctx.shadowColor = '#00ff00'; // Verde neon
+            ctx.shadowColor = '#00ff00'; 
             ctx.shadowBlur = isHead ? 15 : 10;
-            ctx.fillStyle = isHead ? '#33ff33' : '#00cc00'; // Testa leggermente più brillante
+            ctx.fillStyle = isHead ? '#33ff33' : '#00cc00'; 
             
             ctx.fillRect(part.x, part.y, tileSize, tileSize);
-            ctx.strokeStyle = '#003300'; // Bordo scuro per definizione
+            ctx.strokeStyle = '#003300'; 
             ctx.strokeRect(part.x, part.y, tileSize, tileSize);
 
-            // Occhi sulla testa (semplici)
             if (isHead) {
-                ctx.fillStyle = '#000'; // Pupille nere
-                ctx.shadowBlur = 0; // No glow per gli occhi
+                ctx.fillStyle = '#000'; 
+                ctx.shadowBlur = 0; 
                 let eye1X, eye1Y, eye2X, eye2Y;
                 const eyeSize = tileSize / 5;
 
-                if (dx > 0) { // Destra
+                if (dx > 0) { 
                     eye1X = part.x + tileSize * 0.7 - eyeSize / 2; eye1Y = part.y + tileSize * 0.2 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.7 - eyeSize / 2; eye2Y = part.y + tileSize * 0.8 - eyeSize / 2;
-                } else if (dx < 0) { // Sinistra
+                } else if (dx < 0) { 
                     eye1X = part.x + tileSize * 0.3 - eyeSize / 2; eye1Y = part.y + tileSize * 0.2 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.3 - eyeSize / 2; eye2Y = part.y + tileSize * 0.8 - eyeSize / 2;
-                } else if (dy > 0) { // Giù
+                } else if (dy > 0) { 
                     eye1X = part.x + tileSize * 0.2 - eyeSize / 2; eye1Y = part.y + tileSize * 0.7 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.8 - eyeSize / 2; eye2Y = part.y + tileSize * 0.7 - eyeSize / 2;
-                } else { // Su
+                } else { 
                     eye1X = part.x + tileSize * 0.2 - eyeSize / 2; eye1Y = part.y + tileSize * 0.3 - eyeSize / 2;
                     eye2X = part.x + tileSize * 0.8 - eyeSize / 2; eye2Y = part.y + tileSize * 0.3 - eyeSize / 2;
                 }
                 ctx.fillRect(eye1X, eye1Y, eyeSize, eyeSize);
                 ctx.fillRect(eye2X, eye2Y, eyeSize, eyeSize);
             }
-             // Reset shadow per altri disegni
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
         }
@@ -300,16 +317,12 @@
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             
-            // Effetto Neon per il cibo (emoji)
-            // L'emoji stesso non prende shadow, ma possiamo dargli uno sfondo luminoso o un'aura
-            // Qui usiamo una shadow generica per il testo
-            ctx.shadowColor = '#ffcc00'; // Giallo/Arancio neon
+            ctx.shadowColor = '#ffcc00'; 
             ctx.shadowBlur = 8;
-            ctx.fillStyle = '#fff'; // L'emoji sarà il suo colore, ma la shadow dà l'effetto
+            ctx.fillStyle = '#fff'; 
 
-            ctx.fillText(currentFoodEmoji, food.x + tileSize / 2, food.y + tileSize / 2 + tileSize*0.05); // Aggiustamento per centrare meglio emoji
+            ctx.fillText(currentFoodEmoji, food.x + tileSize / 2, food.y + tileSize / 2 + tileSize*0.05); 
 
-            // Reset shadow
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
         }
@@ -319,25 +332,22 @@
 
             const head = { x: snake[0].x + dx, y: snake[0].y + dy };
 
-            // Attraversamento muri
             if (head.x >= canvas.width) head.x = 0;
             if (head.x < 0) head.x = canvas.width - tileSize;
             if (head.y >= canvas.height) head.y = 0;
             if (head.y < 0) head.y = canvas.height - tileSize;
 
-            snake.unshift(head); // Aggiunge la nuova testa
+            snake.unshift(head); 
 
-            // Controlla se ha mangiato il cibo
             const ateFood = head.x === food.x && head.y === food.y;
             if (ateFood) {
                 score += 10;
                 spawnFood();
-                // Aumenta la velocità leggermente con il punteggio
-                if (score % 50 === 0 && frameInterval > 80) { // Non troppo veloce
+                if (score % 50 === 0 && frameInterval > 80) { 
                     frameInterval -= 10;
                 }
             } else {
-                snake.pop(); // Rimuove la coda se non ha mangiato
+                snake.pop(); 
             }
 
             checkCollision();
@@ -346,7 +356,7 @@
         function showMessage(text, showRestartBtn = true) {
             messageText.textContent = text;
             restartButton.style.display = showRestartBtn ? 'inline-block' : 'none';
-            messageOverlay.style.display = 'flex';
+            messageOverlay.style.display = 'flex'; // Modificato per usare flex
             gamePausedForMessage = true;
         }
 
@@ -356,7 +366,6 @@
 
         function checkCollision() {
             const head = snake[0];
-            // Collisione con se stesso
             for (let i = 1; i < snake.length; i++) {
                 if (head.x === snake[i].x && head.y === snake[i].y) {
                     handleDeath();
@@ -369,8 +378,7 @@
             gameRunning = false;
             lives--;
             if (lives > 0) {
-                showMessage(`Hai perso una vita! Vite: ${lives}`, true);
-                // resetLevel() sarà chiamato dal bottone o dopo un timeout
+                showMessage(`Hai perso una vita! Vite rimanenti: ${lives}.`, true);
             } else {
                 gameOver();
             }
@@ -379,15 +387,14 @@
 
         function gameOver() {
             gameRunning = false;
-            showMessage(`Game Over! Punteggio: ${score}`, true);
+            showMessage(`Game Over! Punteggio Finale: ${score}.`, true);
         }
 
 
         function clearCanvas() {
-            // Sfondo scuro con leggero glow ai bordi interni per profondità
-            ctx.shadowColor = "rgba(0, 255, 0, 0.3)"; // Verde neon leggero
+            ctx.shadowColor = "rgba(0, 255, 0, 0.3)"; 
             ctx.shadowBlur = 20;
-            ctx.fillStyle = '#000500'; // Sfondo canvas molto scuro
+            ctx.fillStyle = '#000500'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             ctx.shadowColor = 'transparent';
             ctx.shadowBlur = 0;
@@ -399,11 +406,11 @@
         }
 
         function changeDirection(event) {
-            if (changingDirection || !gameRunning) return;
+            if (changingDirection || !gameRunning || gamePausedForMessage) return; // Aggiunto gamePausedForMessage
             changingDirection = true;
 
-            const keyPressed = event.key; // Per tastiera
-            const buttonId = event.target ? event.target.id : null; // Per D-pad
+            const keyPressed = event.key; 
+            const buttonId = event.target ? event.target.id : null; 
 
             const goingUp = dy === -tileSize;
             const goingDown = dy === tileSize;
@@ -419,16 +426,18 @@
             } else if ((keyPressed === 'ArrowRight' || buttonId === 'right-btn') && !goingLeft) {
                 dx = tileSize; dy = 0;
             } else {
-                changingDirection = false; // Non era una mossa valida o nessuna mossa
+                changingDirection = false; 
             }
         }
 
         function gameLoop(currentTime) {
-            if (gamePausedForMessage) return; // Non esegue il loop se il messaggio è attivo
+            if (gamePausedForMessage) {
+                 // Se il messaggio è attivo, non si fa nulla tranne aspettare che l'utente lo chiuda
+                 // Potremmo richiedere un altro frame per non bloccare completamente, ma non è strettamente necessario
+                 requestAnimationFrame(gameLoop); // Chiamiamo comunque per non interrompere il loop se il messaggio viene chiuso
+                 return;
+            }
             if (!gameRunning) {
-                 // Se il gioco non è in esecuzione (es. dopo game over e prima di restart)
-                 // si potrebbe disegnare lo stato finale o un messaggio sul canvas qui
-                 // ma per ora lo gestiamo con l'overlay HTML
                 return;
             }
 
@@ -436,19 +445,18 @@
 
             if (deltaTime > frameInterval) {
                 lastFrameTime = currentTime;
-                changingDirection = false; // Permetti nuovo input di direzione
+                changingDirection = false; 
 
                 clearCanvas();
-                drawFood(); // Disegna il cibo prima del serpente
-                updateSnake(); // Aggiorna la logica del serpente (movimento, collisioni)
-                drawSnake();   // Disegna il serpente
-                updateUI();    // Aggiorna punteggio e vite
+                drawFood(); 
+                updateSnake(); 
+                drawSnake();   
+                updateUI();    
             }
             
             requestAnimationFrame(gameLoop);
         }
 
-        // Event Listeners
         document.addEventListener('keydown', changeDirection);
         upBtn.addEventListener('click', changeDirection);
         downBtn.addEventListener('click', changeDirection);
@@ -456,14 +464,14 @@
         rightBtn.addEventListener('click', changeDirection);
         
         restartButton.addEventListener('click', () => {
-            if (lives > 0) {
+            if (lives > 0 && !gameRunning) { // Se ha perso una vita ma il gioco era in pausa
                 resetLevel();
-            } else {
-                initGame(); // Ricomincia il gioco da zero se game over
+            } else if (lives <= 0) { // Se era game over
+                initGame(); 
             }
+            // Se il gioco era in corso e si clicca (improbabile), non fa nulla di speciale
         });
 
-        // Inizia il gioco
         initGame();
 
     </script>

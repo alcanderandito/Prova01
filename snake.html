@@ -12,21 +12,49 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: space-around; /* MODIFICATO da center */
+            justify-content: flex-start; /* MODIFICATO: da space-around a flex-start per spingere il contenuto in alto */
             margin: 0;
             padding: 10px;
+            padding-top: 60px; /* NUOVO: Spazio per il tasto home fisso */
             min-height: 100vh;
             overflow: hidden;
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
-            box-sizing: border-box; /* MODIFICATO: aggiunto */
+            box-sizing: border-box;
         }
+
+        /* NUOVO: Stile per il tasto Home */
+        .home-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: #4a6fa5; /* Blu acciaio */
+            color: white;
+            border: none;
+            border-radius: 50%; /* Cerchio */
+            width: 44px; /* Leggermente più grande per tocco facile */
+            height: 44px;
+            font-size: 22px; /* Emoji più grande */
+            cursor: pointer;
+            z-index: 90; /* Sotto game over e flash, sopra il resto */
+            box-shadow: 0 3px 6px rgba(0,0,0,0.25);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s, transform 0.1s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .home-button:active {
+            background-color: #3b5982; /* Blu più scuro */
+            transform: scale(0.95);
+        }
+
         h1 {
             color: #f1c40f;
             text-shadow: 2px 2px #8e44ad;
-            margin-top: 5px; /* Leggero spazio sopra */
+            margin-top: 0; /* MODIFICATO: rimosso margin-top dato il padding-top del body */
             margin-bottom: 10px;
-            font-size: clamp(2.0em, 7vw, 2.6em); /* MODIFICATO: leggermente ridotto e più responsive */
+            font-size: clamp(2.0em, 7vw, 2.6em);
             text-align: center;
         }
         .game-info {
@@ -34,7 +62,7 @@
             justify-content: space-around;
             width: 95%;
             max-width: 450px;
-            margin-bottom: 10px; /* MODIFICATO da 15px */
+            margin-bottom: 10px;
             font-size: clamp(1em, 4vw, 1.3em);
         }
         .game-info div {
@@ -50,14 +78,15 @@
             display: block;
             border-radius: 10px;
             box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
+            margin-top: 5px; /* MODIFICATO: leggero spazio sopra il canvas */
         }
         .controls {
             display: flex;
             justify-content: space-between;
             width: 95%;
             max-width: 400px;
-            margin-top: 15px; /* MODIFICATO da 20px */
-            margin-bottom: 5px; /* Leggero spazio sotto */
+            margin-top: 15px;
+            margin-bottom: 10px; /* MODIFICATO: Aggiunto un po' di margine inferiore per staccare dal fondo */
         }
         .controls button {
             background-color: #e67e22;
@@ -131,6 +160,9 @@
     </style>
 </head>
 <body>
+    <!-- NUOVO: Tasto Home -->
+    <button id="homeButton" class="home-button" aria-label="Torna alla Home">🏠</button>
+
     <h1>Snake ai Due Mori</h1>
 
     <div class="game-info">
@@ -164,6 +196,7 @@
         const restartButton = document.getElementById('restartButton');
         const turnLeftButton = document.getElementById('turnLeftButton');
         const turnRightButton = document.getElementById('turnRightButton');
+        const homeButton = document.getElementById('homeButton'); // NUOVO
 
         const saltyFoods = ["🥨", "🍔", "🍟", "🍕", "🍿", "🥓", "🧀", "🍣", "🌭", "🌮", "🌯", "🍗", "🍖", "🍤", "🥟", "🫔", "🥪", "🫓", "🫕", "🧂", "🥐", "🥯", "🍳", "🫒", "🍄", "🥜", "🍜", "🍲", "🍛", "🍝", "🥫", "🍙", "🍘", "🍢", "🦀", "🦞", "🦐", "🦑", "🦪", "🫘", "🌽"];
 
@@ -177,17 +210,20 @@
         let lives;
         const INITIAL_LIVES = 5;
         let gameInterval;
-        const GAME_SPEED = 130;
+        const GAME_SPEED = 130; // Millisecondi
         let canChangeDirection;
         let isPaused = false;
 
         function resizeCanvas() {
             const availableWidth = window.innerWidth * 0.95;
-            // MODIFICATO: Ridotta l'altezza percentuale per fare spazio ai controlli
-            const availableHeightForCanvas = window.innerHeight * 0.48; 
-            
-            let canvasSize = Math.min(availableWidth, availableHeightForCanvas, 480); // Max 480px, leggermente ridotto
-            canvasSize = Math.floor(canvasSize / GRID_SIZE) * GRID_SIZE; 
+            // L'altezza del body è 100vh, ma abbiamo aggiunto padding-top: 60px
+            // Quindi lo spazio disponibile per gli elementi del gioco è window.innerHeight - 60px (circa)
+            // Manteniamo una percentuale per il canvas, ma basata su uno spazio leggermente ridotto
+            const effectiveInnerHeight = window.innerHeight - 60 - 20; // 60px padding-top, 20px per altri padding/margini
+            const availableHeightForCanvas = effectiveInnerHeight * 0.50; // MODIFICATO: percentuale su altezza effettiva, può essere aggiustata
+
+            let canvasSize = Math.min(availableWidth, availableHeightForCanvas, 450); // Max 450px
+            canvasSize = Math.floor(canvasSize / GRID_SIZE) * GRID_SIZE;
 
             canvas.width = canvasSize;
             canvas.height = canvasSize;
@@ -350,14 +386,14 @@
             flashDiv.style.width = '100%';
             flashDiv.style.height = '100%';
             flashDiv.style.backgroundColor = color;
-            flashDiv.style.zIndex = '200';
+            flashDiv.style.zIndex = '200'; // Sopra tutto tranne magari un cursore custom
             flashDiv.style.opacity = '1';
             flashDiv.style.transition = 'opacity 0.5s ease-out';
             document.body.appendChild(flashDiv);
             setTimeout(() => {
                 flashDiv.style.opacity = '0';
                 setTimeout(() => {
-                    if (document.body.contains(flashDiv)) { // Verifica se l'elemento è ancora nel DOM
+                    if (document.body.contains(flashDiv)) {
                        document.body.removeChild(flashDiv);
                     }
                 }, 500);
@@ -427,6 +463,17 @@
         restartButton.addEventListener('click', startGame);
         restartButton.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, { passive: false });
 
+        // NUOVO: Event listener per il tasto Home
+        homeButton.addEventListener('click', () => {
+            // Per ora, ricarica la pagina come azione "Home"
+            window.location.reload();
+        });
+        homeButton.addEventListener('touchstart', (e) => { // Per mobile
+            e.preventDefault();
+            window.location.reload();
+        }, { passive: false });
+
+
         window.addEventListener('resize', () => {
             const wasPaused = isPaused;
             const gameWasOver = gameOverScreen.classList.contains('visible');
@@ -441,7 +488,7 @@
                 isPaused = false;
                 gameInterval = setInterval(gameLoop, GAME_SPEED);
             } else if (gameWasOver) {
-                 isPaused = true; // Rimane in pausa se era game over
+                 isPaused = true; 
             }
         });
         

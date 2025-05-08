@@ -2,507 +2,464 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>Snake ai Due Mori</title>
     <style>
-        html, body {
-            height: 100%;
-            margin: 0;
-            padding: 0;
-            overflow-x: hidden;
-        }
         body {
-            background-color: #0a0a1f;
-            color: #fff;
-            font-family: 'Arial', sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #2c3e50; /* Blu notte profondo */
+            color: #ecf0f1; /* Argento chiaro */
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center; /* Centra .game-container su desktop */
+            justify-content: center;
+            margin: 0;
             padding: 10px;
-            box-sizing: border-box;
+            min-height: 100vh;
+            overflow: hidden;
+            touch-action: manipulation; /* Per migliorare risposta touch e disabilitare zoom/pan */
+            -webkit-tap-highlight-color: transparent; /* Rimuove highlight blu su tap */
         }
-
-        .game-container {
+        h1 {
+            color: #f1c40f; /* Giallo sole, per "Mori" */
+            text-shadow: 2px 2px #8e44ad; /* Viola scuro per un tocco "epico" */
+            margin-bottom: 10px;
+            font-size: 2.5em;
+            text-align: center;
+        }
+        .game-info {
+            display: flex;
+            justify-content: space-around;
+            width: 95%;
+            max-width: 450px;
+            margin-bottom: 15px;
+            font-size: clamp(1em, 4vw, 1.3em); /* Dimensione font responsive */
+        }
+        .game-info div {
+            background-color: #34495e; /* Blu ardesia */
+            padding: 8px 12px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            text-align: center;
+        }
+        #gameCanvas {
+            border: 4px solid #f1c40f; /* Stesso giallo del titolo */
+            background-color: #1f2b38; /* Sfondo gioco leggermente più scuro del body */
+            display: block;
+            border-radius: 10px;
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); /* Glow dorato */
+            /* Le dimensioni verranno impostate da JS */
+        }
+        .controls {
+            display: flex;
+            justify-content: space-between;
+            width: 95%;
+            max-width: 400px;
+            margin-top: 20px;
+        }
+        .controls button {
+            background-color: #e67e22; /* Arancione carota */
+            color: #fff;
+            border: none;
+            padding: clamp(12px, 5vw, 20px) clamp(15px, 6vw, 25px); /* Padding responsive */
+            font-size: clamp(1.1em, 4.5vw, 1.5em);
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px #d35400; /* Arancione più scuro per effetto 3D */
+            transition: background-color 0.1s, transform 0.05s, box-shadow 0.05s;
+            flex-grow: 1;
+            margin: 0 8px;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .controls button:active {
+            background-color: #d35400;
+            transform: translateY(3px);
+            box-shadow: 0 2px #d35400;
+        }
+        #gameOverScreen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(44, 62, 80, 0.95); /* Sfondo semitrasparente blu notte */
             display: flex;
             flex-direction: column;
             align-items: center;
-            background-color: rgba(10, 10, 31, 0.85);
-            box-shadow: 0 0 15px #ff00ff, 0 0 30px #ff00ff, inset 0 0 10px #ff00ff;
-            border-radius: 15px;
-            width: 100%;
-            max-width: 480px;
-            padding: 20px 10px; /* Default padding (verticale, orizzontale), orizzontale ridotto */
-            box-sizing: border-box;
+            justify-content: center;
+            color: #ecf0f1;
+            text-align: center;
+            z-index: 100;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.5s ease, visibility 0.5s ease;
+        }
+        #gameOverScreen.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+        #gameOverScreen h2 {
+            font-size: clamp(2.5em, 10vw, 4em);
+            color: #e74c3c; /* Rosso Alizarina */
+            margin-bottom: 15px;
+            text-shadow: 1px 1px #c0392b; /* Rosso più scuro */
+        }
+        #gameOverScreen p {
+            font-size: clamp(1.2em, 5vw, 1.8em);
+            margin-bottom: 25px;
+        }
+        #restartButton {
+            background-color: #2ecc71; /* Verde Smeraldo */
+            color: #fff;
+            border: none;
+            padding: 15px 35px;
+            font-size: clamp(1.2em, 5vw, 1.6em);
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 5px #27ae60; /* Verde più scuro */
+            transition: background-color 0.1s, transform 0.05s, box-shadow 0.05s;
+            -webkit-tap-highlight-color: transparent;
+        }
+        #restartButton:active {
+            background-color: #27ae60;
+            transform: translateY(3px);
+            box-shadow: 0 2px #27ae60;
         }
 
-        h1 {
-            font-size: 2.2em; margin-bottom: 15px; color: #00ffff;
-            text-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, 0 0 15px #00ffff, 0 0 20px #0ff;
-            text-align: center; flex-shrink: 0;
-        }
-
-        .info-panel {
-            display: flex; justify-content: space-around; width: 100%; max-width: 360px;
-            margin-bottom: 15px; font-size: 1.1em; flex-shrink: 0;
-        }
-        .info-panel span { color: #f0f; text-shadow: 0 0 3px #f0f, 0 0 5px #f0f; }
-
-        .canvas-position-anchor {
-            position: relative; /* Per posizionamento assoluto dei .controls */
-            /* La larghezza sarà quella del canvas. Centrato da align-items:center del .game-container. */
-            /* Altezza e padding-bottom gestiti nelle media query per fare spazio ai controlli */
-            flex-shrink: 0;
-            /* Aggiungiamo una larghezza esplicita per coerenza con il canvas se necessario,
-               ma dovrebbe adattarsi al canvas figlio block. */
-             width: 240px; /* Esattamente la larghezza del canvas (12 * 20) */
-             margin-left: auto; /* Centra l'ancora se .game-container fosse più largo */
-             margin-right: auto;
-        }
-
-        #gameCanvas {
-            border: 2px solid #00ff00; box-shadow: 0 0 8px #00ff00, 0 0 15px #00ff00;
-            background-color: #000500; border-radius: 4px;
-            display: block; /* Rimuove eventuale spazio extra sotto */
-            /* Dimensioni da JS (width: 240px, height: 240px) */
-        }
-
-        .message-overlay {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            background-color: rgba(0,0,0,0.9); color: #fff; padding: 20px; border-radius: 10px;
-            text-align: center; z-index: 100; font-size: 1.2em; box-shadow: 0 0 10px #fff, 0 0 20px #fff;
-            display: none; flex-direction: column; align-items: center; justify-content: center;
-            gap: 15px; min-width: 250px; max-width: 90%;
-        }
-        .message-overlay p { margin: 0; line-height: 1.4; }
-        .message-overlay button { margin-top: 0; font-size: 0.7em !important; padding: 10px 18px !important; }
-
-        .controls {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            top: 100%; /* Subito dopo la fine del .canvas-position-anchor (cioè il canvas) */
-            margin-top: 15px; /* Spazio desiderato tra canvas e controlli */
-
-            display: grid; grid-template-columns: repeat(3, 1fr); grid-template-rows: repeat(3, 1fr);
-            gap: 8px; width: 166px; height: 166px; /* Dimensioni che non dovrebbero tagliare i bottoni */
-            box-sizing: border-box;
-        }
-        .control-btn {
-            background-color: rgba(0, 255, 255, 0.1); border: 2px solid #00ffff; color: #00ffff;
-            font-size: 2.5em; /* Grandi per comodità */
-            border-radius: 12px; cursor: pointer; user-select: none;
-            box-shadow: 0 0 5px #00ffff, 0 0 10px #00ffff, inset 0 0 5px rgba(0,255,255,0.5);
-            transition: background-color 0.2s, box-shadow 0.2s;
-            display: flex; align-items: center; justify-content: center; box-sizing: border-box;
-        }
-        .control-btn:active { background-color: rgba(0, 255, 255, 0.3); box-shadow: 0 0 8px #00ffff, 0 0 15px #00ffff, inset 0 0 8px rgba(0,255,255,0.7); }
-
-        #up-btn    { grid-column: 2; grid-row: 1; }
-        #left-btn  { grid-column: 1; grid-row: 2; }
-        #right-btn { grid-column: 3; grid-row: 2; }
-        #down-btn  { grid-column: 2; grid-row: 3; }
-        .center-fill { grid-column: 2; grid-row: 2; visibility: hidden; }
-
-        .home-btn {
-            padding: 10px 20px; font-size: 1em;
-            background-color: rgba(255, 0, 255, 0.2); border: 2px solid #ff00ff; color: #ff00ff;
-            text-decoration: none; border-radius: 8px;
-            box-shadow: 0 0 5px #ff00ff, 0 0 10px #ff00ff;
-            transition: background-color 0.2s, box-shadow 0.2s;
-            /* margin-top gestito da space-around o nella media query per schermi bassi */
-            flex-shrink: 0;
-        }
-        .home-btn:hover, .home-btn:active { background-color: rgba(255, 0, 255, 0.4); box-shadow: 0 0 8px #ff00ff, 0 0 15px #ff00ff; }
-
-
-        /* Media Query per Tablet (Portrait e Landscape più piccoli) e Cellulari */
-        @media (max-width: 768px) {
-            body {
-                justify-content: flex-start;
-                padding: 5px;
-            }
-            .game-container {
-                min-height: calc(100vh - 10px);
-                justify-content: space-around;
-                padding: 15px 10px;
-            }
-            h1 { font-size: 1.8em; margin-top: 0; margin-bottom: 0; }
-            .info-panel { font-size: 1em; max-width: 300px; margin-top: 0; margin-bottom: 0; }
-
-            .canvas-position-anchor {
-                /* padding-bottom = altezza controlli (166px) + margin-top controlli (15px) = 181px.
-                   Diamo un po' di più per sicurezza e per separare dal home-btn se space-around non basta. */
-                padding-bottom: calc(166px + 15px); /* Spazio ESATTO per i controlli */
-                margin-top: 0; margin-bottom: 0; /* space-around gestisce lo spazio attorno a questo blocco */
-            }
-            /* Non è necessario re-definire .controls e .control-btn qui se le versioni default
-               (width: 166px, font-size: 2.5em etc.) sono quelle desiderate per questa media query.
-               Le regole di .controls (position:absolute etc) sono già definite sopra. */
-
-            .home-btn { margin-top: 0; margin-bottom: 0; }
-        }
-
-        /* Media Query per schermi molto bassi */
-        @media (max-height: 680px) and (max-width: 768px) { /* Breakpoint altezza leggermente più generoso */
-             .game-container {
-                justify-content: center;
-                min-height: auto;
-                padding-top: 10px; padding-bottom: 10px;
-            }
-            h1 { font-size: 1.6em; margin-bottom: 10px; }
-            .info-panel { font-size: 0.9em; margin-bottom: 10px; }
-
-            .canvas-position-anchor {
-                /* padding-bottom = altezza controlli (146px) + margin-top (10px) = 156px */
-                padding-bottom: calc(146px + 10px);
-                margin-top: 10px;
-                margin-bottom: 10px;
-                 width: 240px; /* Ripetuto per specificità se necessario */
-            }
-            .controls {
-                width: 146px; height: 146px; gap: 6px;
-                margin-top: 10px; /* Spazio sotto il canvas */
-            }
-            .control-btn { font-size: 2.0em; border-radius: 10px; }
-            .home-btn { font-size: 0.9em; padding: 8px 15px; margin-top: 15px; }
+        /* Stile per emoji cibo */
+        .food-emoji {
+            /* Gli emoji sono già colorati, non serve molto altro */
+            /* Potremmo aggiungere un piccolo effetto se necessario via JS */
         }
     </style>
 </head>
 <body>
-    <div class="game-container">
-        <h1>Snake ai Due Mori</h1>
-        <div class="info-panel">
-            <span id="lives">Vite: 5</span>
-            <span id="score">Score: 0</span>
-        </div>
+    <h1>Snake ai Due Mori</h1>
 
-        <div class="canvas-position-anchor">
-            <canvas id="gameCanvas"></canvas>
-            <div class="controls">
-                <div></div> <button id="up-btn" class="control-btn">▲</button> <div></div>
-                <button id="left-btn" class="control-btn">◄</button> <div class="center-fill"></div> <button id="right-btn" class="control-btn">►</button>
-                <div></div> <button id="down-btn" class="control-btn">▼</button> <div></div>
-            </div>
-        </div>
+    <div class="game-info">
+        <div>Vite: <span id="livesDisplay">5</span> ❤️</div>
+        <div>Punteggio: <span id="currentScoreDisplay">0</span></div>
+        <div>Totale: <span id="finalScoreDisplay">0</span></div>
+    </div>
 
-        <div id="messageOverlay" class="message-overlay">
-            <p id="messageText"></p>
-            <button id="restartButton" class="control-btn">Ricomincia</button>
-        </div>
-        <a href="index.html" class="home-btn">Torna alla Home</a>
+    <canvas id="gameCanvas"></canvas>
+
+    <div class="controls">
+        <button id="turnLeftButton">↺ Gira Sin.</button>
+        <button id="turnRightButton">Gira Des. ↻</button>
+    </div>
+
+    <div id="gameOverScreen">
+        <h2>GAME OVER!</h2>
+        <p>Punteggio Finale: <span id="gameOverFinalScoreDisplay">0</span></p>
+        <button id="restartButton">GIOCA ANCORA!</button>
     </div>
 
     <script>
-        // JavaScript rimane invariato
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const livesDisplay = document.getElementById('lives');
-        const scoreDisplay = document.getElementById('score');
 
-        const messageOverlay = document.getElementById('messageOverlay');
-        const messageText = document.getElementById('messageText');
+        const livesDisplay = document.getElementById('livesDisplay');
+        const currentScoreDisplay = document.getElementById('currentScoreDisplay');
+        const finalScoreDisplay = document.getElementById('finalScoreDisplay');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const gameOverFinalScoreDisplay = document.getElementById('gameOverFinalScoreDisplay');
         const restartButton = document.getElementById('restartButton');
+        const turnLeftButton = document.getElementById('turnLeftButton');
+        const turnRightButton = document.getElementById('turnRightButton');
 
-        const gridSize = 20;
-        const tileSize = 12;
-        const canvasSize = gridSize * tileSize; // 240
+        const saltyFoods = ["🥨", "🍔", "🍟", "🍕", "🍿", "🥓", "🧀", "🍣", "🌭", "🌮", "🌯", "🍗", "🍖", "🍤", "🥟", "🫔", "🥪", "🫓", "🫕", "🧂", "🥐", "🥯", "🍳", "🫒", "🍄", "🥜", "🍜", "🍲", "🍛", "🍝", "🥫", "🍙", "🍘", "🍢", "🦀", "🦞", "🦐", "🦑", "🦪", "🫘", "🌽"];
 
-        canvas.width = canvasSize;
-        canvas.height = canvasSize;
-        // Aggiungiamo la larghezza del canvas come variabile CSS per .canvas-position-anchor
-        // document.documentElement.style.setProperty('--canvas-width', `${canvasSize}px`);
-
+        const GRID_SIZE = 20; // Numero di celle nella griglia
+        let cellSize;
         let snake;
         let food;
-        let dx = tileSize;
-        let dy = 0;
-        let score;
+        let direction; // {dx, dy}
+        let currentScore;
+        let totalFinalScore;
         let lives;
-        let gameRunning;
-        let changingDirection;
-        let gamePausedForMessage = false;
+        const INITIAL_LIVES = 5;
+        let gameInterval;
+        const GAME_SPEED = 130; // Millisecondi, più basso = più veloce
+        let canChangeDirection;
+        let isPaused = false; // Per gestire la perdita di vita e il game over
 
-        const foodEmojis = [
-            '🍎', '🍓', '🍒', '🍉', '🍇', '🍌', '🥭', '🍍', '🍑', '🥝', '🍕', '🍔', '🍟', '🍩', '🍪',
-            '🍊', '🍋', '🍐', '🥥', '🍅', '🍆', '🥑', '🥦', '🥬', '🥒', '🌶️', '🌽', '🥕', '🧄', '🧅',
-            '🥔', '🍠', '🥐', '🥯', '🍞', '🥖', '🥨', '🧀', '🥚', '🍳', '🥞', '🧇', '🥓', '🥩', '🍗',
-            '🍖', '🌭', '🌮', '🌯', '🥙', '🧆', '🥗', '🍲', '🍜', '🍝', '🍣', '🍱', '🍛', '🍙',
-            '🍚', '🍘', '🍥', '🥠', '🥮', '🍢', '🍡', '🍧', '🍨', '🍦', '🥧', '🧁', '🍰', '🎂', '🍮',
-            '🍭', '🍬', '🍫', '🍿', '🌰', '🥜', '🍯', '🥛', '☕', '🍵', '🧃', '🥤', '🧋', '🧉'
-        ];
-        let currentFoodEmoji;
+        function resizeCanvas() {
+            const gameAreaWidth = window.innerWidth * 0.95;
+            const gameAreaHeight = window.innerHeight * 0.55; // Lascia spazio per UI e controlli
+            
+            let canvasSize = Math.min(gameAreaWidth, gameAreaHeight, 500); // Max 500px
+            canvasSize = Math.floor(canvasSize / GRID_SIZE) * GRID_SIZE; // Assicura che sia multiplo di GRID_SIZE
 
-        let lastFrameTime = 0;
-        const initialFrameInterval = 180;
-        let frameInterval = initialFrameInterval;
-
-        const upBtn = document.getElementById('up-btn');
-        const downBtn = document.getElementById('down-btn');
-        const leftBtn = document.getElementById('left-btn');
-        const rightBtn = document.getElementById('right-btn');
-
-        function getRandomFoodEmoji() {
-            return foodEmojis[Math.floor(Math.random() * foodEmojis.length)];
+            canvas.width = canvasSize;
+            canvas.height = canvasSize;
+            cellSize = canvas.width / GRID_SIZE;
         }
 
-        function initSnake() {
+        function initializeSnake() {
             snake = [
-                { x: tileSize * Math.floor(gridSize / 2), y: tileSize * Math.floor(gridSize / 2) },
-                { x: tileSize * (Math.floor(gridSize / 2) - 1), y: tileSize * Math.floor(gridSize / 2) },
-                { x: tileSize * (Math.floor(gridSize / 2) - 2), y: tileSize * Math.floor(gridSize / 2) }
+                { x: Math.floor(GRID_SIZE / 2) + 2, y: Math.floor(GRID_SIZE / 2) },
+                { x: Math.floor(GRID_SIZE / 2) + 1, y: Math.floor(GRID_SIZE / 2) },
+                { x: Math.floor(GRID_SIZE / 2), y: Math.floor(GRID_SIZE / 2) }
             ];
-            dx = tileSize;
-            dy = 0;
-            frameInterval = initialFrameInterval;
+            // Direzione iniziale: destra
+            direction = { dx: 1, dy: 0 };
+            canChangeDirection = true;
+        }
+
+        function getRandomPosition() {
+            return {
+                x: Math.floor(Math.random() * GRID_SIZE),
+                y: Math.floor(Math.random() * GRID_SIZE)
+            };
         }
 
         function spawnFood() {
-            currentFoodEmoji = getRandomFoodEmoji();
+            let newFoodPosition;
+            do {
+                newFoodPosition = getRandomPosition();
+            } while (snake.some(segment => segment.x === newFoodPosition.x && segment.y === newFoodPosition.y));
+            
             food = {
-                x: Math.floor(Math.random() * gridSize) * tileSize,
-                y: Math.floor(Math.random() * gridSize) * tileSize
+                ...newFoodPosition,
+                emoji: saltyFoods[Math.floor(Math.random() * saltyFoods.length)]
             };
-            snake.forEach(part => {
-                if (part.x === food.x && part.y === food.y) {
-                    spawnFood();
+        }
+
+        function updateUI() {
+            livesDisplay.textContent = lives;
+            currentScoreDisplay.textContent = currentScore;
+            finalScoreDisplay.textContent = totalFinalScore;
+        }
+
+        function drawRoundedRect(x, y, width, height, radius, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.moveTo(x + radius, y);
+            ctx.lineTo(x + width - radius, y);
+            ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+            ctx.lineTo(x + width, y + height - radius);
+            ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+            ctx.lineTo(x + radius, y + height);
+            ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+            ctx.lineTo(x, y + radius);
+            ctx.quadraticCurveTo(x, y, x + radius, y);
+            ctx.closePath();
+            ctx.fill();
+        }
+        
+        function drawGame() {
+            // Sfondo
+            ctx.fillStyle = '#1f2b38'; // Sfondo canvas
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Disegna cibo
+            ctx.font = `${cellSize * 0.8}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(food.emoji, (food.x + 0.5) * cellSize, (food.y + 0.5) * cellSize);
+
+            // Disegna serpente
+            snake.forEach((segment, index) => {
+                const segmentX = segment.x * cellSize;
+                const segmentY = segment.y * cellSize;
+                const color = index === 0 ? '#2ecc71' : '#27ae60'; // Testa verde smeraldo, corpo verde più scuro
+                drawRoundedRect(segmentX, segmentY, cellSize, cellSize, cellSize * 0.25, color);
+
+                // Occhi sulla testa
+                if (index === 0) {
+                    ctx.fillStyle = 'white';
+                    const eyeSize = cellSize * 0.15;
+                    let eye1X, eye1Y, eye2X, eye2Y;
+
+                    if (direction.dx === 1) { // Destra
+                        eye1X = segmentX + cellSize * 0.65; eye1Y = segmentY + cellSize * 0.25;
+                        eye2X = segmentX + cellSize * 0.65; eye2Y = segmentY + cellSize * 0.75;
+                    } else if (direction.dx === -1) { // Sinistra
+                        eye1X = segmentX + cellSize * 0.35; eye1Y = segmentY + cellSize * 0.25;
+                        eye2X = segmentX + cellSize * 0.35; eye2Y = segmentY + cellSize * 0.75;
+                    } else if (direction.dy === 1) { // Giù
+                        eye1X = segmentX + cellSize * 0.25; eye1Y = segmentY + cellSize * 0.65;
+                        eye2X = segmentX + cellSize * 0.75; eye2Y = segmentY + cellSize * 0.65;
+                    } else { // Su (direction.dy === -1)
+                        eye1X = segmentX + cellSize * 0.25; eye1Y = segmentY + cellSize * 0.35;
+                        eye2X = segmentX + cellSize * 0.75; eye2Y = segmentY + cellSize * 0.35;
+                    }
+                    ctx.beginPath();
+                    ctx.arc(eye1X, eye1Y, eyeSize, 0, Math.PI * 2);
+                    ctx.arc(eye2X, eye2Y, eyeSize, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Pupille
+                    ctx.fillStyle = 'black';
+                    const pupilSize = eyeSize * 0.5;
+                    ctx.beginPath();
+                    ctx.arc(eye1X + direction.dx * pupilSize *0.5, eye1Y + direction.dy * pupilSize *0.5, pupilSize, 0, Math.PI * 2);
+                    ctx.arc(eye2X + direction.dx * pupilSize*0.5, eye2Y + direction.dy * pupilSize*0.5, pupilSize, 0, Math.PI * 2);
+                    ctx.fill();
                 }
             });
         }
 
-        function initGame() {
-            hideMessage();
-            gamePausedForMessage = false;
-            score = 0;
-            lives = 5;
-            initSnake();
-            spawnFood();
-            updateUI();
-            gameRunning = true;
-            changingDirection = false;
-            lastFrameTime = 0;
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
+        function moveSnake() {
+            const head = { x: snake[0].x + direction.dx, y: snake[0].y + direction.dy };
 
-        function resetLevel() {
-            hideMessage();
-            gamePausedForMessage = false;
-            initSnake();
-            spawnFood();
-            updateUI();
-            gameRunning = true;
-            changingDirection = false;
-            lastFrameTime = 0;
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            animationFrameId = requestAnimationFrame(gameLoop);
-        }
+            // Attraversamento muri
+            if (head.x >= GRID_SIZE) head.x = 0;
+            if (head.x < 0) head.x = GRID_SIZE - 1;
+            if (head.y >= GRID_SIZE) head.y = 0;
+            if (head.y < 0) head.y = GRID_SIZE - 1;
 
+            snake.unshift(head); // Aggiunge nuova testa
 
-        function drawSnakePart(part, index) {
-            const isHead = index === 0;
-            ctx.shadowColor = '#00ff00';
-            ctx.shadowBlur = isHead ? Math.max(5, tileSize * 0.75) : Math.max(3, tileSize * 0.5);
-            ctx.fillStyle = isHead ? '#33ff33' : '#00cc00';
-
-            ctx.fillRect(part.x, part.y, tileSize, tileSize);
-            ctx.strokeStyle = '#003300';
-            ctx.lineWidth = 1;
-            ctx.strokeRect(part.x + 0.5, part.y + 0.5, tileSize -1, tileSize -1);
-
-
-            if (isHead) {
-                ctx.fillStyle = '#000';
-                ctx.shadowBlur = 0;
-                let eye1X, eye1Y, eye2X, eye2Y;
-                const eyeSize = Math.max(1, tileSize / 5);
-
-                if (dx > 0) {
-                    eye1X = part.x + tileSize * 0.7 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2;
-                    eye2X = part.x + tileSize * 0.7 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2;
-                } else if (dx < 0) {
-                    eye1X = part.x + tileSize * 0.3 - eyeSize / 2; eye1Y = part.y + tileSize * 0.25 - eyeSize / 2;
-                    eye2X = part.x + tileSize * 0.3 - eyeSize / 2; eye2Y = part.y + tileSize * 0.75 - eyeSize / 2;
-                } else if (dy > 0) {
-                    eye1X = part.x + tileSize * 0.25 - eyeSize / 2; eye1Y = part.y + tileSize * 0.7 - eyeSize / 2;
-                    eye2X = part.x + tileSize * 0.75 - eyeSize / 2; eye2Y = part.y + tileSize * 0.7 - eyeSize / 2;
-                } else {
-                    eye1X = part.x + tileSize * 0.25 - eyeSize / 2; eye1Y = part.y + tileSize * 0.3 - eyeSize / 2;
-                    eye2X = part.x + tileSize * 0.75 - eyeSize / 2; eye2Y = part.y + tileSize * 0.3 - eyeSize / 2;
-                }
-                ctx.fillRect(eye1X, eye1Y, eyeSize, eyeSize);
-                ctx.fillRect(eye2X, eye2Y, eyeSize, eyeSize);
-            }
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-        }
-
-        function drawSnake() {
-            snake.forEach(drawSnakePart);
-        }
-
-        function drawFood() {
-            const fontSize = Math.max(tileSize, tileSize * 0.8 + 4);
-            ctx.font = `${fontSize}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'middle';
-
-            ctx.shadowColor = '#ffcc00';
-            ctx.shadowBlur = Math.max(3, tileSize * 0.4);
-            ctx.fillStyle = '#fff';
-
-            ctx.fillText(currentFoodEmoji, food.x + tileSize / 2, food.y + tileSize / 2 + tileSize * 0.1);
-
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
-        }
-
-        function updateSnake() {
-            const head = { x: snake[0].x + dx, y: snake[0].y + dy };
-
-            if (head.x >= canvasSize) head.x = 0;
-            if (head.x < 0) head.x = canvasSize - tileSize;
-            if (head.y >= canvasSize) head.y = 0;
-            if (head.y < 0) head.y = canvasSize - tileSize;
-
-            snake.unshift(head);
-
-            const ateFood = head.x === food.x && head.y === food.y;
-            if (ateFood) {
-                score += 10;
+            // Controlla se ha mangiato
+            if (head.x === food.x && head.y === food.y) {
+                currentScore++;
+                totalFinalScore++;
+                // Effetto sonoro (opzionale, qui non implementato per semplicità)
+                // navigator.vibrate(50); // Piccola vibrazione se supportato
                 spawnFood();
-                if (score % 50 === 0 && frameInterval > 60) {
-                    frameInterval -= 10;
-                }
+                updateUI();
             } else {
-                snake.pop();
+                snake.pop(); // Rimuove la coda se non ha mangiato
             }
-
-            checkCollision();
-        }
-
-        function showMessage(text, showRestartBtn = true) {
-            messageText.textContent = text;
-            restartButton.style.display = showRestartBtn ? 'inline-block' : 'none';
-            messageOverlay.style.display = 'flex';
-            gamePausedForMessage = true;
-        }
-
-        function hideMessage() {
-            messageOverlay.style.display = 'none';
         }
 
         function checkCollision() {
             const head = snake[0];
+            // Collisione con se stesso (escludendo la testa stessa)
             for (let i = 1; i < snake.length; i++) {
-                if (head.x === snake[i].x && head.y === snake[i].y) {
-                    handleDeath();
-                    return;
+                if (snake[i].x === head.x && snake[i].y === head.y) {
+                    return true; // Collisione
                 }
             }
+            return false; // Nessuna collisione
         }
-
-        function handleDeath() {
+        
+        function handleLifeLost() {
             lives--;
+            currentScore = 0; // Resetta punteggio vita
             updateUI();
-            if (lives > 0) {
-                gameRunning = false;
-                showMessage(`Hai perso una vita! Vite rimanenti: ${lives}.`, true);
-            } else {
+            // navigator.vibrate([200, 50, 200]); // Vibrazione più lunga per perdita vita
+
+            if (lives <= 0) {
                 gameOver();
+            } else {
+                isPaused = true; // Pausa breve prima di resettare la posizione
+                flashScreen('rgba(255,0,0,0.3)'); // Flash rosso
+                setTimeout(() => {
+                    initializeSnake();
+                    spawnFood(); // Genera nuovo cibo, non quello di prima
+                    isPaused = false;
+                    canChangeDirection = true;
+                }, 1000); // Pausa di 1 secondo
             }
+        }
+        
+        function flashScreen(color) {
+            const flashDiv = document.createElement('div');
+            flashDiv.style.position = 'fixed';
+            flashDiv.style.top = '0';
+            flashDiv.style.left = '0';
+            flashDiv.style.width = '100%';
+            flashDiv.style.height = '100%';
+            flashDiv.style.backgroundColor = color;
+            flashDiv.style.zIndex = '200';
+            flashDiv.style.opacity = '1';
+            flashDiv.style.transition = 'opacity 0.5s ease-out';
+            document.body.appendChild(flashDiv);
+            setTimeout(() => {
+                flashDiv.style.opacity = '0';
+                setTimeout(() => {
+                    document.body.removeChild(flashDiv);
+                }, 500);
+            }, 100);
         }
 
         function gameOver() {
-            gameRunning = false;
-            showMessage(`Game Over! Punteggio Finale: ${score}.`, true);
+            clearInterval(gameInterval);
+            isPaused = true;
+            gameOverFinalScoreDisplay.textContent = totalFinalScore;
+            gameOverScreen.classList.add('visible');
+            // navigator.vibrate([500, 100, 200]); // Vibrazione per game over
         }
 
+        function gameLoop() {
+            if (isPaused) return;
 
-        function clearCanvas() {
-            ctx.shadowColor = "rgba(0, 255, 0, 0.2)";
-            ctx.shadowBlur = Math.max(10, tileSize * 0.8);
-            ctx.fillStyle = '#000500';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.shadowColor = 'transparent';
-            ctx.shadowBlur = 0;
+            moveSnake();
+            if (checkCollision()) {
+                handleLifeLost();
+                return; // Non disegnare questo frame se c'è stata collisione e si sta gestendo la perdita di vita
+            }
+            drawGame();
+            canChangeDirection = true; // Permetti cambio direzione per il prossimo tick
         }
 
-        function updateUI() {
-            scoreDisplay.textContent = `Score: ${score}`;
-            livesDisplay.textContent = `Vite: ${lives}`;
+        function changeDirection(turn) { // 'left' or 'right'
+            if (!canChangeDirection || isPaused) return;
+
+            const { dx, dy } = direction;
+            if (turn === 'left') {
+                if (dx === 1) direction = { dx: 0, dy: -1 }; // Da Destra a Su
+                else if (dx === -1) direction = { dx: 0, dy: 1 }; // Da Sinistra a Giù
+                else if (dy === 1) direction = { dx: 1, dy: 0 };  // Da Giù a Destra
+                else if (dy === -1) direction = { dx: -1, dy: 0 };// Da Su a Sinistra
+            } else if (turn === 'right') {
+                if (dx === 1) direction = { dx: 0, dy: 1 };  // Da Destra a Giù
+                else if (dx === -1) direction = { dx: 0, dy: -1 };// Da Sinistra a Su
+                else if (dy === 1) direction = { dx: -1, dy: 0 }; // Da Giù a Sinistra
+                else if (dy === -1) direction = { dx: 1, dy: 0 }; // Da Su a Destra
+            }
+            canChangeDirection = false;
+        }
+        
+        function startGame() {
+            resizeCanvas(); // Imposta dimensioni canvas iniziali
+            lives = INITIAL_LIVES;
+            currentScore = 0;
+            totalFinalScore = 0;
+            isPaused = false;
+            gameOverScreen.classList.remove('visible');
+            
+            initializeSnake();
+            spawnFood();
+            updateUI();
+            
+            if (gameInterval) clearInterval(gameInterval);
+            gameInterval = setInterval(gameLoop, GAME_SPEED);
+            drawGame(); // Disegna stato iniziale
         }
 
-        function changeDirection(event) {
-            if (changingDirection || !gameRunning || gamePausedForMessage) return;
-            changingDirection = true;
+        // Event Listeners
+        turnLeftButton.addEventListener('click', () => changeDirection('left'));
+        turnLeftButton.addEventListener('touchstart', (e) => { e.preventDefault(); changeDirection('left'); }, { passive: false });
 
-            const keyPressed = event.key;
-            const buttonId = event.target ? event.target.id : null;
+        turnRightButton.addEventListener('click', () => changeDirection('right'));
+        turnRightButton.addEventListener('touchstart', (e) => { e.preventDefault(); changeDirection('right'); }, { passive: false });
+        
+        restartButton.addEventListener('click', startGame);
+        restartButton.addEventListener('touchstart', (e) => { e.preventDefault(); startGame(); }, { passive: false });
 
-            const goingUp = dy === -tileSize;
-            const goingDown = dy === tileSize;
-            const goingLeft = dx === -tileSize;
-            const goingRight = dx === tileSize;
+        window.addEventListener('resize', () => {
+            const wasPaused = isPaused;
+            isPaused = true; // Pausa durante il ridimensionamento
+            if (gameInterval) clearInterval(gameInterval);
+            
+            resizeCanvas(); // Ricalcola dimensioni e cellSize
+            drawGame(); // Ridisegna con le nuove dimensioni
 
-            if ((keyPressed === 'ArrowUp' || buttonId === 'up-btn') && !goingDown) {
-                dx = 0; dy = -tileSize;
-            } else if ((keyPressed === 'ArrowDown' || buttonId === 'down-btn') && !goingUp) {
-                dx = 0; dy = tileSize;
-            } else if ((keyPressed === 'ArrowLeft' || buttonId === 'left-btn') && !goingRight) {
-                dx = -tileSize; dy = 0;
-            } else if ((keyPressed === 'ArrowRight' || buttonId === 'right-btn') && !goingLeft) {
-                dx = tileSize; dy = 0;
-            } else {
-                changingDirection = false;
-            }
-        }
-
-        let animationFrameId = null;
-        function gameLoop(currentTime) {
-            if (gamePausedForMessage) {
-                 animationFrameId = requestAnimationFrame(gameLoop);
-                 return;
-            }
-            if (!gameRunning) {
-                return;
-            }
-
-            const deltaTime = currentTime - lastFrameTime;
-
-            if (deltaTime > frameInterval) {
-                lastFrameTime = currentTime - (deltaTime % frameInterval);
-                changingDirection = false;
-
-                clearCanvas();
-                drawFood();
-                updateSnake();
-                if (gameRunning) {
-                    drawSnake();
-                }
-                updateUI();
-            }
-
-            if(gameRunning) {
-               animationFrameId = requestAnimationFrame(gameLoop);
-            }
-        }
-
-        document.addEventListener('keydown', changeDirection);
-        upBtn.addEventListener('click', changeDirection);
-        downBtn.addEventListener('click', changeDirection);
-        leftBtn.addEventListener('click', changeDirection);
-        rightBtn.addEventListener('click', changeDirection);
-
-        restartButton.addEventListener('click', () => {
-            if (lives > 0) {
-                resetLevel();
-            } else {
-                initGame();
+            if (!wasPaused && lives > 0 && !gameOverScreen.classList.contains('visible')) {
+                isPaused = false;
+                gameInterval = setInterval(gameLoop, GAME_SPEED);
+            } else if (gameOverScreen.classList.contains('visible')){
+                 drawGame(); // Se in game over, ridisegna soltanto
             }
         });
-
-        initGame();
+        
+        // Avvio del gioco
+        startGame();
 
     </script>
 </body>

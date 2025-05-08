@@ -7,24 +7,26 @@
     <style>
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: #2c3e50; /* Blu notte profondo */
-            color: #ecf0f1; /* Argento chiaro */
+            background-color: #2c3e50;
+            color: #ecf0f1;
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
+            justify-content: space-around; /* MODIFICATO da center */
             margin: 0;
             padding: 10px;
             min-height: 100vh;
             overflow: hidden;
-            touch-action: manipulation; /* Per migliorare risposta touch e disabilitare zoom/pan */
-            -webkit-tap-highlight-color: transparent; /* Rimuove highlight blu su tap */
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+            box-sizing: border-box; /* MODIFICATO: aggiunto */
         }
         h1 {
-            color: #f1c40f; /* Giallo sole, per "Mori" */
-            text-shadow: 2px 2px #8e44ad; /* Viola scuro per un tocco "epico" */
+            color: #f1c40f;
+            text-shadow: 2px 2px #8e44ad;
+            margin-top: 5px; /* Leggero spazio sopra */
             margin-bottom: 10px;
-            font-size: 2.5em;
+            font-size: clamp(2.0em, 7vw, 2.6em); /* MODIFICATO: leggermente ridotto e più responsive */
             text-align: center;
         }
         .game-info {
@@ -32,41 +34,41 @@
             justify-content: space-around;
             width: 95%;
             max-width: 450px;
-            margin-bottom: 15px;
-            font-size: clamp(1em, 4vw, 1.3em); /* Dimensione font responsive */
+            margin-bottom: 10px; /* MODIFICATO da 15px */
+            font-size: clamp(1em, 4vw, 1.3em);
         }
         .game-info div {
-            background-color: #34495e; /* Blu ardesia */
+            background-color: #34495e;
             padding: 8px 12px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.2);
             text-align: center;
         }
         #gameCanvas {
-            border: 4px solid #f1c40f; /* Stesso giallo del titolo */
-            background-color: #1f2b38; /* Sfondo gioco leggermente più scuro del body */
+            border: 4px solid #f1c40f;
+            background-color: #1f2b38;
             display: block;
             border-radius: 10px;
-            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5); /* Glow dorato */
-            /* Le dimensioni verranno impostate da JS */
+            box-shadow: 0 0 20px rgba(241, 196, 15, 0.5);
         }
         .controls {
             display: flex;
             justify-content: space-between;
             width: 95%;
             max-width: 400px;
-            margin-top: 20px;
+            margin-top: 15px; /* MODIFICATO da 20px */
+            margin-bottom: 5px; /* Leggero spazio sotto */
         }
         .controls button {
-            background-color: #e67e22; /* Arancione carota */
+            background-color: #e67e22;
             color: #fff;
             border: none;
-            padding: clamp(12px, 5vw, 20px) clamp(15px, 6vw, 25px); /* Padding responsive */
+            padding: clamp(12px, 5vw, 20px) clamp(15px, 6vw, 25px);
             font-size: clamp(1.1em, 4.5vw, 1.5em);
             font-weight: bold;
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 5px #d35400; /* Arancione più scuro per effetto 3D */
+            box-shadow: 0 5px #d35400;
             transition: background-color 0.1s, transform 0.05s, box-shadow 0.05s;
             flex-grow: 1;
             margin: 0 8px;
@@ -83,7 +85,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-color: rgba(44, 62, 80, 0.95); /* Sfondo semitrasparente blu notte */
+            background-color: rgba(44, 62, 80, 0.95);
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -101,23 +103,23 @@
         }
         #gameOverScreen h2 {
             font-size: clamp(2.5em, 10vw, 4em);
-            color: #e74c3c; /* Rosso Alizarina */
+            color: #e74c3c;
             margin-bottom: 15px;
-            text-shadow: 1px 1px #c0392b; /* Rosso più scuro */
+            text-shadow: 1px 1px #c0392b;
         }
         #gameOverScreen p {
             font-size: clamp(1.2em, 5vw, 1.8em);
             margin-bottom: 25px;
         }
         #restartButton {
-            background-color: #2ecc71; /* Verde Smeraldo */
+            background-color: #2ecc71;
             color: #fff;
             border: none;
             padding: 15px 35px;
             font-size: clamp(1.2em, 5vw, 1.6em);
             border-radius: 12px;
             cursor: pointer;
-            box-shadow: 0 5px #27ae60; /* Verde più scuro */
+            box-shadow: 0 5px #27ae60;
             transition: background-color 0.1s, transform 0.05s, box-shadow 0.05s;
             -webkit-tap-highlight-color: transparent;
         }
@@ -125,12 +127,6 @@
             background-color: #27ae60;
             transform: translateY(3px);
             box-shadow: 0 2px #27ae60;
-        }
-
-        /* Stile per emoji cibo */
-        .food-emoji {
-            /* Gli emoji sono già colorati, non serve molto altro */
-            /* Potremmo aggiungere un piccolo effetto se necessario via JS */
         }
     </style>
 </head>
@@ -171,26 +167,27 @@
 
         const saltyFoods = ["🥨", "🍔", "🍟", "🍕", "🍿", "🥓", "🧀", "🍣", "🌭", "🌮", "🌯", "🍗", "🍖", "🍤", "🥟", "🫔", "🥪", "🫓", "🫕", "🧂", "🥐", "🥯", "🍳", "🫒", "🍄", "🥜", "🍜", "🍲", "🍛", "🍝", "🥫", "🍙", "🍘", "🍢", "🦀", "🦞", "🦐", "🦑", "🦪", "🫘", "🌽"];
 
-        const GRID_SIZE = 20; // Numero di celle nella griglia
+        const GRID_SIZE = 20;
         let cellSize;
         let snake;
         let food;
-        let direction; // {dx, dy}
+        let direction;
         let currentScore;
         let totalFinalScore;
         let lives;
         const INITIAL_LIVES = 5;
         let gameInterval;
-        const GAME_SPEED = 130; // Millisecondi, più basso = più veloce
+        const GAME_SPEED = 130;
         let canChangeDirection;
-        let isPaused = false; // Per gestire la perdita di vita e il game over
+        let isPaused = false;
 
         function resizeCanvas() {
-            const gameAreaWidth = window.innerWidth * 0.95;
-            const gameAreaHeight = window.innerHeight * 0.55; // Lascia spazio per UI e controlli
+            const availableWidth = window.innerWidth * 0.95;
+            // MODIFICATO: Ridotta l'altezza percentuale per fare spazio ai controlli
+            const availableHeightForCanvas = window.innerHeight * 0.48; 
             
-            let canvasSize = Math.min(gameAreaWidth, gameAreaHeight, 500); // Max 500px
-            canvasSize = Math.floor(canvasSize / GRID_SIZE) * GRID_SIZE; // Assicura che sia multiplo di GRID_SIZE
+            let canvasSize = Math.min(availableWidth, availableHeightForCanvas, 480); // Max 480px, leggermente ridotto
+            canvasSize = Math.floor(canvasSize / GRID_SIZE) * GRID_SIZE; 
 
             canvas.width = canvasSize;
             canvas.height = canvasSize;
@@ -203,7 +200,6 @@
                 { x: Math.floor(GRID_SIZE / 2) + 1, y: Math.floor(GRID_SIZE / 2) },
                 { x: Math.floor(GRID_SIZE / 2), y: Math.floor(GRID_SIZE / 2) }
             ];
-            // Direzione iniziale: destra
             direction = { dx: 1, dy: 0 };
             canChangeDirection = true;
         }
@@ -250,39 +246,35 @@
         }
         
         function drawGame() {
-            // Sfondo
-            ctx.fillStyle = '#1f2b38'; // Sfondo canvas
+            ctx.fillStyle = '#1f2b38';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Disegna cibo
             ctx.font = `${cellSize * 0.8}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'middle';
             ctx.fillText(food.emoji, (food.x + 0.5) * cellSize, (food.y + 0.5) * cellSize);
 
-            // Disegna serpente
             snake.forEach((segment, index) => {
                 const segmentX = segment.x * cellSize;
                 const segmentY = segment.y * cellSize;
-                const color = index === 0 ? '#2ecc71' : '#27ae60'; // Testa verde smeraldo, corpo verde più scuro
+                const color = index === 0 ? '#2ecc71' : '#27ae60';
                 drawRoundedRect(segmentX, segmentY, cellSize, cellSize, cellSize * 0.25, color);
 
-                // Occhi sulla testa
                 if (index === 0) {
                     ctx.fillStyle = 'white';
                     const eyeSize = cellSize * 0.15;
                     let eye1X, eye1Y, eye2X, eye2Y;
 
-                    if (direction.dx === 1) { // Destra
+                    if (direction.dx === 1) { 
                         eye1X = segmentX + cellSize * 0.65; eye1Y = segmentY + cellSize * 0.25;
                         eye2X = segmentX + cellSize * 0.65; eye2Y = segmentY + cellSize * 0.75;
-                    } else if (direction.dx === -1) { // Sinistra
+                    } else if (direction.dx === -1) { 
                         eye1X = segmentX + cellSize * 0.35; eye1Y = segmentY + cellSize * 0.25;
                         eye2X = segmentX + cellSize * 0.35; eye2Y = segmentY + cellSize * 0.75;
-                    } else if (direction.dy === 1) { // Giù
+                    } else if (direction.dy === 1) { 
                         eye1X = segmentX + cellSize * 0.25; eye1Y = segmentY + cellSize * 0.65;
                         eye2X = segmentX + cellSize * 0.75; eye2Y = segmentY + cellSize * 0.65;
-                    } else { // Su (direction.dy === -1)
+                    } else { 
                         eye1X = segmentX + cellSize * 0.25; eye1Y = segmentY + cellSize * 0.35;
                         eye2X = segmentX + cellSize * 0.75; eye2Y = segmentY + cellSize * 0.35;
                     }
@@ -291,7 +283,6 @@
                     ctx.arc(eye2X, eye2Y, eyeSize, 0, Math.PI * 2);
                     ctx.fill();
 
-                    // Pupille
                     ctx.fillStyle = 'black';
                     const pupilSize = eyeSize * 0.5;
                     ctx.beginPath();
@@ -305,55 +296,49 @@
         function moveSnake() {
             const head = { x: snake[0].x + direction.dx, y: snake[0].y + direction.dy };
 
-            // Attraversamento muri
             if (head.x >= GRID_SIZE) head.x = 0;
             if (head.x < 0) head.x = GRID_SIZE - 1;
             if (head.y >= GRID_SIZE) head.y = 0;
             if (head.y < 0) head.y = GRID_SIZE - 1;
 
-            snake.unshift(head); // Aggiunge nuova testa
+            snake.unshift(head);
 
-            // Controlla se ha mangiato
             if (head.x === food.x && head.y === food.y) {
                 currentScore++;
                 totalFinalScore++;
-                // Effetto sonoro (opzionale, qui non implementato per semplicità)
-                // navigator.vibrate(50); // Piccola vibrazione se supportato
                 spawnFood();
                 updateUI();
             } else {
-                snake.pop(); // Rimuove la coda se non ha mangiato
+                snake.pop();
             }
         }
 
         function checkCollision() {
             const head = snake[0];
-            // Collisione con se stesso (escludendo la testa stessa)
             for (let i = 1; i < snake.length; i++) {
                 if (snake[i].x === head.x && snake[i].y === head.y) {
-                    return true; // Collisione
+                    return true;
                 }
             }
-            return false; // Nessuna collisione
+            return false;
         }
         
         function handleLifeLost() {
             lives--;
-            currentScore = 0; // Resetta punteggio vita
+            currentScore = 0;
             updateUI();
-            // navigator.vibrate([200, 50, 200]); // Vibrazione più lunga per perdita vita
 
             if (lives <= 0) {
                 gameOver();
             } else {
-                isPaused = true; // Pausa breve prima di resettare la posizione
-                flashScreen('rgba(255,0,0,0.3)'); // Flash rosso
+                isPaused = true;
+                flashScreen('rgba(255,0,0,0.3)');
                 setTimeout(() => {
                     initializeSnake();
-                    spawnFood(); // Genera nuovo cibo, non quello di prima
+                    spawnFood();
                     isPaused = false;
                     canChangeDirection = true;
-                }, 1000); // Pausa di 1 secondo
+                }, 1000);
             }
         }
         
@@ -372,7 +357,9 @@
             setTimeout(() => {
                 flashDiv.style.opacity = '0';
                 setTimeout(() => {
-                    document.body.removeChild(flashDiv);
+                    if (document.body.contains(flashDiv)) { // Verifica se l'elemento è ancora nel DOM
+                       document.body.removeChild(flashDiv);
+                    }
                 }, 500);
             }, 100);
         }
@@ -382,7 +369,6 @@
             isPaused = true;
             gameOverFinalScoreDisplay.textContent = totalFinalScore;
             gameOverScreen.classList.add('visible');
-            // navigator.vibrate([500, 100, 200]); // Vibrazione per game over
         }
 
         function gameLoop() {
@@ -391,32 +377,32 @@
             moveSnake();
             if (checkCollision()) {
                 handleLifeLost();
-                return; // Non disegnare questo frame se c'è stata collisione e si sta gestendo la perdita di vita
+                return;
             }
             drawGame();
-            canChangeDirection = true; // Permetti cambio direzione per il prossimo tick
+            canChangeDirection = true;
         }
 
-        function changeDirection(turn) { // 'left' or 'right'
+        function changeDirection(turn) {
             if (!canChangeDirection || isPaused) return;
 
             const { dx, dy } = direction;
             if (turn === 'left') {
-                if (dx === 1) direction = { dx: 0, dy: -1 }; // Da Destra a Su
-                else if (dx === -1) direction = { dx: 0, dy: 1 }; // Da Sinistra a Giù
-                else if (dy === 1) direction = { dx: 1, dy: 0 };  // Da Giù a Destra
-                else if (dy === -1) direction = { dx: -1, dy: 0 };// Da Su a Sinistra
+                if (dx === 1) direction = { dx: 0, dy: -1 };
+                else if (dx === -1) direction = { dx: 0, dy: 1 };
+                else if (dy === 1) direction = { dx: 1, dy: 0 };
+                else if (dy === -1) direction = { dx: -1, dy: 0 };
             } else if (turn === 'right') {
-                if (dx === 1) direction = { dx: 0, dy: 1 };  // Da Destra a Giù
-                else if (dx === -1) direction = { dx: 0, dy: -1 };// Da Sinistra a Su
-                else if (dy === 1) direction = { dx: -1, dy: 0 }; // Da Giù a Sinistra
-                else if (dy === -1) direction = { dx: 1, dy: 0 }; // Da Su a Destra
+                if (dx === 1) direction = { dx: 0, dy: 1 };
+                else if (dx === -1) direction = { dx: 0, dy: -1 };
+                else if (dy === 1) direction = { dx: -1, dy: 0 };
+                else if (dy === -1) direction = { dx: 1, dy: 0 };
             }
             canChangeDirection = false;
         }
         
         function startGame() {
-            resizeCanvas(); // Imposta dimensioni canvas iniziali
+            resizeCanvas(); 
             lives = INITIAL_LIVES;
             currentScore = 0;
             totalFinalScore = 0;
@@ -429,10 +415,9 @@
             
             if (gameInterval) clearInterval(gameInterval);
             gameInterval = setInterval(gameLoop, GAME_SPEED);
-            drawGame(); // Disegna stato iniziale
+            drawGame(); 
         }
 
-        // Event Listeners
         turnLeftButton.addEventListener('click', () => changeDirection('left'));
         turnLeftButton.addEventListener('touchstart', (e) => { e.preventDefault(); changeDirection('left'); }, { passive: false });
 
@@ -444,21 +429,22 @@
 
         window.addEventListener('resize', () => {
             const wasPaused = isPaused;
-            isPaused = true; // Pausa durante il ridimensionamento
+            const gameWasOver = gameOverScreen.classList.contains('visible');
+
+            isPaused = true; 
             if (gameInterval) clearInterval(gameInterval);
             
-            resizeCanvas(); // Ricalcola dimensioni e cellSize
-            drawGame(); // Ridisegna con le nuove dimensioni
+            resizeCanvas(); 
+            drawGame(); 
 
-            if (!wasPaused && lives > 0 && !gameOverScreen.classList.contains('visible')) {
+            if (!wasPaused && !gameWasOver && lives > 0) {
                 isPaused = false;
                 gameInterval = setInterval(gameLoop, GAME_SPEED);
-            } else if (gameOverScreen.classList.contains('visible')){
-                 drawGame(); // Se in game over, ridisegna soltanto
+            } else if (gameWasOver) {
+                 isPaused = true; // Rimane in pausa se era game over
             }
         });
         
-        // Avvio del gioco
         startGame();
 
     </script>

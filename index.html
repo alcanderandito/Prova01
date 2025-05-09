@@ -16,13 +16,12 @@
     .navbar {
       background-color: #333;
       padding: 10px 20px;
-      /* overflow: hidden; */ /* RIMOSSA QUESTA RIGA PER EVITARE PROBLEMI DI STACKING */
-      position: relative; 
-      z-index: 500; 
+      position: relative;
+      z-index: 500;
     }
 
     .dropdown {
-      position: relative; 
+      position: relative;
       display: inline-block;
     }
 
@@ -46,7 +45,7 @@
       background-color: #f9f9f9;
       min-width: 220px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 999; /* Alto per stare sopra altri elementi, relativo alla navbar */
+      z-index: 999;
       border-radius: 5px;
       margin-top: 5px;
     }
@@ -64,12 +63,10 @@
       background-color: #f1f1f1;
     }
 
-    /* Classe per mostrare il contenuto del menu */
     .show {
       display: block;
     }
 
-    /* Stili specifici per il sottomenu */
     .dropdown-content ul li.submenu-item .submenu {
       display: none;
       padding-left: 20px;
@@ -99,12 +96,11 @@
       transform: rotate(180deg);
     }
 
-    /* Stili per il Contenitore del Bottone Chat */
     #goChatContainer {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1000; /* Il bottone chat resta sopra il menu a tendina */
+        z-index: 1000;
     }
     #goChat{
       width:70px;height:70px;border:none;border-radius:50%;
@@ -116,9 +112,25 @@
     .main-content {
         padding: 20px;
         min-height: calc(100vh - 70px);
-        /* Questo elemento non dovrebbe avere uno z-index alto o creare uno stacking context
-           che possa coprire la navbar o il suo dropdown-content. */
     }
+
+    /* === NUOVI STILI PER IL PLAYER SPOTIFY === */
+    #spotify-player-container {
+        position: fixed; /* Fisso rispetto alla viewport */
+        top: 10px;
+        right: 10px;
+        width: 300px; /* Larghezza tipica per l'embed compatto di Spotify */
+        height: 80px; /* Altezza per l'embed compatto di Spotify */
+        z-index: 950; /* Sotto il dropdown menu (999) e il bottone chat (1000), ma sopra il resto */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border-radius: 12px; /* Spotify usa bordi arrotondati per i suoi embed */
+    }
+
+    #spotify-player-container iframe {
+        border-radius: 12px; /* Fa sì che l'iframe stesso abbia bordi arrotondati */
+        border: none; /* Rimuove eventuali bordi di default dell'iframe */
+    }
+    /* === FINE NUOVI STILI PER IL PLAYER SPOTIFY === */
 
   </style>
 </head>
@@ -128,11 +140,24 @@
     <div class="dropdown">
       <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
       <div id="menuContent" class="dropdown-content">
-        <!-- Il contenuto di menu.html verrà caricato qui -->
         <p style="padding: 10px; color: #555;">Caricamento menu...</p>
       </div>
     </div>
   </div>
+
+  <!-- === PLAYER SPOTIFY === -->
+  <div id="spotify-player-container">
+    <iframe
+        style="border-radius:12px"
+        src="https://open.spotify.com/embed/playlist/2hrUnZb0uCNpF7MSWwWFow?utm_source=generator&theme=0"
+        width="100%"
+        height="100%" /* Prende l'altezza dal contenitore #spotify-player-container */
+        allowfullscreen=""
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+    </iframe>
+  </div>
+  <!-- === FINE PLAYER SPOTIFY === -->
 
   <div class="main-content">
     <h1>Benvenuto nella Home Page!</h1>

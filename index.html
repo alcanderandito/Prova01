@@ -14,30 +14,29 @@
     /* mini‑reset */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{
-      font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif; /* Font base con fallback */
-      height: 100%; /* Permette al body di occupare l'intera altezza se il contenuto è scarso */
-      /* L'overflow sarà gestito dal contenuto stesso; se .main-content è lungo, si potrà scrollare */
+      font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
+      height: 100%;
     }
 
     /* === NAVBAR FISSA === */
     .navbar {
-      background-color: #333; /* Sfondo scuro per la navbar */
-      padding: 10px 20px;     /* Padding interno */
-      position: fixed;        /* Fissa la navbar in alto */
+      background-color: #333;
+      padding: 10px 20px;
+      position: fixed;
       top: 0;
       left: 0;
-      width: 100%;            /* Occupa l'intera larghezza */
-      z-index: 500;           /* Livello di sovrapposizione (sopra .main-content) */
-      display: flex;          /* Per allineare gli elementi interni, se necessario */
-      align-items: center;    /* Allinea verticalmente gli elementi interni */
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Piccola ombra per staccarla */
+      width: 100%;
+      z-index: 500;
+      display: flex;
+      align-items: center;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
     }
     .dropdown {
-      position: relative;     /* Contesto per .dropdown-content */
+      position: relative;
       display: inline-block;
     }
     .dropdown-button {
-      background-color: #4CAF50; /* Verde per il bottone */
+      background-color: #4CAF50;
       color: white;
       padding: 10px 15px;
       font-size: 16px;
@@ -47,38 +46,68 @@
       font-family: 'Roboto', sans-serif;
     }
     .dropdown-button:hover, .dropdown-button:focus {
-      background-color: #45a049; /* Verde più scuro al hover/focus */
+      background-color: #45a049;
     }
     .dropdown-content {
-      display: none;          /* Nascosto di default */
-      position: absolute;     /* Posizionato rispetto a .dropdown */
-      background-color: #f9f9f9; /* Sfondo chiaro per il menu */
-      min-width: 220px;       /* Larghezza minima */
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Ombra per il menu */
-      z-index: 999;           /* Deve stare sopra la navbar e altri elementi */
+      display: none;
+      position: absolute;
+      background-color: #f9f9f9;
+      min-width: 220px;
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+      z-index: 999;
       border-radius: 5px;
-      margin-top: 5px;        /* Spazio dal bottone */
+      margin-top: 5px;
     }
     .dropdown-content ul { list-style-type: none; }
-    .dropdown-content ul li a { color: black; padding: 12px 16px; text-decoration: none; display: block; font-family: 'Roboto', sans-serif; }
+    .dropdown-content ul li a {
+      color: black;
+      padding: 12px 16px;
+      text-decoration: none;
+      display: block;
+      font-family: 'Roboto', sans-serif;
+    }
     .dropdown-content ul li a:hover { background-color: #f1f1f1; }
-    .show { display: block; } /* Classe per mostrare il menu */
-    .dropdown-content ul li.submenu-item .submenu { display: none; padding-left: 20px; background-color: #e9e9e9; }
-    .dropdown-content ul li.submenu-item .submenu ul li a { padding: 10px 15px; font-size: 0.9em; }
-    .dropdown-content ul li.submenu-item .submenu ul li a:hover { background-color: #ddd; }
-    .dropdown-content ul li.submenu-item .submenu.open { display: block; }
-    .submenu-trigger .arrow { display: inline-block; margin-left: 5px; transition: transform 0.3s ease; font-size: 0.8em; }
-    .submenu-trigger.open .arrow { transform: rotate(180deg); }
+    .show { display: block; }
+
+    /* Stili per sottomenu (devono essere presenti anche nel CSS di index.html
+       se il contenuto di menu.html viene iniettato dinamicamente) */
+    .dropdown-content ul li.submenu-item {
+        position: relative;
+    }
+    .dropdown-content ul li.submenu-item .submenu {
+      display: none;
+      padding-left: 20px;
+      background-color: #e9e9e9;
+    }
+    .dropdown-content ul li.submenu-item .submenu ul li a {
+        padding: 10px 15px;
+        font-size: 0.9em;
+    }
+    .dropdown-content ul li.submenu-item .submenu ul li a:hover {
+        background-color: #ddd;
+    }
+    .dropdown-content ul li.submenu-item .submenu.open {
+      display: block;
+    }
+    .submenu-trigger .arrow {
+      display: inline-block;
+      margin-left: 5px;
+      transition: transform 0.3s ease;
+      font-size: 0.8em;
+    }
+    .submenu-trigger.open .arrow {
+      transform: rotate(180deg);
+    }
 
 
     /* === PLAYER SPOTIFY === */
     #spotify-player-container {
         position: fixed;
-        top: 10px;    /* Distanza dall'alto */
-        right: 10px;  /* Distanza da destra */
+        top: 10px;
+        right: 10px;
         width: 300px;
         height: 80px;
-        z-index: 950; /* Sopra il titolo e la navbar, ma sotto il menu aperto e la chat */
+        z-index: 950;
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         border-radius: 12px;
     }
@@ -89,7 +118,7 @@
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1000; /* Il più alto per essere sempre cliccabile */
+        z-index: 1000;
     }
     #goChat{ width:70px;height:70px;border:none;border-radius:50%; background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat; box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer; }
     #goChat:active{transform:scale(.9)}
@@ -100,9 +129,9 @@
         top: 0;
         left: 0;
         width: 100%;
-        height: 100vh; /* Copre l'intera altezza della viewport */
-        z-index: -1;   /* Dietro a tutto il contenuto */
-        overflow: hidden; /* Nasconde parti delle immagini che eccedono durante l'animazione */
+        height: 100vh;
+        z-index: -1;
+        overflow: hidden;
     }
     .background-slide {
         position: absolute;
@@ -110,24 +139,24 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-size: cover; /* Copre l'area mantenendo le proporzioni */
-        background-position: center center; /* Centra l'immagine */
-        opacity: 0; /* Nascosto di default per la transizione */
-        transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1); /* Dissolvenza fluida */
-        transform: scale(1.03); /* Leggero zoom iniziale per l'effetto Ken Burns */
+        background-size: cover;
+        background-position: center center;
+        opacity: 0;
+        transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+        transform: scale(1.03);
     }
     .background-slide.active {
-        opacity: 1; /* Rende la slide attiva visibile */
-        animation: kenburns 25s infinite alternate ease-in-out; /* Animazione Ken Burns */
+        opacity: 1;
+        animation: kenburns 25s infinite alternate ease-in-out;
     }
-    @keyframes kenburns { /* Animazione Ken Burns: zoom e pan lenti e sottili */
+    @keyframes kenburns {
         0% { transform: scale(1.03) translate(0%, 0%); }
         100% { transform: scale(1.12) translate(-1.5%, 1.5%); }
     }
-    .background-slide.active.even-slide-kenburns { /* Variazione per slide con indice dispari */
+    .background-slide.active.even-slide-kenburns {
         animation-name: kenburns-alt;
     }
-    @keyframes kenburns-alt { /* Animazione Ken Burns alternativa */
+    @keyframes kenburns-alt {
         0% { transform: scale(1.03) translate(0%, 0%); }
         100% { transform: scale(1.12) translate(1.5%, -1.5%); }
     }
@@ -135,65 +164,57 @@
     /* === TITOLO EROE === */
     #hero-title-container {
         position: fixed;
-        top: 48%; /* Leggermente sopra il centro verticale */
+        top: 48%;
         left: 50%;
-        transform: translate(-50%, -50%); /* Centra perfettamente l'elemento */
+        transform: translate(-50%, -50%);
         text-align: center;
-        color: #ffffff; /* Testo bianco */
-        z-index: 5;     /* Sopra lo sfondo, ma sotto navbar, spotify, chat */
+        color: #ffffff;
+        z-index: 5;
         padding: 20px;
-        width: 90%;     /* Occupa gran parte della larghezza, ma con margini */
-        max-width: 850px; /* Limita la larghezza su schermi molto grandi */
-        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.75); /* Ombra per leggibilità sullo sfondo */
+        width: 90%;
+        max-width: 850px;
+        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.75);
     }
     #hero-title-container h1 {
-        font-family: 'Oswald', sans-serif; /* Font d'impatto per il titolo */
-        font-size: 3.5rem;  /* Dimensione base per PC */
-        font-weight: 700;   /* Grassetto */
+        font-family: 'Oswald', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 700;
         margin-bottom: 0.4em;
         line-height: 1.15;
         letter-spacing: 1.5px;
-        text-transform: uppercase; /* Tutto maiuscolo */
+        text-transform: uppercase;
     }
     #hero-title-container p {
-        font-family: 'Roboto', sans-serif; /* Font più leggero per il sottotitolo */
-        font-size: 1.3rem; /* Dimensione base per PC */
-        font-weight: 300;  /* Light */
+        font-family: 'Roboto', sans-serif;
+        font-size: 1.3rem;
+        font-weight: 300;
         line-height: 1.6;
-        opacity: 0.9;      /* Leggera trasparenza per distinguersi dal titolo */
+        opacity: 0.9;
     }
 
     /* Responsive per il Titolo */
-    @media (max-width: 992px) { /* Tablet */
+    @media (max-width: 992px) {
       #hero-title-container h1 { font-size: 3rem; }
       #hero-title-container p { font-size: 1.15rem; }
     }
-    @media (max-width: 768px) { /* Tablet e Mobile grandi */
+    @media (max-width: 768px) {
         #hero-title-container { top: 45%; }
         #hero-title-container h1 { font-size: 2.5rem; }
         #hero-title-container p { font-size: 1rem; }
     }
-    @media (max-width: 480px) { /* Telefoni più piccoli */
+    @media (max-width: 480px) {
         #hero-title-container h1 { font-size: 2rem; letter-spacing: 1px; }
         #hero-title-container p { font-size: 0.9rem; }
     }
 
     /* === CONTENUTO PRINCIPALE CON PADDING PER NAVBAR FISSA === */
     .main-content {
-        position: relative; /* Necessario per lo stacking context se si usano z-index */
-        z-index: 2;         /* Sopra lo sfondo dinamico (che è z-index: -1) */
-        /* ADATTA QUESTO VALORE ALL'ALTEZZA EFFETTIVA DELLA TUA NAVBAR!
-           Esempio: se la navbar è alta 56px, un padding di 60px-70px va bene. */
-        padding-top: 70px;
-        padding-left: 20px;   /* Padding laterale per il contenuto */
+        position: relative;
+        z-index: 2;
+        padding-top: 70px; /* ADATTA QUESTO VALORE ALL'ALTEZZA EFFETTIVA DELLA TUA NAVBAR! */
+        padding-left: 20px;
         padding-right: 20px;
-        padding-bottom: 20px; /* Padding inferiore */
-        /* Se vuoi che il contenuto principale abbia uno sfondo per distinguerlo
-           meglio dallo sfondo dinamico quando si scorre: */
-        /* background-color: rgba(255, 255, 255, 0.9); */
-        /* border-radius: 8px; */
-        /* margin: 0 auto; */ /* Per centrare un blocco di contenuto con larghezza fissa */
-        /* max-width: 1200px; */ /* Esempio di larghezza massima per il contenuto */
+        padding-bottom: 20px;
     }
   </style>
 </head>
@@ -204,25 +225,22 @@
     <div class="dropdown">
       <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
       <div id="menuContent" class="dropdown-content">
-        <!-- Contenuto del menu caricato da menu.html o inserito direttamente -->
+        <!-- Questo paragrafo verrà sostituito dal contenuto di menu.html -->
         <p style="padding: 10px; color: #555;">Caricamento menu...</p>
       </div>
     </div>
-    <!-- Qui potresti aggiungere altri link o il logo del sito nella navbar -->
   </div>
 
-  <!-- SFONDO DINAMICO (si posiziona dietro a tutto) -->
-  <div id="dynamic-background-container">
-      <!-- Le immagini di sfondo verranno generate qui da JavaScript -->
-  </div>
+  <!-- SFONDO DINAMICO -->
+  <div id="dynamic-background-container"></div>
 
-  <!-- TITOLO EROE (centrato sopra lo sfondo) -->
+  <!-- TITOLO EROE -->
   <div id="hero-title-container">
       <h1>Team Due Mori</h1>
       <p>Il Dream Team (almeno la mattina, dopo il caffè).</p>
   </div>
 
-  <!-- PLAYER SPOTIFY (in alto a destra) -->
+  <!-- PLAYER SPOTIFY -->
   <div id="spotify-player-container">
     <iframe
         style="border-radius:12px"
@@ -235,27 +253,12 @@
     </iframe>
   </div>
 
-  <!-- CONTENUTO PRINCIPALE (qui andrà il tuo contenuto specifico) -->
+  <!-- CONTENUTO PRINCIPALE -->
   <div class="main-content">
-    <!--
-        IL TUO CONTENUTO VA QUI!
-        Esempio:
-        <h2>Chi Siamo</h2>
-        <p>Siamo il Team Due Mori, un gruppo di individui...</p>
-        <img src="immagine_team.jpg" alt="Il nostro fantastico team">
-    -->
-    <!-- Per testare lo scroll, puoi temporaneamente aggiungere: -->
-    <!--
-    <h2>Test Scroll</h2>
-    <p>Contenuto di prova per verificare lo scrolling della pagina...</p>
-    <div style="height: 1200px; background-color: rgba(200,200,200,0.3); border:1px dashed #999; display:flex; align-items:center; justify-content:center;">
-        <p style="font-size:1.5em; color:#333;">Area per scrollare</p>
-    </div>
-    <p>Fine contenuto di prova.</p>
-    -->
+    <!-- IL TUO CONTENUTO VA QUI! -->
   </div>
 
-  <!-- BOTTONE CHAT (in basso a destra) -->
+  <!-- BOTTONE CHAT -->
   <div id="goChatContainer">
     <a href="chat.html" aria-label="Apri chat">
       <button id="goChat"></button>
@@ -264,107 +267,105 @@
 
   <!-- SCRIPTS -->
   <script>
-    // --- SCRIPT PER IL MENU A TENDINA ---
+    // --- SCRIPT PER IL MENU A TENDINA (CON FETCH DA menu.html) ---
     function toggleMenu() {
       const menuContent = document.getElementById("menuContent");
       const isCurrentlyShown = menuContent.classList.contains("show");
+      const isLoadingPlaceholderPresent = menuContent.querySelector('p[style*="Caricamento menu"]');
 
-      // Se il menu non è mostrato e non è ancora stato caricato (o è vuoto)
-      if (!isCurrentlyShown && (menuContent.querySelector('p[style*="Caricamento menu"]') || menuContent.innerHTML.trim() === '')) {
-        fetch('menu.html') // Assicurati che menu.html esista e sia accessibile
+      // Carica il contenuto solo se il menu sta per essere aperto E
+      // il placeholder di caricamento è presente OPPURE il contenuto è vuoto (dopo un errore precedente, per esempio)
+      if (!isCurrentlyShown && (isLoadingPlaceholderPresent || menuContent.innerHTML.trim() === '' || menuContent.innerHTML.includes("Errore caricamento menu"))) {
+        fetch('menu.html') // Assicurati che menu.html esista e sia nella stessa cartella
           .then(response => {
             if (!response.ok) {
-              throw new Error('Errore nel caricamento di menu.html: ' + response.status);
+              // Se c'è un errore (es. 404 Not Found), lancia un errore per il .catch()
+              throw new Error('Errore nel caricamento di menu.html: ' + response.status + ' ' + response.statusText);
             }
-            return response.text();
+            return response.text(); // Ottieni il contenuto HTML come testo
           })
           .then(data => {
-            menuContent.innerHTML = data;
-            // Qui potresti dover ri-associare gli event listener per i sottomenu se menu.html li contiene
+            if (data.trim() === '') {
+                // Se menu.html è vuoto, mostra un messaggio appropriato
+                menuContent.innerHTML = '<p style="padding: 10px; color: #888;">Menu vuoto.</p>';
+            } else {
+                menuContent.innerHTML = data; // Inserisci l'HTML caricato nel div
+            }
           })
           .catch(error => {
+            // In caso di errore di fetch o altro, mostra un messaggio di errore nel menu
             menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
-            console.error('Errore fetch menu.html:', error);
+            console.error('Dettagli errore fetch menu.html:', error); // Logga l'errore dettagliato in console
           });
       }
-      menuContent.classList.toggle("show");
+
+      menuContent.classList.toggle("show"); // Mostra o nascondi il menu
 
       // Chiudi sottomenu aperti se il menu principale si chiude
       if (!menuContent.classList.contains("show")) {
         const openSubmenus = menuContent.querySelectorAll('.submenu.open');
         openSubmenus.forEach(submenu => {
           submenu.classList.remove('open');
-          const trigger = submenu.previousElementSibling; // o il corretto selettore del trigger
-          if (trigger && trigger.classList.contains('submenu-trigger')) { // Assumendo che il trigger abbia questa classe
+          const trigger = submenu.previousElementSibling;
+          if (trigger && trigger.classList.contains('submenu-trigger')) {
               trigger.classList.remove('open');
           }
         });
       }
     }
 
-    // Funzione per mostrare/nascondere i sottomenu (DEVE essere chiamata da link in menu.html)
-    // Esempio di come potrebbe essere un link sottomenu in menu.html:
-    // <a href="#" class="submenu-trigger" onclick="toggleSubmenu(event, this)">Voce con Sottomenu <span class="arrow">▼</span></a>
-    // <ul class="submenu">...</ul>
+    // Funzione per mostrare/nascondere i sottomenu
+    // Questa funzione verrà chiamata da onclick="" presente nell'HTML caricato da menu.html
     function toggleSubmenu(event, triggerElement) {
-      event.preventDefault(); // Impedisce al link di navigare
-      event.stopPropagation(); // Ferma la propagazione dell'evento (es. per non chiudere il menu principale)
+      event.preventDefault();
+      event.stopPropagation();
 
-      const submenu = triggerElement.nextElementSibling; // Assume che .submenu sia subito dopo il trigger
+      const submenu = triggerElement.nextElementSibling;
       if (submenu && submenu.classList.contains('submenu')) {
         submenu.classList.toggle('open');
-        triggerElement.classList.toggle('open'); // Per ruotare la freccia, se presente
+        triggerElement.classList.toggle('open');
       }
     }
 
-    // Chiudi il menu principale se l'utente clicca fuori da esso
+    // Chiudi il menu principale (e i sottomenu) se l'utente clicca fuori da esso
     window.onclick = function(event) {
       const menuContent = document.getElementById("menuContent");
       const dropdownButton = document.querySelector('.dropdown-button');
 
-      // Controlla se il click è fuori dal bottone del menu E fuori dal contenuto del menu
-      if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
-        if (menuContent.classList.contains('show')) {
-          menuContent.classList.remove('show');
-          // Chiudi anche tutti i sottomenu
-          const openSubmenus = menuContent.querySelectorAll('.submenu.open');
-          openSubmenus.forEach(submenu => {
-            submenu.classList.remove('open');
-            const trigger = submenu.previousElementSibling;
-             if (trigger && trigger.classList.contains('submenu-trigger')) {
-                trigger.classList.remove('open');
-            }
-          });
-        }
+      if (menuContent.classList.contains("show") && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
+        menuContent.classList.remove('show');
+        const openSubmenus = menuContent.querySelectorAll('.submenu.open');
+        openSubmenus.forEach(submenu => {
+          submenu.classList.remove('open');
+          const trigger = submenu.previousElementSibling;
+           if (trigger && trigger.classList.contains('submenu-trigger')) {
+              trigger.classList.remove('open');
+          }
+        });
       }
     }
 
     // --- SCRIPT PER SFONDO DINAMICO ---
     document.addEventListener('DOMContentLoaded', () => {
         const backgroundContainer = document.getElementById('dynamic-background-container');
-        // Assicurati che questi nomi file corrispondano ESATTAMENTE ai tuoi file immagine
-        // e che si trovino nella stessa cartella dell'index.html
         const images = [
             'home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG',
             'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'
         ];
-        let currentImageIndex = -1; // Inizia da -1 per caricare la prima immagine correttamente
-        const slideDuration = 7500; // 7.5 secondi (transizione + visualizzazione)
-        const kenBurnsAnimationDuration = 25; // secondi, deve corrispondere al CSS @keyframes
+        let currentImageIndex = -1;
+        const slideDuration = 7500;
+        const kenBurnsAnimationDuration = 25;
 
-        // Precarica le immagini per transizioni più fluide (opzionale ma buona pratica)
         images.forEach(src => {
             const img = new Image();
             img.src = src;
         });
 
-        // Crea gli elementi slide per ogni immagine
         images.forEach((imageName, index) => {
             const slide = document.createElement('div');
             slide.classList.add('background-slide');
             slide.style.backgroundImage = `url('${imageName}')`;
-            // Applica animazione Ken Burns alternata per slide con indice dispari (0-based)
-            if (index % 2 !== 0) { // Se l'indice è 1, 3, 5...
+            if (index % 2 !== 0) {
                 slide.classList.add('even-slide-kenburns');
             }
             backgroundContainer.appendChild(slide);
@@ -373,34 +374,24 @@
         const slides = backgroundContainer.querySelectorAll('.background-slide');
 
         function showNextSlide() {
-            if (slides.length === 0) return; // Nessuna slide da mostrare
-
-            // Rimuovi 'active' dalla slide corrente (se ce n'è una)
+            if (slides.length === 0) return;
             if (currentImageIndex >= 0) {
                 slides[currentImageIndex].classList.remove('active');
-                // Reset animazione per la slide che sta uscendo (per farla ripartire da capo la prossima volta)
                 slides[currentImageIndex].style.animation = 'none';
                 // eslint-disable-next-line no-unused-expressions
-                slides[currentImageIndex].offsetHeight; // Forza un reflow per applicare il reset dell'animazione
+                slides[currentImageIndex].offsetHeight;
             }
-
-            // Passa alla slide successiva (ciclicamente)
             currentImageIndex = (currentImageIndex + 1) % slides.length;
             slides[currentImageIndex].classList.add('active');
-
-            // Ripristina l'animazione CSS corretta per la nuova slide attiva
             if (slides[currentImageIndex].classList.contains('even-slide-kenburns')) {
                 slides[currentImageIndex].style.animation = `kenburns-alt ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
             } else {
                 slides[currentImageIndex].style.animation = `kenburns ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
             }
         }
-
-        // Mostra la prima slide immediatamente al caricamento della pagina
         if (slides.length > 0) {
             showNextSlide();
         }
-        // Cambia slide a intervalli regolari
         setInterval(showNextSlide, slideDuration);
     });
   </script>

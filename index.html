@@ -5,26 +5,35 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Home • Team Due Mori</title>
 
+  <!-- Importazione Font da Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+
   <style>
     /* mini‑reset */
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{
-      font-family:-apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif; /* Font base con fallback */
+      /* Se la navbar è fissa, potrebbe servire un padding-top al body
+         per evitare che il contenuto sotto la navbar venga nascosto.
+         Questo dipende dalla tua navbar specifica.
+         Se la tua navbar non crea questo problema o non è fissa, puoi ometterlo.
+         Esempio: padding-top: 60px; se la navbar è fissa e alta 60px */
     }
 
-    /* Stili per il Menu a Tendina */
+    /* === STILI ESISTENTI PER MENU A TENDINA === */
     .navbar {
       background-color: #333;
       padding: 10px 20px;
-      position: relative;
-      z-index: 500;
+      position: relative; /* o 'fixed'/'sticky' se la vuoi sempre visibile in alto */
+      z-index: 500; /* Alto, ma sotto il dropdown aperto e il player spotify/chat */
+      /* Se la navbar fosse fixed, assicurati che .main-content abbia un padding-top adeguato */
     }
-
     .dropdown {
       position: relative;
       display: inline-block;
     }
-
     .dropdown-button {
       background-color: #4CAF50;
       color: white;
@@ -33,23 +42,21 @@
       border: none;
       cursor: pointer;
       border-radius: 5px;
+      font-family: 'Roboto', sans-serif;
     }
-
     .dropdown-button:hover, .dropdown-button:focus {
       background-color: #45a049;
     }
-
     .dropdown-content {
       display: none;
       position: absolute;
       background-color: #f9f9f9;
       min-width: 220px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 999;
+      z-index: 999; /* Sopra la navbar base */
       border-radius: 5px;
       margin-top: 5px;
     }
-
     .dropdown-content ul {
       list-style-type: none;
     }
@@ -58,21 +65,19 @@
       padding: 12px 16px;
       text-decoration: none;
       display: block;
+      font-family: 'Roboto', sans-serif;
     }
     .dropdown-content ul li a:hover {
       background-color: #f1f1f1;
     }
-
     .show {
       display: block;
     }
-
     .dropdown-content ul li.submenu-item .submenu {
       display: none;
       padding-left: 20px;
       background-color: #e9e9e9;
     }
-
     .dropdown-content ul li.submenu-item .submenu ul li a {
         padding: 10px 15px;
         font-size: 0.9em;
@@ -80,27 +85,41 @@
     .dropdown-content ul li.submenu-item .submenu ul li a:hover {
         background-color: #ddd;
     }
-
     .dropdown-content ul li.submenu-item .submenu.open {
       display: block;
     }
-
     .submenu-trigger .arrow {
       display: inline-block;
       margin-left: 5px;
       transition: transform 0.3s ease;
       font-size: 0.8em;
     }
-
     .submenu-trigger.open .arrow {
       transform: rotate(180deg);
     }
 
+    /* === STILI ESISTENTI PER PLAYER SPOTIFY === */
+    #spotify-player-container {
+        position: fixed;
+        top: 10px;
+        right: 10px;
+        width: 300px;
+        height: 80px;
+        z-index: 950; /* Sopra lo sfondo e il titolo, sotto il dropdown aperto e la chat */
+        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+        border-radius: 12px;
+    }
+    #spotify-player-container iframe {
+        border-radius: 12px;
+        border: none;
+    }
+
+    /* === STILI ESISTENTI PER BOTTONE CHAT === */
     #goChatContainer {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1000;
+        z-index: 1000; /* Massima priorità visiva */
     }
     #goChat{
       width:70px;height:70px;border:none;border-radius:50%;
@@ -109,33 +128,154 @@
     }
     #goChat:active{transform:scale(.9)}
 
+    /* === NUOVI STILI PER SFONDO DINAMICO === */
+    #dynamic-background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100vh;
+        z-index: -1; /* Dietro a TUTTO */
+        overflow: hidden;
+    }
+    .background-slide {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-size: cover;
+        background-position: center center;
+        opacity: 0;
+        transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1); /* Transizione dissolvenza più fluida */
+        transform: scale(1.03); /* Leggero zoom iniziale per Ken Burns */
+    }
+    .background-slide.active {
+        opacity: 1;
+        animation: kenburns 25s infinite alternate; /* Durata più lunga per effetto più lento */
+    }
+    @keyframes kenburns { /* Animazione Ken Burns: zoom e pan sottili */
+        0% {
+            transform: scale(1.03) translate(0%, 0%);
+        }
+        100% {
+            transform: scale(1.12) translate(-1.5%, 1.5%);
+        }
+    }
+    .background-slide.active.even-slide-kenburns { /* Variazione per slide dispari */
+        animation-name: kenburns-alt;
+    }
+    @keyframes kenburns-alt {
+        0% {
+            transform: scale(1.03) translate(0%, 0%);
+        }
+        100% {
+            transform: scale(1.12) translate(1.5%, -1.5%);
+        }
+    }
+
+    /* === NUOVI STILI PER TITOLO EROE === */
+    #hero-title-container {
+        position: fixed;
+        top: 48%; /* Centrato verticalmente, con piccolo aggiustamento */
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #ffffff;
+        z-index: 5; /* Sopra lo sfondo, sotto gli altri elementi interattivi */
+        padding: 20px;
+        width: 90%;
+        max-width: 850px; /* Leggermente più largo */
+        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.7); /* Ombra più definita */
+    }
+    #hero-title-container h1 {
+        font-family: 'Oswald', sans-serif; /* Font importato */
+        font-size: 3.5rem;
+        font-weight: 700;
+        margin-bottom: 0.4em;
+        line-height: 1.15;
+        letter-spacing: 1.5px;
+        text-transform: uppercase; /* Tutto maiuscolo per un look d'impatto */
+    }
+    #hero-title-container p {
+        font-family: 'Roboto', sans-serif; /* Font importato */
+        font-size: 1.3rem;
+        font-weight: 300; /* Più leggero */
+        line-height: 1.6;
+        opacity: 0.9; /* Leggera trasparenza per distinguersi dal titolo */
+    }
+
+    /* Responsive per il Titolo */
+    @media (max-width: 992px) { /* Tablet */
+      #hero-title-container h1 {
+        font-size: 3rem;
+      }
+      #hero-title-container p {
+        font-size: 1.15rem;
+      }
+    }
+    @media (max-width: 768px) { /* Tablet e Mobile grandi */
+        #hero-title-container {
+            top: 45%; /* Leggero spostamento per schermi più piccoli */
+        }
+        #hero-title-container h1 {
+            font-size: 2.5rem;
+        }
+        #hero-title-container p {
+            font-size: 1rem;
+        }
+    }
+    @media (max-width: 480px) { /* Telefoni più piccoli */
+        #hero-title-container h1 {
+            font-size: 2rem;
+            letter-spacing: 1px;
+        }
+        #hero-title-container p {
+            font-size: 0.9rem;
+        }
+    }
+
+    /* === STILE PER IL CONTENUTO PRINCIPALE === */
     .main-content {
         padding: 20px;
-        min-height: calc(100vh - 70px);
+        min-height: calc(100vh - 70px); /* Altezza minima, 70px è un esempio dell'altezza della navbar */
+        position: relative; /* Necessario per lo z-index */
+        z-index: 2;      /* Sopra lo sfondo dinamico */
+        /* Aggiungi uno sfondo al main-content se vuoi che sia opaco
+           o semi-trasparente sopra lo sfondo dinamico. Esempio: */
+        /* background-color: rgba(255, 255, 255, 0.8); */
+        /* border-radius: 8px; */ /* Se vuoi angoli arrotondati per il box del contenuto */
+        /* margin: 20px; */ /* Se vuoi che il box del contenuto sia staccato dai bordi */
     }
-
-    /* === NUOVI STILI PER IL PLAYER SPOTIFY === */
-    #spotify-player-container {
-        position: fixed; /* Fisso rispetto alla viewport */
-        top: 10px;
-        right: 10px;
-        width: 300px; /* Larghezza tipica per l'embed compatto di Spotify */
-        height: 80px; /* Altezza per l'embed compatto di Spotify */
-        z-index: 950; /* Sotto il dropdown menu (999) e il bottone chat (1000), ma sopra il resto */
-        box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        border-radius: 12px; /* Spotify usa bordi arrotondati per i suoi embed */
-    }
-
-    #spotify-player-container iframe {
-        border-radius: 12px; /* Fa sì che l'iframe stesso abbia bordi arrotondati */
-        border: none; /* Rimuove eventuali bordi di default dell'iframe */
-    }
-    /* === FINE NUOVI STILI PER IL PLAYER SPOTIFY === */
-
   </style>
 </head>
 <body>
 
+  <!-- NUOVO: SFONDO DINAMICO (si posizionerà dietro a tutto con CSS) -->
+  <div id="dynamic-background-container">
+      <!-- Le immagini di sfondo verranno generate qui da JS -->
+  </div>
+
+  <!-- NUOVO: CONTENITORE TITOLO EROE (si posizionerà sopra lo sfondo con CSS) -->
+  <div id="hero-title-container">
+      <h1>Team Due Mori</h1>
+      <p>Il Dream Team (almeno la mattina, dopo il caffè).</p>
+  </div>
+
+  <!-- PLAYER SPOTIFY (in alto a destra) -->
+  <div id="spotify-player-container">
+    <iframe
+        style="border-radius:12px"
+        src="https://open.spotify.com/embed/playlist/2hrUnZb0uCNpF7MSWwWFow?utm_source=generator&theme=0"
+        width="100%"
+        height="100%"
+        allowfullscreen=""
+        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+        loading="lazy">
+    </iframe>
+  </div>
+
+  <!-- NAVBAR ESISTENTE -->
   <div class="navbar">
     <div class="dropdown">
       <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
@@ -145,31 +285,23 @@
     </div>
   </div>
 
-  <!-- === PLAYER SPOTIFY === -->
-  <div id="spotify-player-container">
-    <iframe
-        style="border-radius:12px"
-        src="https://open.spotify.com/embed/playlist/2hrUnZb0uCNpF7MSWwWFow?utm_source=generator&theme=0"
-        width="100%"
-        height="100%" /* Prende l'altezza dal contenitore #spotify-player-container */
-        allowfullscreen=""
-        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
-        loading="lazy">
-    </iframe>
-  </div>
-  <!-- === FINE PLAYER SPOTIFY === -->
-
+  <!-- CONTENUTO PRINCIPALE ESISTENTE -->
   <div class="main-content">
     <h1>Benvenuto nella Home Page!</h1>
-    <p>Questo è il contenuto principale della tua pagina. Il menu è in alto e la chat è in basso a destra.</p>
+    <p>Questo è il contenuto principale della tua pagina. Il menu è in alto, la musica è in alto a destra e la chat è in basso a destra. E ora, uno sfondo e un titolo bellissimi!</p>
+    <p>Aggiungi qui altro contenuto per testare lo scrolling sopra lo sfondo dinamico.</p>
+    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+    <p style="min-height: 800px;">Aggiungo spazio per scrollare...</p>
   </div>
 
+  <!-- BOTTONE CHAT ESISTENTE (in basso a destra) -->
   <div id="goChatContainer">
     <a href="chat.html" aria-label="Apri chat">
       <button id="goChat"></button>
     </a>
   </div>
 
+  <!-- SCRIPT ESISTENTI PER IL MENU -->
   <script>
     // Funzione per caricare e mostrare/nascondere il menu principale
     function toggleMenu() {
@@ -237,6 +369,66 @@
         }
       }
     }
+  </script>
+
+  <!-- NUOVO SCRIPT PER SFONDO DINAMICO -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const backgroundContainer = document.getElementById('dynamic-background-container');
+        // Assicurati che questi nomi file corrispondano ESATTAMENTE ai tuoi file immagine
+        const images = [
+            'home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG',
+            'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'
+        ];
+        let currentImageIndex = -1; // Inizia da -1 per caricare la prima immagine correttamente
+        const slideDuration = 7500; // 7.5 secondi per immagine (transizione + visualizzazione)
+        const kenBurnsAnimationDuration = 25; // secondi, deve corrispondere al CSS
+
+        // Precarica le immagini per transizioni più fluide
+        images.forEach(src => {
+            const img = new Image();
+            img.src = src;
+        });
+
+        // Crea gli elementi slide
+        images.forEach((imageName, index) => {
+            const slide = document.createElement('div');
+            slide.classList.add('background-slide');
+            slide.style.backgroundImage = `url('${imageName}')`;
+            if (index % 2 !== 0) { // Slide con indice dispari (1, 3, 5...)
+                slide.classList.add('even-slide-kenburns');
+            }
+            backgroundContainer.appendChild(slide);
+        });
+
+        const slides = backgroundContainer.querySelectorAll('.background-slide');
+
+        function showNextSlide() {
+            if (slides.length === 0) return;
+
+            if (currentImageIndex >= 0) {
+                slides[currentImageIndex].classList.remove('active');
+                // Reset animazione per la slide che sta uscendo
+                slides[currentImageIndex].style.animation = 'none';
+                 // eslint-disable-next-line no-unused-expressions
+                slides[currentImageIndex].offsetHeight; // Trigger reflow
+            }
+
+            currentImageIndex = (currentImageIndex + 1) % slides.length;
+            slides[currentImageIndex].classList.add('active');
+
+            // Ripristina l'animazione CSS corretta
+            if (slides[currentImageIndex].classList.contains('even-slide-kenburns')) {
+                slides[currentImageIndex].style.animation = `kenburns-alt ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
+            } else {
+                slides[currentImageIndex].style.animation = `kenburns ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
+            }
+        }
+
+        // Mostra la prima slide immediatamente
+        showNextSlide();
+        setInterval(showNextSlide, slideDuration);
+    });
   </script>
 
 </body>

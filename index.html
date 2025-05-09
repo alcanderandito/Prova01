@@ -15,27 +15,29 @@
     *{margin:0;padding:0;box-sizing:border-box}
     html,body{
       font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif; /* Font base con fallback */
-      /* Se la navbar è fissa, potrebbe servire un padding-top al body
-         per evitare che il contenuto sotto la navbar venga nascosto.
-         Questo dipende dalla tua navbar specifica.
-         Se la tua navbar non crea questo problema o non è fissa, puoi ometterlo.
-         Esempio: padding-top: 60px; se la navbar è fissa e alta 60px */
+      height: 100%; /* Permette al body di occupare l'intera altezza se il contenuto è scarso */
+      /* L'overflow sarà gestito dal contenuto stesso; se .main-content è lungo, si potrà scrollare */
     }
 
-    /* === STILI ESISTENTI PER MENU A TENDINA === */
+    /* === NAVBAR FISSA === */
     .navbar {
-      background-color: #333;
-      padding: 10px 20px;
-      position: relative; /* o 'fixed'/'sticky' se la vuoi sempre visibile in alto */
-      z-index: 500; /* Alto, ma sotto il dropdown aperto e il player spotify/chat */
-      /* Se la navbar fosse fixed, assicurati che .main-content abbia un padding-top adeguato */
+      background-color: #333; /* Sfondo scuro per la navbar */
+      padding: 10px 20px;     /* Padding interno */
+      position: fixed;        /* Fissa la navbar in alto */
+      top: 0;
+      left: 0;
+      width: 100%;            /* Occupa l'intera larghezza */
+      z-index: 500;           /* Livello di sovrapposizione (sopra .main-content) */
+      display: flex;          /* Per allineare gli elementi interni, se necessario */
+      align-items: center;    /* Allinea verticalmente gli elementi interni */
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2); /* Piccola ombra per staccarla */
     }
     .dropdown {
-      position: relative;
+      position: relative;     /* Contesto per .dropdown-content */
       display: inline-block;
     }
     .dropdown-button {
-      background-color: #4CAF50;
+      background-color: #4CAF50; /* Verde per il bottone */
       color: white;
       padding: 10px 15px;
       font-size: 16px;
@@ -45,98 +47,62 @@
       font-family: 'Roboto', sans-serif;
     }
     .dropdown-button:hover, .dropdown-button:focus {
-      background-color: #45a049;
+      background-color: #45a049; /* Verde più scuro al hover/focus */
     }
     .dropdown-content {
-      display: none;
-      position: absolute;
-      background-color: #f9f9f9;
-      min-width: 220px;
-      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
-      z-index: 999; /* Sopra la navbar base */
+      display: none;          /* Nascosto di default */
+      position: absolute;     /* Posizionato rispetto a .dropdown */
+      background-color: #f9f9f9; /* Sfondo chiaro per il menu */
+      min-width: 220px;       /* Larghezza minima */
+      box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2); /* Ombra per il menu */
+      z-index: 999;           /* Deve stare sopra la navbar e altri elementi */
       border-radius: 5px;
-      margin-top: 5px;
+      margin-top: 5px;        /* Spazio dal bottone */
     }
-    .dropdown-content ul {
-      list-style-type: none;
-    }
-    .dropdown-content ul li a {
-      color: black;
-      padding: 12px 16px;
-      text-decoration: none;
-      display: block;
-      font-family: 'Roboto', sans-serif;
-    }
-    .dropdown-content ul li a:hover {
-      background-color: #f1f1f1;
-    }
-    .show {
-      display: block;
-    }
-    .dropdown-content ul li.submenu-item .submenu {
-      display: none;
-      padding-left: 20px;
-      background-color: #e9e9e9;
-    }
-    .dropdown-content ul li.submenu-item .submenu ul li a {
-        padding: 10px 15px;
-        font-size: 0.9em;
-    }
-    .dropdown-content ul li.submenu-item .submenu ul li a:hover {
-        background-color: #ddd;
-    }
-    .dropdown-content ul li.submenu-item .submenu.open {
-      display: block;
-    }
-    .submenu-trigger .arrow {
-      display: inline-block;
-      margin-left: 5px;
-      transition: transform 0.3s ease;
-      font-size: 0.8em;
-    }
-    .submenu-trigger.open .arrow {
-      transform: rotate(180deg);
-    }
+    .dropdown-content ul { list-style-type: none; }
+    .dropdown-content ul li a { color: black; padding: 12px 16px; text-decoration: none; display: block; font-family: 'Roboto', sans-serif; }
+    .dropdown-content ul li a:hover { background-color: #f1f1f1; }
+    .show { display: block; } /* Classe per mostrare il menu */
+    .dropdown-content ul li.submenu-item .submenu { display: none; padding-left: 20px; background-color: #e9e9e9; }
+    .dropdown-content ul li.submenu-item .submenu ul li a { padding: 10px 15px; font-size: 0.9em; }
+    .dropdown-content ul li.submenu-item .submenu ul li a:hover { background-color: #ddd; }
+    .dropdown-content ul li.submenu-item .submenu.open { display: block; }
+    .submenu-trigger .arrow { display: inline-block; margin-left: 5px; transition: transform 0.3s ease; font-size: 0.8em; }
+    .submenu-trigger.open .arrow { transform: rotate(180deg); }
 
-    /* === STILI ESISTENTI PER PLAYER SPOTIFY === */
+
+    /* === PLAYER SPOTIFY === */
     #spotify-player-container {
         position: fixed;
-        top: 10px;
-        right: 10px;
+        top: 10px;    /* Distanza dall'alto */
+        right: 10px;  /* Distanza da destra */
         width: 300px;
         height: 80px;
-        z-index: 950; /* Sopra lo sfondo e il titolo, sotto il dropdown aperto e la chat */
+        z-index: 950; /* Sopra il titolo e la navbar, ma sotto il menu aperto e la chat */
         box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         border-radius: 12px;
     }
-    #spotify-player-container iframe {
-        border-radius: 12px;
-        border: none;
-    }
+    #spotify-player-container iframe { border-radius: 12px; border: none; }
 
-    /* === STILI ESISTENTI PER BOTTONE CHAT === */
+    /* === BOTTONE CHAT === */
     #goChatContainer {
         position: fixed;
         bottom: 20px;
         right: 20px;
-        z-index: 1000; /* Massima priorità visiva */
+        z-index: 1000; /* Il più alto per essere sempre cliccabile */
     }
-    #goChat{
-      width:70px;height:70px;border:none;border-radius:50%;
-      background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat;
-      box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer;
-    }
+    #goChat{ width:70px;height:70px;border:none;border-radius:50%; background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat; box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer; }
     #goChat:active{transform:scale(.9)}
 
-    /* === NUOVI STILI PER SFONDO DINAMICO === */
+    /* === SFONDO DINAMICO === */
     #dynamic-background-container {
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
-        height: 100vh;
-        z-index: -1; /* Dietro a TUTTO */
-        overflow: hidden;
+        height: 100vh; /* Copre l'intera altezza della viewport */
+        z-index: -1;   /* Dietro a tutto il contenuto */
+        overflow: hidden; /* Nasconde parti delle immagini che eccedono durante l'animazione */
     }
     .background-slide {
         position: absolute;
@@ -144,119 +110,113 @@
         left: 0;
         width: 100%;
         height: 100%;
-        background-size: cover;
-        background-position: center center;
-        opacity: 0;
-        transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1); /* Transizione dissolvenza più fluida */
-        transform: scale(1.03); /* Leggero zoom iniziale per Ken Burns */
+        background-size: cover; /* Copre l'area mantenendo le proporzioni */
+        background-position: center center; /* Centra l'immagine */
+        opacity: 0; /* Nascosto di default per la transizione */
+        transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1); /* Dissolvenza fluida */
+        transform: scale(1.03); /* Leggero zoom iniziale per l'effetto Ken Burns */
     }
     .background-slide.active {
-        opacity: 1;
-        animation: kenburns 25s infinite alternate; /* Durata più lunga per effetto più lento */
+        opacity: 1; /* Rende la slide attiva visibile */
+        animation: kenburns 25s infinite alternate ease-in-out; /* Animazione Ken Burns */
     }
-    @keyframes kenburns { /* Animazione Ken Burns: zoom e pan sottili */
-        0% {
-            transform: scale(1.03) translate(0%, 0%);
-        }
-        100% {
-            transform: scale(1.12) translate(-1.5%, 1.5%);
-        }
+    @keyframes kenburns { /* Animazione Ken Burns: zoom e pan lenti e sottili */
+        0% { transform: scale(1.03) translate(0%, 0%); }
+        100% { transform: scale(1.12) translate(-1.5%, 1.5%); }
     }
-    .background-slide.active.even-slide-kenburns { /* Variazione per slide dispari */
+    .background-slide.active.even-slide-kenburns { /* Variazione per slide con indice dispari */
         animation-name: kenburns-alt;
     }
-    @keyframes kenburns-alt {
-        0% {
-            transform: scale(1.03) translate(0%, 0%);
-        }
-        100% {
-            transform: scale(1.12) translate(1.5%, -1.5%);
-        }
+    @keyframes kenburns-alt { /* Animazione Ken Burns alternativa */
+        0% { transform: scale(1.03) translate(0%, 0%); }
+        100% { transform: scale(1.12) translate(1.5%, -1.5%); }
     }
 
-    /* === NUOVI STILI PER TITOLO EROE === */
+    /* === TITOLO EROE === */
     #hero-title-container {
         position: fixed;
-        top: 48%; /* Centrato verticalmente, con piccolo aggiustamento */
+        top: 48%; /* Leggermente sopra il centro verticale */
         left: 50%;
-        transform: translate(-50%, -50%);
+        transform: translate(-50%, -50%); /* Centra perfettamente l'elemento */
         text-align: center;
-        color: #ffffff;
-        z-index: 5; /* Sopra lo sfondo, sotto gli altri elementi interattivi */
+        color: #ffffff; /* Testo bianco */
+        z-index: 5;     /* Sopra lo sfondo, ma sotto navbar, spotify, chat */
         padding: 20px;
-        width: 90%;
-        max-width: 850px; /* Leggermente più largo */
-        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.7); /* Ombra più definita */
+        width: 90%;     /* Occupa gran parte della larghezza, ma con margini */
+        max-width: 850px; /* Limita la larghezza su schermi molto grandi */
+        text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.75); /* Ombra per leggibilità sullo sfondo */
     }
     #hero-title-container h1 {
-        font-family: 'Oswald', sans-serif; /* Font importato */
-        font-size: 3.5rem;
-        font-weight: 700;
+        font-family: 'Oswald', sans-serif; /* Font d'impatto per il titolo */
+        font-size: 3.5rem;  /* Dimensione base per PC */
+        font-weight: 700;   /* Grassetto */
         margin-bottom: 0.4em;
         line-height: 1.15;
         letter-spacing: 1.5px;
-        text-transform: uppercase; /* Tutto maiuscolo per un look d'impatto */
+        text-transform: uppercase; /* Tutto maiuscolo */
     }
     #hero-title-container p {
-        font-family: 'Roboto', sans-serif; /* Font importato */
-        font-size: 1.3rem;
-        font-weight: 300; /* Più leggero */
+        font-family: 'Roboto', sans-serif; /* Font più leggero per il sottotitolo */
+        font-size: 1.3rem; /* Dimensione base per PC */
+        font-weight: 300;  /* Light */
         line-height: 1.6;
-        opacity: 0.9; /* Leggera trasparenza per distinguersi dal titolo */
+        opacity: 0.9;      /* Leggera trasparenza per distinguersi dal titolo */
     }
 
     /* Responsive per il Titolo */
     @media (max-width: 992px) { /* Tablet */
-      #hero-title-container h1 {
-        font-size: 3rem;
-      }
-      #hero-title-container p {
-        font-size: 1.15rem;
-      }
+      #hero-title-container h1 { font-size: 3rem; }
+      #hero-title-container p { font-size: 1.15rem; }
     }
     @media (max-width: 768px) { /* Tablet e Mobile grandi */
-        #hero-title-container {
-            top: 45%; /* Leggero spostamento per schermi più piccoli */
-        }
-        #hero-title-container h1 {
-            font-size: 2.5rem;
-        }
-        #hero-title-container p {
-            font-size: 1rem;
-        }
+        #hero-title-container { top: 45%; }
+        #hero-title-container h1 { font-size: 2.5rem; }
+        #hero-title-container p { font-size: 1rem; }
     }
     @media (max-width: 480px) { /* Telefoni più piccoli */
-        #hero-title-container h1 {
-            font-size: 2rem;
-            letter-spacing: 1px;
-        }
-        #hero-title-container p {
-            font-size: 0.9rem;
-        }
+        #hero-title-container h1 { font-size: 2rem; letter-spacing: 1px; }
+        #hero-title-container p { font-size: 0.9rem; }
     }
 
-    /* === STILE PER IL CONTENUTO PRINCIPALE === */
+    /* === CONTENUTO PRINCIPALE CON PADDING PER NAVBAR FISSA === */
     .main-content {
-        padding: 20px;
-        min-height: calc(100vh - 70px); /* Altezza minima, 70px è un esempio dell'altezza della navbar */
-        position: relative; /* Necessario per lo z-index */
-        z-index: 2;      /* Sopra lo sfondo dinamico */
-        /* Aggiungi uno sfondo al main-content se vuoi che sia opaco
-           o semi-trasparente sopra lo sfondo dinamico. Esempio: */
-        /* background-color: rgba(255, 255, 255, 0.8); */
-        /* border-radius: 8px; */ /* Se vuoi angoli arrotondati per il box del contenuto */
-        /* margin: 20px; */ /* Se vuoi che il box del contenuto sia staccato dai bordi */
+        position: relative; /* Necessario per lo stacking context se si usano z-index */
+        z-index: 2;         /* Sopra lo sfondo dinamico (che è z-index: -1) */
+        /* ADATTA QUESTO VALORE ALL'ALTEZZA EFFETTIVA DELLA TUA NAVBAR!
+           Esempio: se la navbar è alta 56px, un padding di 60px-70px va bene. */
+        padding-top: 70px;
+        padding-left: 20px;   /* Padding laterale per il contenuto */
+        padding-right: 20px;
+        padding-bottom: 20px; /* Padding inferiore */
+        /* Se vuoi che il contenuto principale abbia uno sfondo per distinguerlo
+           meglio dallo sfondo dinamico quando si scorre: */
+        /* background-color: rgba(255, 255, 255, 0.9); */
+        /* border-radius: 8px; */
+        /* margin: 0 auto; */ /* Per centrare un blocco di contenuto con larghezza fissa */
+        /* max-width: 1200px; */ /* Esempio di larghezza massima per il contenuto */
     }
   </style>
 </head>
 <body>
 
-  <!-- NUOVO: SFONDO DINAMICO (si posizionerà dietro a tutto con CSS) -->
-  <div id="dynamic-background-container">
-      <!-- Le immagini di sfondo verranno generate qui da JS -->
+  <!-- NAVBAR (fissa in alto) -->
+  <div class="navbar">
+    <div class="dropdown">
+      <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
+      <div id="menuContent" class="dropdown-content">
+        <!-- Contenuto del menu caricato da menu.html o inserito direttamente -->
+        <p style="padding: 10px; color: #555;">Caricamento menu...</p>
+      </div>
+    </div>
+    <!-- Qui potresti aggiungere altri link o il logo del sito nella navbar -->
   </div>
 
-  <!-- NUOVO: CONTENITORE TITOLO EROE (si posizionerà sopra lo sfondo con CSS) -->
+  <!-- SFONDO DINAMICO (si posiziona dietro a tutto) -->
+  <div id="dynamic-background-container">
+      <!-- Le immagini di sfondo verranno generate qui da JavaScript -->
+  </div>
+
+  <!-- TITOLO EROE (centrato sopra lo sfondo) -->
   <div id="hero-title-container">
       <h1>Team Due Mori</h1>
       <p>Il Dream Team (almeno la mattina, dopo il caffè).</p>
@@ -275,41 +235,43 @@
     </iframe>
   </div>
 
-  <!-- NAVBAR ESISTENTE -->
-  <div class="navbar">
-    <div class="dropdown">
-      <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
-      <div id="menuContent" class="dropdown-content">
-        <p style="padding: 10px; color: #555;">Caricamento menu...</p>
-      </div>
-    </div>
-  </div>
-
-  <!-- CONTENUTO PRINCIPALE ESISTENTE -->
+  <!-- CONTENUTO PRINCIPALE (qui andrà il tuo contenuto specifico) -->
   <div class="main-content">
-    <h1>Benvenuto nella Home Page!</h1>
-    <p>Questo è il contenuto principale della tua pagina. Il menu è in alto, la musica è in alto a destra e la chat è in basso a destra. E ora, uno sfondo e un titolo bellissimi!</p>
-    <p>Aggiungi qui altro contenuto per testare lo scrolling sopra lo sfondo dinamico.</p>
-    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-    <p style="min-height: 800px;">Aggiungo spazio per scrollare...</p>
+    <!--
+        IL TUO CONTENUTO VA QUI!
+        Esempio:
+        <h2>Chi Siamo</h2>
+        <p>Siamo il Team Due Mori, un gruppo di individui...</p>
+        <img src="immagine_team.jpg" alt="Il nostro fantastico team">
+    -->
+    <!-- Per testare lo scroll, puoi temporaneamente aggiungere: -->
+    <!--
+    <h2>Test Scroll</h2>
+    <p>Contenuto di prova per verificare lo scrolling della pagina...</p>
+    <div style="height: 1200px; background-color: rgba(200,200,200,0.3); border:1px dashed #999; display:flex; align-items:center; justify-content:center;">
+        <p style="font-size:1.5em; color:#333;">Area per scrollare</p>
+    </div>
+    <p>Fine contenuto di prova.</p>
+    -->
   </div>
 
-  <!-- BOTTONE CHAT ESISTENTE (in basso a destra) -->
+  <!-- BOTTONE CHAT (in basso a destra) -->
   <div id="goChatContainer">
     <a href="chat.html" aria-label="Apri chat">
       <button id="goChat"></button>
     </a>
   </div>
 
-  <!-- SCRIPT ESISTENTI PER IL MENU -->
+  <!-- SCRIPTS -->
   <script>
-    // Funzione per caricare e mostrare/nascondere il menu principale
+    // --- SCRIPT PER IL MENU A TENDINA ---
     function toggleMenu() {
       const menuContent = document.getElementById("menuContent");
       const isCurrentlyShown = menuContent.classList.contains("show");
 
-      if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
-        fetch('menu.html')
+      // Se il menu non è mostrato e non è ancora stato caricato (o è vuoto)
+      if (!isCurrentlyShown && (menuContent.querySelector('p[style*="Caricamento menu"]') || menuContent.innerHTML.trim() === '')) {
+        fetch('menu.html') // Assicurati che menu.html esista e sia accessibile
           .then(response => {
             if (!response.ok) {
               throw new Error('Errore nel caricamento di menu.html: ' + response.status);
@@ -318,6 +280,7 @@
           })
           .then(data => {
             menuContent.innerHTML = data;
+            // Qui potresti dover ri-associare gli event listener per i sottomenu se menu.html li contiene
           })
           .catch(error => {
             menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
@@ -326,27 +289,31 @@
       }
       menuContent.classList.toggle("show");
 
+      // Chiudi sottomenu aperti se il menu principale si chiude
       if (!menuContent.classList.contains("show")) {
         const openSubmenus = menuContent.querySelectorAll('.submenu.open');
         openSubmenus.forEach(submenu => {
           submenu.classList.remove('open');
-          const trigger = submenu.previousElementSibling;
-          if (trigger && trigger.classList.contains('submenu-trigger')) {
+          const trigger = submenu.previousElementSibling; // o il corretto selettore del trigger
+          if (trigger && trigger.classList.contains('submenu-trigger')) { // Assumendo che il trigger abbia questa classe
               trigger.classList.remove('open');
           }
         });
       }
     }
 
-    // Funzione per mostrare/nascondere i sottomenu
+    // Funzione per mostrare/nascondere i sottomenu (DEVE essere chiamata da link in menu.html)
+    // Esempio di come potrebbe essere un link sottomenu in menu.html:
+    // <a href="#" class="submenu-trigger" onclick="toggleSubmenu(event, this)">Voce con Sottomenu <span class="arrow">▼</span></a>
+    // <ul class="submenu">...</ul>
     function toggleSubmenu(event, triggerElement) {
-      event.preventDefault();
-      event.stopPropagation();
+      event.preventDefault(); // Impedisce al link di navigare
+      event.stopPropagation(); // Ferma la propagazione dell'evento (es. per non chiudere il menu principale)
 
-      const submenu = triggerElement.nextElementSibling;
+      const submenu = triggerElement.nextElementSibling; // Assume che .submenu sia subito dopo il trigger
       if (submenu && submenu.classList.contains('submenu')) {
         submenu.classList.toggle('open');
-        triggerElement.classList.toggle('open');
+        triggerElement.classList.toggle('open'); // Per ruotare la freccia, se presente
       }
     }
 
@@ -355,47 +322,49 @@
       const menuContent = document.getElementById("menuContent");
       const dropdownButton = document.querySelector('.dropdown-button');
 
+      // Controlla se il click è fuori dal bottone del menu E fuori dal contenuto del menu
       if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
         if (menuContent.classList.contains('show')) {
           menuContent.classList.remove('show');
+          // Chiudi anche tutti i sottomenu
           const openSubmenus = menuContent.querySelectorAll('.submenu.open');
           openSubmenus.forEach(submenu => {
             submenu.classList.remove('open');
             const trigger = submenu.previousElementSibling;
-            if (trigger && trigger.classList.contains('submenu-trigger')) {
+             if (trigger && trigger.classList.contains('submenu-trigger')) {
                 trigger.classList.remove('open');
             }
           });
         }
       }
     }
-  </script>
 
-  <!-- NUOVO SCRIPT PER SFONDO DINAMICO -->
-  <script>
+    // --- SCRIPT PER SFONDO DINAMICO ---
     document.addEventListener('DOMContentLoaded', () => {
         const backgroundContainer = document.getElementById('dynamic-background-container');
         // Assicurati che questi nomi file corrispondano ESATTAMENTE ai tuoi file immagine
+        // e che si trovino nella stessa cartella dell'index.html
         const images = [
             'home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG',
             'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'
         ];
         let currentImageIndex = -1; // Inizia da -1 per caricare la prima immagine correttamente
-        const slideDuration = 7500; // 7.5 secondi per immagine (transizione + visualizzazione)
-        const kenBurnsAnimationDuration = 25; // secondi, deve corrispondere al CSS
+        const slideDuration = 7500; // 7.5 secondi (transizione + visualizzazione)
+        const kenBurnsAnimationDuration = 25; // secondi, deve corrispondere al CSS @keyframes
 
-        // Precarica le immagini per transizioni più fluide
+        // Precarica le immagini per transizioni più fluide (opzionale ma buona pratica)
         images.forEach(src => {
             const img = new Image();
             img.src = src;
         });
 
-        // Crea gli elementi slide
+        // Crea gli elementi slide per ogni immagine
         images.forEach((imageName, index) => {
             const slide = document.createElement('div');
             slide.classList.add('background-slide');
             slide.style.backgroundImage = `url('${imageName}')`;
-            if (index % 2 !== 0) { // Slide con indice dispari (1, 3, 5...)
+            // Applica animazione Ken Burns alternata per slide con indice dispari (0-based)
+            if (index % 2 !== 0) { // Se l'indice è 1, 3, 5...
                 slide.classList.add('even-slide-kenburns');
             }
             backgroundContainer.appendChild(slide);
@@ -404,20 +373,22 @@
         const slides = backgroundContainer.querySelectorAll('.background-slide');
 
         function showNextSlide() {
-            if (slides.length === 0) return;
+            if (slides.length === 0) return; // Nessuna slide da mostrare
 
+            // Rimuovi 'active' dalla slide corrente (se ce n'è una)
             if (currentImageIndex >= 0) {
                 slides[currentImageIndex].classList.remove('active');
-                // Reset animazione per la slide che sta uscendo
+                // Reset animazione per la slide che sta uscendo (per farla ripartire da capo la prossima volta)
                 slides[currentImageIndex].style.animation = 'none';
-                 // eslint-disable-next-line no-unused-expressions
-                slides[currentImageIndex].offsetHeight; // Trigger reflow
+                // eslint-disable-next-line no-unused-expressions
+                slides[currentImageIndex].offsetHeight; // Forza un reflow per applicare il reset dell'animazione
             }
 
+            // Passa alla slide successiva (ciclicamente)
             currentImageIndex = (currentImageIndex + 1) % slides.length;
             slides[currentImageIndex].classList.add('active');
 
-            // Ripristina l'animazione CSS corretta
+            // Ripristina l'animazione CSS corretta per la nuova slide attiva
             if (slides[currentImageIndex].classList.contains('even-slide-kenburns')) {
                 slides[currentImageIndex].style.animation = `kenburns-alt ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
             } else {
@@ -425,8 +396,11 @@
             }
         }
 
-        // Mostra la prima slide immediatamente
-        showNextSlide();
+        // Mostra la prima slide immediatamente al caricamento della pagina
+        if (slides.length > 0) {
+            showNextSlide();
+        }
+        // Cambia slide a intervalli regolari
         setInterval(showNextSlide, slideDuration);
     });
   </script>

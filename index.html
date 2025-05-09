@@ -111,6 +111,7 @@
     <div class="dropdown">
       <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
       <div id="menuContent" class="dropdown-content">
+        <!-- Il contenuto di menu.html verrà caricato qui -->
         <p style="padding: 10px; color: #555;">Caricamento menu...</p>
       </div>
     </div>
@@ -123,32 +124,39 @@
   <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a></div>
 
   <script>
+    // --- SCRIPT PER IL MENU A TENDINA (CON LOGICA FETCH RIPRISTINATA DAL TUO ORIGINALE) ---
     function toggleMenu() {
       const menuContent = document.getElementById("menuContent");
       const isCurrentlyShown = menuContent.classList.contains("show");
-      const isLoadingPlaceholderPresent = menuContent.querySelector('p[style*="Caricamento menu"]');
 
-      if (!isCurrentlyShown && (isLoadingPlaceholderPresent || menuContent.innerHTML.trim() === '' || menuContent.innerHTML.includes("Errore caricamento menu"))) {
-        fetch('menu.html')
+      // CONDIZIONE PER IL FETCH ESATTAMENTE COME NEL TUO CODICE ORIGINALE FUNZIONANTE:
+      if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
+        fetch('menu.html') // Assicurati che menu.html sia nella stessa cartella
           .then(response => {
             if (!response.ok) {
+              // Se c'è un errore (es. 404 Not Found), lancia un errore per il .catch()
               throw new Error('Errore nel caricamento di menu.html: ' + response.status + ' ' + response.statusText);
             }
-            return response.text();
+            return response.text(); // Ottieni il contenuto HTML come testo
           })
           .then(data => {
             if (data.trim() === '') {
+                // Se menu.html è vuoto
                 menuContent.innerHTML = '<p style="padding: 10px; color: #888;">Menu vuoto.</p>';
             } else {
-                menuContent.innerHTML = data;
+                menuContent.innerHTML = data; // Inserisci l'HTML caricato nel div
             }
           })
           .catch(error => {
+            // In caso di errore di fetch o altro, mostra un messaggio di errore nel menu
             menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
-            console.error('Dettagli errore fetch menu.html:', error);
+            console.error('Dettagli errore fetch menu.html:', error); // Logga l'errore dettagliato in console
           });
       }
-      menuContent.classList.toggle("show");
+
+      menuContent.classList.toggle("show"); // Mostra o nascondi il menu
+
+      // Chiudi sottomenu aperti se il menu principale si chiude
       if (!menuContent.classList.contains("show")) {
         const openSubmenus = menuContent.querySelectorAll('.submenu.open');
         openSubmenus.forEach(submenu => {
@@ -161,6 +169,8 @@
       }
     }
 
+    // Funzione per mostrare/nascondere i sottomenu
+    // Questa funzione verrà chiamata da onclick="" presente nell'HTML caricato da menu.html
     function toggleSubmenu(event, triggerElement) {
       event.preventDefault();
       event.stopPropagation();
@@ -171,22 +181,26 @@
       }
     }
 
+    // Chiudi il menu principale (e i sottomenu) se l'utente clicca fuori da esso
     window.onclick = function(event) {
       const menuContent = document.getElementById("menuContent");
       const dropdownButton = document.querySelector('.dropdown-button');
-      if (menuContent.classList.contains("show") && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
-        menuContent.classList.remove('show');
-        const openSubmenus = menuContent.querySelectorAll('.submenu.open');
-        openSubmenus.forEach(submenu => {
-          submenu.classList.remove('open');
-          const trigger = submenu.previousElementSibling;
-           if (trigger && trigger.classList.contains('submenu-trigger')) {
-              trigger.classList.remove('open');
-          }
-        });
+      if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) { // Aggiunto controllo per menuContent
+        if (menuContent.classList.contains("show")) {
+          menuContent.classList.remove('show');
+          const openSubmenus = menuContent.querySelectorAll('.submenu.open');
+          openSubmenus.forEach(submenu => {
+            submenu.classList.remove('open');
+            const trigger = submenu.previousElementSibling;
+            if (trigger && trigger.classList.contains('submenu-trigger')) {
+                trigger.classList.remove('open');
+            }
+          });
+        }
       }
     }
 
+    // --- SCRIPT PER SFONDO DINAMICO ---
     document.addEventListener('DOMContentLoaded', () => {
         const backgroundContainer = document.getElementById('dynamic-background-container');
         const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
@@ -207,7 +221,7 @@
             if (currentImageIndex >= 0) {
                 slides[currentImageIndex].classList.remove('active');
                 slides[currentImageIndex].style.animation = 'none';
-                slides[currentImageIndex].offsetHeight; 
+                slides[currentImageIndex].offsetHeight;
             }
             currentImageIndex = (currentImageIndex + 1) % slides.length;
             slides[currentImageIndex].classList.add('active');

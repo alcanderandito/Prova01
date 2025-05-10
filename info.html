@@ -3,30 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dietro le Quinte del Mondo Due Mori!</title>
+    <title>INFO: L'Avventura Creativa di Due Mori!</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Caveat:wght@700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Caveat:wght@700&family=Bungee+Spice&display=swap');
 
         :root {
             --font-primary: 'Poppins', sans-serif;
             --font-headings: 'Caveat', cursive;
+            --font-accent-titles: 'Bungee Spice', cursive;
             
-            --color-bg: #f8f9fa; /* Sfondo pagina leggermente più chiaro e neutro */
-            --color-text: #212529;
-            --color-text-light: #495057;
+            --color-text: #f0f0f0;
+            --color-text-dark: #1a1a1a;
             
-            /* Palette di colori vivaci per le sezioni */
-            --color-section-intro: #ff6b6b; /* Corallo come schede.html per coerenza iniziale */
-            --color-section-start: #ffd166; /* Giallo sole */
-            --color-section-current: #06d6a0; /* Verde menta brillante */
-            --color-section-future: #118ab2; /* Blu ceruleo */
-            --color-section-vibecoding: #ef476f; /* Rosa shocking */
-            --color-section-tools: #7209b7; /* Viola ametista scuro */
-            --color-card-bg: #ffffff;
-            
-            --card-border-radius: 15px;
-            --shadow-light: 0 5px 15px rgba(0,0,0,0.08);
-            --shadow-medium: 0 8px 25px rgba(0,0,0,0.12);
+            --neon-pink: #ff00ff;
+            --neon-blue: #00ffff;
+            --neon-green: #39ff14;
+            --neon-yellow: #fff01f;
+            --neon-orange: #ff8c00;
+            --deep-purple: #301934;
+            --space-blue: #0c0c2c;
+
+            --card-border-radius: 20px;
+            --shadow-glow: 0 0 15px 5px rgba(255, 255, 255, 0.2);
+            --neon-blue-rgb: 0, 255, 255;
+            --neon-pink-rgb: 255, 0, 255;
         }
 
         * {
@@ -37,238 +37,333 @@
 
         body {
             font-family: var(--font-primary);
-            background-color: var(--color-bg);
             color: var(--color-text);
-            line-height: 1.7; /* Aumentata leggermente per leggibilità testi lunghi */
+            line-height: 1.7;
             padding: 20px;
-            padding-top: 65px; 
+            padding-top: 70px; 
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
             overflow-x: hidden;
+            background: linear-gradient(45deg, var(--deep-purple), var(--space-blue), var(--neon-pink), var(--neon-blue), var(--neon-green));
+            background-size: 400% 400%;
+            animation: magicBackground 25s ease infinite;
+        }
+
+        @keyframes magicBackground {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
         }
         
         .home-button {
             position: fixed;
             top: 15px;
             left: 15px;
-            background-color: var(--color-section-intro); /* Coerente con l'header */
+            background-color: rgba(255,255,255,0.1);
+            backdrop-filter: blur(5px);
+            border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            padding: 7px 12px;
-            border-radius: 40px;
+            padding: 8px 14px;
+            border-radius: 50px;
             text-decoration: none;
-            font-weight: 500;
-            font-size: 0.85em;
+            font-weight: 600;
+            font-size: 0.9em;
             z-index: 1001; 
-            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
-            transition: background-color 0.3s ease, transform 0.3s ease;
+            box-shadow: 0 0 10px rgba(var(--neon-blue-rgb), 0.4);
+            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 5px;
         }
 
         .home-button:hover {
-            background-color: #e05252; 
-            transform: translateY(-1px);
+            background-color: rgba(255,255,255,0.2);
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 0 20px rgba(var(--neon-blue-rgb), 0.7);
         }
         
         .home-button svg {
-            width: 16px;
-            height: 16px;
+            width: 18px;
+            height: 18px;
             fill: currentColor;
+            filter: drop-shadow(0 0 3px var(--neon-blue));
         }
 
         .page-main-header {
             text-align: center;
-            margin-bottom: 50px;
-            padding: 30px 20px;
-            background: linear-gradient(135deg, var(--color-section-intro), var(--color-section-start));
-            color: white;
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow-medium);
+            margin-bottom: 50px; /* Ridotto per mobile */
+            padding: 30px 15px; /* Ridotto per mobile */
             width: 100%;
-            max-width: 950px;
+            max-width: 1000px;
+            perspective: 800px; /* Ridotta prospettiva per mobile */
+            position: relative;
+        }
+        
+        .page-main-header::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(circle, rgba(var(--neon-pink-rgb),0.2) 0%, transparent 60%); /* Meno intenso */
+            animation: pulseHeaderGlow 6s infinite alternate; /* Più lento */
+            border-radius: var(--card-border-radius);
+            z-index: -1;
+        }
+
+        @keyframes pulseHeaderGlow {
+            from { transform: scale(0.98); opacity: 0.6; } /* Meno scalatura */
+            to { transform: scale(1.02); opacity: 0.9; }
         }
 
         .page-main-header h1 {
-            font-family: var(--font-headings);
-            font-size: 3.8em;
-            letter-spacing: 1px;
-            text-shadow: 2px 2px 5px rgba(0,0,0,0.25);
+            font-family: var(--font-accent-titles);
+            font-size: clamp(2.5em, 10vw, 5em); /* Adattato per mobile */
+            letter-spacing: 1px; /* Ridotto per mobile */
+            color: var(--neon-yellow);
+            text-shadow: 0 0 3px var(--neon-yellow), 0 0 8px var(--neon-yellow), 0 0 15px var(--neon-orange), 0 0 20px var(--neon-orange); /* Ombre ridotte */
+            animation: titlePopIn 1s ease-out forwards, flickerTitleMobile 4s infinite alternate 1s; /* Animazione flicker adattata */
+            opacity: 0;
+            transform: translateY(-30px) rotateX(20deg) scale(0.9); /* Meno estremo */
+        }
+
+        @keyframes titlePopIn { /* Invariato */
+            to { opacity: 1; transform: translateY(0) rotateX(0deg) scale(1); }
+        }
+        @keyframes flickerTitleMobile { /* Flicker più soft per mobile */
+            0%, 100% {
+                text-shadow: 0 0 3px #fff, 0 0 8px var(--neon-yellow), 0 0 15px var(--neon-orange);
+                opacity: 1;
+            }
+            50% {        
+                text-shadow: 0 0 3px #fff, 0 0 5px var(--neon-yellow);
+                opacity: 0.85;
+            }
         }
         
         .page-main-header .subtitle {
-            font-size: 1.2em;
+            font-size: clamp(0.9em, 3vw, 1.2em); /* Adattato per mobile */
             margin-top: 10px;
-            opacity: 0.9;
-            font-weight: 300;
+            color: var(--neon-blue);
+            font-weight: 400;
+            animation: subtitleSlideIn 1.2s ease-out 0.5s forwards;
+            opacity: 0;
+            transform: translateY(20px); /* Meno estremo */
+            text-shadow: 0 0 3px var(--neon-blue); /* Ombra ridotta */
+        }
+        @keyframes subtitleSlideIn { /* Invariato */
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .info-section {
-            background-color: var(--color-card-bg);
             width: 100%;
-            max-width: 900px;
-            margin-bottom: 40px;
-            padding: 30px 40px;
+            max-width: 950px;
+            margin-bottom: 40px; /* Ridotto per mobile */
+            padding: 25px 20px; /* Ridotto per mobile */
             border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow-light);
-            border-left: 10px solid; /* Bordo colorato per ogni sezione */
-            opacity: 0; /* Per animazione entrata */
-            transform: translateY(30px); /* Per animazione entrata */
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+            box-shadow: var(--shadow-glow), 0 8px 20px rgba(0,0,0,0.25); /* Ombra ridotta */
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            /* Animazione entrata più semplice per mobile di default */
+            transform: translateY(40px); 
+            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
         }
         
-        .info-section.visible {
+        /* Animazione 3D solo per schermi più grandi */
+        @media (min-width: 769px) {
+            .info-section {
+                transform: translateY(50px) rotateY(-10deg);
+                transition: opacity 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            }
+            .info-section.visible {
+                opacity: 1;
+                transform: translateY(0) rotateY(0deg);
+            }
+        }
+         .info-section.visible { /* Per mobile e come fallback */
             opacity: 1;
             transform: translateY(0);
         }
 
-        /* Colori specifici per i bordi delle sezioni */
-        #intro { border-color: var(--color-section-intro); }
-        #l-inizio { border-color: var(--color-section-start); }
-        #sezioni-attuali { border-color: var(--color-section-current); }
-        #cosa-ci-aspetta { border-color: var(--color-section-future); }
-        #vibecoding { border-color: var(--color-section-vibecoding); }
-        #attrezzi-del-mestiere { border-color: var(--color-section-tools); }
+
+        #intro { background: linear-gradient(135deg, #ff0099, #493240); }
+        #l-inizio { background: linear-gradient(135deg, var(--neon-yellow), #ff8800); }
+        #sezioni-attuali { background: linear-gradient(135deg, var(--neon-green), #007f5f); }
+        #cosa-ci-aspetta { background: linear-gradient(135deg, var(--neon-blue), #005f73); }
+        #vibecoding-section { background: linear-gradient(135deg, var(--neon-pink), #7b2cbf); }
+        #attrezzi-del-mestiere { background: linear-gradient(135deg, #ff5400, #ff0054); }
+
 
         .info-section h2 {
-            font-family: var(--font-headings);
-            font-size: 2.8em;
+            font-family: var(--font-accent-titles);
+            font-size: clamp(1.8em, 6vw, 3em); /* Adattato per mobile */
             margin-bottom: 20px;
-            /* Il colore del titolo sarà quello del bordo della sezione */
-            color: inherit; /* Eredita dal border-color tramite JS o impostato qui */
+            text-align: center;
+            position: relative;
+            z-index: 1;
+            letter-spacing: 0.5px; /* Ridotto per mobile */
         }
-        #intro h2 { color: var(--color-section-intro); }
-        #l-inizio h2 { color: var(--color-section-start); }
-        #sezioni-attuali h2 { color: var(--color-section-current); }
-        #cosa-ci-aspetta h2 { color: var(--color-section-future); }
-        #vibecoding h2 { color: var(--color-section-vibecoding); }
-        #attrezzi-del-mestiere h2 { color: var(--color-section-tools); }
-
+        #intro h2 { color: #fceaff; text-shadow: 0 0 5px #fceaff, 0 0 10px var(--neon-pink); }
+        #l-inizio h2 { color: #221a00; text-shadow: 0 0 5px var(--neon-yellow), 0 0 10px #ffcc00; }
+        #sezioni-attuali h2 { color: #e6fff7; text-shadow: 0 0 5px var(--neon-green), 0 0 10px #9ef01a; }
+        #cosa-ci-aspetta h2 { color: #e0f7fa; text-shadow: 0 0 5px var(--neon-blue), 0 0 10px #48cae4; }
+        #vibecoding-section h2 { color: #ffebf7; text-shadow: 0 0 5px var(--neon-pink), 0 0 10px #f72585; }
+        #attrezzi-del-mestiere h2 { color: #fff0e6; text-shadow: 0 0 5px var(--neon-orange), 0 0 10px #f94144; }
 
         .info-section p, .info-section ul {
-            font-size: 1.05em;
-            color: var(--color-text-light);
+            font-size: clamp(0.9em, 2.5vw, 1.05em); /* Adattato per mobile */
             margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
         }
+        #l-inizio p, #l-inizio ul { color: var(--color-text-dark); }
+
         .info-section strong {
-            color: var(--color-text);
-            font-weight: 600;
+            font-weight: 700;
+            filter: brightness(1.15);
         }
-        .info-section ul {
-            list-style-position: inside;
-            padding-left: 10px;
+        #l-inizio strong { color: #d95f02; }
+
+        .info-section ul { list-style: none; padding-left: 0; }
+        .info-section ul li { margin-bottom: 8px; padding-left: 22px; position: relative; }
+        .info-section ul li::before {
+            content: '✦'; position: absolute; left: 0;
+            font-size: 1.1em; line-height: 1;
+            animation: spinMarker 5s linear infinite; /* Rallentata */
         }
-        .info-section ul li {
-            margin-bottom: 8px;
-        }
-        .info-section ul li::marker {
-            color: var(--color-text); /* Colore del bullet point */
-        }
+        #intro ul li::before { color: var(--neon-pink); }
+        #sezioni-attuali ul li::before { color: var(--neon-green); }
+        #cosa-ci-aspetta ul li::before { color: var(--neon-blue); }
+
+        @keyframes spinMarker { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
         
         .highlight {
-            background-color: rgba(255, 209, 102, 0.3); /* Giallo leggero per evidenziare */
-            padding: 0.2em 0.4em;
-            border-radius: 5px;
+            background-color: rgba(255,255,255,0.1);
+            padding: 0.15em 0.4em;
+            border-radius: 6px;
             font-weight: bold;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 0 3px rgba(255,255,255,0.15);
         }
 
-        /* Stile per le card degli strumenti */
         .tools-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Minimo leggermente ridotto */
+            gap: 20px; /* Ridotto per mobile */
             margin-top: 25px;
         }
 
         .tool-card {
-            background-color: #fff; /* Sfondo bianco per le card strumenti */
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: var(--shadow-light);
+            background: rgba(20, 20, 50, 0.4); /* Meno trasparenza per leggibilità */
+            backdrop-filter: blur(6px);
+            padding: 20px; /* Ridotto per mobile */
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-glow);
             text-align: center;
-            border-bottom: 5px solid; /* Bordo colorato dinamico */
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-            /* Per vanilla-tilt.js */
+            border: 1px solid; /* Bordo più sottile */
+            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
             transform-style: preserve-3d; 
+            position: relative;
+            overflow: hidden;
         }
-        .tool-card:hover {
+        .tool-card::before { /* Aura luminosa semplificata per mobile (meno animazione) */
+            content: ""; position: absolute;
+            top: -70%; left: -70%; width: 240%; height: 240%; /* Più grande per coprire meglio */
+            background: radial-gradient(circle, var(--glow-color, var(--neon-blue)) 0%, transparent 50%); /* Radiale invece che conico */
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            pointer-events: none; /* Non interferisce con il mouse */
+        }
+        .tool-card:hover::before { opacity: 0.4; } /* Meno opaca */
+        
+        .tool-card:hover { /* Effetto hover più contenuto per mobile */
             transform: translateY(-5px) scale(1.02);
-            box-shadow: var(--shadow-medium);
-        }
-
-        .tool-card h3 {
-            font-size: 1.5em;
-            color: var(--color-text);
-            margin-bottom: 10px;
-        }
-        .tool-card p {
-            font-size: 0.9em;
-            color: var(--color-text-light);
-            margin-bottom: 0;
+            box-shadow: 0 0 20px 5px var(--glow-color, rgba(var(--neon-blue-rgb), 0.4));
         }
         
-        /* Colori specifici per le card degli strumenti */
-        .tool-card.github { border-bottom-color: #24292e; } /* Grigio scuro GitHub */
-        .tool-card.github h3 { color: #24292e; }
-        .tool-card.vercel { border-bottom-color: #000000; } /* Nero Vercel */
-        .tool-card.vercel h3 { color: #000000; }
-        .tool-card.gemini { border-bottom-color: #4285F4; } /* Blu Google */
-        .tool-card.gemini h3 { color: #4285F4; }
-        .tool-card.htmlcssjs { border-bottom-color: #e34f26; } /* Arancio HTML5 */
-        .tool-card.htmlcssjs h3 { color: #e34f26; }
+        /* Disattiva animazione aura rotante per mobile se troppo pesante, con @media si può fare */
+        /* @media (max-width: 768px) { .tool-card::before { animation: none; } } */
 
+
+        .tool-card h3 {
+            font-size: clamp(1.5em, 5vw, 1.7em); /* Adattato per mobile */
+            font-family: var(--font-accent-titles);
+            margin-bottom: 10px;
+        }
+        .tool-card p { font-size: clamp(0.85em, 2.2vw, 0.9em); color: #bbb; }
+        
+        .tool-card.github { border-color: #777; --glow-color: #bbb; } 
+        .tool-card.github h3 { color: #eee; text-shadow: 0 0 3px #fff; }
+        .tool-card.vercel { border-color: #fff; --glow-color: #fff; } 
+        .tool-card.vercel h3 { color: #fff; text-shadow: 0 0 3px #fff; }
+        .tool-card.gemini { border-color: var(--neon-blue); --glow-color: var(--neon-blue); }
+        .tool-card.gemini h3 { color: var(--neon-blue); text-shadow: 0 0 3px var(--neon-blue); }
+        .tool-card.htmlcssjs { border-color: var(--neon-orange); --glow-color: var(--neon-orange); }
+        .tool-card.htmlcssjs h3 { color: var(--neon-orange); text-shadow: 0 0 3px var(--neon-orange); }
+
+        #vibecoding-section .vibecoding-animation-container {
+            height: 150px; /* Ridotto per mobile */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 25px 0;
+            perspective: 300px; /* Ridotta prospettiva */
+        }
+        .vibe-orb {
+            width: 50px; height: 50px; /* Ridotto */
+            border-radius: 50%; position: absolute;
+            background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 60%);
+            box-shadow: 0 0 10px var(--neon-pink), 0 0 15px var(--neon-pink), inset 0 0 5px #fff; /* Ombre ridotte */
+            animation: pulseOrbMobile 2.5s infinite alternate, orbitMobile 10s linear infinite; /* Animazioni adattate */
+            transform-style: preserve-3d;
+        }
+        /* Particelle rimosse per mobile per performance */
+        .vibe-orb::before, .vibe-orb::after { display: none; } 
+
+        .vibe-text {
+            font-family: var(--font-accent-titles);
+            font-size: clamp(1.8em, 6vw, 2.2em); /* Adattato */
+            color: var(--neon-yellow);
+            text-shadow: 0 0 8px var(--neon-yellow); /* Ombra ridotta */
+            position: relative; z-index: 1;
+        }
+
+        @keyframes pulseOrbMobile {
+            from { transform: scale(0.95); box-shadow: 0 0 8px var(--neon-pink), 0 0 12px var(--neon-pink), inset 0 0 4px #fff; }
+            to { transform: scale(1.05); box-shadow: 0 0 12px var(--neon-pink), 0 0 20px var(--neon-pink), inset 0 0 6px #fff; }
+        }
+        @keyframes orbitMobile { /* Orbita semplificata per mobile */
+            0% { transform: translateX(-50px) rotateY(0deg) translateZ(0px); }
+            50% { transform: translateX(50px) rotateY(10deg) translateZ(10px); } /* Leggera Z per non essere troppo piatto */
+            100% { transform: translateX(-50px) rotateY(0deg) translateZ(0px); }
+        }
 
         .page-footer {
             text-align: center;
-            margin-top: 50px;
-            padding: 20px;
-            font-size: 0.9em;
-            color: #777;
+            margin-top: 50px; padding: 20px;
+            font-size: clamp(0.85em, 2.2vw, 0.95em); /* Adattato */
+            color: #aaa;
+            border-top: 1px solid rgba(255,255,255,0.15); /* Meno visibile */
+            width:100%; max-width: 950px;
         }
-        
-        /* Animazione "Vibecoding" - un po' giocosa */
-        #vibecoding .vibecoding-animation {
-            text-align: center;
-            margin: 20px 0;
-        }
-        #vibecoding .vibecoding-animation span {
-            font-size: 3em;
-            display: inline-block;
-            animation: wave 1.5s infinite;
-        }
-        #vibecoding .vibecoding-animation span:nth-child(1) { animation-delay: 0.1s; color: var(--color-section-vibecoding)}
-        #vibecoding .vibecoding-animation span:nth-child(2) { animation-delay: 0.2s; color: var(--color-section-start)}
-        #vibecoding .vibecoding-animation span:nth-child(3) { animation-delay: 0.3s; color: var(--color-section-current)}
-        #vibecoding .vibecoding-animation span:nth-child(4) { animation-delay: 0.4s; color: var(--color-section-future)}
-        
-        @keyframes wave {
-            0%, 40%, 100% { transform: translateY(0); }
-            20% { transform: translateY(-10px); }
-        }
+        .page-footer strong { color: var(--neon-yellow); text-shadow: 0 0 3px var(--neon-yellow); }
 
-
-        /* Responsive adjustments */
-        @media (max-width: 768px) {
-            body { padding-top: 60px; } 
-            .home-button { padding: 6px 10px; font-size: 0.8em; top: 12px; left: 12px; }
+        /* Ulteriori aggiustamenti per schermi molto piccoli */
+        @media (max-width: 480px) {
+            body { padding-top: 60px; padding-left: 10px; padding-right: 10px;}
+            .home-button { padding: 6px 10px; font-size: 0.75em; top: 10px; left: 10px; }
             .home-button svg { width: 14px; height: 14px; }
 
-            .page-main-header h1 { font-size: 2.8em; }
-            .page-main-header .subtitle { font-size: 1.1em; }
-            .info-section { padding: 25px 20px; border-left-width: 8px;}
-            .info-section h2 { font-size: 2.2em; }
-            .info-section p, .info-section ul { font-size: 1em; }
+            .page-main-header { margin-bottom: 40px; padding: 20px 10px; }
+            .page-main-header .subtitle { font-size: 0.8em; }
+            .info-section { padding: 20px 15px; margin-bottom: 30px; }
+            .tools-grid { grid-template-columns: 1fr; gap: 15px; } 
+            .tool-card { padding: 15px; }
+            #vibecoding-section .vibecoding-animation-container { height: 120px; }
+            .vibe-orb { width: 40px; height: 40px; }
         }
-         @media (max-width: 480px) {
-            .page-main-header h1 { font-size: 2.2em; }
-            .page-main-header .subtitle { font-size: 1em; }
-            .info-section { padding: 20px 15px; border-left-width: 6px;}
-            .info-section h2 { font-size: 1.9em; }
-            .tools-grid { grid-template-columns: 1fr; } /* Strumenti in colonna unica */
-        }
-
     </style>
 </head>
 <body>
@@ -278,74 +373,73 @@
     </a>
 
     <header class="page-main-header">
-        <h1>Dietro le Quinte del Mondo Due Mori!</h1>
-        <p class="subtitle">Una sbirciatina nella nostra fabbrica di idee... e di codice!</p>
+        <h1>INFO COSMICA</h1>
+        <p class="subtitle">Un'occhiata all'universo creativo dietro al progetto Due Mori!</p>
     </header>
 
     <main>
         <section class="info-section" id="intro">
-            <h2>Ciao, Esploratore Digitale!</h2>
-            <p>Benvenuto nella pagina <strong class="highlight">"INFO"</strong> del nostro piccolo (ma scoppiettante) universo Due Mori! Se sei curioso di sapere come nasce tutta questa magia, da dove saltano fuori le idee e quali strani attrezzi usiamo per costruire tutto... beh, sei capitato nel posto giusto!</p>
-            <p>Mettiti comodo, preparati un caffè (o un tè, se preferisci) e iniziamo questo viaggio dietro le quinte. Ti promettiamo che non ci saranno spoiler noiosi, solo tante curiosità!</p>
+            <h2>Ehi, Tu! Sì, Proprio Tu!</h2>
+            <p>Ti sei mai chiesto cosa bolle nella mia pentola creativa? Se vuoi scoprire i segreti, le scintille e le idee un po' matte dietro a questo progetto dedicato al <strong class="highlight">Team Due Mori</strong>, allora allaccia le cinture, perché stai per fare un viaggio intergalattico!</p>
+            <p>Qui non ci sono formule complicate, solo la storia di come un'idea semplice si è trasformata in un piccolo mondo digitale, tutto da esplorare.</p>
         </section>
 
         <section class="info-section" id="l-inizio">
-            <h2>Tutto Cominciò Così...</h2>
-            <p>Hai presente il mitico team del Due Mori? Un giorno ci siamo detti: "E se li trasformassimo in personaggi da cartone animato, magari con quello stile un po' sognante dello <strong>Studio Ghibli</strong>?" L'idea ci è piaciuta un sacco!</p>
-            <p>Così, abbiamo iniziato a disegnare (digitalmente, ovvio!) le schede di ogni membro dello staff, ognuna con le sue foto PNG, una descrizione un po' pazzerella e tutte quelle statistiche che li rendono unici. Volevamo che fosse qualcosa di <strong class="highlight">divertente</strong> e che facesse sorridere.</p>
-            <p>Ed è nata la pagina delle <a href="schede.html" title="Vai alle schede del Team!">Schede del Team</a>, il primo mattoncino di questo progetto!</p>
+            <h2>Il Big Bang: Schede Stellari!</h2>
+            <p>Tutto è iniziato con un flash: perché non trasformare il mitico staff del Due Mori in personaggi unici, come se fossero usciti da un film dello <strong class="highlight">Studio Ghibli</strong>? Volevo qualcosa di super divertente e che facesse brillare gli occhi.</p>
+            <p>Così, mi sono messo all'opera e ho creato le <a href="schede.html" title="Vai alle schede del Team!" style="color: #d95f02; text-decoration: underline; font-weight:bold;">Schede del Team</a>, ognuna con foto, descrizioni un po' pazze e dettagli che raccontano la loro "essenza". Quella è stata la prima stella di questa costellazione!</p>
         </section>
 
         <section class="info-section" id="sezioni-attuali">
-            <h2>Ma la Fame Vien Mangiando (Idee)!</h2>
-            <p>Una volta partite le schede, ci siamo detti: "Perché fermarci qui?". Volevamo creare un ambiente ancora più <strong class="highlight">immersivo</strong>, un posto dove non solo leggi, ma interagisci e ti diverti. E così, sono nate altre sezioni:</p>
+            <h2>L'Espansione dell'Universo</h2>
+            <p>Ma una stella sola non fa una galassia, giusto? Ho pensato che servisse qualcosa di più, un'esperienza <strong class="highlight">coinvolgente</strong>. E così, sono nate altre meraviglie:</p>
             <ul>
-                <li><strong>Chatbot "Don Alfred":</strong> Il nostro saggio (e a volte un po' burbero) assistente virtuale. È lì per farti compagnia, rispondere a qualche domanda strampalata e, perché no, strapparti un sorriso. Prova a parlarci, non morde!</li>
-                <li><strong>Giochi del Due Mori:</strong> Un angolino dedicato al divertimento puro! Abbiamo preso dei giochi classici, quelli che tutti conosciamo, e li stiamo "condendo" con lo stile e i personaggi del Due Mori. Un modo per staccare un po' e fare due risate.</li>
-                <li><strong>Questa Pagina Info:</strong> E poi c'è questa pagina qui, dove ti trovi ora. Volevamo uno spazio per raccontarti la storia, le idee e i sogni che ci sono dietro a tutto questo. Trasparenza e un pizzico di narrazione, che non guasta mai!</li>
+                <li><strong>Chatbot "Don Alfred":</strong> Il mio assistente virtuale un po' saggio e un po' brontolone. Prova a scambiarci due chiacchiere, è lì per divertirti!</li>
+                <li><strong>Giochi del Due Mori:</strong> Un portale per il divertimento puro! Giochi classici, ma con un tocco speciale "Due Mori Style".</li>
+                <li><strong>Questa Pagina INFO:</strong> Proprio dove sei ora! Uno spazio per raccontarti come nasce tutta questa magia, senza filtri.</li>
             </ul>
         </section>
 
         <section class="info-section" id="cosa-ci-aspetta">
-            <h2>Il Futuro è un Cantiere Aperto (e Colorato!)</h2>
-            <p>La nostra "fabbrica delle meraviglie" non si ferma mai! Abbiamo un sacco di altre idee che frullano in testa e che speriamo di realizzare presto. Ecco qualche anticipazione (shhh, non dirlo a nessuno!):</p>
+            <h2>Verso l'Infinito... e Oltre!</h2>
+            <p>La mia mente è un vulcano di idee e non ho intenzione di fermarmi! Ci sono un sacco di <strong class="highlight">nuove avventure</strong> che sto preparando. Qualche spoiler cosmico?</p>
             <ul>
-                <li>Una <strong>Bacheca</strong> per annunci, novità fresche di giornata e magari qualche evento speciale.</li>
-                <li>Una sezione <strong>Commenti</strong>, perché la tua opinione per noi è super importante e vogliamo sentire cosa ne pensi.</li>
-                <li>La possibilità di <strong class="highlight">pubblicare le tue foto</strong> e vederle trasformate magicamente in stile cartone animato (sì, anche Ghibli se ti va!).</li>
+                <li>Una <strong>Bacheca Spaziale</strong> per news e annunci galattici.</li>
+                <li>Una sezione <strong>Commenti Stellari</strong>, perché la tua voce conta tantissimo!</li>
+                <li>La possibilità di <strong class="highlight">caricare le tue foto</strong> e vederle trasformate in opere d'arte da cartone animato!</li>
             </ul>
-            <p>Insomma, l'obiettivo è rendere questo spazio sempre più vivo, interattivo e pieno di sorprese. Stay tuned!</p>
+            <p>L'universo Due Mori è in continua evoluzione. Preparati a nuove sorprese!</p>
         </section>
 
-        <section class="info-section" id="vibecoding">
-            <h2>Il Segreto? Si Chiama "Vibecoding"!</h2>
-            <p>Forse ti starai chiedendo: "Ma come fate a creare tutte queste cose, e così in fretta?". Beh, abbiamo un piccolo segreto, un asso nella manica: si chiama <strong class="highlight">Vibecoding</strong>!</p>
-            <p>No, non è una danza strana né una formula magica (anche se un po' magico lo è!). "Vibecoding" è il nostro modo di lavorare. Significa che siamo programmatori che conoscono bene gli strumenti del mestiere, ma che usano anche l'aiuto dell'<strong>Intelligenza Artificiale</strong> (come quella che, in parte, ha aiutato a scrivere queste righe... ciao a tutti!) per velocizzare la scrittura del codice.</p>
-            <div class="vibecoding-animation">
-                <span>💻</span><span>✨</span><span>💡</span><span>🚀</span>
+        <section class="info-section" id="vibecoding-section">
+            <h2>La Forza Segreta: Il "Vibecoding"!</h2>
+            <p>Ti chiedi come riesco a creare tutto questo da solo? Ho un'arma segreta, una vera e propria <strong class="highlight">superpotenza</strong>: il <strong>Vibecoding</strong>!</p>
+            <p>Immagina di essere un programmatore che conosce i trucchi del mestiere, ma con un aiutante speciale: l'<strong>Intelligenza Artificiale</strong>. L'IA mi dà una mano incredibile, sbrigando le parti noiose e ripetitive. Così, io, il "Vibecoder", posso concentrarmi sulla creatività, sul design e sul rendere tutto super figo e facile da usare. È come programmare alla velocità della luce!</p>
+            <div class="vibecoding-animation-container">
+                <div class="vibe-orb"></div>
+                <span class="vibe-text">VIBE!</span>
             </div>
-            <p>In pratica, l'IA ci dà una super mano con le parti più ripetitive o complesse, così noi "Vibecoder" possiamo concentrarci di più sulle <strong class="highlight">idee creative</strong>, sul design e sul rendere tutto più bello e facile da usare. È come avere un programmatore con il turbo, che ci permette di trasformare le idee in realtà molto più rapidamente!</p>
         </section>
 
         <section class="info-section" id="attrezzi-del-mestiere">
-            <h2>I Nostri "Giocattoli" Preferiti</h2>
-            <p>Per costruire questo piccolo grande mondo digitale, usiamo un bel po' di "attrezzi del mestiere" tecnologici. Sono un po' i nostri mattoncini Lego, ma digitali! Ecco i principali:</p>
+            <h2>I Miei Strumenti Magici</h2>
+            <p>Per dare vita a questo universo digitale, uso degli strumenti tecnologici che sono un po' come la mia bacchetta magica. Ecco i miei preferiti:</p>
             <div class="tools-grid">
-                <div class="tool-card github" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                <div class="tool-card github" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000"> <!-- Tilt ridotto per mobile -->
                     <h3>GitHub</h3>
-                    <p>Il nostro quartier generale per il codice. È come un grande armadio dove teniamo tutto organizzato e al sicuro.</p>
+                    <p>Il mio archivio segreto per tutto il codice, super organizzato e al sicuro!</p>
                 </div>
-                <div class="tool-card vercel" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                <div class="tool-card vercel" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000">
                     <h3>Vercel</h3>
-                    <p>La piattaforma che ci permette di mettere online il sito e farlo vedere a tutti, super veloce e affidabile!</p>
+                    <p>La rampa di lancio che spedisce il sito online alla velocità della luce!</p>
                 </div>
-                <div class="tool-card gemini" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
-                    <h3>Gemini 2.5 Pro</h3>
-                    <p>Uno dei nostri "aiutanti" di Intelligenza Artificiale che ci dà una zampa con il codice e le idee (proprio quello che stai "leggendo" in parte ora!).</p>
+                <div class="tool-card gemini" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000">
+                    <h3>Gemini AI</h3>
+                    <p>Il mio geniale aiutante IA che mi ispira e velocizza la creazione del codice!</p>
                 </div>
-                 <div class="tool-card htmlcssjs" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                 <div class="tool-card htmlcssjs" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000">
                     <h3>HTML, CSS, JS</h3>
-                    <p>I fondamentali! Sono come i mattoni, i colori e i motori che fanno funzionare e rendono belle tutte le pagine web.</p>
+                    <p>I mattoni, i colori e l'energia che fanno brillare ogni pagina web!</p>
                 </div>
             </div>
         </section>
@@ -353,25 +447,29 @@
     </main>
     
     <footer class="page-footer">
-        <p>© 2024 Le Info Segrete (ma non troppo) del Due Mori - Powered by Vibecoding & Tanta Fantasia!</p>
+        <p>Creato con passione, codice e un pizzico di follia da <strong>Alejandro</strong>.</p>
+        <p>© 2024 Un Progetto Due Mori - Powered by Vibecoding & Fantasia Pura!</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Animazione di entrata per le sezioni allo scroll
             const sections = document.querySelectorAll('.info-section');
             const observerOptions = {
-                root: null, // rispetto al viewport
+                root: null,
                 rootMargin: '0px',
-                threshold: 0.1 // visibile almeno al 10%
+                threshold: 0.1 // Più basso per attivare prima su scroll veloce mobile
             };
 
             const observer = new IntersectionObserver((entries, observer) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
-                        observer.unobserve(entry.target); // Non osservare più una volta animato
+                    } else {
+                        // Per ri-animare se si esce e rientra (può essere pesante su mobile)
+                        // if (window.innerWidth >= 769) { // Solo su desktop
+                        //    entry.target.classList.remove('visible');
+                        // }
                     }
                 });
             }, observerOptions);
@@ -380,24 +478,20 @@
                 observer.observe(section);
             });
 
-            // Inizializza Vanilla Tilt per le card degli strumenti
-            VanillaTilt.init(document.querySelectorAll(".tool-card"), {
-                max: 15,
-                speed: 400,
-                glare: true,
-                "max-glare": 0.2
-            });
-
-            // Logica per il tasto Home (principalmente per chiudere modali se ce ne fossero)
-            // In questa pagina non ci sono modali, quindi il link funziona nativamente.
-            // Tuttavia, la lasciamo per coerenza se si volessero aggiungere elementi interattivi.
-            const homeButton = document.querySelector('.home-button');
-            if (homeButton) {
-                homeButton.addEventListener('click', (e) => {
-                    // Se in futuro ci fossero modali da chiudere:
-                    // if (document.querySelector('.modal.active')) {
-                    //     closeModal(); 
-                    // }
+            // Inizializza Vanilla Tilt solo se non è un dispositivo touch o se lo schermo è grande
+            // Questo per evitare che il tilt interferisca con lo scroll su mobile e per performance
+            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+            if (!isTouchDevice && window.innerWidth >= 769) {
+                VanillaTilt.init(document.querySelectorAll(".tool-card"), {
+                    max: 8, 
+                    speed: 250,
+                    glare: false, 
+                    perspective: 1000 
+                });
+            } else { // Su mobile, disabilita il tilt o usa un effetto hover più semplice
+                document.querySelectorAll(".tool-card").forEach(card => {
+                    card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-3px)');
+                    card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
                 });
             }
         });

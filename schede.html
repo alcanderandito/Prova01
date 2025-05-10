@@ -1,1 +1,518 @@
-schede da mettere
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Mitiche Schede del Due Mori</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Caveat:wght@700&display=swap');
+
+        :root {
+            --font-primary: 'Poppins', sans-serif;
+            --font-headings: 'Caveat', cursive;
+            
+            --color-bg: #f0f2f5; /* Sfondo pagina leggermente grigio */
+            --color-card-bg: #ffffff; /* Sfondo scheda bianco */
+            --color-text: #333;
+            --color-text-light: #555;
+            --color-accent1: #ff6b6b; /* Rosso corallo */
+            --color-accent2: #4ecdc4; /* Turchese */
+            --color-shadow: rgba(0, 0, 0, 0.1);
+            --color-border: #e0e0e0;
+
+            --card-border-radius: 15px;
+            --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+            --card-hover-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.6;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden; /* Previene scroll orizzontale causato da animazioni */
+        }
+
+        .page-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 20px;
+            background: linear-gradient(135deg, var(--color-accent1), var(--color-accent2));
+            color: white;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--card-shadow);
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .page-header h1 {
+            font-family: var(--font-headings);
+            font-size: 3.5em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .page-header p {
+            font-size: 1.1em;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        .staff-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            width: 100%;
+            max-width: 1600px; /* Aumentato per ospitare più card per riga se lo schermo è grande */
+            padding: 10px;
+        }
+
+        .staff-card {
+            background-color: var(--color-card-bg);
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--card-shadow);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            /* Per l'effetto tilt.js */
+            transform-style: preserve-3d; 
+        }
+
+        .staff-card:hover {
+            box-shadow: var(--card-hover-shadow);
+        }
+
+        .card-image-container {
+            position: relative;
+            width: 100%;
+            padding-top: 75%; /* Aspect ratio 4:3 per l'immagine principale */
+            background-color: #eee; /* Placeholder se l'immagine non carica */
+        }
+
+        .main-photo {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* Assicura che l'immagine copra lo spazio senza distorcersi */
+            border-bottom: 1px solid var(--color-border);
+            transition: transform 0.5s ease;
+        }
+        
+        .staff-card:hover .main-photo {
+             transform: scale(1.05); /* Leggero zoom sull'immagine all'hover della card */
+        }
+
+        .photo-thumbnails {
+            display: flex;
+            justify-content: center;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8); /* Sfondo leggermente trasparente per le miniature */
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            gap: 5px;
+            flex-wrap: wrap; /* Per far andare a capo le miniature se sono troppe */
+        }
+
+        .thumbnail {
+            width: 50px;
+            height: 50px;
+            object-fit: cover;
+            border-radius: 5px;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .thumbnail:hover, .thumbnail.active {
+            border-color: var(--color-accent1);
+            transform: scale(1.1);
+        }
+
+        .card-content {
+            padding: 20px;
+            flex-grow: 1; /* Permette al contenuto di espandersi */
+            display: flex;
+            flex-direction: column;
+        }
+
+        .card-content h2 {
+            font-family: var(--font-headings);
+            font-size: 2.5em; /* Aumentato per più enfasi */
+            color: var(--color-accent1);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .description {
+            font-size: 0.95em;
+            color: var(--color-text-light);
+            margin-bottom: 20px;
+            text-align: justify;
+            font-style: italic;
+        }
+
+        .details {
+            font-size: 0.9em;
+        }
+
+        .details p {
+            margin-bottom: 8px;
+            color: #444;
+            border-left: 3px solid var(--color-accent2);
+            padding-left: 10px;
+            background-color: #f9f9f9;
+            border-radius: 0 5px 5px 0;
+        }
+        
+        .details p strong {
+            color: var(--color-text);
+            margin-right: 5px;
+        }
+        
+        .details .icon {
+            margin-right: 8px;
+            color: var(--color-accent2);
+        }
+
+        /* Stile per il footer con i crediti (opzionale) */
+        .page-footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+
+        /* Animazione di entrata per le schede (opzionale, ma carino) */
+        @keyframes fadeInCard {
+            from {
+                opacity: 0;
+                transform: translateY(30px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .staff-card {
+            animation: fadeInCard 0.5s ease-out forwards;
+            opacity: 0; /* Inizia trasparente */
+        }
+        
+        /* Per sfalsare l'animazione delle card */
+        /* Questo si può fare con JS per più precisione, ma proviamo con CSS nth-child */
+        .staff-card:nth-child(1) { animation-delay: 0.1s; }
+        .staff-card:nth-child(2) { animation-delay: 0.2s; }
+        .staff-card:nth-child(3) { animation-delay: 0.3s; }
+        .staff-card:nth-child(4) { animation-delay: 0.4s; }
+        .staff-card:nth-child(5) { animation-delay: 0.5s; }
+        .staff-card:nth-child(6) { animation-delay: 0.6s; }
+        /* ... e così via se ci sono molte card per riga */
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2.5em;
+            }
+            .staff-grid {
+                grid-template-columns: 1fr; /* Una colonna su schermi piccoli */
+                gap: 20px;
+            }
+            .card-content h2 {
+                font-size: 2em;
+            }
+        }
+         @media (max-width: 480px) {
+            .page-header h1 {
+                font-size: 2em;
+            }
+             .card-image-container {
+                padding-top: 100%; /* Immagini quadrate su mobile per risparmiare spazio verticale */
+            }
+            .thumbnail {
+                width: 40px;
+                height: 40px;
+            }
+        }
+
+    </style>
+</head>
+<body>
+
+    <header class="page-header">
+        <h1>Lo Staff Stellare del Due Mori</h1>
+        <p>Personaggi mitici, abilità leggendarie e un pizzico di magia!</p>
+    </header>
+
+    <main class="staff-grid">
+        <!-- Le schede verranno inserite qui dal JavaScript -->
+    </main>
+    
+    <footer class="page-footer">
+        <p>© 2024 Le Schede Mitiche del Due Mori - Creazione magica</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script>
+        const staffData = [
+            {
+                id: "fabio",
+                nome: "Don Fabio",
+                foto: ["fabio.PNG", "fabio1.PNG", "fabio2.PNG", "fabio3.PNG", "fabio4.PNG", "fabio5.PNG", "fabio6.PNG"],
+                descrizione: "Fondatore del Due Mori e proprietario, ora in pensione. Ha un carattere deciso, diretto e affilato come una mandolina, ma quando vuole sa essere dolce come una pera matura. Saggio, furbo e con uno sguardo che dice “so già cosa hai sbagliato”.",
+                altezza: "Circa 3 m",
+                mansione: "Controllo generale, cameriere, figura protettiva",
+                velocita: "Rapido e forte come un cinghiale (parte piano ma quando parte… scansa tutto)",
+                piatto_preferito: "Pane e marmellata – colazione mistica certificata UNESCO",
+                fetish: "Far dimagrire tutti (mentalmente, fisicamente, anche solo con una battuta)",
+                debolezza: "Il disordine e la pigrizia lo fanno esplodere",
+                pazienza: "Bassa (quasi zero – ma non completamente nulla)",
+                paese_preferito: "Italia"
+            },
+            {
+                id: "lucia",
+                nome: "Lucia",
+                foto: ["lucia.PNG", "lucia1.PNG", "lucia2.PNG", "lucia3.PNG"],
+                descrizione: "Regina gentile del Due Mori e compagna storica di Don Fabio, Lucia è l’incarnazione della dolcezza armata. Dietro il suo sorriso tenero si nasconde una forza invincibile e una resistenza emotiva da carro armato corazzato. È quella che ti dà una carezza, un consiglio, un regalo… e pure una sgridata con tono soave se serve.",
+                altezza: "Circa 1.66 m",
+                mansione: "Cameriera d’onore, dispensatrice ufficiale di amore, coccole e saggezza. La mamma che tutti vorrebbero, anche se non sei parente.",
+                velocita: "Tartaruga zen – si muove con calma e grazia, ma con l’eleganza di una leggenda vivente",
+                colore_preferito: "Da definire",
+                piatto_preferito: "Tutto",
+                fetish: "Fare regalini ai figli (qualsiasi occasione è buona per portare qualcosa a qualcuno)",
+                debolezza: "NESSUNA. È un carro armato sorridente. Un Panzer di bontà.",
+                pazienza: "Eterna – potrebbe ascoltare il rumore dell’universo senza perdere la calma",
+                paese_preferito: "Italia"
+            },
+            {
+                id: "martina",
+                nome: "Martina",
+                foto: ["martina.PNG"],
+                descrizione: "Capitano inarrestabile della sala, Martina è una vecchia volpe di battaglia: sa dove guardare, cosa dire e soprattutto… come far quadrare i conti al centesimo. È astuta, rapida nel calcolo, e capace di smontarti con uno sguardo se stai perdendo tempo. Una mente brillante in un corpo sempre in movimento, che tra un piatto e l’altro ti pianifica le vacanze al miglior prezzo dell’universo.",
+                altezza: "Circa 1.72 m",
+                mansione: "Cameriera, cassiera, contabile suprema del Due Mori",
+                velocita: "Lepre meticolosa – si muove con ritmo costante e cervello in turbo",
+                piatto_preferito: "Tutto ciò che si può innaffiare di salsa – la regina del condimento",
+                fetish: "Scovare le offerte online migliori del globo: voli, hotel, viaggi… se c’è un coupon, lei lo trova prima che venga creato",
+                debolezza: "Ancora da scoprire (forse non esiste… forse è segreta… forse è dietro la porta della dispensa)",
+                pazienza: "Bassa ma tattica – ne ha poca, ma la sa usare come un’arma da ninja",
+                paese_preferito: "Giappone"
+            },
+            {
+                id: "roberta",
+                nome: "Roberta",
+                foto: ["roberta.PNG"],
+                descrizione: "L’incarnazione di Lucia… ma potenziata. Se Lucia è un carro armato, Roberta è un mecha giapponese alimentato a senso del dovere. È incaricata di controllare le allergie dei clienti con la precisione di un farmacista ninja e di mantenere il locale in uno stato talmente perfetto da far piangere gli ispettori ASL dalla commozione. Nessun granello di polvere sopravvive sotto il suo sguardo. Nessuna tovaglia è piegata male.",
+                altezza: "Circa 1.70 m",
+                mansione: "Supervisione totale della sala, responsabile delle allergie, protettrice del locale e del suo onore",
+                velocita: "Ultra Sonica Celestiale – quando serve è ovunque e da nessuna parte allo stesso tempo",
+                piatto_preferito: "Riso in bianco (semplice ma sacro)",
+                fetish: "Dire ad Alejandro di mangiare meno zucchero… mentre si mangia un gelato con tre gusti e panna extra (con sguardo innocente)",
+                debolezza: "Ogni tanto l’ansia le fa un check-in non richiesto, ma se la combatte con grinta e precisione",
+                pazienza: "Divina con scadenza improvvisa – se si esaurisce… evacuare l’edificio",
+                paese_preferito: "Giappone"
+            },
+            {
+                id: "marzio",
+                nome: "Marzio",
+                foto: ["marzio.PNG"],
+                descrizione: "L’angelo dietro le quinte? Ma non solo. Marzio è il volto, il braccio, e il cervello operativo del Due Mori. È il primo che vedi quando entri, il responsabile del rapporto col pubblico, il motivatore della squadra e il diplomatico che tratta con i fornitori come un boss della logistica spirituale. Sempre presente, sempre attivo, sempre concentrato.",
+                altezza: "Circa 1.80 m",
+                mansione: "Cameriere di punta, gestore della squadra, responsabile dei rapporti con fornitori e contabile delle pratiche invisibili ma vitali.",
+                velocita: "Luce liquida – se ti distrai, l’hai già perso di vista",
+                piatto_preferito: "Tortellini con ragù alla bolognese – e se non sono fatti bene, chiama direttamente il sindaco",
+                fetish: "Seguire ossessivamente la dieta per entrare in una forma che ha già raggiunto da mesi – perfezione come filosofia di vita",
+                debolezza: "Bambini down e cani.",
+                pazienza: "Media, ma se si esaurisce… chiama il Vescovo e prepara l’estrema unzione.",
+                paese_preferito: "Italia"
+            },
+            {
+                id: "hamza",
+                nome: "Hamza",
+                foto: ["hamza.PNG"],
+                descrizione: "Proveniente dal cuore del Pakistan, Hamza è arrivato a Trento a piedi, in equilibrio tra sogno e fatica, determinato a costruirsi un futuro. È il lavapiatti più efficiente dell’universo conosciuto, una leggenda viva che combatte quotidianamente contro i piatti incrostati… e vince sempre. Ma non solo: sa preparare antipasti da far commuovere, e per Don Fabio è più affidabile di un Rolex svizzero. È il coccolo ufficiale di Lucia, che lo tratta come un figlio adottivo del ristorante.",
+                altezza: "Circa 1.80 m",
+                mansione: "Lavapiatti eccellente, maestro di antipasti, braccio destro segreto del regno Due Mori",
+                velocita: "Adattiva – parte lento, accelera se serve, e se c’è un’emergenza diventa il Flash delle stoviglie",
+                piatto_preferito: "Spezie – non un piatto, ma uno stile di vita. Se non pizzica, non è buono.",
+                fetish: "Lavorare al Due Mori – lo rende felice, fiero, e carico come un treno merci",
+                debolezza: "Sta cercando di imparare l’italiano, ma per ora comunica con gesti, sorrisi e anima",
+                pazienza: "LUI È LA PAZIENZA. Potresti urlargli addosso e lui ti offrirebbe il tè",
+                paese_preferito: "Pakistan"
+            },
+            {
+                id: "max",
+                nome: "Max",
+                foto: ["max.PNG"],
+                descrizione: "Max è il collega perfetto: discreto ma presente, rapido ma riflessivo, serio ma con il sorriso pronto. È il tipo che non parla tanto, ma quando lo fa ti sorprende con battute geniali o riflessioni profonde. Sempre elegante nel modo di muoversi, pronto ad aiutare chiunque senza fare rumore. Un pilastro silenzioso del ristorante, un ninja della sala.",
+                altezza: "Circa 1.75 m",
+                mansione: "Cameriere, punto di riferimento operativo, supporto alla squadra e figura chiave nel servizio quotidiano",
+                velocita: "Vento silenzioso – si muove rapido ma con grazia, come se la fisica non lo toccasse",
+                piatto_preferito: "Dolci – ogni occasione è buona per premiarsi con qualcosa di zuccheroso",
+                fetish: "Essere impeccabile in tutto ciò che fa – postura, tempismo, sguardo, camminata… una sinfonia in movimento",
+                debolezza: "Alfred. Nessun altro essere vivente riesce a farlo innervosire con tanta grazia.",
+                pazienza: "Media con autocontrollo ninja – non esplode mai, ma quando gira gli occhi… scappa.",
+                paese_preferito: "Corea"
+            },
+            {
+                id: "claudia",
+                nome: "Claudia",
+                foto: ["claudia.PNG"],
+                descrizione: "Claudia è la veterana del Due Mori, la più longeva, la più esperta, la spalla che non cade mai, nemmeno sotto 200 coperti e 3 tavoli che vogliono pagare separatamente. Un’icona autentica, amata e rispettata da tutti, con una simpatia travolgente che si trasforma in terrore sacro se qualcuno osa oltrepassare il limite. È affidabile come un orologio svizzero e temibile come un tuono in sala…",
+                altezza: "Circa 1.66 m",
+                mansione: "Cameriera storica, guida morale del ristorante, regina dell’esperienza",
+                velocita: "Lenta-Media Strategica – nessuna fretta, solo precisione calcolata",
+                piatto_preferito: "Mangiare con la squadra alla domenica – il vero sapore è la compagnia",
+                fetish: "Vincere sempre la raccolta delle uova di Pasqua al Due Mori – è imbattuta, leggendaria, e guai a chi osa sfidarla",
+                debolezza: "Trattenersi quando un cliente è stupido – il suo autocontrollo è materia di studio alla NASA",
+                pazienza: "Apparente – sembra calma, ma è come un vulcano sotto controllo… finché non esplode",
+                paese_preferito: "Spagna"
+            },
+            {
+                id: "gioele",
+                nome: "Gioele",
+                foto: ["gioele.PNG"],
+                descrizione: "Il cuoco più giovane e più pazzo del Due Mori, è chiamato a lavorare solo il weekend. Dolce come i dessert che fa, veloce come un fulmine e affamato come cinque camionisti. Simpatico, impulsivo e pieno d’idee.",
+                altezza: "Circa 1.70 m",
+                mansione: "Cuoco con contratto a chiamata creativo, maestro di dolci, mente esplosiva della cucina.",
+                velocita: "Fa accendere la luce solo passandoci vicino",
+                piatto_preferito: "Pizza… ma in realtà mangia tutto. Sempre.",
+                fetish: "Guidare macchine leggendarie",
+                debolezza: "Stare fermo. Riposarsi lo distrugge dentro.",
+                pazienza: "Media, ma con esplosioni casuali",
+                paese_preferito: "Il mondo"
+            },
+            {
+                id: "reby",
+                nome: "Reby",
+                foto: ["reby.PNG"],
+                descrizione: "Il suo sorriso inganna: dietro c’è una macchina da guerra. Simpatica sì, ma quando si muove, non sbaglia un colpo. Decisa, svelta e sveglia. Se c’è caos, lei ci si butta dentro.",
+                altezza: "Circa 1.72 m",
+                mansione: "Cameriera junior, comandante dei gruppi grossi e degli orari impossibili",
+                velocita: "Ghepardo in scarpe da lavoro",
+                piatto_preferito: "Il piatto svizzero della nonna, scaloppine con salsa e pasta in bianco",
+                fetish: "Servire più di 100 persone senza battere ciglio",
+                debolezza: "L’aspirapolvere – nemico acustico numero uno",
+                pazienza: "Alta, ma non sfidarla",
+                paese_preferito: "Islanda"
+            },
+            {
+                id: "tibi",
+                nome: "Tiberius/Tibi",
+                foto: ["tibi.PNG"],
+                descrizione: "Sempre educato, sempre sorridente, ma con la forza di un trattore in corsa. Lavora duro, alza pesi, mangia per tre, e fa impazzire di gioia Claudia e Lucia.",
+                altezza: "Circa 1.80 m",
+                mansione: "Cameriere e forza bruta del Due Mori",
+                velocita: "Al trotto, ma costante",
+                piatto_preferito: "L’osso buco della mamma",
+                fetish: "Alzare vassoi sempre più pesanti – sfida continua con se stesso",
+                debolezza: "Spazzare… ci mette una vita",
+                pazienza: "Positiva e tranquilla, ma con limiti umani",
+                paese_preferito: "Italia"
+            },
+            {
+                id: "ricky",
+                nome: "Ricky",
+                foto: ["ricky.PNG"],
+                descrizione: "Ironico, gentilissimo, e più veloce della luce. Serve i tavoli con un sorriso e una battuta pronta, mentre balla salsa tra un ordine e l’altro.",
+                altezza: "Circa 1.75 m",
+                mansione: "Cameriere razzo, amato da tutti, anima brillante della sala",
+                velocita: "Talmente rapido che sembra fermare il tempo",
+                piatto_preferito: "Il bollito (con carne, cipolle, carote, patate etc ...)",
+                fetish: "Twerkare e ballare salsa mentre prende le comande",
+                debolezza: "Odia elencare i dolci in inglese – non se li ricorda mai",
+                pazienza: "Molta, pure con i clienti più assurdi",
+                paese_preferito: "Slovenia Lubiana"
+            }
+        ];
+
+        const staffGrid = document.querySelector('.staff-grid');
+
+        staffData.forEach((member, index) => {
+            const card = document.createElement('article');
+            card.classList.add('staff-card');
+            card.setAttribute('data-tilt', ''); // Per vanilla-tilt.js
+            card.style.animationDelay = `${index * 0.05}s`; // Stagger animation
+
+            let photoThumbnailsHTML = '';
+            if (member.foto.length > 1) {
+                member.foto.forEach((fotoUrl, idx) => {
+                    photoThumbnailsHTML += `<img src="${fotoUrl}" alt="Miniatura di ${member.nome} ${idx + 1}" class="thumbnail ${idx === 0 ? 'active' : ''}" data-card-id="${member.id}" data-img-src="${fotoUrl}">`;
+                });
+            }
+            
+            // Aggiunta dinamica del campo "Colore Preferito" solo per Lucia
+            let colorePreferitoHTML = '';
+            if (member.nome === "Lucia" && member.colore_preferito) {
+                colorePreferitoHTML = `<p><span class="icon">🎨</span><strong>Colore Preferito:</strong> ${member.colore_preferito}</p>`;
+            }
+
+
+            card.innerHTML = `
+                <div class="card-image-container">
+                    <img src="${member.foto[0]}" alt="Foto di ${member.nome}" class="main-photo" id="main-photo-${member.id}">
+                    ${member.foto.length > 1 ? `<div class="photo-thumbnails">${photoThumbnailsHTML}</div>` : ''}
+                </div>
+                <div class="card-content">
+                    <h2>${member.nome}</h2>
+                    <p class="description">${member.descrizione}</p>
+                    <div class="details">
+                        <p><span class="icon">📏</span><strong>Altezza:</strong> ${member.altezza}</p>
+                        <p><span class="icon">💼</span><strong>Mansione:</strong> ${member.mansione}</p>
+                        <p><span class="icon">⚡️</span><strong>Velocità:</strong> ${member.velocita}</p>
+                        <p><span class="icon">🍲</span><strong>Piatto Preferito:</strong> ${member.piatto_preferito}</p>
+                        ${colorePreferitoHTML}
+                        <p><span class="icon">✨</span><strong>Fetish:</strong> ${member.fetish}</p>
+                        <p><span class="icon">💔</span><strong>Debolezza:</strong> ${member.debolezza}</p>
+                        <p><span class="icon">⏳</span><strong>Pazienza:</strong> ${member.pazienza}</p>
+                        <p><span class="icon">🌍</span><strong>Paese Preferito:</strong> ${member.paese_preferito}</p>
+                    </div>
+                </div>
+            `;
+            staffGrid.appendChild(card);
+        });
+
+        // Inizializza Vanilla Tilt per le schede
+        VanillaTilt.init(document.querySelectorAll(".staff-card"), {
+            max: 15,       // Inclinazione massima
+            speed: 400,    // Velocità dell'animazione
+            glare: true,   // Effetto riflesso
+            "max-glare": 0.2 // Intensità del riflesso
+        });
+
+        // Gestione cambio immagine principale al click sulla miniatura
+        const thumbnails = document.querySelectorAll('.thumbnail');
+        thumbnails.forEach(thumb => {
+            thumb.addEventListener('click', function() {
+                const cardId = this.dataset.cardId;
+                const newSrc = this.dataset.imgSrc;
+                const mainPhoto = document.getElementById(`main-photo-${cardId}`);
+                if (mainPhoto) {
+                    mainPhoto.src = newSrc;
+                }
+                // Aggiorna la classe 'active' per le miniature della stessa card
+                document.querySelectorAll(`.thumbnail[data-card-id="${cardId}"]`).forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+    </script>
+</body>
+</html>

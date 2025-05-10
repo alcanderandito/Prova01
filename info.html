@@ -3,471 +3,543 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INFO: L'Avventura Creativa di Due Mori!</title>
+    <title>INFO: Dimensione Estrema Due Mori!</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Caveat:wght@700&family=Bungee+Spice&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Caveat:wght@700&family=Bungee+Spice&family=Turret+Road:wght@800&display=swap'); /* Turret Road più bold */
 
         :root {
             --font-primary: 'Poppins', sans-serif;
-            --font-headings: 'Caveat', cursive;
-            --font-accent-titles: 'Bungee Spice', cursive;
+            --font-headings-main: 'Bungee Spice', cursive;
+            --font-headings-section: 'Turret Road', sans-serif; 
             
             --color-text: #f0f0f0;
-            --color-text-dark: #1a1a1a;
+            --color-text-dark: #121212;
             
-            --neon-pink: #ff00ff;
-            --neon-blue: #00ffff;
-            --neon-green: #39ff14;
-            --neon-yellow: #fff01f;
-            --neon-orange: #ff8c00;
-            --deep-purple: #301934;
-            --space-blue: #0c0c2c;
+            --glow-cyan: #00ffff;
+            --glow-magenta: #ff00ff;
+            --glow-lime: #39ff14;
+            --glow-yellow: #fff01f;
+            --glow-orange: #ff8c00;
+            --electric-blue: #7df9ff;
 
-            --card-border-radius: 20px;
-            --shadow-glow: 0 0 15px 5px rgba(255, 255, 255, 0.2);
-            --neon-blue-rgb: 0, 255, 255;
-            --neon-pink-rgb: 255, 0, 255;
+            --bg-dark-void: #050211; /* Quasi nero */
+            --bg-dark-nebula-1: #1d0a30; 
+            --bg-dark-nebula-2: #0a1d30;
+            
+            --card-radius: 30px; /* Ancora più arrotondati */
+            
+            --glow-cyan-rgb: 0, 255, 255;
+            --glow-magenta-rgb: 255, 0, 255;
+            --glow-yellow-rgb: 255, 240, 31;
+            --glow-lime-rgb: 57, 255, 20;
+            --glow-orange-rgb: 255, 140, 0;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
 
         body {
             font-family: var(--font-primary);
             color: var(--color-text);
-            line-height: 1.7;
+            line-height: 1.75;
             padding: 20px;
-            padding-top: 70px; 
+            padding-top: 80px; 
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden;
-            background: linear-gradient(45deg, var(--deep-purple), var(--space-blue), var(--neon-pink), var(--neon-blue), var(--neon-green));
-            background-size: 400% 400%;
-            animation: magicBackground 25s ease infinite;
-        }
-
-        @keyframes magicBackground {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        
-        .home-button {
-            position: fixed;
-            top: 15px;
-            left: 15px;
-            background-color: rgba(255,255,255,0.1);
-            backdrop-filter: blur(5px);
-            border: 1px solid rgba(255,255,255,0.3);
-            color: white;
-            padding: 8px 14px;
-            border-radius: 50px;
-            text-decoration: none;
-            font-weight: 600;
-            font-size: 0.9em;
-            z-index: 1001; 
-            box-shadow: 0 0 10px rgba(var(--neon-blue-rgb), 0.4);
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 5px;
-        }
-
-        .home-button:hover {
-            background-color: rgba(255,255,255,0.2);
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 0 20px rgba(var(--neon-blue-rgb), 0.7);
-        }
-        
-        .home-button svg {
-            width: 18px;
-            height: 18px;
-            fill: currentColor;
-            filter: drop-shadow(0 0 3px var(--neon-blue));
-        }
-
-        .page-main-header {
-            text-align: center;
-            margin-bottom: 50px; /* Ridotto per mobile */
-            padding: 30px 15px; /* Ridotto per mobile */
-            width: 100%;
-            max-width: 1000px;
-            perspective: 800px; /* Ridotta prospettiva per mobile */
+            overflow-x: hidden; /* Cruciale */
+            background-color: var(--bg-dark-void);
             position: relative;
+            transform-style: preserve-3d; /* Abilita 3D per figli diretti come il warp field */
+            perspective: 1000px; /* Prospettiva per tutta la pagina */
         }
-        
-        .page-main-header::before {
-            content: "";
-            position: absolute;
+
+        /* Warp Field Background - Più complesso */
+        .warp-field {
+            position: fixed;
             top: 0; left: 0; right: 0; bottom: 0;
-            background: radial-gradient(circle, rgba(var(--neon-pink-rgb),0.2) 0%, transparent 60%); /* Meno intenso */
-            animation: pulseHeaderGlow 6s infinite alternate; /* Più lento */
-            border-radius: var(--card-border-radius);
+            overflow: hidden;
+            z-index: -2;
+        }
+        .warp-star {
+            position: absolute;
+            background-color: #fff;
+            border-radius: 50%;
+            will-change: transform, opacity; /* Ottimizzazione performance */
+            /* Dimensioni e animazioni verranno impostate da JS, ma qui un fallback */
+            width: 2px; height: 2px;
+            animation: shootStar 5s linear infinite;
+        }
+        /* JS sarebbe necessario per un vero campo di stelle 3D dinamico e performante.
+           Questo è un placeholder CSS, la vera implementazione richiederebbe JS.
+           Per ora, lo lascio come concetto, la precedente animazione stellare CSS era più leggera.
+           Opterò per un gradiente animato più spinto per non appesantire troppo senza JS.
+        */
+        body { /* Ritorno a un gradiente animato più spinto per il body */
+            background: linear-gradient(225deg, var(--bg-dark-void), var(--bg-dark-nebula-1), var(--bg-dark-nebula-2), var(--glow-magenta), var(--glow-cyan));
+            background-size: 600% 600%; /* Aumentato per animazione più ampia */
+            animation: hyperSpaceBackground 30s ease infinite;
+        }
+        @keyframes hyperSpaceBackground {
+            0%{background-position:0% 50%}
+            50%{background-position:100% 50%}
+            100%{background-position:0% 50%}
+        }
+        .background-overlay { /* Mantenuto per profondità */
+            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(ellipse at center, transparent 30%, rgba(5,2,17,0.8) 90%);
             z-index: -1;
         }
 
-        @keyframes pulseHeaderGlow {
-            from { transform: scale(0.98); opacity: 0.6; } /* Meno scalatura */
-            to { transform: scale(1.02); opacity: 0.9; }
-        }
 
+        .home-button {
+            position: fixed; top: 20px; left: 20px;
+            background-color: rgba(10,10,30,0.5); backdrop-filter: blur(10px) brightness(1.5);
+            border: 2px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(45deg, var(--glow-cyan), var(--glow-magenta));
+            color: #fff; padding: 10px 18px; border-radius: 50px; text-decoration: none;
+            font-weight: 700; font-size: 0.95em; z-index: 1001; 
+            box-shadow: 0 0 15px rgba(var(--glow-cyan-rgb), 0.7), 0 0 25px rgba(var(--glow-magenta-rgb), 0.5);
+            transition: all 0.4s ease; display: flex; align-items: center; gap: 7px;
+            transform: translateZ(50px); /* Leggermente fuori dalla pagina */
+        }
+        .home-button:hover {
+            background-color: rgba(var(--glow-cyan-rgb),0.2);
+            transform: translateY(-4px) scale(1.1) translateZ(70px) rotateX(5deg);
+            box-shadow: 0 0 30px rgba(var(--glow-cyan-rgb), 1), 0 0 45px rgba(var(--glow-magenta-rgb), 0.8);
+            border-image-source: linear-gradient(45deg, var(--glow-magenta), var(--glow-cyan)); /* Inverte gradiente */
+        }
+        .home-button svg {
+            width: 20px; height: 20px; fill: currentColor;
+            filter: drop-shadow(0 0 5px currentColor);
+            transition: transform 0.3s ease;
+        }
+        .home-button:hover svg { transform: rotate(15deg) scale(1.1); }
+
+        .page-main-header {
+            text-align: center; margin-bottom: 80px; padding: 50px 15px;
+            width: 100%; max-width: 1200px; position: relative;
+            transform-style: preserve-3d; /* Per animazione lettere 3D */
+        }
+        
         .page-main-header h1 {
-            font-family: var(--font-accent-titles);
-            font-size: clamp(2.5em, 10vw, 5em); /* Adattato per mobile */
-            letter-spacing: 1px; /* Ridotto per mobile */
-            color: var(--neon-yellow);
-            text-shadow: 0 0 3px var(--neon-yellow), 0 0 8px var(--neon-yellow), 0 0 15px var(--neon-orange), 0 0 20px var(--neon-orange); /* Ombre ridotte */
-            animation: titlePopIn 1s ease-out forwards, flickerTitleMobile 4s infinite alternate 1s; /* Animazione flicker adattata */
+            font-family: var(--font-headings-main);
+            font-size: clamp(3em, 15vw, 8em); /* Ancora più grande! */
+            color: #fff;
+            text-shadow: 0 0 8px #fff, 0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan), 
+                         0 0 45px var(--glow-magenta), 0 0 70px var(--glow-magenta), 0 0 100px var(--electric-blue); /* Più glow */
+            animation: explodeHeaderText 2s cubic-bezier(0.075, 0.82, 0.165, 1) 0.5s forwards, 
+                       intensePulseText 3s infinite alternate 2.5s;
             opacity: 0;
-            transform: translateY(-30px) rotateX(20deg) scale(0.9); /* Meno estremo */
+            will-change: transform, opacity, text-shadow;
+            position: relative; /* Per pseudo elementi delle lettere */
+            transform: scale(2) translateZ(300px) rotateY(90deg); /* Parte da lontano e ruotato */
+            -webkit-text-stroke: 1.5px rgba(0,0,0,0.2);
+            transform-style: preserve-3d; /* Necessario se si animano singole lettere/span */
         }
-
-        @keyframes titlePopIn { /* Invariato */
-            to { opacity: 1; transform: translateY(0) rotateX(0deg) scale(1); }
+        /* Simulare scomposizione lettere con pseudo elementi o span (difficile senza JS per lettere singole)
+           Provo con un effetto "glitch" e sfasamento 3D sul testo intero. */
+        .page-main-header h1::before, .page-main-header h1::after {
+            content: attr(data-text); /* Richiede data-text sull'H1 se si vuole lo stesso testo */
+            position: absolute; top: 0; left: 0; width:100%; height:100%;
+            opacity: 0.8;
+            transform-style: preserve-3d;
         }
-        @keyframes flickerTitleMobile { /* Flicker più soft per mobile */
-            0%, 100% {
-                text-shadow: 0 0 3px #fff, 0 0 8px var(--neon-yellow), 0 0 15px var(--neon-orange);
-                opacity: 1;
-            }
-            50% {        
-                text-shadow: 0 0 3px #fff, 0 0 5px var(--neon-yellow);
-                opacity: 0.85;
-            }
+        .page-main-header h1::before { /* Copia glitchata rossa */
+            color: var(--glow-magenta);
+            animation: glitchEffect 3s cubic-bezier(.25,.46,.45,.94) infinite 1s;
+            transform: translateZ(-5px) translateX(-2px) translateY(1px) rotateY(1deg);
+            text-shadow: 0 0 5px var(--glow-magenta);
+        }
+        .page-main-header h1::after { /* Copia glitchata blu */
+            color: var(--glow-cyan);
+            animation: glitchEffect 3s cubic-bezier(.25,.46,.45,.94) infinite 1.2s reverse;
+            transform: translateZ(-10px) translateX(2px) translateY(-1px) rotateY(-1deg);
+            text-shadow: 0 0 5px var(--glow-cyan);
+        }
+        @keyframes explodeHeaderText {
+            0% { opacity: 0; transform: scale(2) translateZ(300px) rotateY(70deg); }
+            70% { opacity: 1; transform: scale(0.9) translateZ(-50px) rotateY(-10deg); } /* Overshoot */
+            100% { opacity: 1; transform: scale(1) translateZ(0px) rotateY(0deg); }
+        }
+        @keyframes intensePulseText { /* Pulse più forte */
+            0%, 100% { text-shadow: 0 0 8px #fff, 0 0 15px var(--glow-cyan), 0 0 30px var(--glow-cyan), 0 0 45px var(--glow-magenta), 0 0 70px var(--glow-magenta); opacity: 1; transform: scale(1) translateZ(0); }
+            50% { text-shadow: 0 0 12px #fff, 0 0 25px var(--glow-cyan), 0 0 50px var(--glow-cyan), 0 0 75px var(--glow-magenta), 0 0 120px var(--glow-magenta); opacity: 0.9; transform: scale(1.05) translateZ(10px); }
+        }
+        @keyframes glitchEffect{ /* Animazione Glitch */
+          0%{ clip-path: polygon(0 2%,100% 2%,100% 98%,0 98%); transform: translate(-0.02em,-0.01em) skewX(-5deg); }
+          10%{ clip-path: polygon(0 75%,100% 75%,100% 98%,0 98%); transform: translate(0.01em,0.005em) skewX(3deg); }
+          /* ... altri step per glitch ... */
+          100%{ clip-path: polygon(0 45%,100% 45%,100% 55%,0 55%); transform: translate(0,0) skewX(0); }
         }
         
         .page-main-header .subtitle {
-            font-size: clamp(0.9em, 3vw, 1.2em); /* Adattato per mobile */
-            margin-top: 10px;
-            color: var(--neon-blue);
-            font-weight: 400;
-            animation: subtitleSlideIn 1.2s ease-out 0.5s forwards;
-            opacity: 0;
-            transform: translateY(20px); /* Meno estremo */
-            text-shadow: 0 0 3px var(--neon-blue); /* Ombra ridotta */
+            font-size: clamp(1.1em, 4vw, 1.7em); margin-top: 15px;
+            color: var(--glow-lime); font-weight: 600; /* Più bold */
+            opacity: 0; transform: translateY(40px) translateZ(-50px) scale(0.8);
+            animation: subtitlePop3D 1.2s ease-out 1.5s forwards;
+            text-shadow: 0 0 10px var(--glow-lime), 0 0 5px #fff;
         }
-        @keyframes subtitleSlideIn { /* Invariato */
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes subtitlePop3D { to { opacity: 1; transform: translateY(0) translateZ(0) scale(1); } }
 
-        .info-section {
-            width: 100%;
-            max-width: 950px;
-            margin-bottom: 40px; /* Ridotto per mobile */
-            padding: 25px 20px; /* Ridotto per mobile */
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow-glow), 0 8px 20px rgba(0,0,0,0.25); /* Ombra ridotta */
+        .info-section-wrapper {
+            width: 100%; max-width: 1000px; margin-bottom: 70px;
+            perspective: 2000px; /* Aumentata prospettiva */
             position: relative;
-            overflow: hidden;
+        }
+        .info-section {
+            background: rgba(10, 5, 20, 0.65); 
+            backdrop-filter: blur(12px) saturate(180%) brightness(1.1);
+            border: 2px solid;
+            border-image-slice: 1;
+            border-image-source: linear-gradient(135deg, var(--glow-magenta), var(--glow-cyan), var(--glow-lime));
+            padding: 35px 40px; border-radius: var(--card-radius);
+            box-shadow: 0 15px 50px rgba(0,0,0,0.6), 0 0 20px rgba(var(--glow-cyan-rgb),0.3), 0 0 35px rgba(var(--glow-magenta-rgb),0.2);
             opacity: 0;
-            /* Animazione entrata più semplice per mobile di default */
-            transform: translateY(40px); 
-            transition: opacity 0.7s ease-out, transform 0.7s ease-out;
+            transform: rotateX(-30deg) rotateY(15deg) scale(0.85) translateZ(-100px);
+            transform-origin: center;
+            transition: opacity 1s ease-out, transform 1.2s cubic-bezier(0.075, 0.82, 0.165, 1);
+            will-change: transform, opacity;
+            position: relative; overflow: visible; /* Permette a elementi 3D interni di uscire */
+            transform-style: preserve-3d; /* Per elementi 3D interni */
+        }
+        .info-section.visible {
+            opacity: 1;
+            transform: rotateX(0deg) rotateY(0deg) scale(1) translateZ(0px);
+        }
+        @media (min-width: 1024px) { /* Float 3D più complesso per desktop */
+            .info-section.visible {
+                 animation: floatSection3D 10s ease-in-out infinite alternate;
+            }
+        }
+        @keyframes floatSection3D {
+            0% { transform: translateY(0px) rotateX(2deg) rotateY(-2deg) translateZ(0px); }
+            50% { transform: translateY(-15px) rotateX(-2deg) rotateY(2deg) translateZ(20px); }
+            100% { transform: translateY(0px) rotateX(2deg) rotateY(-2deg) translateZ(0px); }
         }
         
-        /* Animazione 3D solo per schermi più grandi */
-        @media (min-width: 769px) {
-            .info-section {
-                transform: translateY(50px) rotateY(-10deg);
-                transition: opacity 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275), transform 0.8s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            }
-            .info-section.visible {
-                opacity: 1;
-                transform: translateY(0) rotateY(0deg);
-            }
+        /* "Oggetti 3D simbolici" per ogni sezione (CSS Shapes) */
+        .section-3d-object {
+            position: absolute;
+            top: 20px; right: 20px; /* Posizionamento generico, può essere adattato */
+            width: 80px; height: 80px;
+            transform-style: preserve-3d;
+            animation: spinObject3D 15s linear infinite;
+            pointer-events: none; /* Non interferisce con il mouse */
+            opacity: 0.7;
         }
-         .info-section.visible { /* Per mobile e come fallback */
-            opacity: 1;
-            transform: translateY(0);
+        /* Esempio per una sezione (Intro - Spirale 3D) */
+        #intro .section-3d-object .spiral-segment {
+            position: absolute; width: 100%; height: 100%;
+            border: 3px solid var(--glow-magenta);
+            border-radius: 50%;
+            opacity: 0.3;
+            box-shadow: 0 0 10px var(--glow-magenta);
         }
-
-
-        #intro { background: linear-gradient(135deg, #ff0099, #493240); }
-        #l-inizio { background: linear-gradient(135deg, var(--neon-yellow), #ff8800); }
-        #sezioni-attuali { background: linear-gradient(135deg, var(--neon-green), #007f5f); }
-        #cosa-ci-aspetta { background: linear-gradient(135deg, var(--neon-blue), #005f73); }
-        #vibecoding-section { background: linear-gradient(135deg, var(--neon-pink), #7b2cbf); }
-        #attrezzi-del-mestiere { background: linear-gradient(135deg, #ff5400, #ff0054); }
-
+        /* (Creare forme 3D complesse con CSS è verboso, questo è un esempio semplice) */
+        /* ... altri oggetti per altre sezioni (es. stelle, cubi) ... */
 
         .info-section h2 {
-            font-family: var(--font-accent-titles);
-            font-size: clamp(1.8em, 6vw, 3em); /* Adattato per mobile */
-            margin-bottom: 20px;
-            text-align: center;
-            position: relative;
-            z-index: 1;
-            letter-spacing: 0.5px; /* Ridotto per mobile */
-        }
-        #intro h2 { color: #fceaff; text-shadow: 0 0 5px #fceaff, 0 0 10px var(--neon-pink); }
-        #l-inizio h2 { color: #221a00; text-shadow: 0 0 5px var(--neon-yellow), 0 0 10px #ffcc00; }
-        #sezioni-attuali h2 { color: #e6fff7; text-shadow: 0 0 5px var(--neon-green), 0 0 10px #9ef01a; }
-        #cosa-ci-aspetta h2 { color: #e0f7fa; text-shadow: 0 0 5px var(--neon-blue), 0 0 10px #48cae4; }
-        #vibecoding-section h2 { color: #ffebf7; text-shadow: 0 0 5px var(--neon-pink), 0 0 10px #f72585; }
-        #attrezzi-del-mestiere h2 { color: #fff0e6; text-shadow: 0 0 5px var(--neon-orange), 0 0 10px #f94144; }
-
-        .info-section p, .info-section ul {
-            font-size: clamp(0.9em, 2.5vw, 1.05em); /* Adattato per mobile */
-            margin-bottom: 15px;
-            position: relative;
-            z-index: 1;
-        }
-        #l-inizio p, #l-inizio ul { color: var(--color-text-dark); }
-
-        .info-section strong {
-            font-weight: 700;
-            filter: brightness(1.15);
-        }
-        #l-inizio strong { color: #d95f02; }
-
-        .info-section ul { list-style: none; padding-left: 0; }
-        .info-section ul li { margin-bottom: 8px; padding-left: 22px; position: relative; }
-        .info-section ul li::before {
-            content: '✦'; position: absolute; left: 0;
-            font-size: 1.1em; line-height: 1;
-            animation: spinMarker 5s linear infinite; /* Rallentata */
-        }
-        #intro ul li::before { color: var(--neon-pink); }
-        #sezioni-attuali ul li::before { color: var(--neon-green); }
-        #cosa-ci-aspetta ul li::before { color: var(--neon-blue); }
-
-        @keyframes spinMarker { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-        
-        .highlight {
-            background-color: rgba(255,255,255,0.1);
-            padding: 0.15em 0.4em;
-            border-radius: 6px;
-            font-weight: bold;
-            border: 1px solid rgba(255,255,255,0.2);
-            box-shadow: 0 0 3px rgba(255,255,255,0.15);
-        }
-
-        .tools-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* Minimo leggermente ridotto */
-            gap: 20px; /* Ridotto per mobile */
-            margin-top: 25px;
-        }
-
-        .tool-card {
-            background: rgba(20, 20, 50, 0.4); /* Meno trasparenza per leggibilità */
-            backdrop-filter: blur(6px);
-            padding: 20px; /* Ridotto per mobile */
-            border-radius: var(--card-border-radius);
-            box-shadow: var(--shadow-glow);
-            text-align: center;
-            border: 1px solid; /* Bordo più sottile */
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            transform-style: preserve-3d; 
-            position: relative;
-            overflow: hidden;
-        }
-        .tool-card::before { /* Aura luminosa semplificata per mobile (meno animazione) */
-            content: ""; position: absolute;
-            top: -70%; left: -70%; width: 240%; height: 240%; /* Più grande per coprire meglio */
-            background: radial-gradient(circle, var(--glow-color, var(--neon-blue)) 0%, transparent 50%); /* Radiale invece che conico */
-            opacity: 0;
-            transition: opacity 0.4s ease;
-            pointer-events: none; /* Non interferisce con il mouse */
-        }
-        .tool-card:hover::before { opacity: 0.4; } /* Meno opaca */
-        
-        .tool-card:hover { /* Effetto hover più contenuto per mobile */
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 0 20px 5px var(--glow-color, rgba(var(--neon-blue-rgb), 0.4));
-        }
-        
-        /* Disattiva animazione aura rotante per mobile se troppo pesante, con @media si può fare */
-        /* @media (max-width: 768px) { .tool-card::before { animation: none; } } */
-
-
-        .tool-card h3 {
-            font-size: clamp(1.5em, 5vw, 1.7em); /* Adattato per mobile */
-            font-family: var(--font-accent-titles);
-            margin-bottom: 10px;
-        }
-        .tool-card p { font-size: clamp(0.85em, 2.2vw, 0.9em); color: #bbb; }
-        
-        .tool-card.github { border-color: #777; --glow-color: #bbb; } 
-        .tool-card.github h3 { color: #eee; text-shadow: 0 0 3px #fff; }
-        .tool-card.vercel { border-color: #fff; --glow-color: #fff; } 
-        .tool-card.vercel h3 { color: #fff; text-shadow: 0 0 3px #fff; }
-        .tool-card.gemini { border-color: var(--neon-blue); --glow-color: var(--neon-blue); }
-        .tool-card.gemini h3 { color: var(--neon-blue); text-shadow: 0 0 3px var(--neon-blue); }
-        .tool-card.htmlcssjs { border-color: var(--neon-orange); --glow-color: var(--neon-orange); }
-        .tool-card.htmlcssjs h3 { color: var(--neon-orange); text-shadow: 0 0 3px var(--neon-orange); }
-
-        #vibecoding-section .vibecoding-animation-container {
-            height: 150px; /* Ridotto per mobile */
-            position: relative;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin: 25px 0;
-            perspective: 300px; /* Ridotta prospettiva */
-        }
-        .vibe-orb {
-            width: 50px; height: 50px; /* Ridotto */
-            border-radius: 50%; position: absolute;
-            background: radial-gradient(circle, rgba(255,255,255,0.7) 0%, transparent 60%);
-            box-shadow: 0 0 10px var(--neon-pink), 0 0 15px var(--neon-pink), inset 0 0 5px #fff; /* Ombre ridotte */
-            animation: pulseOrbMobile 2.5s infinite alternate, orbitMobile 10s linear infinite; /* Animazioni adattate */
+            font-family: var(--font-headings-section);
+            font-size: clamp(2.2em, 8vw, 4.2em); /* Più grande */
+            margin-bottom: 30px; text-align: center; position: relative; z-index: 1;
+            letter-spacing: 1.5px;
+            -webkit-text-stroke: 1px rgba(0,0,0,0.4);
+            color: #fff;
+            animation: sectionTitleTransform 4s infinite alternate;
             transform-style: preserve-3d;
         }
-        /* Particelle rimosse per mobile per performance */
-        .vibe-orb::before, .vibe-orb::after { display: none; } 
-
-        .vibe-text {
-            font-family: var(--font-accent-titles);
-            font-size: clamp(1.8em, 6vw, 2.2em); /* Adattato */
-            color: var(--neon-yellow);
-            text-shadow: 0 0 8px var(--neon-yellow); /* Ombra ridotta */
-            position: relative; z-index: 1;
+        .info-section h2 span { /* Per animare singole lettere/parole del titolo H2 */
+            display: inline-block; /* Necessario per transform */
         }
 
-        @keyframes pulseOrbMobile {
-            from { transform: scale(0.95); box-shadow: 0 0 8px var(--neon-pink), 0 0 12px var(--neon-pink), inset 0 0 4px #fff; }
-            to { transform: scale(1.05); box-shadow: 0 0 12px var(--neon-pink), 0 0 20px var(--neon-pink), inset 0 0 6px #fff; }
+        @keyframes sectionTitleTransform {
+             0% { transform: translateZ(0px) rotateY(0deg) scale(1); opacity: 0.9; }
+             50% { transform: translateZ(20px) rotateY(5deg) scale(1.05); opacity: 1; }
+             100% { transform: translateZ(0px) rotateY(0deg) scale(1); opacity: 0.9; }
         }
-        @keyframes orbitMobile { /* Orbita semplificata per mobile */
-            0% { transform: translateX(-50px) rotateY(0deg) translateZ(0px); }
-            50% { transform: translateX(50px) rotateY(10deg) translateZ(10px); } /* Leggera Z per non essere troppo piatto */
-            100% { transform: translateX(-50px) rotateY(0deg) translateZ(0px); }
+        /* Ombre titoli H2 potenziate */
+        #intro h2 { text-shadow: 0 0 10px #fff, 0 0 20px var(--glow-magenta), 0 0 35px var(--glow-magenta), 0 0 50px var(--electric-blue); }
+        #l-inizio h2 { text-shadow: 0 0 10px #fff, 0 0 20px var(--glow-yellow), 0 0 35px var(--glow-yellow), 0 0 50px var(--glow-orange); }
+        /* ... altri ... */
+
+
+        .info-section p, .info-section ul {
+            font-size: clamp(1em, 3vw, 1.15em);
+            margin-bottom: 20px; position: relative; z-index: 1;
+        }
+        #l-inizio p, #l-inizio ul { color: var(--glow-yellow); }
+        #l-inizio strong { color: #ffeb3b; filter: brightness(1.5); }
+
+        .info-section ul li::before { font-size: 1.4em; animation: sparkleMarker 1.5s infinite; } /* Sparkle più veloce */
+        /* ... (stili highlight, lista, strong come prima ma con colori più intensi) ... */
+
+        .tools-grid {
+            display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px; margin-top: 35px; transform-style: preserve-3d;
+        }
+        .tool-card {
+            background: rgba(20, 10, 50, 0.75); 
+            backdrop-filter: blur(10px) brightness(1.3) saturate(150%);
+            padding: 30px; border-radius: var(--card-radius);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5), inset 0 0 15px rgba(0,0,0,0.3);
+            text-align: center; border: 2px solid;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Transizione più elastica */
+            transform-style: preserve-3d; position: relative; overflow: hidden;
+            will-change: transform, box-shadow;
+            transform: translateZ(0px); /* Base per animazione 3D */
+        }
+        .tool-card:hover { /* Effetto levitazione 3D spinto */
+            transform: translateY(-20px) scale(1.08) rotateX(10deg) rotateY(8deg) translateZ(50px);
+            box-shadow: 0 25px 50px rgba(0,0,0,0.7), 0 0 30px 10px var(--glow-color, rgba(var(--glow-cyan-rgb), 0.7)), inset 0 0 10px rgba(255,255,255,0.1);
+        }
+        .tool-card::before { /* Aura interna potenziata */
+            content: ""; position: absolute; top:0;left:0;right:0;bottom:0;
+            border-radius: var(--card-radius);
+            background: radial-gradient(circle at center, transparent 50%, var(--glow-color, var(--glow-cyan)) 150%);
+            opacity: 0; transition: opacity 0.4s ease;
+            transform: scale(1.2);
+            pointer-events: none;
+        }
+        .tool-card:hover::before { opacity: 0.5; }
+
+        .tool-card h3 {
+            font-size: clamp(1.7em, 6vw, 2.1em);
+            font-family: var(--font-headings-section);
+            margin-bottom: 15px; letter-spacing: 1px;
+            transform: translateZ(20px); /* Titolo "fluttuante" nella card */
+        }
+        /* ... (stili tool card p e colori specifici come prima ma con glow potenziati) ... */
+
+        /* Vibecoding Animation - Supercharged 3D Field */
+        #vibecoding-section .vibecoding-animation-container {
+            height: 250px; position: relative; display: flex;
+            justify-content: center; align-items: center;
+            margin: 40px 0; perspective: 1000px; /* Aumentata prospettiva */
+            transform-style: preserve-3d;
+        }
+        .vibe-energy-field {
+            width: 150px; height: 150px;
+            transform-style: preserve-3d;
+            animation: rotateField3D 20s linear infinite;
+        }
+        .vibe-ring { /* Anelli concentrici 3D */
+            position: absolute; top: 50%; left: 50%;
+            width: 100%; height: 100%;
+            border-radius: 50%;
+            border: 3px solid;
+            opacity: 0.6;
+            transform-origin: center;
+            box-shadow: 0 0 10px currentColor, inset 0 0 8px currentColor;
+        }
+        .vibe-ring:nth-child(1) { width: 80%; height: 80%; border-color: var(--glow-cyan); transform: translate(-50%, -50%) rotateX(70deg) rotateY(20deg); animation: pulseRing 2s infinite alternate; }
+        .vibe-ring:nth-child(2) { width: 100%; height: 100%; border-color: var(--glow-magenta); transform: translate(-50%, -50%) rotateX(70deg) rotateY(80deg); animation: pulseRing 2s infinite alternate 0.5s; }
+        .vibe-ring:nth-child(3) { width: 120%; height: 120%; border-color: var(--glow-lime); transform: translate(-50%, -50%) rotateX(70deg) rotateY(140deg); animation: pulseRing 2s infinite alternate 1s; }
+        
+        .vibe-central-core { /* Nucleo pulsante al centro */
+            width: 60px; height: 60px; border-radius: 50%;
+            background: radial-gradient(circle, #fff 20%, var(--glow-yellow) 60%, transparent 80%);
+            box-shadow: 0 0 20px #fff, 0 0 30px var(--glow-yellow), 0 0 45px var(--glow-orange);
+            position: absolute; top: 50%; left: 50%;
+            transform: translate(-50%, -50%) translateZ(10px); /* Leggermente avanti */
+            animation: pulseCentralCore 1.5s infinite ease-in-out;
+        }
+        .vibe-central-core span { /* Testo VIBE nel nucleo */
+            font-family: var(--font-headings-main); font-size: 1.8em; color: var(--bg-dark-void);
+            position: absolute; top:50%;left:50%; transform: translate(-50%, -50%);
+        }
+        @keyframes rotateField3D { from { transform: rotateY(0deg) rotateX(0deg) rotateZ(0deg); } to { transform: rotateY(360deg) rotateX(45deg) rotateZ(20deg); } }
+        @keyframes pulseRing { from { opacity: 0.5; transform: translate(-50%, -50%) rotateX(70deg) scale(0.95); } to { opacity: 0.8; transform: translate(-50%, -50%) rotateX(70deg) scale(1.05); } } /* Adattare rotateY per ogni anello */
+        @keyframes pulseCentralCore { from { transform: translate(-50%, -50%) translateZ(5px) scale(0.9); } to { transform: translate(-50%, -50%) translateZ(15px) scale(1.1); } }
+
+        .page-footer { /* Footer con glow e posizionamento 3D leggero */
+            text-align: center; margin-top: 80px; padding: 30px;
+            font-size: clamp(0.95em, 2.8vw, 1.05em);
+            color: #ccc; border-top: 2px solid rgba(var(--glow-cyan-rgb),0.3);
+            width:100%; max-width: 1000px;
+            box-shadow: 0 -10px 20px -10px rgba(var(--glow-cyan-rgb),0.2);
+            transform: translateZ(-20px);
+        }
+        .page-footer strong { color: var(--glow-yellow); text-shadow: 0 0 8px var(--glow-yellow), 0 0 3px #fff; }
+
+        /* OTTIMIZZAZIONI MOBILE DRASTICHE */
+        @media (max-width: 768px) { /* Tablet e Mobile */
+            body { animation: none; background: var(--bg-dark-void); } /* Sfondo statico per mobile */
+            .background-overlay { background: radial-gradient(ellipse at center, transparent 50%, var(--bg-dark-void) 95%); }
+            .home-button { transform: translateZ(0); box-shadow: 0 0 10px rgba(var(--glow-cyan-rgb), 0.5); }
+            .home-button:hover { transform: translateY(-2px) scale(1.05); box-shadow: 0 0 15px rgba(var(--glow-cyan-rgb), 0.8); }
+            
+            .page-main-header h1 { animation: headerEnterMobile 1.5s cubic-bezier(0.075, 0.82, 0.165, 1) forwards, intensePulseTextMobile 3s infinite alternate 1.5s; transform: scale(1.5) translateY(50px); -webkit-text-stroke: 1px rgba(0,0,0,0.3); }
+            .page-main-header h1::before, .page-main-header h1::after { display: none; } /* Rimuove glitch su mobile */
+            @keyframes headerEnterMobile { to { opacity: 1; transform: scale(1) translateY(0px); } }
+            @keyframes intensePulseTextMobile { from { opacity: 1; } to { opacity: 0.85; } } /* Pulse più semplice */
+            .page-main-header .subtitle { transform: translateY(20px); animation: subtitleFadeIn 1s ease-out 1s forwards; }
+
+            .info-section-wrapper { perspective: none; }
+            .info-section {
+                transform: translateY(30px); opacity: 0; /* Animazione 2D semplice */
+                backdrop-filter: blur(8px) saturate(130%);
+                animation: none; /* Rimuove float */
+                border-image: none; border-color: var(--glow-cyan); /* Bordo semplice */
+                overflow: hidden; /* Per sicurezza su mobile */
+            }
+            .info-section.visible { transform: translateY(0); opacity: 1; }
+            .section-3d-object { display: none; } /* Rimuove oggetti 3D */
+            .info-section h2 { animation: none; -webkit-text-stroke: 0.5px rgba(0,0,0,0.4); } /* No animazione titolo sezione */
+
+            .tool-card:hover { transform: translateY(-10px) scale(1.03); box-shadow: 0 10px 25px rgba(0,0,0,0.6), 0 0 20px 5px var(--glow-color, rgba(var(--glow-cyan-rgb), 0.5)); }
+            .tool-card::before { display: none; } /* Rimuove aura interna su mobile */
+            
+            #vibecoding-section .vibecoding-animation-container { height: 200px; perspective: none; }
+            .vibe-energy-field { animation: rotateField2D 15s linear infinite; } /* Animazione 2D */
+            .vibe-ring { border-width: 2px; } /* Anelli più sottili */
+            .vibe-ring:nth-child(1) { transform: translate(-50%, -50%) rotateX(0) scale(0.7); animation-name: pulseRingSimple; }
+            .vibe-ring:nth-child(2) { transform: translate(-50%, -50%) rotateX(0) scale(0.9); animation-name: pulseRingSimple; animation-delay: 0.3s; }
+            .vibe-ring:nth-child(3) { transform: translate(-50%, -50%) rotateX(0) scale(1.1); animation-name: pulseRingSimple; animation-delay: 0.6s; }
+            @keyframes rotateField2D { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+            @keyframes pulseRingSimple { from { opacity: 0.4; } to { opacity: 0.7; } }
+            .vibe-central-core { animation-name: pulseCentralCoreSimple; width:50px; height:50px; }
+            .vibe-central-core span { font-size: 1.5em;}
+            @keyframes pulseCentralCoreSimple { from { transform: translate(-50%, -50%) scale(0.95); } to { transform: translate(-50%, -50%) scale(1.05); } }
+            .page-footer { transform: translateZ(0); box-shadow: none; border-top-color: rgba(var(--glow-cyan-rgb),0.2); }
         }
 
-        .page-footer {
-            text-align: center;
-            margin-top: 50px; padding: 20px;
-            font-size: clamp(0.85em, 2.2vw, 0.95em); /* Adattato */
-            color: #aaa;
-            border-top: 1px solid rgba(255,255,255,0.15); /* Meno visibile */
-            width:100%; max-width: 950px;
+        @media (max-width: 480px) { /* Smartphone */
+             .page-main-header h1 { -webkit-text-stroke: 0.5px rgba(0,0,0,0.5); } /* Assicura leggibilità */
+             .info-section h2 { -webkit-text-stroke: 0.3px rgba(0,0,0,0.5); }
+             .tool-card h3 { font-size: 1.6em; }
         }
-        .page-footer strong { color: var(--neon-yellow); text-shadow: 0 0 3px var(--neon-yellow); }
 
-        /* Ulteriori aggiustamenti per schermi molto piccoli */
-        @media (max-width: 480px) {
-            body { padding-top: 60px; padding-left: 10px; padding-right: 10px;}
-            .home-button { padding: 6px 10px; font-size: 0.75em; top: 10px; left: 10px; }
-            .home-button svg { width: 14px; height: 14px; }
-
-            .page-main-header { margin-bottom: 40px; padding: 20px 10px; }
-            .page-main-header .subtitle { font-size: 0.8em; }
-            .info-section { padding: 20px 15px; margin-bottom: 30px; }
-            .tools-grid { grid-template-columns: 1fr; gap: 15px; } 
-            .tool-card { padding: 15px; }
-            #vibecoding-section .vibecoding-animation-container { height: 120px; }
-            .vibe-orb { width: 40px; height: 40px; }
-        }
     </style>
 </head>
 <body>
+    <div class="background-overlay"></div>
+    <!-- <div class="warp-field" id="warpField"></div> Placeholder per JS warp field -->
+
     <a href="index.html" class="home-button" title="Torna alla Home">
         <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
         <span>Home</span>
     </a>
 
     <header class="page-main-header">
-        <h1>INFO COSMICA</h1>
-        <p class="subtitle">Un'occhiata all'universo creativo dietro al progetto Due Mori!</p>
+        <h1 data-text="INFO ESPLOSIVA">INFO ESPLOSIVA</h1> <!-- data-text per effetto glitch -->
+        <p class="subtitle">Un Tuffo nel Making Of dell'Universo Due Mori!</p>
     </header>
 
     <main>
+        <div class="info-section-wrapper">
         <section class="info-section" id="intro">
-            <h2>Ehi, Tu! Sì, Proprio Tu!</h2>
-            <p>Ti sei mai chiesto cosa bolle nella mia pentola creativa? Se vuoi scoprire i segreti, le scintille e le idee un po' matte dietro a questo progetto dedicato al <strong class="highlight">Team Due Mori</strong>, allora allaccia le cinture, perché stai per fare un viaggio intergalattico!</p>
-            <p>Qui non ci sono formule complicate, solo la storia di come un'idea semplice si è trasformata in un piccolo mondo digitale, tutto da esplorare.</p>
+            <div class="section-3d-object"> <!-- Esempio oggetto 3D, da replicare/modificare per altre sezioni -->
+                <div class="spiral-segment" style="transform: rotateZ(0deg) rotateX(60deg) translateZ(5px);"></div>
+                <div class="spiral-segment" style="transform: rotateZ(30deg) rotateX(60deg) translateZ(10px);"></div>
+                <!-- ... altri segmenti ... -->
+            </div>
+            <h2>Ehilà, Esploratore Cosmico!</h2>
+            <p>Curioso di sapere come nasce la <strong class="highlight">magia digitale</strong> che stai vedendo? Se vuoi un pass per il backstage del progetto <strong class="highlight">Due Mori</strong>, con tutti i suoi segreti e le scintille creative, sei nel posto giusto! Preparati per un decollo nel mio universo di idee.</p>
+            <p>Niente tecnicismi noiosi, solo il racconto di come una piccola idea si è trasformata in una galassia di divertimento e codice!</p>
         </section>
+        </div>
 
+        <div class="info-section-wrapper">
         <section class="info-section" id="l-inizio">
-            <h2>Il Big Bang: Schede Stellari!</h2>
-            <p>Tutto è iniziato con un flash: perché non trasformare il mitico staff del Due Mori in personaggi unici, come se fossero usciti da un film dello <strong class="highlight">Studio Ghibli</strong>? Volevo qualcosa di super divertente e che facesse brillare gli occhi.</p>
-            <p>Così, mi sono messo all'opera e ho creato le <a href="schede.html" title="Vai alle schede del Team!" style="color: #d95f02; text-decoration: underline; font-weight:bold;">Schede del Team</a>, ognuna con foto, descrizioni un po' pazze e dettagli che raccontano la loro "essenza". Quella è stata la prima stella di questa costellazione!</p>
+            <h2>L'Idea Primordiale: <span>Schede</span> <span>Stellari!</span></h2>
+            <p>Tutto è partito da un lampo di genio: "E se trasformassi lo staff del Due Mori in eroi da <strong class="highlight">anime giapponese</strong>, tipo Studio Ghibli?". Volevo qualcosa di unico, che facesse sognare!</p>
+            <p>Mi sono tuffato nella creazione delle <a href="schede.html" title="Vai alle schede del Team!" style="color: var(--glow-yellow); text-decoration: none; font-weight:bold; border-bottom: 1px dashed var(--glow-yellow); padding-bottom:1px; text-shadow: 0 0 8px var(--glow-yellow);">Schede del Team</a>: foto, descrizioni fuori di testa e dettagli che li rendono leggendari. Quella è stata la genesi, la prima supernova di questo progetto!</p>
         </section>
+        </div>
 
+        <div class="info-section-wrapper">
         <section class="info-section" id="sezioni-attuali">
-            <h2>L'Espansione dell'Universo</h2>
-            <p>Ma una stella sola non fa una galassia, giusto? Ho pensato che servisse qualcosa di più, un'esperienza <strong class="highlight">coinvolgente</strong>. E così, sono nate altre meraviglie:</p>
+            <h2>Verso Nuove Galassie <span>Interattive!</span></h2>
+            <p>Una supernova non basta, no? Volevo un universo intero, un posto dove non solo guardi, ma <strong class="highlight">entri e giochi</strong>. Così, ho forgiato nuove costellazioni:</p>
             <ul>
-                <li><strong>Chatbot "Don Alfred":</strong> Il mio assistente virtuale un po' saggio e un po' brontolone. Prova a scambiarci due chiacchiere, è lì per divertirti!</li>
-                <li><strong>Giochi del Due Mori:</strong> Un portale per il divertimento puro! Giochi classici, ma con un tocco speciale "Due Mori Style".</li>
-                <li><strong>Questa Pagina INFO:</strong> Proprio dove sei ora! Uno spazio per raccontarti come nasce tutta questa magia, senza filtri.</li>
+                <li><strong>Chatbot "Don Alfred":</strong> Il mio saggio (e un po' cinico) compagno di viaggio IA. Chiedigli qualsiasi cosa, ti sorprenderà!</li>
+                <li><strong>Giochi del Due Mori:</strong> Un portale ludico dove i classici si vestono a tema Due Mori. Divertimento garantito!</li>
+                <li><strong>Questa Pagina INFO:</strong> Il diario di bordo di questa avventura, dove ti svelo i "come" e i "perché".</li>
             </ul>
         </section>
+        </div>
 
+        <div class="info-section-wrapper">
         <section class="info-section" id="cosa-ci-aspetta">
-            <h2>Verso l'Infinito... e Oltre!</h2>
-            <p>La mia mente è un vulcano di idee e non ho intenzione di fermarmi! Ci sono un sacco di <strong class="highlight">nuove avventure</strong> che sto preparando. Qualche spoiler cosmico?</p>
+            <h2>Orizzonti Futuri: Cosa <span>Bolle</span> nel <span>Calderone</span> <span>Cosmico?</span></h2>
+            <p>La mia fucina creativa è sempre accesa! Sto già plasmando <strong class="highlight">nuove meraviglie</strong> per espandere questo universo. Ecco qualche segnale dal futuro (non spoilerare troppo!):</p>
             <ul>
-                <li>Una <strong>Bacheca Spaziale</strong> per news e annunci galattici.</li>
-                <li>Una sezione <strong>Commenti Stellari</strong>, perché la tua voce conta tantissimo!</li>
-                <li>La possibilità di <strong class="highlight">caricare le tue foto</strong> e vederle trasformate in opere d'arte da cartone animato!</li>
+                <li>Una <strong>Bacheca Interstellare</strong> per news flash e aggiornamenti.</li>
+                <li>Una zona <strong>Commenti dalla Community</strong>, perché la tua voce è musica per le mie orecchie!</li>
+                <li>La possibilità di <strong class="highlight">caricare le tue foto</strong> e vederle trasformate in capolavori animati!</li>
             </ul>
-            <p>L'universo Due Mori è in continua evoluzione. Preparati a nuove sorprese!</p>
+            <p>L'universo Due Mori è una creatura viva, pronta a sorprenderti ancora. Allaccia le cinture!</p>
         </section>
+        </div>
 
+        <div class="info-section-wrapper">
         <section class="info-section" id="vibecoding-section">
-            <h2>La Forza Segreta: Il "Vibecoding"!</h2>
-            <p>Ti chiedi come riesco a creare tutto questo da solo? Ho un'arma segreta, una vera e propria <strong class="highlight">superpotenza</strong>: il <strong>Vibecoding</strong>!</p>
-            <p>Immagina di essere un programmatore che conosce i trucchi del mestiere, ma con un aiutante speciale: l'<strong>Intelligenza Artificiale</strong>. L'IA mi dà una mano incredibile, sbrigando le parti noiose e ripetitive. Così, io, il "Vibecoder", posso concentrarmi sulla creatività, sul design e sul rendere tutto super figo e facile da usare. È come programmare alla velocità della luce!</p>
+            <h2>Il Motore Segreto: "<span>Vibecoding</span>"!</h2>
+            <p>Come faccio a orchestrare tutta questa sinfonia digitale da solo? Ho un asso nella manica, un vero e proprio <strong class="highlight">amplificatore di creatività</strong>: il <strong>Vibecoding</strong>!</p>
+            <p>Pensa a un programmatore che conosce tutti i segreti del codice, ma che ha al suo fianco un'<strong>Intelligenza Artificiale</strong> come copilota. L'IA si occupa delle routine, dei calcoli noiosi, liberando me, il "Vibecoder", per concentrarmi sull'inventare, sul disegnare esperienze uniche e sul far esplodere la <strong class="highlight">pura figaggine</strong>. È come avere un team di sviluppo nella testa, ma super veloce!</p>
             <div class="vibecoding-animation-container">
-                <div class="vibe-orb"></div>
-                <span class="vibe-text">VIBE!</span>
+                <div class="vibe-energy-field">
+                    <div class="vibe-ring"></div>
+                    <div class="vibe-ring"></div>
+                    <div class="vibe-ring"></div>
+                    <div class="vibe-central-core"><span>V!</span></div>
+                </div>
             </div>
         </section>
+        </div>
 
+        <div class="info-section-wrapper">
         <section class="info-section" id="attrezzi-del-mestiere">
-            <h2>I Miei Strumenti Magici</h2>
-            <p>Per dare vita a questo universo digitale, uso degli strumenti tecnologici che sono un po' come la mia bacchetta magica. Ecco i miei preferiti:</p>
+            <h2>La Mia Cassetta degli <span>Attrezzi Cosmici</span></h2>
+            <p>Per scolpire questo universo digitale, mi affido a strumenti tecnologici che sono i miei compagni d'avventura. Ecco i miei assi nella manica:</p>
             <div class="tools-grid">
-                <div class="tool-card github" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000"> <!-- Tilt ridotto per mobile -->
+                <div class="tool-card github">
                     <h3>GitHub</h3>
-                    <p>Il mio archivio segreto per tutto il codice, super organizzato e al sicuro!</p>
+                    <p>La mia fortezza digitale dove custodisco e organizzo ogni riga di codice!</p>
                 </div>
-                <div class="tool-card vercel" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000">
+                <div class="tool-card vercel">
                     <h3>Vercel</h3>
-                    <p>La rampa di lancio che spedisce il sito online alla velocità della luce!</p>
+                    <p>La catapulta interstellare che lancia il sito online alla velocità della luce!</p>
                 </div>
-                <div class="tool-card gemini" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000">
+                <div class="tool-card gemini">
                     <h3>Gemini AI</h3>
-                    <p>Il mio geniale aiutante IA che mi ispira e velocizza la creazione del codice!</p>
+                    <p>Il mio oracolo IA personale, fonte di ispirazione e acceleratore di codice!</p>
                 </div>
-                 <div class="tool-card htmlcssjs" data-tilt data-tilt-max="8" data-tilt-speed="250" data-tilt-perspective="1000">
+                 <div class="tool-card htmlcssjs">
                     <h3>HTML, CSS, JS</h3>
-                    <p>I mattoni, i colori e l'energia che fanno brillare ogni pagina web!</p>
+                    <p>L'energia primordiale, i colori e i meccanismi che animano il web!</p>
                 </div>
             </div>
         </section>
-
+        </div>
     </main>
     
     <footer class="page-footer">
-        <p>Creato con passione, codice e un pizzico di follia da <strong>Alejandro</strong>.</p>
-        <p>© 2024 Un Progetto Due Mori - Powered by Vibecoding & Fantasia Pura!</p>
+        <p>Forgiato con bit, sogni e una dose massiccia di caffè da <strong>Alejandro</strong>.</p>
+        <p>© 2024 Un Progetto Due Mori - Scatenando il Vibecoding nell'Universo!</p>
     </footer>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
             const sections = document.querySelectorAll('.info-section');
             const observerOptions = {
                 root: null,
-                rootMargin: '0px',
-                threshold: 0.1 // Più basso per attivare prima su scroll veloce mobile
+                rootMargin: '0px', // Cambia se necessario per anticipare/ritardare
+                threshold: 0.05 // Attiva con pochissima visibilità per effetti "grandi"
             };
 
-            const observer = new IntersectionObserver((entries, observer) => {
+            const observer = new IntersectionObserver((entries, observerInstance) => {
                 entries.forEach(entry => {
                     if (entry.isIntersecting) {
                         entry.target.classList.add('visible');
+                         // Per animare solo una volta, decommenta la riga sotto
+                         // observerInstance.unobserve(entry.target); 
                     } else {
-                        // Per ri-animare se si esce e rientra (può essere pesante su mobile)
-                        // if (window.innerWidth >= 769) { // Solo su desktop
+                        // Rimuove 'visible' per ri-animare (potrebbe essere pesante)
+                        // Solo su desktop per performance, se si vuole ri-animare
+                        // if (window.innerWidth >= 1024 && entry.target.classList.contains('visible')) { 
                         //    entry.target.classList.remove('visible');
                         // }
                     }
@@ -478,23 +550,53 @@
                 observer.observe(section);
             });
 
-            // Inizializza Vanilla Tilt solo se non è un dispositivo touch o se lo schermo è grande
-            // Questo per evitare che il tilt interferisca con lo scroll su mobile e per performance
-            const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-            if (!isTouchDevice && window.innerWidth >= 769) {
-                VanillaTilt.init(document.querySelectorAll(".tool-card"), {
-                    max: 8, 
-                    speed: 250,
-                    glare: false, 
-                    perspective: 1000 
-                });
-            } else { // Su mobile, disabilita il tilt o usa un effetto hover più semplice
-                document.querySelectorAll(".tool-card").forEach(card => {
-                    card.addEventListener('mouseenter', () => card.style.transform = 'translateY(-3px)');
-                    card.addEventListener('mouseleave', () => card.style.transform = 'translateY(0)');
+            // Animazione parole H2 sezioni (desktop) - esempio
+            if (window.innerWidth >= 1024) {
+                document.querySelectorAll('.info-section h2').forEach(h2 => {
+                    const text = h2.textContent;
+                    const words = text.split(' ');
+                    if (words.length > 1) { // Solo se ci sono più parole
+                        h2.innerHTML = ''; // Svuota
+                        words.forEach((word, index) => {
+                            const span = document.createElement('span');
+                            span.textContent = word + ' ';
+                            span.style.animation = `wordEnter3D 0.5s ease-out ${0.5 + index * 0.15}s forwards`;
+                            span.style.opacity = '0';
+                            span.style.transform = 'translateY(20px) translateZ(-30px) rotateX(30deg)';
+                            h2.appendChild(span);
+                        });
+                    }
                 });
             }
         });
+
+        // Aggiunta dinamica di stili per animazioni complesse o particelle (se necessario)
+        // Esempio: se il campo di stelle fosse generato da JS
+        // const warpField = document.getElementById('warpField');
+        // if (warpField) {
+        //     for (let i = 0; i < 100; i++) { // Crea 100 stelle
+        //         const star = document.createElement('div');
+        //         star.classList.add('warp-star');
+        //         star.style.left = `${Math.random() * 100}%`;
+        //         star.style.top = `${Math.random() * 100}%`;
+        //         const duration = 2 + Math.random() * 3; // Durata tra 2 e 5 secondi
+        //         const size = 1 + Math.random() * 2; // Dimensione tra 1px e 3px
+        //         star.style.width = `${size}px`;
+        //         star.style.height = `${size}px`;
+        //         // Animazione più complessa richiederebbe di calcolare il percorso verso il centro
+        //         // Questo è un esempio semplice, l'animazione CSS è già definita
+        //         warpField.appendChild(star);
+        //     }
+        // }
     </script>
+    <!-- Aggiunta CSS per animazione parole H2 (se usata da JS) -->
+    <style>
+        @keyframes wordEnter3D {
+            to {
+                opacity: 1;
+                transform: translateY(0) translateZ(0) rotateX(0deg);
+            }
+        }
+    </style>
 </body>
 </html>

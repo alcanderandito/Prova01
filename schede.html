@@ -11,14 +11,15 @@
             --font-primary: 'Poppins', sans-serif;
             --font-headings: 'Caveat', cursive;
             
-            --color-bg: #f0f2f5; /* Sfondo pagina leggermente grigio */
-            --color-card-bg: #ffffff; /* Sfondo scheda bianco */
+            --color-bg: #f0f2f5;
+            --color-card-bg: #ffffff;
             --color-text: #333;
             --color-text-light: #555;
             --color-accent1: #ff6b6b; /* Rosso corallo */
             --color-accent2: #4ecdc4; /* Turchese */
             --color-shadow: rgba(0, 0, 0, 0.1);
             --color-border: #e0e0e0;
+            --color-overlay: rgba(0, 0, 0, 0.7); /* Sfondo per il modal */
 
             --card-border-radius: 15px;
             --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -37,12 +38,44 @@
             color: var(--color-text);
             line-height: 1.6;
             padding: 20px;
+            padding-top: 80px; /* Spazio per il tasto Home fisso */
             display: flex;
             flex-direction: column;
             align-items: center;
             min-height: 100vh;
-            overflow-x: hidden; /* Previene scroll orizzontale causato da animazioni */
+            overflow-x: hidden;
         }
+        
+        /* Tasto Home Fisso */
+        .home-button {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: var(--color-accent1);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 50px; /* Più arrotondato */
+            text-decoration: none;
+            font-weight: 600;
+            z-index: 1001; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .home-button:hover {
+            background-color: #e05252; /* Scurisce l'accento 1 */
+            transform: translateY(-2px);
+        }
+        
+        .home-button svg {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
 
         .page-header {
             text-align: center;
@@ -74,7 +107,7 @@
             grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
             gap: 30px;
             width: 100%;
-            max-width: 1600px; /* Aumentato per ospitare più card per riga se lo schermo è grande */
+            max-width: 1600px;
             padding: 10px;
         }
 
@@ -86,8 +119,8 @@
             transition: transform 0.3s ease, box-shadow 0.3s ease;
             display: flex;
             flex-direction: column;
-            /* Per l'effetto tilt.js */
             transform-style: preserve-3d; 
+            cursor: pointer; 
         }
 
         .staff-card:hover {
@@ -97,8 +130,8 @@
         .card-image-container {
             position: relative;
             width: 100%;
-            padding-top: 75%; /* Aspect ratio 4:3 per l'immagine principale */
-            background-color: #eee; /* Placeholder se l'immagine non carica */
+            padding-top: 75%; 
+            background-color: #eee;
         }
 
         .main-photo {
@@ -107,30 +140,32 @@
             left: 0;
             width: 100%;
             height: 100%;
-            object-fit: cover; /* Assicura che l'immagine copra lo spazio senza distorcersi */
+            object-fit: cover;
             border-bottom: 1px solid var(--color-border);
             transition: transform 0.5s ease;
         }
         
         .staff-card:hover .main-photo {
-             transform: scale(1.05); /* Leggero zoom sull'immagine all'hover della card */
+             transform: scale(1.05);
         }
 
         .photo-thumbnails {
             display: flex;
             justify-content: center;
-            padding: 10px;
-            background-color: rgba(255, 255, 255, 0.8); /* Sfondo leggermente trasparente per le miniature */
+            padding: 8px;
+            background-color: rgba(255, 255, 255, 0.8);
             position: absolute;
             bottom: 0;
             width: 100%;
             gap: 5px;
-            flex-wrap: wrap; /* Per far andare a capo le miniature se sono troppe */
+            flex-wrap: wrap;
+            max-height: 60px; 
+            overflow-y: auto; 
         }
 
         .thumbnail {
-            width: 50px;
-            height: 50px;
+            width: 40px; 
+            height: 40px;
             object-fit: cover;
             border-radius: 5px;
             cursor: pointer;
@@ -145,36 +180,53 @@
 
         .card-content {
             padding: 20px;
-            flex-grow: 1; /* Permette al contenuto di espandersi */
+            flex-grow: 1;
             display: flex;
             flex-direction: column;
         }
+        
+        .card-content-summary { 
+            max-height: 100px; 
+            overflow: hidden;
+            text-overflow: ellipsis;
+            position: relative;
+        }
+        .card-content-summary::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            right: 0;
+            width: 70%;
+            height: 1.6em; 
+            background: linear-gradient(to right, transparent, var(--color-card-bg) 50%);
+        }
+
 
         .card-content h2 {
             font-family: var(--font-headings);
-            font-size: 2.5em; /* Aumentato per più enfasi */
+            font-size: 2.2em; 
             color: var(--color-accent1);
             margin-bottom: 10px;
             text-align: center;
         }
 
         .description {
-            font-size: 0.95em;
+            font-size: 0.9em;
             color: var(--color-text-light);
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: justify;
             font-style: italic;
         }
 
         .details {
-            font-size: 0.9em;
+            font-size: 0.85em;
         }
 
         .details p {
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #444;
             border-left: 3px solid var(--color-accent2);
-            padding-left: 10px;
+            padding-left: 8px;
             background-color: #f9f9f9;
             border-radius: 0 5px 5px 0;
         }
@@ -185,11 +237,120 @@
         }
         
         .details .icon {
-            margin-right: 8px;
+            margin-right: 6px;
             color: var(--color-accent2);
         }
 
-        /* Stile per il footer con i crediti (opzionale) */
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: var(--color-overlay);
+            display: none; 
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            background-color: var(--color-card-bg);
+            padding: 30px;
+            border-radius: var(--card-border-radius);
+            box-shadow: 0 10px 50px rgba(0,0,0,0.3);
+            width: 90%;
+            max-width: 700px;
+            max-height: 90vh;
+            overflow-y: auto;
+            position: relative;
+            transform: scale(0.95);
+            transition: transform 0.3s ease;
+        }
+        
+        .modal-overlay.active .modal-content {
+            transform: scale(1);
+        }
+
+        .modal-close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: none;
+            border: none;
+            font-size: 2em;
+            color: var(--color-text-light);
+            cursor: pointer;
+            line-height: 1;
+        }
+        .modal-close-button:hover {
+            color: var(--color-accent1);
+        }
+
+        .modal-image-container {
+            width: 100%;
+            max-height: 400px; 
+            margin-bottom: 20px;
+            text-align: center; 
+        }
+
+        .modal-main-photo {
+            max-width: 100%;
+            max-height: 350px; 
+            height: auto;
+            object-fit: contain; 
+            border-radius: 10px;
+            margin-bottom: 10px; 
+        }
+        
+        .modal-photo-thumbnails {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+        .modal-thumbnail {
+             width: 60px;
+             height: 60px;
+             object-fit: cover;
+             border-radius: 5px;
+             cursor: pointer;
+             border: 2px solid var(--color-border);
+             transition: border-color 0.3s ease, transform 0.3s ease;
+        }
+        .modal-thumbnail:hover, .modal-thumbnail.active {
+            border-color: var(--color-accent1);
+            transform: scale(1.05);
+        }
+
+
+        .modal-content h2 {
+            font-family: var(--font-headings);
+            font-size: 3em;
+            color: var(--color-accent1);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .modal-content .description {
+            font-size: 1em;
+            margin-bottom: 25px;
+        }
+        .modal-content .details p {
+            font-size: 0.95em;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+
         .page-footer {
             text-align: center;
             margin-top: 50px;
@@ -198,63 +359,51 @@
             color: #777;
         }
 
-        /* Animazione di entrata per le schede (opzionale, ma carino) */
         @keyframes fadeInCard {
-            from {
-                opacity: 0;
-                transform: translateY(30px) scale(0.95);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0) scale(1);
-            }
+            from { opacity: 0; transform: translateY(30px) scale(0.95); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
         }
 
         .staff-card {
             animation: fadeInCard 0.5s ease-out forwards;
-            opacity: 0; /* Inizia trasparente */
+            opacity: 0;
         }
         
-        /* Per sfalsare l'animazione delle card */
-        /* Questo si può fare con JS per più precisione, ma proviamo con CSS nth-child */
-        .staff-card:nth-child(1) { animation-delay: 0.1s; }
-        .staff-card:nth-child(2) { animation-delay: 0.2s; }
-        .staff-card:nth-child(3) { animation-delay: 0.3s; }
-        .staff-card:nth-child(4) { animation-delay: 0.4s; }
-        .staff-card:nth-child(5) { animation-delay: 0.5s; }
-        .staff-card:nth-child(6) { animation-delay: 0.6s; }
-        /* ... e così via se ci sono molte card per riga */
-
-
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            .page-header h1 {
-                font-size: 2.5em;
-            }
-            .staff-grid {
-                grid-template-columns: 1fr; /* Una colonna su schermi piccoli */
-                gap: 20px;
-            }
-            .card-content h2 {
-                font-size: 2em;
-            }
+            body { padding-top: 70px; } 
+            .home-button { padding: 8px 12px; font-size: 0.9em; }
+            .home-button svg { width: 18px; height: 18px; }
+
+            .page-header h1 { font-size: 2.5em; }
+            .staff-grid { grid-template-columns: 1fr; gap: 20px; }
+            .card-content h2 { font-size: 2em; }
+            
+            .modal-content { width: 95%; padding: 20px; }
+            .modal-content h2 { font-size: 2.2em; }
+            .modal-main-photo { max-height: 250px; }
+            .modal-thumbnail { width: 50px; height: 50px; }
         }
          @media (max-width: 480px) {
-            .page-header h1 {
-                font-size: 2em;
-            }
-             .card-image-container {
-                padding-top: 100%; /* Immagini quadrate su mobile per risparmiare spazio verticale */
-            }
-            .thumbnail {
-                width: 40px;
-                height: 40px;
-            }
+            .page-header h1 { font-size: 2em; }
+            .card-image-container { padding-top: 100%; }
+            .thumbnail { width: 35px; height: 35px; }
+            .photo-thumbnails { padding: 5px; max-height: 50px;}
+
+            .modal-content { padding: 15px; }
+            .modal-content h2 { font-size: 1.8em; }
+            .modal-main-photo { max-height: 200px; }
+            .modal-thumbnail { width: 40px; height: 40px; }
+            .modal-close-button { top:10px; right: 10px; font-size: 1.5em;}
         }
 
     </style>
 </head>
 <body>
+    <a href="index.html" class="home-button" title="Torna alla Home">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+    </a>
 
     <header class="page-header">
         <h1>Lo Staff Stellare del Due Mori</h1>
@@ -264,6 +413,24 @@
     <main class="staff-grid">
         <!-- Le schede verranno inserite qui dal JavaScript -->
     </main>
+
+    <!-- Modal Structure (nascosto di default) -->
+    <div class="modal-overlay" id="staffModal">
+        <div class="modal-content">
+            <button class="modal-close-button" id="modalCloseButton">×</button>
+            <div class="modal-image-container">
+                <img src="" alt="Foto del membro dello staff" class="modal-main-photo" id="modalMainPhoto">
+                <div class="modal-photo-thumbnails" id="modalPhotoThumbnails">
+                    <!-- Miniature per il modal verranno inserite qui -->
+                </div>
+            </div>
+            <h2 id="modalName"></h2>
+            <p class="description" id="modalDescription"></p>
+            <div class="details" id="modalDetails">
+                <!-- Dettagli verranno inseriti qui -->
+            </div>
+        </div>
+    </div>
     
     <footer class="page-footer">
         <p>© 2024 Le Schede Mitiche del Due Mori - Creazione magica</p>
@@ -272,7 +439,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
     <script>
         const staffData = [
-            {
+             {
                 id: "fabio",
                 nome: "Don Fabio",
                 foto: ["fabio.PNG", "fabio1.PNG", "fabio2.PNG", "fabio3.PNG", "fabio4.PNG", "fabio5.PNG", "fabio6.PNG"],
@@ -294,7 +461,7 @@
                 altezza: "Circa 1.66 m",
                 mansione: "Cameriera d’onore, dispensatrice ufficiale di amore, coccole e saggezza. La mamma che tutti vorrebbero, anche se non sei parente.",
                 velocita: "Tartaruga zen – si muove con calma e grazia, ma con l’eleganza di una leggenda vivente",
-                colore_preferito: "Da definire",
+                colore_preferito: "Da definire", // Campo specifico per Lucia
                 piatto_preferito: "Tutto",
                 fetish: "Fare regalini ai figli (qualsiasi occasione è buona per portare qualcosa a qualcuno)",
                 debolezza: "NESSUNA. È un carro armato sorridente. Un Panzer di bontà.",
@@ -444,26 +611,38 @@
         ];
 
         const staffGrid = document.querySelector('.staff-grid');
+        const modalOverlay = document.getElementById('staffModal');
+        const modalCloseButton = document.getElementById('modalCloseButton');
+        const modalMainPhoto = document.getElementById('modalMainPhoto');
+        const modalPhotoThumbnailsContainer = document.getElementById('modalPhotoThumbnails');
+        const modalName = document.getElementById('modalName');
+        const modalDescription = document.getElementById('modalDescription');
+        const modalDetailsContainer = document.getElementById('modalDetails');
 
         staffData.forEach((member, index) => {
             const card = document.createElement('article');
             card.classList.add('staff-card');
-            card.setAttribute('data-tilt', ''); // Per vanilla-tilt.js
-            card.style.animationDelay = `${index * 0.05}s`; // Stagger animation
+            card.setAttribute('data-tilt', ''); 
+            card.style.animationDelay = `${index * 0.05}s`;
+            card.setAttribute('data-member-id', member.id); 
 
             let photoThumbnailsHTML = '';
             if (member.foto.length > 1) {
                 member.foto.forEach((fotoUrl, idx) => {
-                    photoThumbnailsHTML += `<img src="${fotoUrl}" alt="Miniatura di ${member.nome} ${idx + 1}" class="thumbnail ${idx === 0 ? 'active' : ''}" data-card-id="${member.id}" data-img-src="${fotoUrl}">`;
+                    photoThumbnailsHTML += `<img src="${fotoUrl}" alt="Miniatura di ${member.nome} ${idx + 1}" class="thumbnail ${idx === 0 ? 'active' : ''}" data-card-id="${member.id}" data-img-src="${fotoUrl}" onclick="event.stopPropagation(); switchCardImage(this, '${member.id}', '${fotoUrl}');">`;
                 });
             }
             
-            // Aggiunta dinamica del campo "Colore Preferito" solo per Lucia
             let colorePreferitoHTML = '';
             if (member.nome === "Lucia" && member.colore_preferito) {
                 colorePreferitoHTML = `<p><span class="icon">🎨</span><strong>Colore Preferito:</strong> ${member.colore_preferito}</p>`;
             }
 
+            // Tronca mansione per la card, usa un'ellissi se troppo lunga
+            let mansioneCard = member.mansione;
+            if (mansioneCard.length > 60) { // Lunghezza massima per la card prima di troncare
+                mansioneCard = mansioneCard.substring(0, 57) + "...";
+            }
 
             card.innerHTML = `
                 <div class="card-image-container">
@@ -472,45 +651,108 @@
                 </div>
                 <div class="card-content">
                     <h2>${member.nome}</h2>
-                    <p class="description">${member.descrizione}</p>
+                    <div class="description card-content-summary">${member.descrizione}</div>
                     <div class="details">
                         <p><span class="icon">📏</span><strong>Altezza:</strong> ${member.altezza}</p>
-                        <p><span class="icon">💼</span><strong>Mansione:</strong> ${member.mansione}</p>
-                        <p><span class="icon">⚡️</span><strong>Velocità:</strong> ${member.velocita}</p>
-                        <p><span class="icon">🍲</span><strong>Piatto Preferito:</strong> ${member.piatto_preferito}</p>
-                        ${colorePreferitoHTML}
-                        <p><span class="icon">✨</span><strong>Fetish:</strong> ${member.fetish}</p>
-                        <p><span class="icon">💔</span><strong>Debolezza:</strong> ${member.debolezza}</p>
-                        <p><span class="icon">⏳</span><strong>Pazienza:</strong> ${member.pazienza}</p>
-                        <p><span class="icon">🌍</span><strong>Paese Preferito:</strong> ${member.paese_preferito}</p>
+                        <p><span class="icon">💼</span><strong>Mansione:</strong> ${mansioneCard}</p>
                     </div>
                 </div>
             `;
             staffGrid.appendChild(card);
-        });
 
-        // Inizializza Vanilla Tilt per le schede
+            card.addEventListener('click', () => openModal(member.id));
+        });
+        
+        window.switchCardImage = function(thumbElement, cardId, newSrc) {
+            const mainPhoto = document.getElementById(`main-photo-${cardId}`);
+            if (mainPhoto) {
+                mainPhoto.src = newSrc;
+            }
+            document.querySelectorAll(`.thumbnail[data-card-id="${cardId}"]`).forEach(t => t.classList.remove('active'));
+            thumbElement.classList.add('active');
+        }
+
         VanillaTilt.init(document.querySelectorAll(".staff-card"), {
-            max: 15,       // Inclinazione massima
-            speed: 400,    // Velocità dell'animazione
-            glare: true,   // Effetto riflesso
-            "max-glare": 0.2 // Intensità del riflesso
+            max: 10, 
+            speed: 300,
+            glare: true,
+            "max-glare": 0.1
         });
 
-        // Gestione cambio immagine principale al click sulla miniatura
-        const thumbnails = document.querySelectorAll('.thumbnail');
-        thumbnails.forEach(thumb => {
-            thumb.addEventListener('click', function() {
-                const cardId = this.dataset.cardId;
-                const newSrc = this.dataset.imgSrc;
-                const mainPhoto = document.getElementById(`main-photo-${cardId}`);
-                if (mainPhoto) {
-                    mainPhoto.src = newSrc;
-                }
-                // Aggiorna la classe 'active' per le miniature della stessa card
-                document.querySelectorAll(`.thumbnail[data-card-id="${cardId}"]`).forEach(t => t.classList.remove('active'));
-                this.classList.add('active');
-            });
+        function openModal(memberId) {
+            const member = staffData.find(m => m.id === memberId);
+            if (!member) return;
+
+            modalMainPhoto.src = member.foto[0];
+            modalMainPhoto.alt = `Foto di ${member.nome}`;
+            
+            modalPhotoThumbnailsContainer.innerHTML = ''; 
+            if (member.foto.length > 1) {
+                member.foto.forEach((fotoUrl, idx) => {
+                    const thumb = document.createElement('img');
+                    thumb.src = fotoUrl;
+                    thumb.alt = `Miniatura di ${member.nome} ${idx + 1}`;
+                    thumb.classList.add('modal-thumbnail');
+                    if (idx === 0) thumb.classList.add('active');
+                    thumb.addEventListener('click', () => {
+                        modalMainPhoto.src = fotoUrl;
+                        document.querySelectorAll('#modalPhotoThumbnails .modal-thumbnail.active').forEach(t => t.classList.remove('active'));
+                        thumb.classList.add('active');
+                    });
+                    modalPhotoThumbnailsContainer.appendChild(thumb);
+                });
+                modalPhotoThumbnailsContainer.style.display = 'flex';
+            } else {
+                modalPhotoThumbnailsContainer.style.display = 'none';
+            }
+
+            modalName.textContent = member.nome;
+            modalDescription.textContent = member.descrizione;
+
+            let detailsHTML = `
+                <p><span class="icon">📏</span><strong>Altezza:</strong> ${member.altezza}</p>
+                <p><span class="icon">💼</span><strong>Mansione:</strong> ${member.mansione}</p>
+                <p><span class="icon">⚡️</span><strong>Velocità:</strong> ${member.velocita}</p>
+                <p><span class="icon">🍲</span><strong>Piatto Preferito:</strong> ${member.piatto_preferito}</p>
+            `;
+            if (member.nome === "Lucia" && member.colore_preferito) {
+                detailsHTML += `<p><span class="icon">🎨</span><strong>Colore Preferito:</strong> ${member.colore_preferito}</p>`;
+            }
+            detailsHTML += `
+                <p><span class="icon">✨</span><strong>Fetish:</strong> ${member.fetish}</p>
+                <p><span class="icon">💔</span><strong>Debolezza:</strong> ${member.debolezza}</p>
+                <p><span class="icon">⏳</span><strong>Pazienza:</strong> ${member.pazienza}</p>
+                <p><span class="icon">🌍</span><strong>Paese Preferito:</strong> ${member.paese_preferito}</p>
+            `;
+            modalDetailsContainer.innerHTML = detailsHTML;
+
+            modalOverlay.classList.add('active');
+            document.body.style.overflow = 'hidden'; 
+        }
+
+        function closeModal() {
+            modalOverlay.classList.remove('active');
+            document.body.style.overflow = ''; 
+        }
+
+        modalCloseButton.addEventListener('click', closeModal);
+        modalOverlay.addEventListener('click', (event) => {
+            if (event.target === modalOverlay) { 
+                closeModal();
+            }
+        });
+        
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape' && modalOverlay.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        document.querySelector('.home-button').addEventListener('click', (e) => {
+            if (modalOverlay.classList.contains('active')) {
+                closeModal(); 
+            }
+            // La navigazione a index.html avverrà tramite il comportamento default del link <a>
         });
 
     </script>

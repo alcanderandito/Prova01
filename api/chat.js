@@ -16,12 +16,12 @@ export default async function handler(req, res) {
   }
   // --- Fine Codice Originale Invariato ---
 
-  // Logica stateless per limitare a 30 iterazioni
+  // Logica stateless per limitare a 50 iterazioni
   const iteration = history.length + 1;
-  if (iteration > 30) {
+  if (iteration > 50) {
     return res
       .status(200)
-      .json({ reply: "Ehi, abbiamo già scambiato 30 messaggi. Se vuoi continuare, ricarica o apri una nuova chat. Ciao! 👋✨" });
+      .json({ reply: "Ehi, abbiamo già scambiato 50 messaggi. Se vuoi continuare, ricarica o apri una nuova chat. Ciao! 👋✨" });
   }
 
   // Rilevazione richieste pre-OpenAI (Logica invariata)

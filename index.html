@@ -77,8 +77,20 @@
     .submenu-trigger.open .arrow { transform: rotate(180deg); }
 
     /* === PLAYER SPOTIFY === */
-    #spotify-player-container { position: fixed; top: 10px; right: 10px; width: 300px; height: 80px; z-index: 950; box-shadow: 0 4px 12px rgba(0,0,0,0.2); border-radius: 12px; }
-    #spotify-player-container iframe { border-radius: 12px; border: none; }
+    #spotify-player-container {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      width: 240px; /* MODIFICA QUI: Ridotta larghezza per renderlo più compatto */
+      height: 80px; /* Altezza minima per l'embed compatto di Spotify */
+      z-index: 950;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+      border-radius: 12px;
+    }
+    #spotify-player-container iframe {
+      border-radius: 12px;
+      border: none;
+    }
 
     /* === BOTTONE CHAT === */
     #goChatContainer { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
@@ -119,7 +131,12 @@
 
   <div id="dynamic-background-container"></div>
   <div id="hero-title-container"><h1>Team Due Mori</h1><p>Il Dream Team (almeno la mattina, dopo il caffè).</p></div>
-  <div id="spotify-player-container"><iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2hrUnZb0uCNpF7MSWwWFow?utm_source=generator&theme=0" width="100%" height="100%" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe></div>
+  
+  <!-- MODIFICA QUI: Aggiunto autoplay=1 all'URL src dell'iframe di Spotify -->
+  <div id="spotify-player-container">
+    <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2hrUnZb0uCNpF7MSWwWFow?utm_source=generator&theme=0&autoplay=1" width="100%" height="100%" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
+  </div>
+
   <div class="main-content"> <!-- IL TUO CONTENUTO VA QUI! --> </div>
   <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a></div>
 

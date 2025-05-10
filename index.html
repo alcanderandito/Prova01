@@ -79,9 +79,10 @@
     /* === PLAYER SPOTIFY === */
     #spotify-player-container {
       position: fixed;
-      top: 10px;
-      right: 10px;
-      width: 240px; /* MODIFICA QUI: Ridotta larghezza per renderlo più compatto */
+      /* MODIFICA QUI: Spostato in basso a sinistra */
+      bottom: 10px;
+      left: 10px;
+      width: 240px; /* Mantenuta larghezza ridotta */
       height: 80px; /* Altezza minima per l'embed compatto di Spotify */
       z-index: 950;
       box-shadow: 0 4px 12px rgba(0,0,0,0.2);
@@ -132,7 +133,6 @@
   <div id="dynamic-background-container"></div>
   <div id="hero-title-container"><h1>Team Due Mori</h1><p>Il Dream Team (almeno la mattina, dopo il caffè).</p></div>
   
-  <!-- MODIFICA QUI: Aggiunto autoplay=1 all'URL src dell'iframe di Spotify -->
   <div id="spotify-player-container">
     <iframe style="border-radius:12px" src="https://open.spotify.com/embed/playlist/2hrUnZb0uCNpF7MSWwWFow?utm_source=generator&theme=0&autoplay=1" width="100%" height="100%" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy"></iframe>
   </div>

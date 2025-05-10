@@ -1,1 +1,406 @@
-ciao info
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dietro le Quinte del Mondo Due Mori!</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Caveat:wght@700&display=swap');
+
+        :root {
+            --font-primary: 'Poppins', sans-serif;
+            --font-headings: 'Caveat', cursive;
+            
+            --color-bg: #f8f9fa; /* Sfondo pagina leggermente più chiaro e neutro */
+            --color-text: #212529;
+            --color-text-light: #495057;
+            
+            /* Palette di colori vivaci per le sezioni */
+            --color-section-intro: #ff6b6b; /* Corallo come schede.html per coerenza iniziale */
+            --color-section-start: #ffd166; /* Giallo sole */
+            --color-section-current: #06d6a0; /* Verde menta brillante */
+            --color-section-future: #118ab2; /* Blu ceruleo */
+            --color-section-vibecoding: #ef476f; /* Rosa shocking */
+            --color-section-tools: #7209b7; /* Viola ametista scuro */
+            --color-card-bg: #ffffff;
+            
+            --card-border-radius: 15px;
+            --shadow-light: 0 5px 15px rgba(0,0,0,0.08);
+            --shadow-medium: 0 8px 25px rgba(0,0,0,0.12);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-primary);
+            background-color: var(--color-bg);
+            color: var(--color-text);
+            line-height: 1.7; /* Aumentata leggermente per leggibilità testi lunghi */
+            padding: 20px;
+            padding-top: 65px; 
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .home-button {
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            background-color: var(--color-section-intro); /* Coerente con l'header */
+            color: white;
+            padding: 7px 12px;
+            border-radius: 40px;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.85em;
+            z-index: 1001; 
+            box-shadow: 0 3px 12px rgba(0,0,0,0.15);
+            transition: background-color 0.3s ease, transform 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .home-button:hover {
+            background-color: #e05252; 
+            transform: translateY(-1px);
+        }
+        
+        .home-button svg {
+            width: 16px;
+            height: 16px;
+            fill: currentColor;
+        }
+
+        .page-main-header {
+            text-align: center;
+            margin-bottom: 50px;
+            padding: 30px 20px;
+            background: linear-gradient(135deg, var(--color-section-intro), var(--color-section-start));
+            color: white;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-medium);
+            width: 100%;
+            max-width: 950px;
+        }
+
+        .page-main-header h1 {
+            font-family: var(--font-headings);
+            font-size: 3.8em;
+            letter-spacing: 1px;
+            text-shadow: 2px 2px 5px rgba(0,0,0,0.25);
+        }
+        
+        .page-main-header .subtitle {
+            font-size: 1.2em;
+            margin-top: 10px;
+            opacity: 0.9;
+            font-weight: 300;
+        }
+
+        .info-section {
+            background-color: var(--color-card-bg);
+            width: 100%;
+            max-width: 900px;
+            margin-bottom: 40px;
+            padding: 30px 40px;
+            border-radius: var(--card-border-radius);
+            box-shadow: var(--shadow-light);
+            border-left: 10px solid; /* Bordo colorato per ogni sezione */
+            opacity: 0; /* Per animazione entrata */
+            transform: translateY(30px); /* Per animazione entrata */
+            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        }
+        
+        .info-section.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Colori specifici per i bordi delle sezioni */
+        #intro { border-color: var(--color-section-intro); }
+        #l-inizio { border-color: var(--color-section-start); }
+        #sezioni-attuali { border-color: var(--color-section-current); }
+        #cosa-ci-aspetta { border-color: var(--color-section-future); }
+        #vibecoding { border-color: var(--color-section-vibecoding); }
+        #attrezzi-del-mestiere { border-color: var(--color-section-tools); }
+
+        .info-section h2 {
+            font-family: var(--font-headings);
+            font-size: 2.8em;
+            margin-bottom: 20px;
+            /* Il colore del titolo sarà quello del bordo della sezione */
+            color: inherit; /* Eredita dal border-color tramite JS o impostato qui */
+        }
+        #intro h2 { color: var(--color-section-intro); }
+        #l-inizio h2 { color: var(--color-section-start); }
+        #sezioni-attuali h2 { color: var(--color-section-current); }
+        #cosa-ci-aspetta h2 { color: var(--color-section-future); }
+        #vibecoding h2 { color: var(--color-section-vibecoding); }
+        #attrezzi-del-mestiere h2 { color: var(--color-section-tools); }
+
+
+        .info-section p, .info-section ul {
+            font-size: 1.05em;
+            color: var(--color-text-light);
+            margin-bottom: 15px;
+        }
+        .info-section strong {
+            color: var(--color-text);
+            font-weight: 600;
+        }
+        .info-section ul {
+            list-style-position: inside;
+            padding-left: 10px;
+        }
+        .info-section ul li {
+            margin-bottom: 8px;
+        }
+        .info-section ul li::marker {
+            color: var(--color-text); /* Colore del bullet point */
+        }
+        
+        .highlight {
+            background-color: rgba(255, 209, 102, 0.3); /* Giallo leggero per evidenziare */
+            padding: 0.2em 0.4em;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        /* Stile per le card degli strumenti */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 25px;
+        }
+
+        .tool-card {
+            background-color: #fff; /* Sfondo bianco per le card strumenti */
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: var(--shadow-light);
+            text-align: center;
+            border-bottom: 5px solid; /* Bordo colorato dinamico */
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            /* Per vanilla-tilt.js */
+            transform-style: preserve-3d; 
+        }
+        .tool-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: var(--shadow-medium);
+        }
+
+        .tool-card h3 {
+            font-size: 1.5em;
+            color: var(--color-text);
+            margin-bottom: 10px;
+        }
+        .tool-card p {
+            font-size: 0.9em;
+            color: var(--color-text-light);
+            margin-bottom: 0;
+        }
+        
+        /* Colori specifici per le card degli strumenti */
+        .tool-card.github { border-bottom-color: #24292e; } /* Grigio scuro GitHub */
+        .tool-card.github h3 { color: #24292e; }
+        .tool-card.vercel { border-bottom-color: #000000; } /* Nero Vercel */
+        .tool-card.vercel h3 { color: #000000; }
+        .tool-card.gemini { border-bottom-color: #4285F4; } /* Blu Google */
+        .tool-card.gemini h3 { color: #4285F4; }
+        .tool-card.htmlcssjs { border-bottom-color: #e34f26; } /* Arancio HTML5 */
+        .tool-card.htmlcssjs h3 { color: #e34f26; }
+
+
+        .page-footer {
+            text-align: center;
+            margin-top: 50px;
+            padding: 20px;
+            font-size: 0.9em;
+            color: #777;
+        }
+        
+        /* Animazione "Vibecoding" - un po' giocosa */
+        #vibecoding .vibecoding-animation {
+            text-align: center;
+            margin: 20px 0;
+        }
+        #vibecoding .vibecoding-animation span {
+            font-size: 3em;
+            display: inline-block;
+            animation: wave 1.5s infinite;
+        }
+        #vibecoding .vibecoding-animation span:nth-child(1) { animation-delay: 0.1s; color: var(--color-section-vibecoding)}
+        #vibecoding .vibecoding-animation span:nth-child(2) { animation-delay: 0.2s; color: var(--color-section-start)}
+        #vibecoding .vibecoding-animation span:nth-child(3) { animation-delay: 0.3s; color: var(--color-section-current)}
+        #vibecoding .vibecoding-animation span:nth-child(4) { animation-delay: 0.4s; color: var(--color-section-future)}
+        
+        @keyframes wave {
+            0%, 40%, 100% { transform: translateY(0); }
+            20% { transform: translateY(-10px); }
+        }
+
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            body { padding-top: 60px; } 
+            .home-button { padding: 6px 10px; font-size: 0.8em; top: 12px; left: 12px; }
+            .home-button svg { width: 14px; height: 14px; }
+
+            .page-main-header h1 { font-size: 2.8em; }
+            .page-main-header .subtitle { font-size: 1.1em; }
+            .info-section { padding: 25px 20px; border-left-width: 8px;}
+            .info-section h2 { font-size: 2.2em; }
+            .info-section p, .info-section ul { font-size: 1em; }
+        }
+         @media (max-width: 480px) {
+            .page-main-header h1 { font-size: 2.2em; }
+            .page-main-header .subtitle { font-size: 1em; }
+            .info-section { padding: 20px 15px; border-left-width: 6px;}
+            .info-section h2 { font-size: 1.9em; }
+            .tools-grid { grid-template-columns: 1fr; } /* Strumenti in colonna unica */
+        }
+
+    </style>
+</head>
+<body>
+    <a href="index.html" class="home-button" title="Torna alla Home">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+    </a>
+
+    <header class="page-main-header">
+        <h1>Dietro le Quinte del Mondo Due Mori!</h1>
+        <p class="subtitle">Una sbirciatina nella nostra fabbrica di idee... e di codice!</p>
+    </header>
+
+    <main>
+        <section class="info-section" id="intro">
+            <h2>Ciao, Esploratore Digitale!</h2>
+            <p>Benvenuto nella pagina <strong class="highlight">"INFO"</strong> del nostro piccolo (ma scoppiettante) universo Due Mori! Se sei curioso di sapere come nasce tutta questa magia, da dove saltano fuori le idee e quali strani attrezzi usiamo per costruire tutto... beh, sei capitato nel posto giusto!</p>
+            <p>Mettiti comodo, preparati un caffè (o un tè, se preferisci) e iniziamo questo viaggio dietro le quinte. Ti promettiamo che non ci saranno spoiler noiosi, solo tante curiosità!</p>
+        </section>
+
+        <section class="info-section" id="l-inizio">
+            <h2>Tutto Cominciò Così...</h2>
+            <p>Hai presente il mitico team del Due Mori? Un giorno ci siamo detti: "E se li trasformassimo in personaggi da cartone animato, magari con quello stile un po' sognante dello <strong>Studio Ghibli</strong>?" L'idea ci è piaciuta un sacco!</p>
+            <p>Così, abbiamo iniziato a disegnare (digitalmente, ovvio!) le schede di ogni membro dello staff, ognuna con le sue foto PNG, una descrizione un po' pazzerella e tutte quelle statistiche che li rendono unici. Volevamo che fosse qualcosa di <strong class="highlight">divertente</strong> e che facesse sorridere.</p>
+            <p>Ed è nata la pagina delle <a href="schede.html" title="Vai alle schede del Team!">Schede del Team</a>, il primo mattoncino di questo progetto!</p>
+        </section>
+
+        <section class="info-section" id="sezioni-attuali">
+            <h2>Ma la Fame Vien Mangiando (Idee)!</h2>
+            <p>Una volta partite le schede, ci siamo detti: "Perché fermarci qui?". Volevamo creare un ambiente ancora più <strong class="highlight">immersivo</strong>, un posto dove non solo leggi, ma interagisci e ti diverti. E così, sono nate altre sezioni:</p>
+            <ul>
+                <li><strong>Chatbot "Don Alfred":</strong> Il nostro saggio (e a volte un po' burbero) assistente virtuale. È lì per farti compagnia, rispondere a qualche domanda strampalata e, perché no, strapparti un sorriso. Prova a parlarci, non morde!</li>
+                <li><strong>Giochi del Due Mori:</strong> Un angolino dedicato al divertimento puro! Abbiamo preso dei giochi classici, quelli che tutti conosciamo, e li stiamo "condendo" con lo stile e i personaggi del Due Mori. Un modo per staccare un po' e fare due risate.</li>
+                <li><strong>Questa Pagina Info:</strong> E poi c'è questa pagina qui, dove ti trovi ora. Volevamo uno spazio per raccontarti la storia, le idee e i sogni che ci sono dietro a tutto questo. Trasparenza e un pizzico di narrazione, che non guasta mai!</li>
+            </ul>
+        </section>
+
+        <section class="info-section" id="cosa-ci-aspetta">
+            <h2>Il Futuro è un Cantiere Aperto (e Colorato!)</h2>
+            <p>La nostra "fabbrica delle meraviglie" non si ferma mai! Abbiamo un sacco di altre idee che frullano in testa e che speriamo di realizzare presto. Ecco qualche anticipazione (shhh, non dirlo a nessuno!):</p>
+            <ul>
+                <li>Una <strong>Bacheca</strong> per annunci, novità fresche di giornata e magari qualche evento speciale.</li>
+                <li>Una sezione <strong>Commenti</strong>, perché la tua opinione per noi è super importante e vogliamo sentire cosa ne pensi.</li>
+                <li>La possibilità di <strong class="highlight">pubblicare le tue foto</strong> e vederle trasformate magicamente in stile cartone animato (sì, anche Ghibli se ti va!).</li>
+            </ul>
+            <p>Insomma, l'obiettivo è rendere questo spazio sempre più vivo, interattivo e pieno di sorprese. Stay tuned!</p>
+        </section>
+
+        <section class="info-section" id="vibecoding">
+            <h2>Il Segreto? Si Chiama "Vibecoding"!</h2>
+            <p>Forse ti starai chiedendo: "Ma come fate a creare tutte queste cose, e così in fretta?". Beh, abbiamo un piccolo segreto, un asso nella manica: si chiama <strong class="highlight">Vibecoding</strong>!</p>
+            <p>No, non è una danza strana né una formula magica (anche se un po' magico lo è!). "Vibecoding" è il nostro modo di lavorare. Significa che siamo programmatori che conoscono bene gli strumenti del mestiere, ma che usano anche l'aiuto dell'<strong>Intelligenza Artificiale</strong> (come quella che, in parte, ha aiutato a scrivere queste righe... ciao a tutti!) per velocizzare la scrittura del codice.</p>
+            <div class="vibecoding-animation">
+                <span>💻</span><span>✨</span><span>💡</span><span>🚀</span>
+            </div>
+            <p>In pratica, l'IA ci dà una super mano con le parti più ripetitive o complesse, così noi "Vibecoder" possiamo concentrarci di più sulle <strong class="highlight">idee creative</strong>, sul design e sul rendere tutto più bello e facile da usare. È come avere un programmatore con il turbo, che ci permette di trasformare le idee in realtà molto più rapidamente!</p>
+        </section>
+
+        <section class="info-section" id="attrezzi-del-mestiere">
+            <h2>I Nostri "Giocattoli" Preferiti</h2>
+            <p>Per costruire questo piccolo grande mondo digitale, usiamo un bel po' di "attrezzi del mestiere" tecnologici. Sono un po' i nostri mattoncini Lego, ma digitali! Ecco i principali:</p>
+            <div class="tools-grid">
+                <div class="tool-card github" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                    <h3>GitHub</h3>
+                    <p>Il nostro quartier generale per il codice. È come un grande armadio dove teniamo tutto organizzato e al sicuro.</p>
+                </div>
+                <div class="tool-card vercel" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                    <h3>Vercel</h3>
+                    <p>La piattaforma che ci permette di mettere online il sito e farlo vedere a tutti, super veloce e affidabile!</p>
+                </div>
+                <div class="tool-card gemini" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                    <h3>Gemini 2.5 Pro</h3>
+                    <p>Uno dei nostri "aiutanti" di Intelligenza Artificiale che ci dà una zampa con il codice e le idee (proprio quello che stai "leggendo" in parte ora!).</p>
+                </div>
+                 <div class="tool-card htmlcssjs" data-tilt data-tilt-glare data-tilt-max-glare="0.3">
+                    <h3>HTML, CSS, JS</h3>
+                    <p>I fondamentali! Sono come i mattoni, i colori e i motori che fanno funzionare e rendono belle tutte le pagine web.</p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+    
+    <footer class="page-footer">
+        <p>© 2024 Le Info Segrete (ma non troppo) del Due Mori - Powered by Vibecoding & Tanta Fantasia!</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Animazione di entrata per le sezioni allo scroll
+            const sections = document.querySelectorAll('.info-section');
+            const observerOptions = {
+                root: null, // rispetto al viewport
+                rootMargin: '0px',
+                threshold: 0.1 // visibile almeno al 10%
+            };
+
+            const observer = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('visible');
+                        observer.unobserve(entry.target); // Non osservare più una volta animato
+                    }
+                });
+            }, observerOptions);
+
+            sections.forEach(section => {
+                observer.observe(section);
+            });
+
+            // Inizializza Vanilla Tilt per le card degli strumenti
+            VanillaTilt.init(document.querySelectorAll(".tool-card"), {
+                max: 15,
+                speed: 400,
+                glare: true,
+                "max-glare": 0.2
+            });
+
+            // Logica per il tasto Home (principalmente per chiudere modali se ce ne fossero)
+            // In questa pagina non ci sono modali, quindi il link funziona nativamente.
+            // Tuttavia, la lasciamo per coerenza se si volessero aggiungere elementi interattivi.
+            const homeButton = document.querySelector('.home-button');
+            if (homeButton) {
+                homeButton.addEventListener('click', (e) => {
+                    // Se in futuro ci fossero modali da chiudere:
+                    // if (document.querySelector('.modal.active')) {
+                    //     closeModal(); 
+                    // }
+                });
+            }
+        });
+    </script>
+</body>
+</html>

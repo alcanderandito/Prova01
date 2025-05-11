@@ -16,43 +16,41 @@
             background-color: #333;
             font-family: 'Arial', sans-serif;
             color: white;
-            overflow: hidden; /* Per evitare scrollbar indesiderate */
+            overflow: hidden;
         }
         #gameContainer {
             position: relative;
-            /* Le dimensioni verranno impostate da JS in base al canvas e allo scale */
-            /* border: 2px solid #fff; */ /* Rimosso per non interferire con lo scaling */
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
-            transform-origin: top left; /* Cruciale per lo scaling corretto */
+            transform-origin: top left;
+            background-color: #000; /* Sfondo per il container se l'immagine non copre tutto */
         }
         canvas {
             display: block;
-            background-color: #70c5ce;
+            /* background-color settato da JS in base al livello */
         }
         #uiLayer {
             position: absolute;
             top: 10px;
             left: 10px;
             right: 10px;
-            display: flex;
+            display: none; /* Nascosto di default, mostrato da JS */
             justify-content: space-between;
-            font-size: 24px; /* Potrebbe necessitare di adattamento se lo scale è molto piccolo */
+            font-size: 20px; /* Ridotto un po' */
             color: white;
-            text-shadow: 2px 2px 4px #000000;
+            text-shadow: 1px 1px 2px #000000;
             pointer-events: none;
-            z-index: 5; /* Sopra il canvas ma sotto i messaggi */
+            z-index: 5;
         }
         #homeButton {
-            margin-top: 20px; /* Aumentato un po' per dare spazio se il gioco è scalato */
+            margin-top: 15px;
             padding: 10px 20px;
-            font-size: 18px;
+            font-size: 16px;
             color: white;
             background-color: #007bff;
             border: none;
             border-radius: 5px;
             text-decoration: none;
             cursor: pointer;
-            /* position: relative; z-index: 1; // Per assicurarsi che sia cliccabile */
         }
         #homeButton:hover {
             background-color: #0056b3;
@@ -62,45 +60,44 @@
             position: absolute;
             top: 0;
             left: 0;
-            width: 100%; /* Prenderà le dimensioni del gameContainer */
+            width: 100%;
             height: 100%;
-            display: flex;
+            display: none; /* Nascosto di default, mostrato da JS */
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            background-color: rgba(0,0,0,0.7);
-            background-size: contain; /* o cover, a seconda dell'effetto desiderato */
+            background-color: rgba(0,0,0,0.6); /* Sfondo scuro semi-trasparente */
+            background-size: contain; /* 'contain' per vedere tutta l'immagine, 'cover' per riempire */
             background-repeat: no-repeat;
             background-position: center;
             color: white;
             text-align: center;
             z-index: 10;
-            box-sizing: border-box; /* Importante se si aggiunge padding */
+            box-sizing: border-box;
+            padding: 20px;
         }
         .gameMessage h1 {
-            font-size: clamp(24px, 5vw, 48px); /* Font responsivo */
-            margin-bottom: 20px;
-            text-shadow: 3px 3px 6px #000;
-        }
-        .gameMessage p {
-            font-size: clamp(16px, 3vw, 24px);
-            margin-bottom: 30px;
+            font-size: clamp(28px, 4vw, 42px); /* Adattato per leggibilità */
+            margin-bottom: 15px;
             text-shadow: 2px 2px 4px #000;
         }
+        .gameMessage p {
+            font-size: clamp(18px, 2.5vw, 22px);
+            margin-bottom: 25px;
+            text-shadow: 1px 1px 3px #000;
+        }
         .gameMessage button {
-            padding: clamp(10px, 2vw, 15px) clamp(20px, 4vw, 30px);
-            font-size: clamp(16px, 2.5vw, 20px);
+            padding: clamp(12px, 1.8vw, 18px) clamp(25px, 3.5vw, 35px);
+            font-size: clamp(16px, 2.2vw, 20px);
             color: white;
             background-color: #28a745;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px; /* Un po' più arrotondato */
             cursor: pointer;
+            box-shadow: 0px 2px 5px rgba(0,0,0,0.3);
         }
         .gameMessage button:hover {
             background-color: #1e7e34;
-        }
-        #startScreen, #gameOverScreen, #winScreen, #levelCompleteScreen {
-            display: none;
         }
     </style>
 </head>
@@ -129,6 +126,7 @@
         </div>
          <div id="levelCompleteScreen" class="gameMessage">
             <h1>LIVELLO COMPLETATO!</h1>
+            <p>Pronto per il prossimo?</p>
             <p id="levelCompleteScore"></p>
             <button id="nextLevelButton">Prossimo Livello</button>
         </div>
@@ -136,17 +134,20 @@
     <a id="homeButton" href="index.html">Torna alla Home</a>
 
     <script>
+        // ----- SETUP -----
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
         const gameContainer = document.getElementById('gameContainer');
+        const uiLayer = document.getElementById('uiLayer'); // Riferimento a uiLayer
 
-        // ... (altre variabili UI come prima)
         const livesDisplay = document.getElementById('livesDisplay');
         const scoreDisplay = document.getElementById('scoreDisplay');
+        
         const startScreen = document.getElementById('startScreen');
         const gameOverScreen = document.getElementById('gameOverScreen');
         const winScreen = document.getElementById('winScreen');
         const levelCompleteScreen = document.getElementById('levelCompleteScreen');
+
         const startButton = document.getElementById('startButton');
         const restartButton = document.getElementById('restartButton');
         const playAgainButton = document.getElementById('playAgainButton');
@@ -161,7 +162,9 @@
         let currentLevelIndex = 0;
         const NUM_LEVELS = 5;
         const INITIAL_LIVES = 5;
-        let gameState = 'START';
+        const SCORE_PER_LEVEL = 1000; // Punti necessari per passare al livello successivo
+
+        let gameState = 'LOADING'; // Aggiunto stato LOADING
 
         const images = { player: new Image(), enemy: new Image(), mainScreen: new Image() };
         let imagesLoaded = 0;
@@ -169,50 +172,47 @@
         images.player.src = 'fabiogame2.PNG';
         images.enemy.src = 'mostro.PNG';
         images.mainScreen.src = 'fabiogame.PNG';
+
         images.player.onload = images.enemy.onload = images.mainScreen.onload = () => {
             imagesLoaded++;
             if (imagesLoaded === TOTAL_IMAGES) {
                 console.log("Immagini caricate");
-                resizeCanvas(); // Chiamare resize DOPO che le immagini (soprattutto mainScreen) sono caricate se influenzano il layout
+                gameState = 'START'; // Cambia stato solo dopo caricamento
+                resizeCanvas(); 
                 showStartScreen();
             }
         };
         
         const GRAVITY = 0.6;
         const PLAYER_SPEED = 4;
-        const PLAYER_JUMP_FORCE = 13; // Abbassato leggermente per altezze fisse
-        const ENEMY_SPEED = 1;
+        const PLAYER_JUMP_FORCE = 13; 
+        let BASE_ENEMY_SPEED = 1; // Velocità base dei nemici, modificabile per livello
         const TILE_SIZE = 40;
 
         const levelBackgroundColors = ['#70c5ce', '#e6994b', '#5d943c', '#8c8c8c', '#4b0082'];
 
-        // ----- NUOVA GESTIONE RESPONSIVITA' -----
-        const GAME_WIDTH = 800; // Larghezza fissa interna del gioco
-        const GAME_HEIGHT = 450; // Altezza fissa interna del gioco
+        const GAME_WIDTH = 800; 
+        const GAME_HEIGHT = 450; 
         let scaleFactor = 1;
 
         function resizeCanvas() {
             canvas.width = GAME_WIDTH;
             canvas.height = GAME_HEIGHT;
 
-            const windowWidth = window.innerWidth;
-            const windowHeight = window.innerHeight - document.getElementById('homeButton').offsetHeight - 40; // Spazio per home button e margini
+            const windowWidth = window.innerWidth * 0.95; // Usa un po' meno spazio per evitare overlap con scrollbar o bordi
+            const windowHeight = window.innerHeight * 0.95 - (document.getElementById('homeButton')?.offsetHeight || 40) - 20;
 
             const scaleX = windowWidth / GAME_WIDTH;
             const scaleY = windowHeight / GAME_HEIGHT;
-            scaleFactor = Math.min(scaleX, scaleY, 1); // Non scalare oltre 1:1 per default, o rimuovi ,1 se vuoi ingrandire su schermi grandi
+            scaleFactor = Math.min(scaleX, scaleY, 1.2); // Max scaling a 1.2 per non diventare troppo grande
 
             gameContainer.style.width = GAME_WIDTH * scaleFactor + 'px';
             gameContainer.style.height = GAME_HEIGHT * scaleFactor + 'px';
             gameContainer.style.transform = `scale(${scaleFactor})`;
             
-            // Aggiorna UI layer font size in base allo scaleFactor se necessario
-            const baseFontSize = 24;
-            // uiLayer.style.fontSize = Math.max(12, baseFontSize * scaleFactor * 0.8) + 'px'; // Esempio di adattamento font
-
-            // Setup controlli touch (le loro dimensioni interne sono fisse rispetto a GAME_WIDTH/HEIGHT)
-            const controlSize = GAME_HEIGHT * 0.20; 
-            const controlPadding = GAME_WIDTH * 0.05;
+            // Setup controlli touch
+            const controlSize = GAME_HEIGHT * 0.18; // Ridotti
+            const controlPadding = GAME_WIDTH * 0.04; // Leggermente ridotto
 
             touchControls.left.w = touchControls.left.h = controlSize;
             touchControls.left.x = controlPadding;
@@ -230,373 +230,229 @@
                 if (touchControls.hasOwnProperty(key) && typeof touchControls[key] === 'object') {
                     const control = touchControls[key];
                     control.path = new Path2D();
-                    // Usare ctx.roundRect se disponibile e desiderato
                     if (ctx.roundRect) {
-                        control.path.roundRect(control.x, control.y, control.w, control.h, [10]);
+                        control.path.roundRect(control.x, control.y, control.w, control.h, [8]); // Angoli più smussati
                     } else {
                         control.path.rect(control.x, control.y, control.w, control.h);
                     }
                 }
             }
-             if (gameState === 'PLAYING' || gameState === 'START') { // Ridisegna se il gioco è in corso o in start
-                draw();
-            }
+            if (gameState !== 'LOADING') draw(); // Ridisegna se non si sta caricando
         }
         window.addEventListener('resize', resizeCanvas);
-        // ----- FINE NUOVA GESTIONE RESPONSIVITA' -----
 
-
-        class Camera {
+        class Camera { /* ... come prima ... */ 
             constructor(x, y, width, height, worldWidth, worldHeight) {
-                this.x = x;
-                this.y = y; // y sarà sempre 0 per questo tipo di platform
-                this.width = width; // GAME_WIDTH
-                this.height = height; // GAME_HEIGHT
-                this.worldWidth = worldWidth;
-                this.worldHeight = worldHeight; // Coincide con GAME_HEIGHT
+                this.x = x; this.y = y; this.width = width; this.height = height;
+                this.worldWidth = worldWidth; this.worldHeight = worldHeight;
             }
-
             follow(target) {
                 let targetX = target.x + target.width / 2 - this.width / 2;
                 this.x = Math.max(0, Math.min(targetX, this.worldWidth - this.width));
-                this.y = 0; // Camera Y fissa
+                this.y = 0;
             }
-
             apply(ctx) { ctx.translate(-this.x, -this.y); }
             reset(ctx) { ctx.translate(this.x, this.y); }
         }
         
-        class Player {
+        class Player { /* ... come prima (con collisioni migliorate) ... */ 
             constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.width = TILE_SIZE * 0.8;
-                this.height = TILE_SIZE * 1.4;
-                this.dx = 0;
-                this.dy = 0;
-                this.onGround = false;
-                this.image = images.player;
-                this.facingRight = true;
+                this.x = x; this.y = y; this.width = TILE_SIZE * 0.8; this.height = TILE_SIZE * 1.4;
+                this.dx = 0; this.dy = 0; this.onGround = false;
+                this.image = images.player; this.facingRight = true;
             }
-
-            jump() {
-                if (this.onGround) {
-                    this.dy = -PLAYER_JUMP_FORCE;
-                    this.onGround = false;
-                }
-            }
+            jump() { if (this.onGround) { this.dy = -PLAYER_JUMP_FORCE; this.onGround = false; } }
             move(direction) {
                 this.dx = direction * PLAYER_SPEED;
                 if (direction !== 0) this.facingRight = direction > 0;
             }
-
-            // ----- LOGICA COLLISIONE GIOCATORE MIGLIORATA -----
             update(platforms) {
-                // Movimento X e collisioni X
                 this.x += this.dx;
-                platforms.forEach(platform => {
-                    if (this.collidesWith(platform)) { // AABB check
-                        if (this.dx > 0 && this.x + this.width > platform.x && this.x < platform.x) { // Collisione da sinistra
-                            this.x = platform.x - this.width;
-                            this.dx = 0;
-                        } else if (this.dx < 0 && this.x < platform.x + platform.width && this.x + this.width > platform.x + platform.width) { // Collisione da destra
-                            this.x = platform.x + platform.width;
-                            this.dx = 0;
+                platforms.forEach(platform => { /* ... collisione X ... */ 
+                    if (this.collidesWith(platform)) {
+                        if (this.dx > 0 && this.x + this.width > platform.x && this.x < platform.x) { 
+                            this.x = platform.x - this.width; this.dx = 0;
+                        } else if (this.dx < 0 && this.x < platform.x + platform.width && this.x + this.width > platform.x + platform.width) {
+                            this.x = platform.x + platform.width; this.dx = 0;
                         }
                     }
                 });
-
-                // Movimento Y e collisioni Y
-                this.dy += GRAVITY;
-                this.y += this.dy;
-                this.onGround = false;
-
-                platforms.forEach(platform => {
-                    if (this.collidesWith(platform)) { // AABB check
-                        if (this.dy > 0 && this.y + this.height > platform.y && (this.y + this.height - this.dy) <= platform.y) { // Atterraggio
-                             this.y = platform.y - this.height;
-                             this.dy = 0;
-                             this.onGround = true;
-                        } else if (this.dy < 0 && this.y < platform.y + platform.height && (this.y - this.dy) >= platform.y + platform.height) { // Testata
-                            this.y = platform.y + platform.height;
-                            this.dy = 0;
+                this.dy += GRAVITY; this.y += this.dy; this.onGround = false;
+                platforms.forEach(platform => { /* ... collisione Y ... */ 
+                     if (this.collidesWith(platform)) {
+                        if (this.dy > 0 && this.y + this.height > platform.y && (this.y + this.height - this.dy) <= platform.y +1) { // +1 per tolleranza
+                             this.y = platform.y - this.height; this.dy = 0; this.onGround = true;
+                        } else if (this.dy < 0 && this.y < platform.y + platform.height && (this.y - this.dy) >= platform.y + platform.height -1 ) {
+                            this.y = platform.y + platform.height; this.dy = 0;
                         }
                     }
                 });
-                
-                // Limiti del mondo
                 if (this.x < 0) this.x = 0;
-                // La X a destra è gestita dalla camera e dalla fine del livello
-                
-                // Caduta fuori dal mondo (sotto)
-                if (this.y > GAME_HEIGHT) { // GAME_HEIGHT è il fondo del mondo
-                    loseLife();
-                }
+                if (this.y > GAME_HEIGHT + this.height) { loseLife(); } // Più tolleranza per la caduta
             }
-            // ----- FINE LOGICA COLLISIONE GIOCATORE -----
-
-
             draw(ctx) { /* ... come prima ... */ 
                 ctx.save();
                 if (!this.facingRight) {
-                    ctx.translate(this.x + this.width, this.y);
-                    ctx.scale(-1, 1);
+                    ctx.translate(this.x + this.width, this.y); ctx.scale(-1, 1);
                     ctx.drawImage(this.image, 0, 0, this.width, this.height);
                 } else {
                     ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
                 }
                 ctx.restore();
             }
-            collidesWith(other) { /* ... come prima ... */
-                return this.x < other.x + other.width &&
+            collidesWith(other) { /* ... come prima ... */ 
+                 return this.x < other.x + other.width &&
                        this.x + this.width > other.x &&
                        this.y < other.y + other.height &&
                        this.y + this.height > other.y;
             }
         }
 
-        class Enemy { /* ... come prima ... */ 
-            constructor(x, y, isBoss = false) {
-                this.x = x;
-                this.y = y;
-                this.isBoss = isBoss;
+        class Enemy {
+            constructor(x, y, isBoss = false, speedMultiplier = 1) { // Aggiunto speedMultiplier
+                this.x = x; this.y = y; this.isBoss = isBoss;
                 this.width = isBoss ? TILE_SIZE * 2.5 : TILE_SIZE;
                 this.height = isBoss ? TILE_SIZE * 2.5 : TILE_SIZE;
                 this.image = images.enemy;
-                this.dx = -ENEMY_SPEED; 
-                this.active = true;
-                this.bossHealth = isBoss ? 3 : 1; 
+                this.dx = -(BASE_ENEMY_SPEED * speedMultiplier); // Usa velocità modificata
+                this.active = true; this.bossHealth = isBoss ? 3 : 1;
             }
-
-            update(platforms) {
+            update(platforms) { /* ... come prima, ma considera dx per i bordi del mondo ... */
                 if (!this.active) return;
                 this.x += this.dx;
-
                 let hitWall = false;
-                let onSolidGround = false; // Per evitare che i nemici fluttuino invertendo direzione a mezz'aria
-                
                 platforms.forEach(platform => {
-                    // Controllo se il nemico è sopra una piattaforma
-                    const enemyBottom = this.y + this.height;
-                    if (enemyBottom >= platform.y && enemyBottom <= platform.y + TILE_SIZE && // Vicino alla superficie
-                        this.x + this.width > platform.x && this.x < platform.x + platform.width) {
-                        onSolidGround = true;
-                    }
-
-                    // Collisione laterale con piattaforma
-                    if (this.y + this.height > platform.y && this.y < platform.y + platform.height) { // Allineato verticalmente
+                    if (this.y + this.height > platform.y && this.y < platform.y + platform.height) {
                          if ((this.dx < 0 && this.x <= platform.x + platform.width && this.x + this.width >= platform.x + platform.width && this.x > platform.x ) ||
                             (this.dx > 0 && this.x + this.width >= platform.x && this.x <= platform.x  && this.x + this.width < platform.x+platform.width)) {
                            hitWall = true;
                         }
                     }
                 });
-                
-                // Inverti direzione se colpisci un muro o il bordo del mondo O se non c'è terreno davanti (semplificato)
-                // Questa logica di "non cadere" è ancora base
                 if (hitWall || this.x < 0 || this.x + this.width > camera.worldWidth) {
                     this.dx *= -1;
+                    this.x += this.dx * 2; // Sposta un po' per evitare di rimanere incastrato
                 }
-            }
-
+             }
             draw(ctx) { /* ... come prima ... */ 
-                if (!this.active) return;
+                 if (!this.active) return;
                 ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
-                if(this.isBoss && this.bossHealth > 0) { // Mostra HP finché > 0
-                    ctx.fillStyle = 'red';
-                    ctx.font = '12px Arial';
-                    ctx.fillText(`HP: ${this.bossHealth}`, this.x + this.width / 2, this.y - 5);
-                    ctx.textAlign = 'center';
+                if(this.isBoss && this.bossHealth > 0) { 
+                    ctx.fillStyle = 'red'; ctx.font = 'bold 14px Arial'; ctx.textAlign = 'center';
+                    ctx.fillText(`HP: ${this.bossHealth}`, this.x + this.width / 2, this.y - 8);
                 }
             }
             collidesWith(other) { /* ... come prima ... */ 
-                return this.x < other.x + other.width &&
-                       this.x + this.width > other.x &&
-                       this.y < other.y + other.height &&
-                       this.y + this.height > other.y;
+                return this.x < other.x + other.width && this.x + this.width > other.x &&
+                       this.y < other.y + other.height && this.y + this.height > other.y;
             }
-            stomp() { /* ... come prima ... */ 
+            stomp() { /* ... come prima ... */
                 this.bossHealth--;
                 if(this.bossHealth <= 0) {
-                    this.active = false;
-                    score += this.isBoss ? 500 : 100;
-                    updateScoreDisplay();
-                } else {
-                    this.y -= 10; 
-                }
+                    this.active = false; score += this.isBoss ? 500 : 100; updateScoreDisplay();
+                } else { this.y -= 10; }
             }
         }
 
-        class Collectible { /* ... come prima ... */
+        class Collectible { /* ... come prima ... */ 
             constructor(x, y) {
-                this.x = x;
-                this.y = y;
-                this.width = TILE_SIZE * 0.7;
-                this.height = TILE_SIZE * 0.7;
-                this.text = '🥗'; 
-                this.active = true;
-                this.value = 50;
+                this.x = x; this.y = y; this.width = TILE_SIZE * 0.7; this.height = TILE_SIZE * 0.7;
+                this.text = '🥗'; this.active = true; this.value = 50;
             }
             draw(ctx) {
                 if (!this.active) return;
-                ctx.font = `${this.height}px Arial`;
-                ctx.textAlign = "left"; // Resetta per emoji
-                ctx.fillText(this.text, this.x, this.y + this.height * 0.8);
+                ctx.font = `${this.height}px Arial`; ctx.textAlign = "left";
+                ctx.fillText(this.text, this.x, this.y + this.height * 0.85); // Aggiustato baseline emoji
             }
         }
-        class Platform { /* ... come prima ... */
-             constructor(x, y, width, height, color = '#654321') {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.color = color; 
+        class Platform { /* ... come prima ... */ 
+            constructor(x, y, width, height, color = '#654321') {
+                this.x = x; this.y = y; this.width = width; this.height = height; this.color = color;
             }
-            draw(ctx) {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
+            draw(ctx) { ctx.fillStyle = this.color; ctx.fillRect(this.x, this.y, this.width, this.height); }
         }
 
-        // I dati dei livelli ora sono definiti rispetto a GAME_HEIGHT (450px)
-        // Esempio: piattaforma a y=400 significa 400px dall'alto del canvas 800x450
+        // Coordinate Y nei livelli sono relative a GAME_HEIGHT
+        // Nemici: specificare quanti e dove. La difficoltà aumenta con i livelli.
         const levels = [
-            // Livello 1 (Y sono rispetto a un canvas 800x450)
+            // Livello 1 (Target: 1000 punti)
             {
-                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 2.5 }, // Spawn sopra la prima piattaforma
-                worldWidth: 1600,
-                platforms: [
+                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 2.5 }, worldWidth: 1600, enemySpeedMultiplier: 1.0,
+                platforms: [ /* ... come prima, ma senza goal ... */
                     { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 600, height: TILE_SIZE },
                     { x: 700, y: GAME_HEIGHT - TILE_SIZE * 2, width: 200, height: TILE_SIZE },
                     { x: 1000, y: GAME_HEIGHT - TILE_SIZE * 3, width: 250, height: TILE_SIZE },
-                    { x: 1300, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE, goal: true }
+                    { x: 1300, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE }
                 ],
-                enemies: [
-                    { x: 400, y: GAME_HEIGHT - TILE_SIZE*2 }, // y è la cima del nemico
-                    { x: 800, y: GAME_HEIGHT - TILE_SIZE*3 },
-                    { x: 1100, y: GAME_HEIGHT - TILE_SIZE*4 },
-                ],
-                collectibles: [
-                    { x: 200, y: GAME_HEIGHT - TILE_SIZE*3 }, { x: 750, y: GAME_HEIGHT - TILE_SIZE*4 }, { x: 1050, y: GAME_HEIGHT - TILE_SIZE*5 }
-                ]
+                enemies: [ { x: 400, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 800, y: GAME_HEIGHT - TILE_SIZE*3 }, { x: 1100, y: GAME_HEIGHT - TILE_SIZE*4 } ],
+                collectibles: [ { x: 200, y: GAME_HEIGHT - TILE_SIZE*3 }, { x: 750, y: GAME_HEIGHT - TILE_SIZE*4 }, { x: 1050, y: GAME_HEIGHT - TILE_SIZE*5 } ]
             },
-            // Livello 2
+            // Livello 2 (Target: 2000 punti totali)
              {
-                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 4 }, // Un po' più in alto
-                worldWidth: 2000,
-                platforms: [
-                    { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE },
-                    { x: 400, y: GAME_HEIGHT - TILE_SIZE * 2, width: 150, height: TILE_SIZE },
-                    { x: 600, y: GAME_HEIGHT - TILE_SIZE * 3, width: 150, height: TILE_SIZE },
-                    { x: 800, y: GAME_HEIGHT - TILE_SIZE * 2, width: 150, height: TILE_SIZE },
-                    { x: 1000, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE },
-                    { x: 1400, y: GAME_HEIGHT - TILE_SIZE * 3.5, width: 200, height: TILE_SIZE },
-                    { x: 1700, y: GAME_HEIGHT - TILE_SIZE * 5, width: 150, height: TILE_SIZE },
-                    { x: 1850, y: GAME_HEIGHT - TILE_SIZE, width: 150, height: TILE_SIZE, goal: true }
+                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 4 }, worldWidth: 2000, enemySpeedMultiplier: 1.1,
+                platforms: [ /* ... */ 
+                    { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE }, { x: 400, y: GAME_HEIGHT - TILE_SIZE * 2, width: 150, height: TILE_SIZE },
+                    { x: 600, y: GAME_HEIGHT - TILE_SIZE * 3, width: 150, height: TILE_SIZE }, { x: 800, y: GAME_HEIGHT - TILE_SIZE * 2, width: 150, height: TILE_SIZE },
+                    { x: 1000, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE }, { x: 1400, y: GAME_HEIGHT - TILE_SIZE * 3.5, width: 200, height: TILE_SIZE },
+                    { x: 1700, y: GAME_HEIGHT - TILE_SIZE * 5, width: 150, height: TILE_SIZE }, { x: 1850, y: GAME_HEIGHT - TILE_SIZE, width: 150, height: TILE_SIZE }
                 ],
-                enemies: [
-                    { x: 250, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 700, y: GAME_HEIGHT - TILE_SIZE*4 },
-                    { x: 1150, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 1500, y: GAME_HEIGHT - TILE_SIZE*4.5 }
-                ],
-                collectibles: [
-                    { x: 150, y: GAME_HEIGHT - TILE_SIZE*2.5 }, { x: 450, y: GAME_HEIGHT - TILE_SIZE*3.5 }, 
-                    { x: 900, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1450, y: GAME_HEIGHT - TILE_SIZE*5 }, 
-                    { x: 1750, y: GAME_HEIGHT - TILE_SIZE*6 }
-                ]
+                enemies: [ { x: 250, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 500, y: GAME_HEIGHT - TILE_SIZE*3 }, { x: 700, y: GAME_HEIGHT - TILE_SIZE*4 }, { x: 1150, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 1500, y: GAME_HEIGHT - TILE_SIZE*4.5 } ],
+                collectibles: [ { x: 150, y: GAME_HEIGHT - TILE_SIZE*2.5 }, { x: 450, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 900, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1450, y: GAME_HEIGHT - TILE_SIZE*5 }, { x: 1750, y: GAME_HEIGHT - TILE_SIZE*6 } ]
             },
-            // Livello 3
+            // Livello 3 (Target: 3000 punti totali)
             {
-                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 8 }, // Inizia molto in alto
-                worldWidth: 2200,
-                platforms: [
-                    { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 200, height: TILE_SIZE },
-                    { x: 150, y: GAME_HEIGHT - TILE_SIZE * 4, width: 50, height: TILE_SIZE },
-                    { x: 300, y: GAME_HEIGHT - TILE_SIZE * 5, width: 200, height: TILE_SIZE },
-                    { x: 600, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 300, height: TILE_SIZE },
-                    { x: 700, y: GAME_HEIGHT - TILE_SIZE * 6, width: 100, height: TILE_SIZE }, 
-                    { x: 1000, y: GAME_HEIGHT - TILE_SIZE, width: 400, height: TILE_SIZE },
-                    { x: 1200, y: GAME_HEIGHT - TILE_SIZE * 4, width: 150, height: TILE_SIZE },
-                    { x: 1500, y: GAME_HEIGHT - TILE_SIZE * 6, width: 200, height: TILE_SIZE },
-                    { x: 1800, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 100, height: TILE_SIZE },
-                    { x: 2000, y: GAME_HEIGHT - TILE_SIZE, width: 200, height: TILE_SIZE, goal: true }
+                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 8 }, worldWidth: 2200, enemySpeedMultiplier: 1.2,
+                platforms: [ /* ... */
+                    { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 200, height: TILE_SIZE }, { x: 150, y: GAME_HEIGHT - TILE_SIZE * 4, width: 50, height: TILE_SIZE },
+                    { x: 300, y: GAME_HEIGHT - TILE_SIZE * 5, width: 200, height: TILE_SIZE }, { x: 600, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 300, height: TILE_SIZE },
+                    { x: 700, y: GAME_HEIGHT - TILE_SIZE * 6, width: 100, height: TILE_SIZE }, { x: 1000, y: GAME_HEIGHT - TILE_SIZE, width: 400, height: TILE_SIZE },
+                    { x: 1200, y: GAME_HEIGHT - TILE_SIZE * 4, width: 150, height: TILE_SIZE }, { x: 1500, y: GAME_HEIGHT - TILE_SIZE * 6, width: 200, height: TILE_SIZE },
+                    { x: 1800, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 100, height: TILE_SIZE }, { x: 2000, y: GAME_HEIGHT - TILE_SIZE, width: 200, height: TILE_SIZE }
                 ],
-                enemies: [
-                     { x: 400, y: GAME_HEIGHT - TILE_SIZE*6 }, { x: 750, y: GAME_HEIGHT - TILE_SIZE*3.5 }, 
-                     { x: 1100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 1300, y: GAME_HEIGHT - TILE_SIZE*5 }, 
-                     { x: 1600, y: GAME_HEIGHT - TILE_SIZE*7 }, { x: 1850, y: GAME_HEIGHT - TILE_SIZE*3.5 }
-                ],
-                collectibles: [
-                    { x: 100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 350, y: GAME_HEIGHT - TILE_SIZE*6 }, 
-                    { x: 720, y: GAME_HEIGHT - TILE_SIZE*7 }, {x: 1050, y: GAME_HEIGHT - TILE_SIZE*2.5}, 
-                    {x: 1550, y: GAME_HEIGHT - TILE_SIZE*7.5}, {x: 2050, y: GAME_HEIGHT - TILE_SIZE*2}
-                ]
+                enemies: [ { x: 100, y: GAME_HEIGHT-TILE_SIZE*2}, { x: 400, y: GAME_HEIGHT - TILE_SIZE*6 }, { x: 750, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 1300, y: GAME_HEIGHT - TILE_SIZE*5 }, { x: 1600, y: GAME_HEIGHT - TILE_SIZE*7 }, { x: 1850, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 2050, y: GAME_HEIGHT-TILE_SIZE*2} ],
+                collectibles: [ { x: 100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 350, y: GAME_HEIGHT - TILE_SIZE*6 }, { x: 720, y: GAME_HEIGHT - TILE_SIZE*7 }, {x: 1050, y: GAME_HEIGHT - TILE_SIZE*2.5}, {x: 1550, y: GAME_HEIGHT - TILE_SIZE*7.5}, {x: 2050, y: GAME_HEIGHT - TILE_SIZE*2} ]
             },
-            // Livello 4
+             // Livello 4 (Target: 4000 punti totali)
             {
-                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 2.5 },
-                worldWidth: 2500,
-                platforms: [
-                    { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 150, height: TILE_SIZE },
-                    { x: 250, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 80, height: TILE_SIZE },
-                    { x: 400, y: GAME_HEIGHT - TILE_SIZE * 4, width: 80, height: TILE_SIZE },
-                    { x: 550, y: GAME_HEIGHT - TILE_SIZE * 5.5, width: 80, height: TILE_SIZE },
-                    { x: 700, y: GAME_HEIGHT - TILE_SIZE * 4, width: 80, height: TILE_SIZE },
-                    { x: 850, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 80, height: TILE_SIZE },
-                    { x: 1000, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE },
-                    { x: 1400, y: GAME_HEIGHT - TILE_SIZE * 4, width: 100, height: TILE_SIZE },
-                    { x: 1450, y: GAME_HEIGHT - TILE_SIZE * 6.5, width: 50, height: TILE_SIZE }, 
-                    { x: 1600, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 200, height: TILE_SIZE },
-                    { x: 1900, y: GAME_HEIGHT - TILE_SIZE * 4.5, width: 150, height: TILE_SIZE },
-                    { x: 2200, y: GAME_HEIGHT - TILE_SIZE * 6.5, width: 100, height: TILE_SIZE },
-                    { x: 2350, y: GAME_HEIGHT - TILE_SIZE, width: 150, height: TILE_SIZE, goal: true }
+                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE * 2.5 }, worldWidth: 2500, enemySpeedMultiplier: 1.3,
+                platforms: [ /* ... */
+                    { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 150, height: TILE_SIZE }, { x: 250, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 80, height: TILE_SIZE },
+                    { x: 400, y: GAME_HEIGHT - TILE_SIZE * 4, width: 80, height: TILE_SIZE }, { x: 550, y: GAME_HEIGHT - TILE_SIZE * 5.5, width: 80, height: TILE_SIZE },
+                    { x: 700, y: GAME_HEIGHT - TILE_SIZE * 4, width: 80, height: TILE_SIZE }, { x: 850, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 80, height: TILE_SIZE },
+                    { x: 1000, y: GAME_HEIGHT - TILE_SIZE, width: 300, height: TILE_SIZE }, { x: 1400, y: GAME_HEIGHT - TILE_SIZE * 4, width: 100, height: TILE_SIZE },
+                    { x: 1450, y: GAME_HEIGHT - TILE_SIZE * 6.5, width: 50, height: TILE_SIZE }, { x: 1600, y: GAME_HEIGHT - TILE_SIZE * 2.5, width: 200, height: TILE_SIZE },
+                    { x: 1900, y: GAME_HEIGHT - TILE_SIZE * 4.5, width: 150, height: TILE_SIZE }, { x: 2200, y: GAME_HEIGHT - TILE_SIZE * 6.5, width: 100, height: TILE_SIZE },
+                    { x: 2350, y: GAME_HEIGHT - TILE_SIZE, width: 150, height: TILE_SIZE }
                 ],
-                enemies: [
-                    { x: 100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 600, y: GAME_HEIGHT - TILE_SIZE*6.5 }, 
-                    { x: 1150, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 1700, y: GAME_HEIGHT - TILE_SIZE*3.5 }, 
-                    { x: 2000, y: GAME_HEIGHT - TILE_SIZE*5.5 }, { x: 2250, y: GAME_HEIGHT - TILE_SIZE*7.5 }
-                ],
-                collectibles: [
-                    { x: 280, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 430, y: GAME_HEIGHT - TILE_SIZE*5 }, 
-                    { x: 580, y: GAME_HEIGHT - TILE_SIZE*6.5 }, { x: 730, y: GAME_HEIGHT - TILE_SIZE*5 }, 
-                    { x: 880, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1420, y: GAME_HEIGHT - TILE_SIZE*5 }, 
-                    { x: 1950, y: GAME_HEIGHT - TILE_SIZE*5.5 }
-                ]
+                enemies: [ /* Aumentare numero nemici */ { x: 100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 300, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 600, y: GAME_HEIGHT - TILE_SIZE*6.5 }, { x: 800, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1150, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 1350, y: GAME_HEIGHT - TILE_SIZE*5 }, { x: 1700, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1950, y: GAME_HEIGHT - TILE_SIZE*5.5 }, { x: 2000, y: GAME_HEIGHT - TILE_SIZE*5.5 }, { x: 2250, y: GAME_HEIGHT - TILE_SIZE*7.5 } ],
+                collectibles: [ { x: 280, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 430, y: GAME_HEIGHT - TILE_SIZE*5 }, { x: 580, y: GAME_HEIGHT - TILE_SIZE*6.5 }, { x: 730, y: GAME_HEIGHT - TILE_SIZE*5 }, { x: 880, y: GAME_HEIGHT - TILE_SIZE*3.5 }, { x: 1420, y: GAME_HEIGHT - TILE_SIZE*5 }, { x: 1950, y: GAME_HEIGHT - TILE_SIZE*5.5 } ]
             },
-            // Livello 5 (Boss)
+            // Livello 5 (Boss - Target: 5000 punti totali + sconfiggi boss)
             {
-                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE*2.5 },
-                worldWidth: 1200, 
-                platforms: [
+                playerStart: { x: 50, y: GAME_HEIGHT - TILE_SIZE*2.5 }, worldWidth: 1200, enemySpeedMultiplier: 1.0, // Boss ha sua velocità
+                platforms: [ /* ... */ 
                     { x: 0, y: GAME_HEIGHT - TILE_SIZE, width: 500, height: TILE_SIZE },
                     { x: 600, y: GAME_HEIGHT - TILE_SIZE * 4, width: 150, height: TILE_SIZE }, 
-                    { x: 700, y: GAME_HEIGHT - TILE_SIZE, width: 500, height: TILE_SIZE, goal: true }
+                    { x: 700, y: GAME_HEIGHT - TILE_SIZE, width: 500, height: TILE_SIZE }
                 ],
-                enemies: [
-                    { x: 200, y: GAME_HEIGHT - TILE_SIZE*2 }, 
-                    { x: 900, y: GAME_HEIGHT - TILE_SIZE - (TILE_SIZE * 2.5), isBoss: true } // Boss Y relativo al pavimento
-                ],
-                collectibles: [
-                    { x: 100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 300, y: GAME_HEIGHT - TILE_SIZE*2 }, 
-                    {x: 650, y: GAME_HEIGHT - TILE_SIZE*5}
-                ]
+                enemies: [ { x: 200, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 900, y: GAME_HEIGHT - TILE_SIZE - (TILE_SIZE * 2.5), isBoss: true, speedMultiplier: 0.8 } ], // Boss un po' più lento ma grosso
+                collectibles: [ { x: 100, y: GAME_HEIGHT - TILE_SIZE*2 }, { x: 300, y: GAME_HEIGHT - TILE_SIZE*2 }, {x: 650, y: GAME_HEIGHT - TILE_SIZE*5} ]
             }
         ];
 
         function loadLevel(levelIndex) {
             const levelData = levels[levelIndex];
             canvas.style.backgroundColor = levelBackgroundColors[levelIndex];
+            BASE_ENEMY_SPEED = 1 + (levelIndex * 0.15); // Aumenta velocità base dei nemici per livello
 
             player = new Player(levelData.playerStart.x, levelData.playerStart.y);
             platforms = levelData.platforms.map(p => new Platform(p.x, p.y, p.width, p.height, p.color || '#654321'));
-            platforms.forEach(p => p.isGoal = p.goal || false);
-            enemies = levelData.enemies.map(e => new Enemy(e.x, e.y, e.isBoss || false));
+            enemies = levelData.enemies.map(e => new Enemy(e.x, e.y, e.isBoss || false, e.speedMultiplier || levelData.enemySpeedMultiplier || 1));
             collectibles = levelData.collectibles.map(c => new Collectible(c.x, c.y));
-            
-            // Camera usa GAME_WIDTH e GAME_HEIGHT
             camera = new Camera(0, 0, GAME_WIDTH, GAME_HEIGHT, levelData.worldWidth, GAME_HEIGHT);
         }
         
-        function resetGame(startLevelZero = true) { /* ... come prima ... */
+        function resetGame(startLevelZero = true) {
             score = 0;
             lives = INITIAL_LIVES;
             currentLevelIndex = startLevelZero ? 0 : currentLevelIndex;
@@ -605,80 +461,84 @@
             loadLevel(currentLevelIndex);
             gameState = 'PLAYING';
             hideAllScreens();
-            // gameLoop(); // Non necessario, è già in esecuzione
+            uiLayer.style.display = 'flex'; // Mostra vite e score
         }
         function startGameFlow() { resetGame(true); }
-        function retryLevelFlow() { /* ... come prima (ma potrebbe essere rimosso se gameover ti fa ricominciare) ... */
-            resetGame(false); // Riprova lo stesso livello, ma con vite piene e score azzerato
-        }
 
-        function loseLife() { /* ... come prima ... */
+        function loseLife() {
             lives--;
             updateLivesDisplay();
             if (lives <= 0) {
                 setGameOver();
             } else {
                 const levelData = levels[currentLevelIndex];
-                player.x = levelData.playerStart.x;
-                player.y = levelData.playerStart.y;
-                player.dx = 0;
-                player.dy = 0;
-                camera.x = 0; 
+                player.x = levelData.playerStart.x; player.y = levelData.playerStart.y;
+                player.dx = 0; player.dy = 0; camera.x = 0; 
             }
         }
-        function completeLevel() { /* ... come prima ... */
+
+        function completeLevel() { // Chiamato quando si raggiunge il punteggio per il livello (o si batte il boss al liv 5)
             gameState = 'LEVEL_COMPLETE';
-            levelCompleteScoreDisplay.textContent = `Score: ${score}`;
+            levelCompleteScoreDisplay.textContent = `Score Attuale: ${score}`;
             levelCompleteScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
             showScreen(levelCompleteScreen);
+            uiLayer.style.display = 'none';
         }
-        function proceedToNextLevel() { /* ... come prima ... */
-             currentLevelIndex++;
-            if (currentLevelIndex >= NUM_LEVELS) {
+        
+        function proceedToNextLevel() {
+            currentLevelIndex++;
+            if (currentLevelIndex >= NUM_LEVELS) { // Se l'ultimo livello è stato completato
                 setGameWin();
             } else {
                 loadLevel(currentLevelIndex);
                 gameState = 'PLAYING';
                 hideAllScreens();
+                uiLayer.style.display = 'flex';
             }
         }
-        function setGameOver() { /* ... come prima ... */
+
+        function setGameOver() {
             gameState = 'GAME_OVER';
             finalScoreDisplay.textContent = `Score Finale: ${score}`;
             gameOverScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
             showScreen(gameOverScreen);
+            uiLayer.style.display = 'none';
         }
-        function setGameWin() { /* ... come prima ... */
-             gameState = 'WIN';
+
+        function setGameWin() {
+            gameState = 'WIN';
             winFinalScoreDisplay.textContent = `Score Finale: ${score}`;
             winScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
             showScreen(winScreen);
+            uiLayer.style.display = 'none';
         }
-        function updateScoreDisplay() { /* ... come prima ... */ scoreDisplay.textContent = `Score: ${score}`; }
-        function updateLivesDisplay() { /* ... come prima ... */ livesDisplay.textContent = `Vite: ${lives}`; }
-        function hideAllScreens() { /* ... come prima ... */ 
-            startScreen.style.display = 'none';
-            gameOverScreen.style.display = 'none';
-            winScreen.style.display = 'none';
-            levelCompleteScreen.style.display = 'none';
+
+        function updateScoreDisplay() { scoreDisplay.textContent = `Score: ${score}`; }
+        function updateLivesDisplay() { livesDisplay.textContent = `Vite: ${lives}`; }
+        
+        function hideAllScreens() {
+            startScreen.style.display = 'none'; gameOverScreen.style.display = 'none';
+            winScreen.style.display = 'none'; levelCompleteScreen.style.display = 'none';
         }
-        function showScreen(screenElement) { /* ... come prima ... */
+        function showScreen(screenElement) {
             hideAllScreens();
             screenElement.style.display = 'flex';
         }
-        function showStartScreen() { /* ... come prima ... */
+        
+        function showStartScreen() {
+            gameState = 'START'; // Assicura lo stato corretto
             startScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
             showScreen(startScreen);
-             // Assicurati che il canvas sia disegnato anche nella schermata di start se serve uno sfondo
-            if (imagesLoaded === TOTAL_IMAGES) draw();
+            uiLayer.style.display = 'none'; // Nascondi vite/score
+            // draw(); // Ridisegna per mostrare sfondo canvas e potenziali controlli se li volessimo qui
         }
 
-        const keys = {};
+        const keys = {}; /* ... come prima ... */
         window.addEventListener('keydown', (e) => keys[e.code] = true);
         window.addEventListener('keyup', (e) => keys[e.code] = false);
 
         function handleInput() { /* ... come prima ... */
-            let moveDirection = 0;
+             let moveDirection = 0;
             if (keys['ArrowLeft'] || keys['KeyA'] || touchControls.left.active) moveDirection = -1;
             else if (keys['ArrowRight'] || keys['KeyD'] || touchControls.right.active) moveDirection = 1;
             player.move(moveDirection);
@@ -689,21 +549,18 @@
             }
         }
         
-        // ----- GESTIONE TOUCH CON SCALING -----
-        const touchControls = { /* ... come prima, ma i path verranno creati in resizeCanvas ... */
+        const touchControls = { /* ... come prima ... */ 
             left: { x: 0, y: 0, w: 0, h: 0, active: false, path: null },
             right: { x: 0, y: 0, w: 0, h: 0, active: false, path: null },
             jump: { x: 0, y: 0, w: 0, h: 0, active: false, path: null }
         };
-
-        function handleTouch(e, isStart) {
+        function handleTouch(e, isStart) { /* ... come prima (con de-scaling) ... */
             e.preventDefault();
             const touches = e.changedTouches;
-            const rect = canvas.getBoundingClientRect(); // Questo dà le coordinate scalate del canvas sullo schermo
+            const rect = canvas.getBoundingClientRect(); 
 
             for (let i = 0; i < touches.length; i++) {
                 const touch = touches[i];
-                // De-scala le coordinate del tocco per mapparle alle coordinate interne del canvas
                 const touchX = (touch.clientX - rect.left) / scaleFactor;
                 const touchY = (touch.clientY - rect.top) / scaleFactor;
 
@@ -713,44 +570,47 @@
                          if (ctx.isPointInPath(control.path, touchX, touchY)) {
                             control.active = isStart;
                         } else if (!isStart && control.active) { 
-                            // Se il dito viene rilasciato fuori da un pulsante che era attivo, disattivalo
-                            // Questo è importante se il dito scivola fuori dal pulsante prima del touchend
-                            // if (ctx.isPointInPath(control.path, touchX, touchY) === false) { // Questa condizione è ridondante con l'else if
-                            //    control.active = false; // Disattiva solo se il rilascio è fuori
-                            // }
+                            // Se era attivo ma il touchend è fuori, disattiva (es. scivolamento)
+                            // Ma solo se il tocco attuale NON è su quel controllo
+                            let stillOnThisControl = false;
+                            for (let j=0; j<e.touches.length; j++){ // Controlla i tocchi ancora attivi
+                                const activeTouch = e.touches[j];
+                                const activeX = (activeTouch.clientX - rect.left) / scaleFactor;
+                                const activeY = (activeTouch.clientY - rect.top) / scaleFactor;
+                                if(ctx.isPointInPath(control.path, activeX, activeY)){
+                                    stillOnThisControl = true;
+                                    break;
+                                }
+                            }
+                            if(!stillOnThisControl) control.active = false;
                         }
                     }
                 }
             }
-             // Se è un touchend, e nessun pulsante è stato premuto (es. tocco su area vuota),
-             // assicurati di disattivare tutti i pulsanti (in caso di trascinamento e rilascio fuori).
-            if (!isStart) {
-                 let activeControlFound = false;
-                 for (const key in touchControls) {
-                    if (touchControls.hasOwnProperty(key) && typeof touchControls[key] === 'object' && touchControls[key].path) {
-                        const control = touchControls[key];
-                        const touch = touches[i]; // Usa lo stesso touch per il check
-                        const touchX = (touch.clientX - rect.left) / scaleFactor;
-                        const touchY = (touch.clientY - rect.top) / scaleFactor;
-                        if (ctx.isPointInPath(control.path, touchX, touchY)) {
-                            activeControlFound = true;
-                            break;
+            if (!isStart) { // Al touchend, se non è stato su un controllo specifico
+                 let onAnyControl = false;
+                 for (let i = 0; i < touches.length; i++) { // Controlla tutti i tocchi rilasciati
+                    const touch = touches[i];
+                    const touchX = (touch.clientX - rect.left) / scaleFactor;
+                    const touchY = (touch.clientY - rect.top) / scaleFactor;
+                    for (const key in touchControls) {
+                        if (ctx.isPointInPath(touchControls[key].path, touchX, touchY)) {
+                            onAnyControl = true; break;
                         }
                     }
+                    if(onAnyControl) break;
                  }
-                 if(!activeControlFound) { // Se il touchend è avvenuto fuori da ogni controllo
+                 if(!onAnyControl){ // Se nessun tocco rilasciato era su un controllo, resetta left/right
                     touchControls.left.active = false;
                     touchControls.right.active = false;
-                    // Non resettare jump.active qui, perché è un'azione singola e si resetta da solo in handleInput
                  }
             }
         }
         canvas.addEventListener('touchstart', (e) => handleTouch(e, true));
         canvas.addEventListener('touchend', (e) => handleTouch(e, false));
         canvas.addEventListener('touchcancel', (e) => handleTouch(e, false));
-        // ----- FINE GESTIONE TOUCH -----
 
-        function update() { /* ... come prima, ma verifica collisioni nemici ... */
+        function update() {
             if (gameState !== 'PLAYING') return;
 
             handleInput();
@@ -760,51 +620,48 @@
 
             enemies.forEach((enemy) => {
                 if (enemy.active && player.collidesWith(enemy)) {
-                    if (player.dy > 0 && (player.y + player.height - player.dy) <= enemy.y && !player.onGround) { // Il !player.onGround è un check in più
+                    if (player.dy > 0 && (player.y + player.height - player.dy) <= enemy.y + 5 && !player.onGround) { // +5 tolleranza, !onGround per evitare multi-stomp
                         enemy.stomp();
-                        player.dy = -PLAYER_JUMP_FORCE / 1.5; // Balzo più controllato
-                        player.onGround = false; // Assicura che non possa saltare subito
-                    } else if (player.y + player.height > enemy.y + 10) { // Evita danno se il giocatore sta appena sopra o scivola di lato
+                        player.dy = -PLAYER_JUMP_FORCE / 1.8; 
+                        player.onGround = false;
+                    } else if (player.y + player.height > enemy.y + TILE_SIZE*0.25) { // Se il giocatore è significativamente sotto la cima del nemico
                         loseLife(); 
                     }
                 }
             });
             enemies = enemies.filter(enemy => enemy.active || (enemy.isBoss && enemy.bossHealth > 0) );
 
-
             collectibles.forEach((collectible) => {
                 if (collectible.active && player.collidesWith(collectible)) {
-                    collectible.active = false;
-                    score += collectible.value;
-                    updateScoreDisplay();
+                    collectible.active = false; score += collectible.value; updateScoreDisplay();
                 }
             });
             collectibles = collectibles.filter(collectible => collectible.active);
 
-            const goalPlatform = platforms.find(p => p.isGoal);
-            if (goalPlatform && player.collidesWith(goalPlatform) && player.x + player.width / 2 > goalPlatform.x ) {
-                const activeBosses = enemies.filter(e => e.isBoss && e.active);
-                if (activeBosses.length === 0) {
-                    completeLevel();
+            // Logica Punteggio per Livello
+            const requiredScoreForNext = (currentLevelIndex + 1) * SCORE_PER_LEVEL;
+            if (currentLevelIndex === NUM_LEVELS - 1) { // Ultimo livello (boss)
+                const boss = enemies.find(e => e.isBoss);
+                if (boss && !boss.active && score >= requiredScoreForNext) { // Boss sconfitto E punteggio raggiunto
+                    completeLevel(); // Che porta a setGameWin
                 }
+            } else if (score >= requiredScoreForNext) {
+                completeLevel();
             }
         }
 
         function draw() {
-            // Pulisci canvas con il colore di sfondo del canvas (che può essere il colore del livello)
-            // o un colore di base se non in gioco.
-            ctx.fillStyle = canvas.style.backgroundColor || '#333';
+            ctx.fillStyle = gameState === 'LOADING' ? '#000' : (levelBackgroundColors[currentLevelIndex] || '#333');
             ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
 
+            if (gameState === 'LOADING') {
+                ctx.fillStyle = "white"; ctx.font = "24px Arial"; ctx.textAlign = "center";
+                ctx.fillText("Caricamento Super Fabio bros...", GAME_WIDTH/2, GAME_HEIGHT/2);
+                return;
+            }
             if (gameState === 'START' || gameState === 'GAME_OVER' || gameState === 'WIN' || gameState === 'LEVEL_COMPLETE') {
-                // Le schermate HTML sono sopra, ma potremmo voler disegnare l'immagine di sfondo sul canvas
-                // se l'HTML non la gestisce (ma lo fa con background-image).
-                if (images.mainScreen.complete && images.mainScreen.naturalHeight !== 0) {
-                     // Non disegno l'immagine qui perché è già sfondo del div .gameMessage
-                     // Se si volesse, sarebbe: ctx.drawImage(images.mainScreen, 0, 0, GAME_WIDTH, GAME_HEIGHT);
-                }
-                // Disegna comunque i controlli touch se siamo su START per vederli prima di iniziare
-                if (gameState === 'START') drawTouchControls();
+                // Le schermate HTML sono sopra. Il canvas ha solo lo sfondo.
+                // Non disegnare controlli touch qui se le schermate sono modali HTML.
                 return; 
             }
             
@@ -815,49 +672,38 @@
             enemies.forEach(e => e.draw(ctx));
             player.draw(ctx);
             ctx.restore(); 
-            drawTouchControls();
+            drawTouchControls(); // Disegna controlli solo se in gioco
         }
 
-        function drawTouchControls() { /* ... come prima, ma usa ctx.roundRect se disponibile ... */
-            ctx.fillStyle = "rgba(128, 128, 128, 0.5)";
-            ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
-            ctx.lineWidth = 2;
-            ctx.font = `${touchControls.left.h * 0.4}px Arial`; // Riduci un po' la dimensione del font
-            ctx.textAlign = "center";
-            ctx.textBaseline = "middle";
+        function drawTouchControls() { /* ... come prima, ma con trasparenza e dimensioni aggiornate ... */
+            ctx.fillStyle = "rgba(150, 150, 150, 0.35)"; // Più trasparente
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.5)";
+            ctx.lineWidth = 1.5; // Più sottile
+            ctx.font = `${touchControls.left.h * 0.45}px Arial`; 
+            ctx.textAlign = "center"; ctx.textBaseline = "middle";
 
             ['left', 'right', 'jump'].forEach(key => {
                 const control = touchControls[key];
-                ctx.beginPath(); // Inizia un nuovo path per ogni controllo
-                if (control.path) { // Assicurati che il path sia stato creato
-                    // Ridisegna il path perché fill/stroke consumano il path corrente.
-                    // Oppure usa il path memorizzato se ctx.fill(control.path) è supportato.
-                    if (ctx.roundRect) { // Per consistenza con la creazione del path
-                        ctx.roundRect(control.x, control.y, control.w, control.h, [10]);
-                    } else {
-                        ctx.rect(control.x, control.y, control.w, control.h);
-                    }
+                ctx.beginPath(); 
+                if (control.path) {
+                    if (ctx.roundRect) { ctx.roundRect(control.x, control.y, control.w, control.h, [8]); } 
+                    else { ctx.rect(control.x, control.y, control.w, control.h); }
                 }
-                ctx.fill(); 
-                ctx.stroke();
-                ctx.fillStyle = "white";
+                ctx.fill(); ctx.stroke();
+                ctx.fillStyle = "rgba(255, 255, 255, 0.9)"; // Icone più visibili
                 let symbol = '';
-                if (key === 'left') symbol = '◀';
-                else if (key === 'right') symbol = '▶';
-                else if (key === 'jump') symbol = '▲';
-                ctx.fillText(symbol, control.x + control.w / 2, control.y + control.h / 2);
-                ctx.fillStyle = "rgba(128, 128, 128, 0.5)"; // Reimposta per il prossimo controllo
+                if (key === 'left') symbol = '◀'; else if (key === 'right') symbol = '▶'; else if (key === 'jump') symbol = '▲';
+                ctx.fillText(symbol, control.x + control.w / 2, control.y + control.h / 2 + 2); // +2 per centrare meglio il simbolo
+                ctx.fillStyle = "rgba(150, 150, 150, 0.35)"; 
             });
         }
 
         let lastTime = 0;
         function gameLoop(timestamp) {
-            const deltaTime = (timestamp - lastTime) || 0; // Evita NaN al primo frame
+            const deltaTime = (timestamp - lastTime) || 0; 
             lastTime = timestamp;
 
-            if (gameState === 'PLAYING') {
-                update(deltaTime);
-            }
+            if (gameState === 'PLAYING') { update(deltaTime); }
             draw(); 
             requestAnimationFrame(gameLoop);
         }
@@ -867,21 +713,12 @@
         playAgainButton.addEventListener('click', startGameFlow); 
         nextLevelButton.addEventListener('click', proceedToNextLevel);
 
-        // Chiamata iniziale a resizeCanvas e avvio loop
-        // resizeCanvas sarà chiamato di nuovo dall'onload delle immagini se non sono ancora pronte.
-        // Se le immagini sono già caricate (da cache), showStartScreen le usa.
         resizeCanvas(); 
-        if (imagesLoaded < TOTAL_IMAGES) {
-            // Le immagini non sono ancora tutte caricate, showStartScreen sarà chiamato dall'ultimo onload
-            // Potremmo mostrare un messaggio "Caricamento..."
-            ctx.fillStyle = "black";
-            ctx.fillRect(0,0, GAME_WIDTH, GAME_HEIGHT);
-            ctx.fillStyle = "white";
-            ctx.font = "20px Arial";
-            ctx.textAlign = "center";
-            ctx.fillText("Caricamento gioco...", GAME_WIDTH/2, GAME_HEIGHT/2);
-        } else {
-            showStartScreen(); // Se immagini già pronte, mostra subito start
+        if (gameState === 'LOADING' && imagesLoaded < TOTAL_IMAGES) {
+            draw(); // Mostra messaggio di caricamento
+        } else if (imagesLoaded === TOTAL_IMAGES) { // Se immagini già caricate (es. da cache)
+             gameState = 'START';
+             showStartScreen();
         }
         requestAnimationFrame(gameLoop);
     </script>

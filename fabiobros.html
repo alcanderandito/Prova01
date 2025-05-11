@@ -748,12 +748,42 @@
                 ctx.fillStyle = 'white'; ctx.font = '30px Arial';
                 ctx.textAlign = 'center'; ctx.fillText('Caricamento Risorse...', gameWidth / 2, gameHeight / 2);
             } else if (gameState === 'TITLE') {
+                // ======== MODIFICHE INIZIO ========
                 ctx.drawImage(images.background, 0, 0, gameWidth, gameHeight);
-                ctx.font = 'bold 70px Arial'; ctx.fillStyle = '#FFD700';
-                ctx.strokeStyle = '#A0522D'; ctx.lineWidth = 5;
-                ctx.textAlign = 'center'; const titleText = "Super Fabio bros";
-                ctx.strokeText(titleText, gameWidth / 2, gameHeight * 0.3);
-                ctx.fillText(titleText, gameWidth / 2, gameHeight * 0.3);
+
+                // Stile ombra per "epicità" e migliore leggibilità
+                ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+                ctx.shadowBlur = 7;
+                ctx.shadowOffsetX = 3;
+                ctx.shadowOffsetY = 3;
+
+                ctx.fillStyle = '#FFD700';     // Giallo oro per il testo
+                ctx.strokeStyle = '#A0522D';  // Marrone scuro per il contorno
+                ctx.textAlign = 'center';
+
+                // Titolo - Parte 1: "Super Fabio"
+                ctx.font = 'bold 65px Arial'; // Dimensione per la prima riga
+                ctx.lineWidth = 4;            // Spessore contorno
+                const titleText1 = "Super Fabio";
+                const titleY1 = gameHeight * 0.15; // Posiziona più in alto
+                ctx.strokeText(titleText1, gameWidth / 2, titleY1);
+                ctx.fillText(titleText1, gameWidth / 2, titleY1);
+
+                // Titolo - Parte 2: "bros"
+                ctx.font = 'bold 55px Arial'; // Dimensione leggermente ridotta per "bros"
+                // lineWidth, fillStyle, strokeStyle e textAlign sono ereditati
+                const titleText2 = "bros";
+                const titleY2 = titleY1 + 70; // Spaziatura verticale dalla prima riga (circa altezza del font precedente)
+                ctx.strokeText(titleText2, gameWidth / 2, titleY2);
+                ctx.fillText(titleText2, gameWidth / 2, titleY2);
+
+                // Resetta l'ombra per non applicarla agli elementi successivi
+                ctx.shadowColor = 'transparent';
+                ctx.shadowBlur = 0;
+                ctx.shadowOffsetX = 0;
+                ctx.shadowOffsetY = 0;
+
+                // Mini-personaggi (Fabio e Mostro) - posizioni originali, dovrebbero essere sui piatti
                 if (images.player && images.player.complete) {
                     titleFabioX += titleFabioDir * 0.5;
                     if (titleFabioX > 150 || titleFabioX < 50) titleFabioDir *= -1;
@@ -764,9 +794,13 @@
                      if (titleEnemyX > gameWidth - 100 || titleEnemyX < gameWidth - 200) titleEnemyDir *= -1;
                     ctx.drawImage(images.enemy, titleEnemyX, gameHeight * 0.55, 50, 50);
                 }
-                ctx.font = '40px Arial';
+
+                // Insalate decorative - reimposta font e disegna
+                ctx.font = '40px Arial'; // Ripristina il font per le insalate
+                // fillStyle per le emoji di solito non ha effetto sul colore dell'emoji stessa
                 ctx.fillText('🥗', gameWidth * 0.3, gameHeight * 0.6);
                 ctx.fillText('🥗', gameWidth * 0.7, gameHeight * 0.4);
+                // ======== MODIFICHE FINE ========
 
                 if (startButton.style.display === 'none') {
                      setTimeout(() => positionOverlayButton(startButton, 0.75), 0);

@@ -1,1 +1,914 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Super Fabio bros</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            background-color: #333;
+            font-family: 'Arial', sans-serif;
+            color: white;
+            overflow: hidden; /* Per evitare scrollbar indesiderate */
+        }
+        #gameContainer {
+            position: relative; /* Necessario per posizionare overlay e pulsanti touch */
+            border: 2px solid #fff;
+            box-shadow: 0 0 15px rgba(0,0,0,0.5);
+        }
+        canvas {
+            display: block;
+            background-color: #70c5ce; /* Sfondo di default, cambierà per livello */
+        }
+        #uiLayer {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            font-size: 24px;
+            color: white;
+            text-shadow: 2px 2px 4px #000000;
+            pointer-events: none; /* Per non interferire con il canvas */
+        }
+        #homeButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 18px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 5px;
+            text-decoration: none;
+            cursor: pointer;
+        }
+        #homeButton:hover {
+            background-color: #0056b3;
+        }
 
+        /* Stili per messaggi di gioco */
+        .gameMessage {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background-color: rgba(0,0,0,0.7);
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            color: white;
+            text-align: center;
+            z-index: 10; /* Sopra il canvas */
+        }
+        .gameMessage h1 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px #000;
+        }
+        .gameMessage p {
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 4px #000;
+        }
+        .gameMessage button {
+            padding: 15px 30px;
+            font-size: 20px;
+            color: white;
+            background-color: #28a745;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .gameMessage button:hover {
+            background-color: #1e7e34;
+        }
+
+        /* Nascondi di default */
+        #startScreen, #gameOverScreen, #winScreen, #levelCompleteScreen {
+            display: none;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <div id="uiLayer">
+            <div id="livesDisplay">Vite: 5</div>
+            <div id="scoreDisplay">Score: 0</div>
+        </div>
+
+        <!-- Schermate di Gioco -->
+        <div id="startScreen" class="gameMessage">
+            <h1>Super Fabio bros</h1>
+            <p>Premi il pulsante per iniziare!</p>
+            <button id="startButton">Inizia Gioco</button>
+        </div>
+        <div id="gameOverScreen" class="gameMessage">
+            <h1>GAME OVER</h1>
+            <p id="finalScore"></p>
+            <button id="restartButton">Riprova</button>
+        </div>
+        <div id="winScreen" class="gameMessage">
+            <h1>HAI VINTO!</h1>
+            <p>Complimenti, Super Fabio!</p>
+            <p id="winFinalScore"></p>
+            <button id="playAgainButton">Gioca Ancora</button>
+        </div>
+         <div id="levelCompleteScreen" class="gameMessage">
+            <h1>LIVELLO COMPLETATO!</h1>
+            <p id="levelCompleteScore"></p>
+            <button id="nextLevelButton">Prossimo Livello</button>
+        </div>
+    </div>
+
+    <a id="homeButton" href="index.html">Torna alla Home</a>
+
+    <script>
+        // ----- SETUP -----
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const gameContainer = document.getElementById('gameContainer');
+
+        const livesDisplay = document.getElementById('livesDisplay');
+        const scoreDisplay = document.getElementById('scoreDisplay');
+        
+        const startScreen = document.getElementById('startScreen');
+        const gameOverScreen = document.getElementById('gameOverScreen');
+        const winScreen = document.getElementById('winScreen');
+        const levelCompleteScreen = document.getElementById('levelCompleteScreen');
+
+        const startButton = document.getElementById('startButton');
+        const restartButton = document.getElementById('restartButton');
+        const playAgainButton = document.getElementById('playAgainButton');
+        const nextLevelButton = document.getElementById('nextLevelButton');
+        const finalScoreDisplay = document.getElementById('finalScore');
+        const winFinalScoreDisplay = document.getElementById('winFinalScore');
+        const levelCompleteScoreDisplay = document.getElementById('levelCompleteScore');
+
+
+        let player, enemies, collectibles, platforms, camera;
+        let score = 0;
+        let lives = 5;
+        let currentLevelIndex = 0;
+        const NUM_LEVELS = 5;
+        const INITIAL_LIVES = 5;
+
+        let gameState = 'START'; // START, PLAYING, LEVEL_COMPLETE, GAME_OVER, WIN
+
+        // Immagini
+        const images = {
+            player: new Image(),
+            enemy: new Image(),
+            mainScreen: new Image()
+        };
+        let imagesLoaded = 0;
+        const TOTAL_IMAGES = 3;
+
+        images.player.src = 'fabiogame2.PNG';
+        images.enemy.src = 'mostro.PNG';
+        images.mainScreen.src = 'fabiogame.PNG';
+
+        images.player.onload = images.enemy.onload = images.mainScreen.onload = () => {
+            imagesLoaded++;
+            if (imagesLoaded === TOTAL_IMAGES) {
+                console.log("Immagini caricate");
+                showStartScreen(); // Mostra la schermata iniziale solo dopo che le immagini sono caricate
+            }
+        };
+        
+        // Costanti di gioco
+        const GRAVITY = 0.6;
+        const PLAYER_SPEED = 4;
+        const PLAYER_JUMP_FORCE = 13;
+        const ENEMY_SPEED = 1;
+        const TILE_SIZE = 40; // Dimensione per piattaforme e allineamento
+
+        // Livelli Sfondi
+        const levelBackgroundColors = ['#70c5ce', '#e6994b', '#5d943c', '#8c8c8c', '#4b0082']; // Cielo, Deserto, Foresta, Città, Castello Viola scuro
+
+        // Responsività e Controlli Touch
+        let isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        const touchControls = {
+            left: { x: 0, y: 0, w: 0, h: 0, active: false, path: null },
+            right: { x: 0, y: 0, w: 0, h: 0, active: false, path: null },
+            jump: { x: 0, y: 0, w: 0, h: 0, active: false, path: null }
+        };
+
+        function resizeCanvas() {
+            const aspectRatio = 16 / 9;
+            let newWidth = window.innerWidth * 0.9;
+            let newHeight = window.innerHeight * 0.7;
+
+            if (newWidth / newHeight > aspectRatio) {
+                newWidth = newHeight * aspectRatio;
+            } else {
+                newHeight = newWidth / aspectRatio;
+            }
+            
+            canvas.width = Math.min(800, newWidth); // Max width
+            canvas.height = Math.min(450, newHeight); // Max height
+
+            gameContainer.style.width = canvas.width + 'px';
+            gameContainer.style.height = canvas.height + 'px';
+            
+            // Setup controlli touch dopo resize
+            const controlSize = canvas.height * 0.20; // 20% dell'altezza del canvas
+            const controlPadding = canvas.width * 0.05;
+
+            touchControls.left.w = touchControls.left.h = controlSize;
+            touchControls.left.x = controlPadding;
+            touchControls.left.y = canvas.height - controlSize - controlPadding;
+            
+            touchControls.right.w = touchControls.right.h = controlSize;
+            touchControls.right.x = controlPadding + controlSize + controlPadding / 2;
+            touchControls.right.y = canvas.height - controlSize - controlPadding;
+
+            touchControls.jump.w = touchControls.jump.h = controlSize;
+            touchControls.jump.x = canvas.width - controlSize - controlPadding;
+            touchControls.jump.y = canvas.height - controlSize - controlPadding;
+
+            // Crea i path per i controlli touch (per il rendering)
+            for (const key in touchControls) {
+                if (touchControls.hasOwnProperty(key) && typeof touchControls[key] === 'object') {
+                    const control = touchControls[key];
+                    control.path = new Path2D();
+                    control.path.rect(control.x, control.y, control.w, control.h);
+                }
+            }
+            if (gameState === 'PLAYING') draw(); // Ridisegna se il gioco è in corso
+        }
+        window.addEventListener('resize', resizeCanvas);
+
+
+        // ----- CAMERA -----
+        class Camera {
+            constructor(x, y, width, height, worldWidth, worldHeight) {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.worldWidth = worldWidth;
+                this.worldHeight = worldHeight;
+            }
+
+            follow(target) {
+                let targetX = target.x + target.width / 2 - this.width / 2;
+                let targetY = target.y + target.height / 2 - this.height / 2; // Opzionale se si vuole anche lo scroll verticale
+
+                // Limita lo scroll ai bordi del mondo
+                this.x = Math.max(0, Math.min(targetX, this.worldWidth - this.width));
+                // this.y = Math.max(0, Math.min(targetY, this.worldHeight - this.height)); // Per ora, Y fisso
+                this.y = 0; // Manteniamo la Y fissa a meno che il livello non sia molto alto
+            }
+
+            apply(ctx) {
+                ctx.translate(-this.x, -this.y);
+            }
+
+            reset(ctx) {
+                ctx.translate(this.x, this.y);
+            }
+        }
+
+        // ----- ENTITA' DI GIOCO -----
+        class Player {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = TILE_SIZE * 0.8;
+                this.height = TILE_SIZE * 1.4;
+                this.dx = 0;
+                this.dy = 0;
+                this.onGround = false;
+                this.image = images.player;
+                this.facingRight = true;
+            }
+
+            jump() {
+                if (this.onGround) {
+                    this.dy = -PLAYER_JUMP_FORCE;
+                    this.onGround = false;
+                }
+            }
+
+            move(direction) { // -1 per sinistra, 1 per destra, 0 per fermo
+                this.dx = direction * PLAYER_SPEED;
+                if (direction !== 0) {
+                    this.facingRight = direction > 0;
+                }
+            }
+
+            update(platforms) {
+                // Movimento orizzontale
+                this.x += this.dx;
+
+                // Gravità
+                this.dy += GRAVITY;
+                this.y += this.dy;
+                this.onGround = false;
+
+                // Collisioni con piattaforme
+                platforms.forEach(platform => {
+                    if (this.collidesWith(platform)) {
+                        // Collisione dal basso (testa contro piattaforma)
+                        if (this.dy > 0 && this.y + this.height - this.dy <= platform.y) {
+                             this.y = platform.y - this.height;
+                             this.dy = 0;
+                             this.onGround = true;
+                        } 
+                        // Collisione dall'alto (testa del player contro il fondo della piattaforma)
+                        else if (this.dy < 0 && this.y - this.dy >= platform.y + platform.height) {
+                            this.y = platform.y + platform.height;
+                            this.dy = 0;
+                        }
+                        // Collisione laterale
+                        else if (this.dx > 0 && this.x + this.width - this.dx <= platform.x) { // Da sinistra
+                            this.x = platform.x - this.width;
+                            this.dx = 0;
+                        } else if (this.dx < 0 && this.x - this.dx >= platform.x + platform.width) { // Da destra
+                            this.x = platform.x + platform.width;
+                            this.dx = 0;
+                        }
+                    }
+                });
+
+                // Limiti del mondo (sinistra)
+                if (this.x < 0) this.x = 0;
+                // Se il giocatore cade fuori dal basso (es. buco)
+                if (this.y > camera.worldHeight) { // camera.worldHeight è l'altezza del canvas per ora
+                    loseLife();
+                }
+            }
+
+            draw(ctx) {
+                ctx.save();
+                if (!this.facingRight) {
+                    ctx.translate(this.x + this.width, this.y);
+                    ctx.scale(-1, 1);
+                    ctx.drawImage(this.image, 0, 0, this.width, this.height);
+                } else {
+                    ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                }
+                ctx.restore();
+            }
+
+            collidesWith(other) {
+                return this.x < other.x + other.width &&
+                       this.x + this.width > other.x &&
+                       this.y < other.y + other.height &&
+                       this.y + this.height > other.y;
+            }
+        }
+
+        class Enemy {
+            constructor(x, y, isBoss = false) {
+                this.x = x;
+                this.y = y;
+                this.isBoss = isBoss;
+                this.width = isBoss ? TILE_SIZE * 2.5 : TILE_SIZE;
+                this.height = isBoss ? TILE_SIZE * 2.5 : TILE_SIZE;
+                this.image = images.enemy;
+                this.dx = -ENEMY_SPEED; // Inizia muovendosi a sinistra
+                this.active = true;
+                this.bossHealth = isBoss ? 3 : 1; // Il boss richiede 3 salti
+            }
+
+            update(platforms) {
+                if (!this.active) return;
+                this.x += this.dx;
+
+                // Semplice IA: inverte direzione se colpisce un muro o bordo piattaforma
+                // Per questo, necessiterebbe di sapere i bordi delle piattaforme su cui cammina
+                // Per semplicità, lo facciamo invertire se tocca un'altra piattaforma lateralmente o un limite immaginario
+                let hitWall = false;
+                platforms.forEach(platform => {
+                    if (this.collidesWith(platform) && 
+                        !(this.y + this.height > platform.y && this.y < platform.y + platform.height )) { // Non se ci sta sopra
+                        // Se è una collisione laterale
+                        if ((this.dx < 0 && this.x < platform.x + platform.width && this.x + this.width > platform.x + platform.width) ||
+                            (this.dx > 0 && this.x + this.width > platform.x && this.x < platform.x)) {
+                           hitWall = true;
+                        }
+                    }
+                });
+                if (hitWall || this.x < 0 || this.x + this.width > camera.worldWidth) {
+                    this.dx *= -1;
+                }
+                // Semplice controllo per non cadere dalle piattaforme (richiede di sapere dove finisce la piattaforma)
+                // Questa parte è complessa, per ora li lasciamo muovere.
+            }
+
+            draw(ctx) {
+                if (!this.active) return;
+                ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
+                if(this.isBoss && this.bossHealth > 1) {
+                    ctx.fillStyle = 'red';
+                    ctx.font = '12px Arial';
+                    ctx.fillText(`HP: ${this.bossHealth}`, this.x, this.y - 5);
+                }
+            }
+             collidesWith(other) { // Copiato da Player per semplicità, potrebbe essere una funzione helper
+                return this.x < other.x + other.width &&
+                       this.x + this.width > other.x &&
+                       this.y < other.y + other.height &&
+                       this.y + this.height > other.y;
+            }
+
+            stomp() {
+                this.bossHealth--;
+                if(this.bossHealth <= 0) {
+                    this.active = false;
+                    score += this.isBoss ? 500 : 100; // Punteggio maggiore per il boss
+                    updateScoreDisplay();
+                } else {
+                    // Il boss potrebbe diventare più veloce o cambiare pattern, per ora solo HP
+                    this.y -= 10; // Piccolo balzo per indicare danno
+                }
+            }
+        }
+
+        class Collectible {
+            constructor(x, y) {
+                this.x = x;
+                this.y = y;
+                this.width = TILE_SIZE * 0.7;
+                this.height = TILE_SIZE * 0.7;
+                this.text = '🥗'; // Emoji insalata
+                this.active = true;
+                this.value = 50;
+            }
+
+            draw(ctx) {
+                if (!this.active) return;
+                ctx.font = `${this.height}px Arial`;
+                ctx.fillText(this.text, this.x, this.y + this.height * 0.8); // Aggiustamento per baseline emoji
+            }
+        }
+
+        class Platform {
+            constructor(x, y, width, height, color = '#654321') {
+                this.x = x;
+                this.y = y;
+                this.width = width;
+                this.height = height;
+                this.color = color; // Marrone legno di default
+            }
+
+            draw(ctx) {
+                ctx.fillStyle = this.color;
+                ctx.fillRect(this.x, this.y, this.width, this.height);
+            }
+        }
+
+        // ----- LIVELLI -----
+        const levels = [
+            // Livello 1
+            {
+                playerStart: { x: 50, y: 350 },
+                worldWidth: 1600, // Larghezza del livello
+                platforms: [
+                    { x: 0, y: 400, width: 600, height: TILE_SIZE },
+                    { x: 700, y: 350, width: 200, height: TILE_SIZE },
+                    { x: 1000, y: 300, width: 250, height: TILE_SIZE },
+                    { x: 1300, y: 400, width: 300, height: TILE_SIZE, goal: true } // Piattaforma finale
+                ],
+                enemies: [
+                    { x: 400, y: 400 - TILE_SIZE },
+                    { x: 800, y: 350 - TILE_SIZE },
+                    { x: 1100, y: 300 - TILE_SIZE },
+                ],
+                collectibles: [
+                    { x: 200, y: 350 }, { x: 750, y: 300 }, { x: 1050, y: 250 }
+                ]
+            },
+            // Livello 2
+            {
+                playerStart: { x: 50, y: 300 },
+                worldWidth: 2000,
+                platforms: [
+                    { x: 0, y: 400, width: 300, height: TILE_SIZE },
+                    { x: 400, y: 350, width: 150, height: TILE_SIZE },
+                    { x: 600, y: 300, width: 150, height: TILE_SIZE },
+                    { x: 800, y: 350, width: 150, height: TILE_SIZE },
+                    { x: 1000, y: 400, width: 300, height: TILE_SIZE },
+                    { x: 1400, y: 320, width: 200, height: TILE_SIZE },
+                    { x: 1700, y: 250, width: 150, height: TILE_SIZE },
+                    { x: 1850, y: 400, width: 150, height: TILE_SIZE, goal: true }
+                ],
+                enemies: [
+                    { x: 250, y: 400 - TILE_SIZE }, { x: 700, y: 300 - TILE_SIZE },
+                    { x: 1150, y: 400 - TILE_SIZE }, { x: 1500, y: 320 - TILE_SIZE }
+                ],
+                collectibles: [
+                    { x: 150, y: 350 }, { x: 450, y: 300 }, { x: 900, y: 300 }, { x: 1450, y: 270 }, { x: 1750, y: 200 }
+                ]
+            },
+            // Livello 3
+            {
+                playerStart: { x: 50, y: 100 },
+                worldWidth: 2200,
+                platforms: [
+                    { x: 0, y: 400, width: 200, height: TILE_SIZE },
+                    { x: 150, y: 300, width: 50, height: TILE_SIZE }, // Piccola piattaforma per saltare
+                    { x: 300, y: 250, width: 200, height: TILE_SIZE },
+                    { x: 600, y: 350, width: 300, height: TILE_SIZE },
+                    { x: 700, y: 200, width: 100, height: TILE_SIZE }, // Piattaforma alta
+                    { x: 1000, y: 400, width: 400, height: TILE_SIZE },
+                    { x: 1200, y: 300, width: 150, height: TILE_SIZE },
+                    { x: 1500, y: 200, width: 200, height: TILE_SIZE },
+                    { x: 1800, y: 350, width: 100, height: TILE_SIZE },
+                    { x: 2000, y: 400, width: 200, height: TILE_SIZE, goal: true }
+                ],
+                enemies: [
+                     { x: 400, y: 250 - TILE_SIZE }, { x: 750, y: 350 - TILE_SIZE }, { x: 1100, y: 400 - TILE_SIZE },
+                     { x: 1300, y: 300 - TILE_SIZE }, { x: 1600, y: 200 - TILE_SIZE }, { x: 1850, y: 350 - TILE_SIZE }
+                ],
+                collectibles: [
+                    { x: 100, y: 350 }, { x: 350, y: 200 }, { x: 720, y: 150 }, {x: 1050, y: 350}, {x: 1550, y: 150}, {x: 2050, y: 350}
+                ]
+            },
+             // Livello 4
+            {
+                playerStart: { x: 50, y: 350 },
+                worldWidth: 2500,
+                platforms: [
+                    { x: 0, y: 400, width: 150, height: TILE_SIZE },
+                    // Serie di piccole piattaforme sospese
+                    { x: 250, y: 350, width: 80, height: TILE_SIZE },
+                    { x: 400, y: 300, width: 80, height: TILE_SIZE },
+                    { x: 550, y: 250, width: 80, height: TILE_SIZE },
+                    { x: 700, y: 300, width: 80, height: TILE_SIZE },
+                    { x: 850, y: 350, width: 80, height: TILE_SIZE },
+                    { x: 1000, y: 400, width: 300, height: TILE_SIZE },
+                    { x: 1400, y: 300, width: 100, height: TILE_SIZE },
+                    { x: 1450, y: 200, width: 50, height: TILE_SIZE }, // Muro per wall jump (non implementato, ma dà l'idea)
+                    { x: 1600, y: 350, width: 200, height: TILE_SIZE },
+                    { x: 1900, y: 280, width: 150, height: TILE_SIZE },
+                    { x: 2200, y: 200, width: 100, height: TILE_SIZE },
+                    { x: 2350, y: 400, width: 150, height: TILE_SIZE, goal: true }
+                ],
+                enemies: [
+                    { x: 100, y: 400 - TILE_SIZE }, { x: 600, y: 250 - TILE_SIZE }, { x: 1150, y: 400 - TILE_SIZE },
+                    { x: 1700, y: 350 - TILE_SIZE }, { x: 2000, y: 280 - TILE_SIZE }, { x: 2250, y: 200 - TILE_SIZE }
+                ],
+                collectibles: [
+                    { x: 280, y: 300 }, { x: 430, y: 250 }, { x: 580, y: 200 }, { x: 730, y: 250 }, { x: 880, y: 300 },
+                    { x: 1420, y: 250 }, { x: 1950, y: 230 }
+                ]
+            },
+            // Livello 5 (Boss)
+            {
+                playerStart: { x: 50, y: 350 },
+                worldWidth: 1200, // Livello più corto per il boss
+                platforms: [
+                    { x: 0, y: 400, width: 500, height: TILE_SIZE },
+                    { x: 600, y: 300, width: 150, height: TILE_SIZE }, // Piattaforma per raggiungere il boss
+                    { x: 700, y: 400, width: 500, height: TILE_SIZE, goal: true } // Piattaforma del boss e goal
+                ],
+                enemies: [
+                    { x: 200, y: 400 - TILE_SIZE }, // Nemico normale prima del boss
+                    { x: 900, y: 400 - (TILE_SIZE * 2.5), isBoss: true } // Boss
+                ],
+                collectibles: [
+                    { x: 100, y: 350 }, { x: 300, y: 350 }, {x: 650, y: 250}
+                ]
+            }
+        ];
+
+        function loadLevel(levelIndex) {
+            const levelData = levels[levelIndex];
+            canvas.style.backgroundColor = levelBackgroundColors[levelIndex];
+
+            player = new Player(levelData.playerStart.x, levelData.playerStart.y);
+            
+            platforms = levelData.platforms.map(p => new Platform(p.x, p.y, p.width, p.height, p.color || '#654321'));
+            platforms.forEach(p => p.isGoal = p.goal || false); // Aggiunge la proprietà isGoal
+
+            enemies = levelData.enemies.map(e => new Enemy(e.x, e.y, e.isBoss || false));
+            collectibles = levelData.collectibles.map(c => new Collectible(c.x, c.y));
+
+            camera = new Camera(0, 0, canvas.width, canvas.height, levelData.worldWidth, canvas.height);
+        }
+
+        // ----- LOGICA DI GIOCO -----
+        function resetGame(startLevelZero = true) {
+            score = 0;
+            lives = INITIAL_LIVES;
+            currentLevelIndex = startLevelZero ? 0 : currentLevelIndex; // Non resettare il livello se si riprova lo stesso
+            updateScoreDisplay();
+            updateLivesDisplay();
+            loadLevel(currentLevelIndex);
+            gameState = 'PLAYING';
+            hideAllScreens();
+            gameLoop();
+        }
+
+        function startGameFlow() {
+            resetGame(true); // true per iniziare dal livello 0
+        }
+
+        function retryLevelFlow() {
+            lives = INITIAL_LIVES; // Diamo tutte le vite per riprovare il livello
+            updateLivesDisplay();
+            loadLevel(currentLevelIndex); // Ricarica il livello corrente
+            gameState = 'PLAYING';
+            hideAllScreens();
+            // gameLoop(); // Assicurati che il gameLoop sia in esecuzione o riavvialo se necessario
+        }
+
+
+        function loseLife() {
+            lives--;
+            updateLivesDisplay();
+            if (lives <= 0) {
+                setGameOver();
+            } else {
+                // Resetta la posizione del giocatore nel livello corrente
+                const levelData = levels[currentLevelIndex];
+                player.x = levelData.playerStart.x;
+                player.y = levelData.playerStart.y;
+                player.dx = 0;
+                player.dy = 0;
+                camera.x = 0; // Resetta la camera se il giocatore muore
+            }
+        }
+
+        function completeLevel() {
+            gameState = 'LEVEL_COMPLETE';
+            levelCompleteScoreDisplay.textContent = `Score: ${score}`;
+            showScreen(levelCompleteScreen);
+            // Qui non si fa currentLevelIndex++ ancora, si aspetta il click del bottone
+        }
+        
+        function proceedToNextLevel() {
+            currentLevelIndex++;
+            if (currentLevelIndex >= NUM_LEVELS) {
+                setGameWin();
+            } else {
+                loadLevel(currentLevelIndex);
+                gameState = 'PLAYING';
+                hideAllScreens();
+            }
+        }
+
+
+        function setGameOver() {
+            gameState = 'GAME_OVER';
+            finalScoreDisplay.textContent = `Score Finale: ${score}`;
+            gameOverScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
+            showScreen(gameOverScreen);
+        }
+
+        function setGameWin() {
+            gameState = 'WIN';
+            winFinalScoreDisplay.textContent = `Score Finale: ${score}`;
+            winScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
+            showScreen(winScreen);
+        }
+
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${score}`;
+        }
+        function updateLivesDisplay() {
+            livesDisplay.textContent = `Vite: ${lives}`;
+        }
+        
+        // Funzioni per mostrare/nascondere schermate
+        function hideAllScreens() {
+            startScreen.style.display = 'none';
+            gameOverScreen.style.display = 'none';
+            winScreen.style.display = 'none';
+            levelCompleteScreen.style.display = 'none';
+        }
+
+        function showScreen(screenElement) {
+            hideAllScreens();
+            screenElement.style.display = 'flex';
+        }
+        
+        function showStartScreen() {
+            startScreen.style.backgroundImage = `url('${images.mainScreen.src}')`;
+            showScreen(startScreen);
+        }
+
+
+        // ----- INPUT -----
+        const keys = {};
+        window.addEventListener('keydown', (e) => keys[e.code] = true);
+        window.addEventListener('keyup', (e) => keys[e.code] = false);
+
+        function handleInput() {
+            let moveDirection = 0;
+            if (keys['ArrowLeft'] || keys['KeyA'] || touchControls.left.active) {
+                moveDirection = -1;
+            } else if (keys['ArrowRight'] || keys['KeyD'] || touchControls.right.active) {
+                moveDirection = 1;
+            }
+            player.move(moveDirection);
+
+            if ((keys['Space'] || keys['ArrowUp'] || keys['KeyW'] || touchControls.jump.active) && player.onGround) {
+                player.jump();
+                 // Se è un controllo touch, impostalo su false per evitare salti multipli con un solo tocco prolungato
+                if (touchControls.jump.active) touchControls.jump.active = false;
+            }
+        }
+
+        // Touch Input
+        function handleTouch(e, isStart) {
+            e.preventDefault(); // Previene lo scroll o altri comportamenti di default
+            const touches = e.changedTouches;
+            for (let i = 0; i < touches.length; i++) {
+                const touch = touches[i];
+                const rect = canvas.getBoundingClientRect();
+                const touchX = touch.clientX - rect.left;
+                const touchY = touch.clientY - rect.top;
+
+                for (const key in touchControls) {
+                    if (touchControls.hasOwnProperty(key) && typeof touchControls[key] === 'object') {
+                        const control = touchControls[key];
+                         if (ctx.isPointInPath(control.path, touchX, touchY)) {
+                            control.active = isStart;
+                        } else if (!isStart) { // Se è un touch_end e non è sul bottone, disattiva comunque se era attivo
+                             // Questo serve se si trascina il dito fuori dal bottone prima di rilasciare
+                             // control.active = false; // Questo potrebbe essere problematico, meglio gestire solo il rilascio sul bottone
+                        }
+                    }
+                }
+            }
+        }
+
+        canvas.addEventListener('touchstart', (e) => handleTouch(e, true));
+        canvas.addEventListener('touchend', (e) => handleTouch(e, false));
+        canvas.addEventListener('touchcancel', (e) => handleTouch(e, false)); // In caso di interruzione del tocco
+
+        // ----- LOOP PRINCIPALE -----
+        function update() {
+            if (gameState !== 'PLAYING') return;
+
+            handleInput();
+            player.update(platforms);
+            
+            enemies.forEach(enemy => {
+                if(enemy.active) enemy.update(platforms);
+            });
+
+            camera.follow(player); // La camera segue il giocatore
+
+            // Collisioni giocatore-nemici
+            enemies.forEach((enemy, index) => {
+                if (enemy.active && player.collidesWith(enemy)) {
+                    // Se il giocatore sta cadendo (dy > 0) e atterra sulla parte superiore del nemico
+                    if (player.dy > 0 && (player.y + player.height - player.dy) <= enemy.y ) {
+                        enemy.stomp();
+                        player.dy = -PLAYER_JUMP_FORCE / 2; // Piccolo balzo dopo aver schiacciato
+                        if (!enemy.active && enemy.isBoss) { // Se il boss è sconfitto
+                             // Il "goal" è la piattaforma dove sta il boss
+                             // O si potrebbe avere un oggetto "goal" separato
+                            console.log("Boss sconfitto!");
+                            // Assicurati che ci sia una piattaforma goal definita
+                            // Per ora, la sconfitta del boss implica il completamento del livello 5
+                        }
+                    } else {
+                        loseLife(); // Il giocatore viene colpito dal nemico
+                    }
+                }
+            });
+            enemies = enemies.filter(enemy => enemy.active || enemy.bossHealth > 0); // Rimuovi nemici sconfitti (non boss con vita residua)
+
+
+            // Collisioni giocatore-collezionabili
+            collectibles.forEach((collectible, index) => {
+                if (collectible.active && player.collidesWith(collectible)) {
+                    collectible.active = false;
+                    score += collectible.value;
+                    updateScoreDisplay();
+                }
+            });
+            collectibles = collectibles.filter(collectible => collectible.active);
+
+            // Controllo fine livello: se il giocatore raggiunge la piattaforma "goal"
+            // Questo è un modo semplice, si potrebbe avere un oggetto "goal" specifico
+            const goalPlatform = platforms.find(p => p.isGoal);
+            if (goalPlatform && player.collidesWith(goalPlatform) && player.x + player.width > goalPlatform.x + goalPlatform.width / 2) {
+                 // E se tutti i nemici boss sono sconfitti (se presenti)
+                const activeBosses = enemies.filter(e => e.isBoss && e.active);
+                if (activeBosses.length === 0) {
+                    completeLevel();
+                }
+            }
+        }
+
+        function draw() {
+            if (gameState === 'START' || gameState === 'GAME_OVER' || gameState === 'WIN' || gameState === 'LEVEL_COMPLETE') {
+                // Le schermate sono gestite da elementi HTML sovrapposti, il canvas non disegna nulla o una base
+                ctx.fillStyle = levelBackgroundColors[currentLevelIndex] || '#333';
+                ctx.fillRect(0,0,canvas.width, canvas.height);
+                if( (gameState === 'GAME_OVER' || gameState === 'WIN' || gameState === 'START' || gameState === 'LEVEL_COMPLETE') && images.mainScreen.complete && images.mainScreen.naturalHeight !== 0) {
+                    // Potremmo voler disegnare l'immagine mainScreen sul canvas dietro i messaggi HTML
+                    // Ma dato che i messaggi HTML usano già l'immagine come sfondo, questo potrebbe essere ridondante
+                    // ctx.drawImage(images.mainScreen, 0, 0, canvas.width, canvas.height);
+                }
+                return; // Non disegnare il gioco se non è in stato PLAYING
+            }
+            
+            // Pulisci canvas
+            ctx.fillStyle = levelBackgroundColors[currentLevelIndex];
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Applica trasformazione camera
+            ctx.save();
+            camera.apply(ctx);
+
+            platforms.forEach(p => p.draw(ctx));
+            collectibles.forEach(c => c.draw(ctx));
+            enemies.forEach(e => e.draw(ctx));
+            player.draw(ctx);
+            
+            ctx.restore(); // Ripristina contesto dopo la camera
+
+            // Disegna controlli touch (sempre, così sono visibili anche su PC per debug)
+            drawTouchControls();
+        }
+
+        function drawTouchControls() {
+            ctx.fillStyle = "rgba(128, 128, 128, 0.5)";
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.7)";
+            ctx.lineWidth = 2;
+            ctx.font = `${touchControls.left.h * 0.5}px Arial`;
+            ctx.textAlign = "center";
+            ctx.textBaseline = "middle";
+
+            // Left
+            ctx.beginPath();
+            ctx.roundRect(touchControls.left.x, touchControls.left.y, touchControls.left.w, touchControls.left.h, [10]);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "white";
+            ctx.fillText("◀", touchControls.left.x + touchControls.left.w / 2, touchControls.left.y + touchControls.left.h / 2);
+            
+            // Right
+            ctx.fillStyle = "rgba(128, 128, 128, 0.5)";
+            ctx.beginPath();
+            ctx.roundRect(touchControls.right.x, touchControls.right.y, touchControls.right.w, touchControls.right.h, [10]);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "white";
+            ctx.fillText("▶", touchControls.right.x + touchControls.right.w / 2, touchControls.right.y + touchControls.right.h / 2);
+
+            // Jump
+            ctx.fillStyle = "rgba(128, 128, 128, 0.5)";
+            ctx.beginPath();
+            ctx.roundRect(touchControls.jump.x, touchControls.jump.y, touchControls.jump.w, touchControls.jump.h, [10]);
+            ctx.fill(); ctx.stroke();
+            ctx.fillStyle = "white";
+            ctx.fillText("▲", touchControls.jump.x + touchControls.jump.w / 2, touchControls.jump.y + touchControls.jump.h / 2);
+        }
+
+
+        let lastTime = 0;
+        function gameLoop(timestamp) {
+            const deltaTime = timestamp - lastTime;
+            lastTime = timestamp;
+
+            if (gameState === 'PLAYING') {
+                update(deltaTime);
+            }
+            draw(); // Disegna sempre per mostrare le schermate corrette o il gioco
+            
+            requestAnimationFrame(gameLoop);
+        }
+
+        // ----- INIZIALIZZAZIONE -----
+        startButton.addEventListener('click', startGameFlow);
+        restartButton.addEventListener('click', startGameFlow); // Ripartire da capo
+        playAgainButton.addEventListener('click', startGameFlow); // Ripartire da capo
+        nextLevelButton.addEventListener('click', () => {
+             proceedToNextLevel();
+        });
+
+        resizeCanvas(); // Chiamata iniziale per dimensionare il canvas
+        // Non chiamare gameLoop() qui, verrà chiamato da startGameFlow o da showStartScreen implicitamente
+        // Se le immagini non sono ancora caricate, showStartScreen verrà chiamato dall'onload delle immagini.
+        // Se le immagini sono già caricate (improbabile ma possibile da cache), bisogna assicurarsi che parta.
+        if (imagesLoaded === TOTAL_IMAGES) {
+             showStartScreen();
+        }
+        // Il game loop principale viene avviato una volta all'inizio,
+        // e poi gestisce i vari stati internamente.
+        requestAnimationFrame(gameLoop);
+
+    </script>
+</body>
+</html>

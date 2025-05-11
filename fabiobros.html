@@ -171,7 +171,6 @@
             const canvasTopInContainer = canvasRect.top - gameContainerRect.top;
             const canvasLeftInContainer = canvasRect.left - gameContainerRect.left;
 
-            // Calcola le coordinate del pulsante per centrarlo rispetto alle dimensioni *renderizzate* del canvas
             const buttonLeft = canvasLeftInContainer + (canvasRect.width / 2) - (button.offsetWidth / 2);
             const buttonTop = canvasTopInContainer + (canvasRect.height * topFactor) - (button.offsetHeight / 2);
 
@@ -187,7 +186,6 @@
         }
         
         window.addEventListener('resize', () => {
-            // Riposiziona il pulsante attivo, se presente
             if (startButton.style.display === 'block') positionOverlayButton(startButton, 0.75);
             if (retryButton.style.display === 'block') positionOverlayButton(retryButton, 0.75);
             if (playAgainButton.style.display === 'block') positionOverlayButton(playAgainButton, 0.75);
@@ -248,109 +246,128 @@
         let boss = null;
         const bossMaxHealth = 10; 
 
+        // Player object (la definizione della classe Player deve precedere l'array levels se vuoi usare player.height)
+        // Sposto temporaneamente la definizione di Player qui, poi la rimetto a posto per leggibilità
+        // e uso un valore hardcoded per l'altezza nella definizione dei livelli
+        const PLAYER_DEFAULT_HEIGHT = 60; 
+
         // Level Data
         const levels = [
             { // Livello 1: Cielo
-                scoreToAdvance: 1000, // MODIFICATO
+                scoreToAdvance: 1000,
                 bgColor: '#70c5ce',
                 themeName: "Cielo Sereno",
+                playerStartX: 60, 
+                playerStartPlatformTopY: gameHeight - 120, 
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#8FBC8F' }, 
-                    { x: 150, y: gameHeight - 140, width: 150, height: 20, color: '#A0522D' },
+                    { x: 30, y: gameHeight - 120, width: 100, height: 20, color: '#A0522D' }, 
+                    { x: 200, y: gameHeight - 140, width: 150, height: 20, color: '#A0522D' }, 
                     { x: 400, y: gameHeight - 200, width: 200, height: 20, color: '#A0522D' },
                     { x: 650, y: gameHeight - 100, width: 100, height: 20, color: '#A0522D' }
                 ],
-                enemies: [ { x: 300, y: gameHeight - 80 }, { x: 500, y: gameHeight - 80 } ], // Posizione sicura
+                enemies: [ { x: 300, y: gameHeight - 80 }, { x: 500, y: gameHeight - 80 } ],
                 collectibles: [
-                    { x: 180, y: gameHeight - 180 }, { x: 220, y: gameHeight - 180 },
+                    { x: 230, y: gameHeight - 180 }, { x: 270, y: gameHeight - 180 }, 
                     { x: 450, y: gameHeight - 240 }, { x: 490, y: gameHeight - 240 },
-                    { x: 680, y: gameHeight - 140 }, { x: 100, y: gameHeight - 80 },
-                    { x: 550, y: gameHeight - 80 }, { x: 250, y: gameHeight - 80 },
+                    { x: 680, y: gameHeight - 140 }, { x: 150, y: gameHeight - 80 },
+                    { x: 550, y: gameHeight - 80 }, { x: 350, y: gameHeight - 80 },
                     { x: 750, y: gameHeight - 80 }, { x: 400, y: gameHeight - 80 }
                 ]
             },
             { // Livello 2: Deserto
-                scoreToAdvance: 2000, // MODIFICATO
+                scoreToAdvance: 2000,
                 bgColor: '#F4A460',
                 themeName: "Deserto Infuocato",
+                playerStartX: 60,
+                playerStartPlatformTopY: gameHeight - 150,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#D2B48C' },
-                    { x: 100, y: gameHeight - 120, width: 100, height: 20, color: '#CD853F' },
+                    { x: 30, y: gameHeight - 150, width: 100, height: 20, color: '#CD853F' }, 
+                    { x: 200, y: gameHeight - 120, width: 100, height: 20, color: '#CD853F' }, 
                     { x: 300, y: gameHeight - 180, width: 200, height: 20, color: '#CD853F' },
                     { x: 550, y: gameHeight - 100, width: 150, height: 20, color: '#CD853F' },
                     { x: 200, y: gameHeight - 280, width: 150, height: 20, color: '#CD853F' },
                 ],
                 enemies: [
-                    { x: 200, y: gameHeight - 80 }, { x: 450, y: gameHeight - 80 }, // Posizione sicura
+                    { x: 250, y: gameHeight - 80 }, { x: 450, y: gameHeight - 80 }, 
                     { x: 600, y: gameHeight - 80 }, { x: 350, y: gameHeight - 220 }
                 ],
                 collectibles: [
-                    { x: 120, y: gameHeight - 160 }, { x: 330, y: gameHeight - 220 },
+                    { x: 220, y: gameHeight - 160 }, { x: 330, y: gameHeight - 220 }, 
                     { x: 580, y: gameHeight - 140 }, { x: 230, y: gameHeight - 320 },
-                    { x: 50, y: gameHeight - 80 }, { x: 250, y: gameHeight - 80 },
+                    { x: 150, y: gameHeight - 80 }, { x: 350, y: gameHeight - 80 },
                     { x: 400, y: gameHeight - 80 }, { x: 650, y: gameHeight - 80 },
-                    { x: 750, y: gameHeight - 80 }, { x: 150, y: gameHeight - 80 }
+                    { x: 750, y: gameHeight - 80 }
                 ]
             },
             { // Livello 3: Foresta (Inizio Power-up)
-                scoreToAdvance: 3000, // MODIFICATO
+                scoreToAdvance: 3000,
                 bgColor: '#228B22',
                 themeName: "Foresta Omrbosa",
                 powerUpEnabled: true,
+                playerStartX: 70, 
+                playerStartPlatformTopY: gameHeight - 150,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#556B2F' },
-                    { x: 50, y: gameHeight - 150, width: 150, height: 20, color: '#8B4513' },
+                    { x: 50, y: gameHeight - 150, width: 150, height: 20, color: '#8B4513' }, 
                     { x: 250, y: gameHeight - 220, width: 100, height: 20, color: '#8B4513' },
                     { x: 400, y: gameHeight - 120, width: 200, height: 20, color: '#8B4513' },
                     { x: 650, y: gameHeight - 250, width: 120, height: 20, color: '#8B4513' }
                 ],
                 enemies: [
-                    { x: 200, y: gameHeight - 80 }, // MODIFICATO per sicurezza
-                    { x: 350, y: gameHeight - 80 }, 
+                    { x: 250, y: gameHeight - 80 }, 
+                    { x: 350, y: gameHeight - 80 },
                     { x: 500, y: gameHeight - 80 }, { x: 700, y: gameHeight - 80 },
-                    { x: 100, y: gameHeight - 190 }, { x: 450, y: gameHeight - 160 }
+                    { x: 280, y: gameHeight - 260 }, 
+                    { x: 450, y: gameHeight - 160 }
                 ],
                 collectibles: Array.from({length: 15}, (_, i) => ({ x: 50 + i * 50, y: gameHeight - 80 - (i%3 * 50) }))
             },
             { // Livello 4: Città
-                scoreToAdvance: 4000, // MODIFICATO
+                scoreToAdvance: 4000,
                 bgColor: '#778899',
                 themeName: "Metropoli Grigia",
                 powerUpEnabled: true,
+                playerStartX: 40, 
+                playerStartPlatformTopY: gameHeight - 180,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#A9A9A9' },
-                    { x: 0, y: gameHeight - 180, width: 150, height: 20, color: '#696969' },
+                    { x: 0, y: gameHeight - 180, width: 150, height: 20, color: '#696969' }, 
                     { x: gameWidth - 150, y: gameHeight - 180, width: 150, height: 20, color: '#696969' },
                     { x: 200, y: gameHeight - 120, width: 100, height: 20, color: '#696969' },
                     { x: 350, y: gameHeight - 250, width: 100, height: 20, color: '#696969' },
                     { x: 500, y: gameHeight - 120, width: 100, height: 20, color: '#696969' }
                 ],
                 enemies: [
-                    { x: 200, y: gameHeight - 80 }, // MODIFICATO per sicurezza
-                    { x: 300, y: gameHeight - 80 }, 
+                    { x: 250, y: gameHeight - 80 }, 
+                    { x: 350, y: gameHeight - 80 },
                     { x: 420, y: gameHeight - 80 }, { x: 600, y: gameHeight - 80 },
                     { x: 720, y: gameHeight - 80 },
-                    { x: 50, y: gameHeight - 220 }, { x: gameWidth - 100, y: gameHeight - 220 },
+                    { x: gameWidth - 100, y: gameHeight - 220 }, 
                     { x: 400, y: gameHeight - 290 }
                 ],
                 collectibles: Array.from({length: 20}, (_, i) => ({ x: 30 + i * 40, y: gameHeight - 80 - (i%4 * 40) }))
             },
             { // Livello 5: Castello (Boss)
-                scoreToAdvance: Infinity, 
+                scoreToAdvance: Infinity,
                 bgColor: '#483D8B',
                 themeName: "Castello Oscuro",
                 powerUpEnabled: true,
                 isBossLevel: true,
+                playerStartX: 120, 
+                playerStartPlatformTopY: gameHeight - 150,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#2F4F4F' },
-                    { x: 100, y: gameHeight - 150, width: 150, height: 20, color: '#708090' },
+                    { x: 100, y: gameHeight - 150, width: 150, height: 20, color: '#708090' }, 
                     { x: gameWidth - 250, y: gameHeight - 150, width: 150, height: 20, color: '#708090' },
                     { x: gameWidth/2 - 75, y: gameHeight - 250, width: 150, height: 20, color: '#708090' }
                 ],
-                enemies: [ 
-                    { x: 150, y: gameHeight - 80 }, { x: gameWidth - 200, y: gameHeight - 80 } 
+                enemies: [
+                    { x: 200, y: gameHeight - 80 }, 
+                    { x: gameWidth - 200, y: gameHeight - 80 }
                 ],
-                bossData: { x: gameWidth / 2 - 50, y: gameHeight - 120, health: bossMaxHealth },
+                bossData: { x: gameWidth / 2 - 50, y: gameHeight - 120, health: bossMaxHealth }, 
                 collectibles: Array.from({length: 10}, (_, i) => ({ x: 50 + i * 70, y: gameHeight - 80 - (i%2 * 60) }))
             }
         ];
@@ -358,7 +375,7 @@
         class Player {
             constructor(x, y) {
                 this.width = 40;
-                this.height = 60;
+                this.height = PLAYER_DEFAULT_HEIGHT; // Usa la costante definita prima
                 this.x = x;
                 this.y = y;
                 this.dx = 0;
@@ -370,7 +387,7 @@
                 this.image = images.player;
                 this.shootCooldown = 0;
                 this.shootDelay = 300; 
-                this.lastDirection = 'right'; // Per lo sparo quando fermo
+                this.lastDirection = 'right'; 
             }
 
             jump() {
@@ -643,7 +660,11 @@
                 gameState = 'GAME_OVER';
                 setTimeout(() => positionOverlayButton(retryButton, 0.75), 0);
             } else {
-                player.x = 50; player.y = gameHeight - 200; player.dx = 0; player.dy = 0;
+                // Ritorna alla piattaforma di partenza del livello corrente
+                const levelData = levels[currentLevel];
+                player.x = levelData.playerStartX;
+                player.y = levelData.playerStartPlatformTopY - player.height;
+                player.dx = 0; player.dy = 0;
             }
         }
 
@@ -652,7 +673,7 @@
             scoreDisplay.textContent = `Punteggio: ${score}`;
             if (powerUpActive) {
                 powerUpTimerDisplay.textContent = `Chef Furioso: ${Math.ceil(powerUpTimer / 1000)}s`;
-                if (currentLevel >= 2) shootButton.style.display = 'flex'; // Mostra solo dal livello 3 (indice 2)
+                if (currentLevel >= 2) shootButton.style.display = 'flex'; 
             } else {
                 powerUpTimerDisplay.textContent = '';
                 shootButton.style.display = 'none';
@@ -688,7 +709,8 @@
             currentLevel = levelIndex;
             const levelData = levels[currentLevel];
 
-            player = new Player(50, gameHeight - 200); 
+            player = new Player(levelData.playerStartX, levelData.playerStartPlatformTopY - PLAYER_DEFAULT_HEIGHT); 
+            
             platforms = levelData.platforms.map(p => new Platform(p.x, p.y, p.width, p.height, p.color));
             enemies = levelData.enemies.map(e => new Enemy(e.x, e.y));
             collectibles = levelData.collectibles.map(c => new Collectible(c.x, c.y));
@@ -732,7 +754,7 @@
                 if (images.player && images.player.complete) {
                     titleFabioX += titleFabioDir * 0.5;
                     if (titleFabioX > 150 || titleFabioX < 50) titleFabioDir *= -1;
-                    ctx.drawImage(images.player, titleFabioX, gameHeight * 0.5, 60, 90);
+                    ctx.drawImage(images.player, titleFabioX, gameHeight * 0.5, 60, PLAYER_DEFAULT_HEIGHT);
                 }
                 if (images.enemy && images.enemy.complete) {
                     titleEnemyX += titleEnemyDir * 0.7;
@@ -743,7 +765,7 @@
                 ctx.fillText('🥗', gameWidth * 0.3, gameHeight * 0.6);
                 ctx.fillText('🥗', gameWidth * 0.7, gameHeight * 0.4);
                 
-                if (startButton.style.display === 'none') { // Assicura che sia posizionato se ricaricato
+                if (startButton.style.display === 'none') { 
                      setTimeout(() => positionOverlayButton(startButton, 0.75), 0);
                 }
 
@@ -828,7 +850,6 @@
         loadImages(() => {
             console.log("Immagini caricate!");
             gameState = 'TITLE';
-            // Utilizza setTimeout per assicurare che il DOM sia pronto per le misurazioni dei pulsanti
             setTimeout(() => positionOverlayButton(startButton, 0.75), 0); 
             lastTime = performance.now();
             requestAnimationFrame(gameLoop);

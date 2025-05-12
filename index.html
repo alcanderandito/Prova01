@@ -3,12 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>Home • Team Due Mori</title>
+  <title>Home • Team Due Mori 🚀</title>
 
   <!-- Importazione Font da Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+
+  <!-- Importazione Three.js via CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 
   <style>
     /* mini‑reset */
@@ -16,11 +19,14 @@
     html,body{
       font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
       height: 100%;
+      overflow: hidden; /* Nasconde scrollbar del body, il contenuto scorrerà se necessario */
     }
 
     /* === NAVBAR FISSA === */
     .navbar {
-      background-color: #333;
+      background-color: rgba(51, 51, 51, 0.85); /* Leggera trasparenza */
+      backdrop-filter: blur(5px); /* Effetto vetro smerigliato (supporto variabile) */
+      -webkit-backdrop-filter: blur(5px);
       padding: 10px 20px;
       position: fixed;
       top: 0;
@@ -29,7 +35,7 @@
       z-index: 500;
       display: flex;
       align-items: center;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
     }
     .dropdown {
       position: relative;
@@ -44,6 +50,7 @@
       cursor: pointer;
       border-radius: 5px;
       font-family: 'Roboto', sans-serif;
+      transition: background-color 0.3s ease;
     }
     .dropdown-button:hover, .dropdown-button:focus {
       background-color: #45a049;
@@ -51,12 +58,15 @@
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #f9f9f9;
+      background-color: rgba(249, 249, 249, 0.95); /* Leggera trasparenza */
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
       min-width: 220px;
       box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
       z-index: 999;
       border-radius: 5px;
       margin-top: 5px;
+      overflow: hidden; /* Per bordi arrotondati */
     }
     .dropdown-content ul { list-style-type: none; }
     .dropdown-content ul li a {
@@ -65,174 +75,354 @@
       text-decoration: none;
       display: block;
       font-family: 'Roboto', sans-serif;
+      transition: background-color 0.2s ease;
     }
-    .dropdown-content ul li a:hover { background-color: #f1f1f1; }
+    .dropdown-content ul li a:hover { background-color: rgba(221, 221, 221, 0.8); }
     .show { display: block; }
     .dropdown-content ul li.submenu-item { position: relative; }
-    .dropdown-content ul li.submenu-item .submenu { display: none; padding-left: 20px; background-color: #e9e9e9; }
-    .dropdown-content ul li.submenu-item .submenu ul li a { padding: 10px 15px; font-size: 0.9em; }
-    .dropdown-content ul li.submenu-item .submenu ul li a:hover { background-color: #ddd; }
+    .dropdown-content ul li.submenu-item .submenu { display: none; padding-left: 0; background-color: rgba(233, 233, 233, 0.9); } /* Rimosso padding, cambiato colore */
+    .dropdown-content ul li.submenu-item .submenu ul li a { padding: 10px 15px 10px 30px; font-size: 0.9em; } /* Aggiunto padding sinistro */
+    .dropdown-content ul li.submenu-item .submenu ul li a:hover { background-color: rgba(200, 200, 200, 0.8); }
     .dropdown-content ul li.submenu-item .submenu.open { display: block; }
-    .submenu-trigger .arrow { display: inline-block; margin-left: 5px; transition: transform 0.3s ease; font-size: 0.8em; }
+    .submenu-trigger .arrow { display: inline-block; margin-left: 5px; transition: transform 0.3s ease; font-size: 0.8em; vertical-align: middle;}
     .submenu-trigger.open .arrow { transform: rotate(180deg); }
 
-    
 
     /* === BOTTONE CHAT === */
     #goChatContainer { position: fixed; bottom: 20px; right: 20px; z-index: 1000; }
-    #goChat{ width:70px;height:70px;border:none;border-radius:50%; background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/60% no-repeat; box-shadow:0 4px 14px rgba(0,0,0,.25);cursor:pointer; }
-    #goChat:active{transform:scale(.9)}
+    #goChat{
+      width:65px; /* Leggermente più piccolo */
+      height:65px;
+      border:none;
+      border-radius:50%;
+      background:#25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/55% no-repeat;
+      box-shadow:0 5px 15px rgba(0,0,0,.3);
+      cursor:pointer;
+      transition: transform 0.2s ease-out, box-shadow 0.2s ease;
+    }
+    #goChat:hover {
+        transform: scale(1.05);
+        box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4);
+    }
+    #goChat:active{
+        transform:scale(.95);
+        box-shadow:0 3px 10px rgba(0,0,0,.2);
+    }
 
-    /* === SFONDO DINAMICO === */
-    #dynamic-background-container { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; z-index: -1; overflow: hidden; }
-    .background-slide { position: absolute; top: 0; left: 0; width: 100%; height: 100%; background-size: cover; background-position: center center; opacity: 0; transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1); transform: scale(1.03); }
-    .background-slide.active { opacity: 1; animation: kenburns 25s infinite alternate ease-in-out; }
-    @keyframes kenburns { 0% { transform: scale(1.03) translate(0%, 0%); } 100% { transform: scale(1.12) translate(-1.5%, 1.5%); } }
-    .background-slide.active.even-slide-kenburns { animation-name: kenburns-alt; }
-    @keyframes kenburns-alt { 0% { transform: scale(1.03) translate(0%, 0%); } 100% { transform: scale(1.12) translate(1.5%, -1.5%); } }
+    /* === SFONDO 3D === */
+    #dynamic-background-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh; /* Usa vh per coprire tutta l'altezza visibile */
+      z-index: -1; /* Dietro a tutto */
+      overflow: hidden; /* Necessario per il canvas */
+    }
+    #dynamic-background-container canvas {
+        display: block; /* Rimuove spazio extra sotto il canvas */
+        width: 100%;
+        height: 100%;
+    }
+
 
     /* === TITOLO EROE === */
-    #hero-title-container { position: fixed; top: 48%; left: 50%; transform: translate(-50%, -50%); text-align: center; color: #ffffff; z-index: 5; padding: 20px; width: 90%; max-width: 850px; text-shadow: 0px 2px 8px rgba(0, 0, 0, 0.75); }
-    #hero-title-container h1 { font-family: 'Oswald', sans-serif; font-size: 3.5rem; font-weight: 700; margin-bottom: 0.4em; line-height: 1.15; letter-spacing: 1.5px; text-transform: uppercase; }
-    #hero-title-container p { font-family: 'Roboto', sans-serif; font-size: 1.3rem; font-weight: 300; line-height: 1.6; opacity: 0.9; }
-    @media (max-width: 992px) { #hero-title-container h1 { font-size: 3rem; } #hero-title-container p { font-size: 1.15rem; } }
-    @media (max-width: 768px) { #hero-title-container { top: 45%; } #hero-title-container h1 { font-size: 2.5rem; } #hero-title-container p { font-size: 1rem; } }
-    @media (max-width: 480px) { #hero-title-container h1 { font-size: 2rem; letter-spacing: 1px; } #hero-title-container p { font-size: 0.9rem; } }
+    #hero-title-container {
+      position: fixed;
+      top: 48%; /* Leggermente più su per bilanciare */
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: #ffffff;
+      z-index: 5;
+      padding: 20px;
+      width: 90%;
+      max-width: 900px; /* Leggermente più largo */
+      text-shadow: 0px 3px 10px rgba(0, 0, 0, 0.85); /* Ombra più pronunciata per contrasto */
+    }
+    #hero-title-container h1 {
+      font-family: 'Oswald', sans-serif;
+      font-size: 4rem; /* Più grande */
+      font-weight: 700;
+      margin-bottom: 0.4em;
+      line-height: 1.1;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+    #hero-title-container p {
+      font-family: 'Roboto', sans-serif;
+      font-size: 1.4rem; /* Più grande */
+      font-weight: 300;
+      line-height: 1.6;
+      opacity: 0.95;
+    }
+    @media (max-width: 992px) {
+      #hero-title-container h1 { font-size: 3.2rem; }
+      #hero-title-container p { font-size: 1.2rem; }
+    }
+    @media (max-width: 768px) {
+      #hero-title-container { top: 45%; }
+      #hero-title-container h1 { font-size: 2.8rem; }
+      #hero-title-container p { font-size: 1.1rem; }
+    }
+    @media (max-width: 480px) {
+        #hero-title-container { top: 40%; } /* Ancora più su su mobile */
+        #hero-title-container h1 { font-size: 2.2rem; letter-spacing: 1px; }
+        #hero-title-container p { font-size: 1rem; }
+    }
 
     /* === CONTENUTO PRINCIPALE === */
-    .main-content { position: relative; z-index: 2; padding-top: 70px; padding-left: 20px; padding-right: 20px; padding-bottom: 20px; }
+    /* Aggiungiamo uno stile base se vuoi mettere contenuto visibile sotto il titolo */
+    .main-content {
+      position: relative; /* Necessario per essere sopra lo sfondo */
+      z-index: 2;
+      padding-top: 100vh; /* Inizia dopo la vista iniziale 'hero' */
+      padding-left: 20px;
+      padding-right: 20px;
+      padding-bottom: 50px; /* Spazio alla fine */
+      background-color: #f4f4f4; /* Sfondo per la sezione contenuto */
+      color: #333;
+      min-height: 500px; /* Esempio: altezza minima per vedere lo scroll */
+      /* Se non vuoi contenuto scorrevole sotto, puoi rimuovere
+         padding-top: 100vh e min-height, e aggiustare .main-content
+         per posizionare elementi specifici dove vuoi NELLA VISTA iniziale */
+       display: none; /* NASCONDIAMO PER ORA - Togli questo se vuoi contenuto sotto */
+    }
   </style>
 </head>
 <body>
 
   <div class="navbar">
     <div class="dropdown">
-      <button onclick="toggleMenu()" class="dropdown-button">Menu</button>
+      <button onclick="toggleMenu()" class="dropdown-button">☰ Menu</button> <!-- Icona Hamburger -->
       <div id="menuContent" class="dropdown-content">
         <!-- Il contenuto di menu.html verrà caricato qui -->
-        <p style="padding: 10px; color: #555;">Caricamento menu...</p>
+        <p style="padding: 12px 16px; color: #555;">Caricamento menu...</p>
       </div>
     </div>
+    <!-- Qui potresti aggiungere altri link/icone alla navbar -->
   </div>
 
+  <!-- Contenitore per la scena 3D -->
   <div id="dynamic-background-container"></div>
-  <div id="hero-title-container"><h1>Team Due Mori</h1><p>Il Dream Team (almeno la mattina, dopo il caffè).</p></div>
-  
-  <!-- La sezione di Spotify è stata rimossa da qui -->
 
-  <div class="main-content"> <!-- IL TUO CONTENUTO VA QUI! --> </div>
-  <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a></div>
+  <!-- Titolo sopra la scena 3D -->
+  <div id="hero-title-container">
+      <h1>Team Due Mori 🌌</h1>
+      <p>Il Dream Team (almeno la mattina, dopo il caffè 😉).</p>
+  </div>
+
+  <!-- Contenuto principale (attualmente nascosto) -->
+  <div class="main-content">
+      <h2>Il Tuo Contenuto Inizia Qui</h2>
+      <p>Questa sezione apparirà sotto la vista iniziale se rimuovi 'display: none;' dallo stile di .main-content e l'utente scorre.</p>
+      <p>...</p>
+  </div>
+
+  <!-- Bottone Chat -->
+  <div id="goChatContainer">
+      <a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a>
+  </div>
 
   <script>
-    // --- SCRIPT PER IL MENU A TENDINA (CON LOGICA FETCH RIPRISTINATA DAL TUO ORIGINALE) ---
+    // --- SCRIPT PER IL MENU A TENDINA (Invariato) ---
     function toggleMenu() {
       const menuContent = document.getElementById("menuContent");
       const isCurrentlyShown = menuContent.classList.contains("show");
-
-      // CONDIZIONE PER IL FETCH ESATTAMENTE COME NEL TUO CODICE ORIGINALE FUNZIONANTE:
       if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
-        fetch('menu.html') // Assicurati che menu.html sia nella stessa cartella
+        fetch('menu.html')
           .then(response => {
-            if (!response.ok) {
-              // Se c'è un errore (es. 404 Not Found), lancia un errore per il .catch()
-              throw new Error('Errore nel caricamento di menu.html: ' + response.status + ' ' + response.statusText);
-            }
-            return response.text(); // Ottieni il contenuto HTML come testo
+            if (!response.ok) throw new Error('Errore nel caricamento di menu.html: ' + response.status);
+            return response.text();
           })
-          .then(data => {
-            if (data.trim() === '') {
-                // Se menu.html è vuoto
-                menuContent.innerHTML = '<p style="padding: 10px; color: #888;">Menu vuoto.</p>';
-            } else {
-                menuContent.innerHTML = data; // Inserisci l'HTML caricato nel div
-            }
-          })
+          .then(data => { menuContent.innerHTML = data.trim() === '' ? '<p style="padding: 10px; color: #888;">Menu vuoto.</p>' : data; })
           .catch(error => {
-            // In caso di errore di fetch o altro, mostra un messaggio di errore nel menu
             menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
-            console.error('Dettagli errore fetch menu.html:', error); // Logga l'errore dettagliato in console
+            console.error('Dettagli errore fetch menu.html:', error);
           });
       }
-
-      menuContent.classList.toggle("show"); // Mostra o nascondi il menu
-
-      // Chiudi sottomenu aperti se il menu principale si chiude
+      menuContent.classList.toggle("show");
       if (!menuContent.classList.contains("show")) {
         const openSubmenus = menuContent.querySelectorAll('.submenu.open');
         openSubmenus.forEach(submenu => {
           submenu.classList.remove('open');
           const trigger = submenu.previousElementSibling;
-          if (trigger && trigger.classList.contains('submenu-trigger')) {
-              trigger.classList.remove('open');
-          }
+          if (trigger?.classList.contains('submenu-trigger')) trigger.classList.remove('open');
         });
       }
     }
-
-    // Funzione per mostrare/nascondere i sottomenu
-    // Questa funzione verrà chiamata da onclick="" presente nell'HTML caricato da menu.html
     function toggleSubmenu(event, triggerElement) {
-      event.preventDefault();
-      event.stopPropagation();
+      event.preventDefault(); event.stopPropagation();
       const submenu = triggerElement.nextElementSibling;
-      if (submenu && submenu.classList.contains('submenu')) {
+      if (submenu?.classList.contains('submenu')) {
         submenu.classList.toggle('open');
         triggerElement.classList.toggle('open');
       }
     }
-
-    // Chiudi il menu principale (e i sottomenu) se l'utente clicca fuori da esso
     window.onclick = function(event) {
       const menuContent = document.getElementById("menuContent");
       const dropdownButton = document.querySelector('.dropdown-button');
-      if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) { // Aggiunto controllo per menuContent
+      if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
         if (menuContent.classList.contains("show")) {
           menuContent.classList.remove('show');
           const openSubmenus = menuContent.querySelectorAll('.submenu.open');
           openSubmenus.forEach(submenu => {
             submenu.classList.remove('open');
             const trigger = submenu.previousElementSibling;
-            if (trigger && trigger.classList.contains('submenu-trigger')) {
-                trigger.classList.remove('open');
-            }
+            if (trigger?.classList.contains('submenu-trigger')) trigger.classList.remove('open');
           });
         }
       }
     }
 
-    // --- SCRIPT PER SFONDO DINAMICO ---
+    // --- SCRIPT PER SFONDO 3D con THREE.JS ---
     document.addEventListener('DOMContentLoaded', () => {
-        const backgroundContainer = document.getElementById('dynamic-background-container');
-        const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
-        let currentImageIndex = -1;
-        const slideDuration = 7500;
-        const kenBurnsAnimationDuration = 25;
-        images.forEach(src => { const img = new Image(); img.src = src; });
-        images.forEach((imageName, index) => {
-            const slide = document.createElement('div');
-            slide.classList.add('background-slide');
-            slide.style.backgroundImage = `url('${imageName}')`;
-            if (index % 2 !== 0) { slide.classList.add('even-slide-kenburns'); }
-            backgroundContainer.appendChild(slide);
-        });
-        const slides = backgroundContainer.querySelectorAll('.background-slide');
-        function showNextSlide() {
-            if (slides.length === 0) return;
-            if (currentImageIndex >= 0) {
-                slides[currentImageIndex].classList.remove('active');
-                slides[currentImageIndex].style.animation = 'none';
-                slides[currentImageIndex].offsetHeight;
-            }
-            currentImageIndex = (currentImageIndex + 1) % slides.length;
-            slides[currentImageIndex].classList.add('active');
-            if (slides[currentImageIndex].classList.contains('even-slide-kenburns')) {
-                slides[currentImageIndex].style.animation = `kenburns-alt ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
-            } else {
-                slides[currentImageIndex].style.animation = `kenburns ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
-            }
+        const container = document.getElementById('dynamic-background-container');
+        if (!container) {
+            console.error("Contenitore #dynamic-background-container non trovato!");
+            return;
         }
-        if (slides.length > 0) { showNextSlide(); }
-        setInterval(showNextSlide, slideDuration);
+
+        // Nomi delle tue immagini (assicurati siano nella stessa cartella o metti il percorso corretto)
+        const imageNames = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
+
+        let scene, camera, renderer;
+        let particles, imageMeshes = [];
+        let mouseX = 0, mouseY = 0;
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+
+        function init() {
+            // Scena
+            scene = new THREE.Scene();
+            scene.fog = new THREE.FogExp2(0x000000, 0.0008); // Nebbia per profondità
+
+            // Camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 1, 3000);
+            camera.position.z = 1000;
+
+            // Renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha:true per sfondo trasparente (se necessario)
+            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            container.appendChild(renderer.domElement);
+
+            // Luci
+            scene.add(new THREE.AmbientLight(0xcccccc, 0.6)); // Luce ambientale generale
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+            directionalLight.position.set(1, 1, 1).normalize();
+            scene.add(directionalLight);
+
+
+            // Particelle (Stelle)
+            const particleCount = 5000;
+            const particlesGeometry = new THREE.BufferGeometry();
+            const positions = new Float32Array(particleCount * 3);
+            for (let i = 0; i < particleCount * 3; i++) {
+                positions[i] = (Math.random() - 0.5) * 2500; // Distribuzione in un cubo
+            }
+            particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+            const particlesMaterial = new THREE.PointsMaterial({
+                color: 0xFFFFFF,
+                size: 1.5,
+                sizeAttenuation: true, // Particelle più piccole in lontananza
+                transparent: true,
+                opacity: 0.8
+            });
+            particles = new THREE.Points(particlesGeometry, particlesMaterial);
+            scene.add(particles);
+
+
+            // Piani Fluttuanti con le Tue Immagini
+            const textureLoader = new THREE.TextureLoader();
+            const planeGeometry = new THREE.PlaneGeometry(200, 200); // Dimensione dei piani
+
+            imageNames.forEach(imgName => {
+                textureLoader.load(imgName, (texture) => {
+                    texture.colorSpace = THREE.SRGBColorSpace; // Correzione colore
+                    const material = new THREE.MeshStandardMaterial({
+                         map: texture,
+                         side: THREE.DoubleSide, // Visibile da entrambi i lati
+                         transparent: true,
+                         opacity: 0.9,
+                         metalness: 0.1, // Leggero effetto metallico
+                         roughness: 0.7  // Moderatamente ruvido
+                    });
+                    const mesh = new THREE.Mesh(planeGeometry, material);
+
+                    // Posizione e Rotazione Casuale
+                    mesh.position.x = (Math.random() - 0.5) * 1500;
+                    mesh.position.y = (Math.random() - 0.5) * 1500;
+                    mesh.position.z = (Math.random() - 0.5) * 1500;
+                    mesh.rotation.x = Math.random() * Math.PI;
+                    mesh.rotation.y = Math.random() * Math.PI;
+                    mesh.rotation.z = Math.random() * Math.PI;
+
+                    // Velocità di rotazione casuale (per aggiungere al loop di animazione)
+                    mesh.userData.rotationSpeed = {
+                        x: (Math.random() - 0.5) * 0.002,
+                        y: (Math.random() - 0.5) * 0.002,
+                        z: (Math.random() - 0.5) * 0.002
+                    };
+
+                    scene.add(mesh);
+                    imageMeshes.push(mesh); // Aggiungi all'array per animazione
+                }, undefined, (err) => {
+                    console.error(`Errore caricamento texture: ${imgName}`, err);
+                });
+            });
+
+
+            // Event Listeners
+            window.addEventListener('resize', onWindowResize, false);
+            document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+            animate(); // Inizia l'animazione
+        }
+
+        function onWindowResize() {
+            windowHalfX = window.innerWidth / 2;
+            windowHalfY = window.innerHeight / 2;
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX) / 2; // Ridotto l'effetto
+            mouseY = (event.clientY - windowHalfY) / 2;
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+            render();
+        }
+
+        function render() {
+            const time = Date.now() * 0.00005; // Tempo per animazioni lente
+
+            // Muovi la camera leggermente con il mouse
+            camera.position.x += (mouseX - camera.position.x) * 0.03;
+            camera.position.y += (-mouseY - camera.position.y) * 0.03;
+            camera.lookAt(scene.position); // Guarda sempre al centro
+
+            // Anima le particelle (rotazione lenta)
+            if (particles) {
+                 particles.rotation.x += 0.0001;
+                 particles.rotation.y += 0.0002;
+            }
+
+            // Anima i piani con le immagini
+            imageMeshes.forEach(mesh => {
+                mesh.rotation.x += mesh.userData.rotationSpeed.x;
+                mesh.rotation.y += mesh.userData.rotationSpeed.y;
+                mesh.rotation.z += mesh.userData.rotationSpeed.z;
+            });
+
+            renderer.render(scene, camera);
+        }
+
+        init(); // Avvia tutto
     });
   </script>
 

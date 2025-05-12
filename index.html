@@ -1,904 +1,1003 @@
 <!DOCTYPE html>
 <html lang="it">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Home • Team Due Mori - Magia & Gusto</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- Titolo Aggiornato -->
+  <title>Home • Team Due Mori - Magia & Gusto</title>
 
-    <!-- Importazione Font da Google Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- NOTA: Oswald rimosso, useremo Orbitron per H1 e Roboto per il resto come da richiesta "magica" -->
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
+  <!-- Importazione Font da Google Fonts (Aggiunto Orbitron, mantenuto Roboto) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400..900&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
 
-    <style>
-        /* --- Reset & Base --- */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+  <style>
+    /* mini‑reset */
+    *{margin:0;padding:0;box-sizing:border-box}
+    html,body{
+      /* Mantenuto font-family base Roboto */
+      font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
+      height: 100%;
+      width: 100%; /* Aggiunto per sicurezza */
+      overflow: hidden; /* Impedisce scroll sulla pagina principale */
+      background-color: #0a0514; /* Fallback background scuro */
+      color: #fff; /* Colore testo default bianco */
+    }
 
-        html, body {
-            height: 100%;
-            width: 100%;
-            overflow: hidden; /* Impedisce scroll sulla pagina principale */
-            font-family: 'Roboto', sans-serif; /* Font base aggiornato */
-            background-color: #0a0514; /* Fallback background scuro */
-            color: #fff;
-        }
+    /* === Contenitore Canvas Three.js (NUOVO) === */
+    #three-canvas-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: -1; /* Dietro tutto il resto */
+    }
+    canvas {
+        display: block; /* Rimuove spazio extra sotto il canvas */
+    }
 
-        /* --- Contenitore Canvas Three.js (Sostituisce il vecchio sfondo) --- */
-        #three-canvas-container {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1; /* Dietro tutto il resto */
-        }
+    /* === NAVBAR STILIZZATA (Modifica stili esistenti .navbar) === */
+    .navbar {
+      /* Mantenuti: position, top, left, width, z-index, display, align-items */
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1000; /* Aumentato z-index per stare sopra canvas 3D */
+      display: flex;
+      align-items: center;
+      /* Stili Magici (Sostituiscono/Aggiungono) */
+      padding: 12px 25px;
+      background: linear-gradient(180deg, rgba(15, 5, 35, 0.85) 0%, rgba(26, 10, 42, 0.75) 100%);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px); /* Per Safari */
+      box-shadow: 0 4px 20px rgba(128, 0, 255, 0.4), 0 1px 5px rgba(50, 150, 255, 0.3);
+      border-bottom: 1px solid rgba(170, 100, 255, 0.6);
+    }
 
-        canvas {
-            display: block; /* Rimuove spazio extra sotto il canvas */
-        }
+    /* === DROPDOWN (Contenitore originale - Nessuna modifica necessaria qui) === */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
 
-        /* === NAVBAR STILIZZATA (Applica stili all'elemento originale) === */
-        .navbar {
-            /* Mantenuti: position, top, left, width, display, align-items */
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            z-index: 1000; /* Portato sopra altri elementi ma sotto menu aperto */
-            display: flex;
-            align-items: center;
-             /* Stili magici aggiunti/modificati */
-            padding: 12px 25px;
-            background: linear-gradient(180deg, rgba(15, 5, 35, 0.85) 0%, rgba(26, 10, 42, 0.75) 100%);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px); /* Per Safari */
-            box-shadow: 0 4px 20px rgba(128, 0, 255, 0.4), 0 1px 5px rgba(50, 150, 255, 0.3);
-            border-bottom: 1px solid rgba(170, 100, 255, 0.6);
-        }
+    /* === BOTTONE MENU STILIZZATO (Modifica stili esistenti .dropdown-button) === */
+    .dropdown-button {
+      /* Reset/Modifica stili precedenti */
+      padding: 0; /* Rimosso padding testo */
+      font-size: 22px; /* Dimensione icona placeholder */
+      border: 1px solid rgba(170, 100, 255, 0.7); /* Bordo luminoso */
+      /* font-family rimosso, non più testo */
+      /* Stili magici */
+      background: rgba(255, 255, 255, 0.1); /* Sfondo leggero */
+      color: #e0c0ff; /* Colore icona */
+      border-radius: 50%; /* Forma circolare */
+      width: 45px;
+      height: 45px;
+      cursor: pointer;
+      display: flex; /* Usato per centrare l'icona */
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s ease;
+      box-shadow: 0 0 10px rgba(170, 100, 255, 0.5); /* Glow iniziale */
+    }
 
-        /* === DROPDOWN (Contenitore originale) === */
-        .dropdown {
-            position: relative;
-            display: inline-block;
-        }
+    .dropdown-button:hover, .dropdown-button:focus {
+      /* Stili magici hover */
+      background: rgba(255, 255, 255, 0.2); /* Cambio sfondo */
+      box-shadow: 0 0 18px rgba(170, 100, 255, 0.8); /* Aumento glow */
+      transform: scale(1.05); /* Leggero scale */
+      outline: none; /* Rimuove outline di default su focus */
+    }
 
-        /* === BOTTONE MENU STILIZZATO (Applica stili al bottone originale) === */
-        .dropdown-button {
-            /* Reset stili precedenti */
-            padding: 0;
-            font-size: 22px; /* Dimensione icona placeholder */
-            border: 1px solid rgba(170, 100, 255, 0.7);
-            font-family: 'Roboto', sans-serif; /* Rimosso, l'icona non è testo */
-             /* Stili magici */
-            background: rgba(255, 255, 255, 0.1);
-            color: #e0c0ff; /* Colore icona */
-            border-radius: 50%;
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            display: flex; /* Usato per centrare l'icona */
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            box-shadow: 0 0 10px rgba(170, 100, 255, 0.5);
-        }
+    /* Selettore per icona dentro bottone per animazione */
+    .dropdown-button .menu-icon {
+         transition: transform 0.3s ease;
+         display: inline-block; /* Necessario per transform */
+    }
+    .dropdown-button:hover .menu-icon {
+         transform: rotate(15deg) scale(1.1); /* Rotazione/scala icona */
+    }
 
-        .dropdown-button:hover, .dropdown-button:focus {
-             /* Stili magici hover */
-            background: rgba(255, 255, 255, 0.2);
-            box-shadow: 0 0 18px rgba(170, 100, 255, 0.8);
-            transform: scale(1.05);
-            outline: none; /* Rimuove outline di default su focus */
-        }
+    /* === DROPDOWN CONTENT STILIZZATO (Modifica stili esistenti #menuContent) === */
+    /* Usiamo ID perché è nel tuo HTML originale, anche se classe sarebbe più flessibile */
+    #menuContent.dropdown-content { /* Specifica maggiore per sicurezza */
+      /* Mantenuti: display: none; position: absolute; z-index: 999 (aumentato sotto); min-width */
+      display: none;
+      position: absolute;
+      z-index: 1001; /* Sopra la navbar */
+      /* Stili Magici (Sostituiscono/Aggiungono) */
+      background-color: rgba(26, 10, 42, 0.95);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      min-width: 240px; /* Leggermente aumentato */
+      box-shadow: 0px 10px 25px 0px rgba(0,0,0,0.5);
+      border-radius: 8px; /* Aggiunto radius */
+      margin-top: 10px; /* Leggermente aumentato spazio */
+      left: 0; /* Assicura allineamento a sx */
+      border: 1px solid rgba(170, 100, 255, 0.5); /* Bordo colorato */
+      max-height: 70vh; /* Limita altezza su schermi piccoli */
+      overflow-y: auto; /* Scroll se necessario */
+    }
+    /* Scrollbar stilizzata (Opzionale ma carina) */
+    #menuContent.dropdown-content::-webkit-scrollbar { width: 5px; }
+    #menuContent.dropdown-content::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px;}
+    #menuContent.dropdown-content::-webkit-scrollbar-thumb { background: rgba(170, 100, 255, 0.6); border-radius: 10px;}
+    #menuContent.dropdown-content::-webkit-scrollbar-thumb:hover { background: rgba(170, 100, 255, 0.9); }
 
-        .dropdown-button .menu-icon { /* Classe per l'icona dentro il bottone */
-             transition: transform 0.3s ease;
-             display: inline-block; /* Necessario per transform */
-        }
+    /* Stili link interni al menu */
+    #menuContent.dropdown-content ul { list-style-type: none; }
+    #menuContent.dropdown-content ul li a {
+      /* Modifica stili link */
+      color: #e0c0ff; /* Colore testo link */
+      padding: 14px 20px; /* Padding aggiornato */
+      text-decoration: none;
+      display: block;
+      font-family: 'Roboto', sans-serif; /* Mantenuto */
+      font-weight: 400; /* Aggiunto per consistenza */
+      font-size: 0.95rem; /* Leggermente aggiustato */
+      transition: background-color 0.2s ease, color 0.2s ease;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1); /* Bordo separatore sottile */
+    }
+    #menuContent.dropdown-content ul li:last-child a { border-bottom: none; } /* Rimuove bordo da ultimo item */
+    #menuContent.dropdown-content ul li a:hover {
+        background-color: rgba(170, 100, 255, 0.2); /* Sfondo hover */
+        color: #fff; /* Colore testo hover */
+    }
+    /* Stili per messaggi (Caricamento/Errore) */
+    #menuContent.dropdown-content p {
+         padding: 15px 20px;
+         color: #aaa;
+         font-style: italic;
+    }
+    /* Stile specifico per errore */
+     #menuContent.dropdown-content p[style*="color: red"] {
+         color: #ff8080 !important; /* Rosso più brillante */
+         font-weight: bold;
+     }
 
-        .dropdown-button:hover .menu-icon {
-             transform: rotate(15deg) scale(1.1);
-        }
+    /* Classe .show originale per visualizzare */
+    #menuContent.dropdown-content.show { display: block; }
 
-        /* === DROPDOWN CONTENT STILIZZATO (Applica stili al div originale) === */
-        .dropdown-content { /* Selettore originale #menuContent modificato per coerenza */
-            /* Mantenuti: display: none; position: absolute; z-index: 999; */
-            display: none;
-            position: absolute;
-            z-index: 1001; /* Sopra la navbar */
-            /* Stili Magici */
-            background-color: rgba(26, 10, 42, 0.95);
-            backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
-            min-width: 240px;
-            box-shadow: 0px 10px 25px 0px rgba(0,0,0,0.5);
-            border-radius: 8px;
-            margin-top: 10px;
-            left: 0;
-            border: 1px solid rgba(170, 100, 255, 0.5);
-            max-height: 70vh; /* Limita altezza su schermi piccoli */
-            overflow-y: auto; /* Scroll se necessario */
-        }
-         /* Nascondi scrollbar standard, ma mantieni funzionalità */
-        .dropdown-content::-webkit-scrollbar { width: 5px; }
-        .dropdown-content::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); border-radius: 10px;}
-        .dropdown-content::-webkit-scrollbar-thumb { background: rgba(170, 100, 255, 0.6); border-radius: 10px;}
-        .dropdown-content::-webkit-scrollbar-thumb:hover { background: rgba(170, 100, 255, 0.9); }
+    /* Stili Sottomenu (Mantenuti dal tuo codice, leggermente adattati ai colori) */
+    #menuContent.dropdown-content ul li.submenu-item { position: relative; }
+    #menuContent.dropdown-content ul li.submenu-item .submenu {
+        display: none;
+        padding-left: 0; /* Rimosso padding extra */
+        background-color: rgba(15, 5, 35, 0.9); /* Sfondo sottomenu più scuro */
+        border-top: 1px solid rgba(255, 255, 255, 0.1); /* Separatore */
+     }
+    #menuContent.dropdown-content ul li.submenu-item .submenu ul li a {
+        padding: 12px 20px 12px 35px; /* Padding con indentazione */
+        font-size: 0.9em;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.08); /* Bordo più sottile */
+        color: #c0a0ff; /* Colore leggermente diverso per sottomenu */
+    }
+     #menuContent.dropdown-content ul li.submenu-item .submenu ul li:last-child a { border-bottom: none; }
+    #menuContent.dropdown-content ul li.submenu-item .submenu ul li a:hover {
+        background-color: rgba(170, 100, 255, 0.3); /* Hover sottomenu */
+        color: #fff;
+    }
+    #menuContent.dropdown-content ul li.submenu-item .submenu.open { display: block; }
 
-        .dropdown-content ul { list-style-type: none; }
-        .dropdown-content ul li a {
-            color: #e0c0ff;
-            padding: 14px 20px;
-            text-decoration: none;
-            display: block;
-            font-family: 'Roboto', sans-serif;
-            font-weight: 400;
-            font-size: 0.95rem;
-            transition: background-color 0.2s ease, color 0.2s ease;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-        }
-         .dropdown-content ul li:last-child a { border-bottom: none; }
-         .dropdown-content ul li a:hover {
-             background-color: rgba(170, 100, 255, 0.2);
-             color: #fff;
-        }
-         .dropdown-content p { /* Stile per messaggi di errore/caricamento */
-             padding: 15px 20px;
-             color: #aaa;
-             font-style: italic;
-        }
-
-        .dropdown-content.show { display: block; } /* Usa classe .show originale */
-
-        /* Stili Sottomenu (se presenti nel menu.html caricato - invariati da prima) */
-        .dropdown-content ul li.submenu-item { position: relative; }
-        .dropdown-content ul li.submenu-item .submenu { display: none; padding-left: 0; background-color: rgba(15, 5, 35, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.1); }
-        .dropdown-content ul li.submenu-item .submenu ul li a { padding: 12px 20px 12px 35px; font-size: 0.9em; border-bottom: 1px solid rgba(255, 255, 255, 0.08); }
-        .dropdown-content ul li.submenu-item .submenu ul li:last-child a { border-bottom: none; }
-        .dropdown-content ul li.submenu-item .submenu ul li a:hover { background-color: rgba(170, 100, 255, 0.3); }
-        .dropdown-content ul li.submenu-item .submenu.open { display: block; }
-        .submenu-trigger { display: flex; justify-content: space-between; align-items: center;}
-        .submenu-trigger .arrow { display: inline-block; margin-left: 10px; transition: transform 0.3s ease; font-size: 0.8em; color: #a080cc; }
-        .submenu-trigger.open .arrow { transform: rotate(180deg); }
-
-
-        /* === BOTTONE CHAT STILIZZATO (Applica stili all'elemento originale) === */
-        #goChatContainer {
-             position: fixed;
-             bottom: 25px;
-             right: 25px;
-             z-index: 1000;
-        }
-        #goChat{
-            /* Reset/Modifica stili precedenti */
-            width: 65px;
-            height: 65px;
-            border: none;
-            border-radius: 50%;
-            background: radial-gradient(circle, rgba(200, 120, 255, 1) 0%, rgba(130, 50, 255, 1) 100%); /* Rimuove immagine di sfondo */
-            box-shadow: 0 0 25px rgba(170, 100, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.4);
-            cursor:pointer;
-            /* Stili magici aggiunti */
-            display: flex; /* Per centrare icona */
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s ease;
-            animation: chatPulse 2.5s infinite ease-in-out;
-        }
-        #goChat:active{ /* Mantenuto effetto active originale */
-             transform:scale(.9);
-        }
-        #goChat:hover { /* Aggiunto stile hover magico */
-            transform: scale(1.1); /* Sovrascrive :active se hover e active coincidono */
-            box-shadow: 0 0 35px rgba(200, 150, 255, 1), 0 8px 20px rgba(0, 0, 0, 0.5);
-            animation-play-state: paused; /* Ferma pulsazione su hover */
-        }
-
-        /* Icona dentro il bottone chat */
-        #goChat .chat-icon {
-             font-size: 30px;
-             color: #fff;
-             filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
-             /* Non serve transizione qui, è sul bottone */
-        }
-
-        @keyframes chatPulse { /* Animazione pulsazione dal codice precedente */
-            0% { box-shadow: 0 0 25px rgba(170, 100, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.4); }
-            50% { box-shadow: 0 0 35px rgba(200, 150, 255, 1), 0 7px 20px rgba(0, 0, 0, 0.5); }
-            100% { box-shadow: 0 0 25px rgba(170, 100, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.4); }
-        }
-
-        /* === SFONDO DINAMICO (Rimosso CSS per slideshow, mantenuto ID per riferimento) === */
-        /* #dynamic-background-container { ... } */ /* Rimosso - Gestito da Three.js ora */
+    /* Stili trigger sottomenu (Mantenuti, adattati) */
+    .submenu-trigger { /* Assumendo che questa classe sia usata nel menu.html caricato */
+        display: flex; /* Permette di allineare testo e freccia */
+        justify-content: space-between; /* Spazio tra testo e freccia */
+        align-items: center;
+    }
+    .submenu-trigger .arrow {
+        display: inline-block;
+        margin-left: 10px; /* Spazio aumentato */
+        transition: transform 0.3s ease;
+        font-size: 0.8em;
+        color: #a080cc; /* Colore freccia */
+    }
+    .submenu-trigger.open .arrow { transform: rotate(180deg); }
 
 
-        /* === TITOLO EROE STILIZZATO (Applica stili agli elementi originali) === */
-        #hero-title-container {
-            /* Mantenuti: position, top, left, transform, text-align, z-index, padding, width, max-width */
-            position: fixed;
-            top: 50%; /* Leggermente aggiustato */
-            left: 50%;
-            transform: translate(-50%, -50%);
-            text-align: center;
-            z-index: 10; /* Sopra canvas 3D, sotto navbar/menu */
-            padding: 20px;
-            width: 90%;
-            max-width: 900px; /* Aumentato leggermente */
-             /* Stili magici aggiunti/modificati */
-            color: #ffffff; /* Già presente */
-            text-shadow: none; /* Rimosso vecchio text-shadow statico */
-            user-select: none; /* Impedisce selezione testo */
-        }
+    /* === BOTTONE CHAT STILIZZATO (Modifica stili esistenti #goChat) === */
+    #goChatContainer {
+        /* Mantenuti: position, bottom, right, z-index */
+        position: fixed;
+        bottom: 25px; /* Leggermente alzato */
+        right: 25px;
+        z-index: 1000;
+    }
+    #goChat{
+        /* Mantenuti: border-radius, cursor */
+        cursor:pointer;
+        border-radius:50%;
+        /* Stili Magici (Sostituiscono/Aggiungono) */
+        width: 65px; /* Dimensione aggiornata */
+        height: 65px;
+        border: none;
+        /* Sostituito background con gradiente */
+        background: radial-gradient(circle, rgba(200, 120, 255, 1) 0%, rgba(130, 50, 255, 1) 100%);
+        /* Aggiornato box-shadow per glow */
+        box-shadow: 0 0 25px rgba(170, 100, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.4);
+        display: flex; /* Per centrare icona */
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        animation: chatPulse 2.5s infinite ease-in-out; /* Aggiunta animazione pulse */
+    }
+    #goChat:active{
+        /* Mantenuto transform originale per click */
+        transform:scale(.9);
+    }
+    #goChat:hover { /* Aggiunto stile hover magico */
+        transform: scale(1.1); /* Sovrascrive :active se hover e active coincidono */
+        box-shadow: 0 0 35px rgba(200, 150, 255, 1), 0 8px 20px rgba(0, 0, 0, 0.5); /* Glow aumentato */
+        animation-play-state: paused; /* Ferma pulsazione su hover */
+    }
+    /* Icona dentro il bottone chat */
+    #goChat .chat-icon {
+         font-size: 30px; /* Dimensione icona */
+         color: #fff; /* Colore icona */
+         filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5)); /* Ombra icona */
+    }
+    /* Keyframes per animazione pulse */
+    @keyframes chatPulse {
+        0% { box-shadow: 0 0 25px rgba(170, 100, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.4); }
+        50% { box-shadow: 0 0 35px rgba(200, 150, 255, 1), 0 7px 20px rgba(0, 0, 0, 0.5); }
+        100% { box-shadow: 0 0 25px rgba(170, 100, 255, 0.8), 0 5px 15px rgba(0, 0, 0, 0.4); }
+    }
 
-        #hero-title-container h1 {
-             /* Stili magici */
-            font-family: 'Orbitron', sans-serif; /* Nuovo font */
-            font-size: 4rem; /* Dimensione aggiornata */
-            font-weight: 700;
-            margin-bottom: 0.5em;
-            line-height: 1.2;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: #fff;
-            animation: heroGlow 3s ease-in-out infinite alternate; /* Animazione glow */
-        }
 
-        #hero-title-container p {
-             /* Stili magici */
-            font-family: 'Roboto', sans-serif; /* Mantenuto ma assicurato */
-            font-size: 1.4rem; /* Dimensione aggiornata */
-            font-weight: 300;
-            line-height: 1.6;
-            opacity: 0.9;
-            color: #e0c0ff; /* Colore aggiornato */
-            text-shadow: 0 0 8px rgba(0, 0, 0, 0.7); /* Leggero shadow per leggibilità */
-        }
+    /* === SFONDO DINAMICO (REGOLE CSS RIMOSSE) === */
+    /* #dynamic-background-container { ... } */
+    /* .background-slide { ... } */
+    /* @keyframes kenburns { ... } */
+    /* @keyframes kenburns-alt { ... } */
+    /* Le regole CSS per lo slideshow sono state rimosse */
 
-        @keyframes heroGlow { /* Animazione glow dal codice precedente */
-             0% { text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 10px rgba(255,255,255,0.7), 0 0 15px rgba(220,180,255,0.6), 0 0 25px rgba(170,100,255,0.5), 0 0 40px rgba(170,100,255,0.4); }
-             100% { text-shadow: 0 0 8px rgba(255,255,255,1), 0 0 18px rgba(255,255,255,0.9), 0 0 30px rgba(220,180,255,0.8), 0 0 50px rgba(170,100,255,0.7), 0 0 70px rgba(170,100,255,0.6); }
-        }
 
-        /* === CONTENUTO PRINCIPALE (Invariato, ma probabilmente non visibile/usato) === */
-        .main-content {
-             position: relative;
-             z-index: 2;
-             padding-top: 70px; /* Potrebbe necessitare aggiustamento se navbar cambia altezza */
-             padding-left: 20px;
-             padding-right: 20px;
-             padding-bottom: 20px;
-             /* Potrebbe essere nascosto o rimosso se tutto è gestito dal 3D e UI fissa */
-              display: none; /* Esempio: nascondilo se non serve */
-        }
+    /* === TITOLO EROE STILIZZATO (Modifica stili esistenti #hero-title-container) === */
+    #hero-title-container {
+        /* Mantenuti: position, left, transform, text-align, color, z-index, padding, width, max-width */
+        position: fixed;
+        /* top: 48%; // Leggermente aggiustato */
+        top: 50%; /* Centrato verticalmente */
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        color: #ffffff;
+        z-index: 10; /* Sopra canvas 3D, sotto navbar/menu */
+        padding: 20px;
+        width: 90%;
+        max-width: 900px; /* Aumentato leggermente */
+        /* Stili Magici (Sostituiscono/Aggiungono) */
+        text-shadow: none; /* Rimosso vecchio text-shadow statico */
+        user-select: none; /* Impedisce selezione testo */
+    }
 
-         /* --- Pulsante Richiesta Permessi (come prima) --- */
-         #request-orientation-button {
-            position: fixed;
-            bottom: 100px; /* Posizionato sopra il pulsante chat */
-            left: 50%;
-            transform: translateX(-50%);
-            padding: 10px 20px;
-            background-color: rgba(170, 100, 255, 0.8);
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            z-index: 1001;
-            font-family: 'Roboto', sans-serif;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.4);
-            display: none; /* Mostrato solo se necessario */
-         }
-         #request-orientation-button:hover {
-             background-color: rgba(200, 150, 255, 1);
-         }
+    #hero-title-container h1 {
+        /* Mantenuti: font-weight, margin-bottom, line-height, letter-spacing, text-transform */
+        font-weight: 700;
+        margin-bottom: 0.5em; /* Leggermente aumentato */
+        line-height: 1.2; /* Leggermente aumentato */
+        letter-spacing: 2px; /* Aumentato */
+        text-transform: uppercase;
+        /* Stili Magici (Sostituiscono/Aggiungono) */
+        font-family: 'Orbitron', sans-serif; /* Nuovo font */
+        font-size: 4rem; /* Dimensione aggiornata */
+        color: #fff; /* Assicura bianco */
+        animation: heroGlow 3s ease-in-out infinite alternate; /* Animazione glow */
+    }
 
-        /* === RESPONSIVNESS (Adattata dai blocchi precedenti) === */
-        @media (max-width: 992px) {
-            #hero-title-container h1 { font-size: 3.2rem; }
-            #hero-title-container p { font-size: 1.2rem; }
-            .dropdown-button { width: 42px; height: 42px; font-size: 20px; } /* Dimensione icona */
-            #goChat { width: 60px; height: 60px; }
-            #goChat .chat-icon { font-size: 28px; }
-            .navbar { padding: 10px 20px; }
-        }
+    #hero-title-container p {
+        /* Mantenuti: font-family, font-weight, line-height, opacity */
+        font-family: 'Roboto', sans-serif;
+        font-weight: 300;
+        line-height: 1.6;
+        opacity: 0.9;
+         /* Stili Magici (Sostituiscono/Aggiungono) */
+        font-size: 1.4rem; /* Dimensione aggiornata */
+        color: #e0c0ff; /* Colore aggiornato */
+        text-shadow: 0 0 8px rgba(0, 0, 0, 0.7); /* Leggero shadow per leggibilità */
+    }
+    /* Keyframes per animazione glow */
+    @keyframes heroGlow {
+         0% { text-shadow: 0 0 5px rgba(255,255,255,0.8), 0 0 10px rgba(255,255,255,0.7), 0 0 15px rgba(220,180,255,0.6), 0 0 25px rgba(170,100,255,0.5), 0 0 40px rgba(170,100,255,0.4); }
+         100% { text-shadow: 0 0 8px rgba(255,255,255,1), 0 0 18px rgba(255,255,255,0.9), 0 0 30px rgba(220,180,255,0.8), 0 0 50px rgba(170,100,255,0.7), 0 0 70px rgba(170,100,255,0.6); }
+    }
+    /* Media query originali per H1/P adattate alle nuove dimensioni base */
+    @media (max-width: 992px) {
+        #hero-title-container h1 { font-size: 3.2rem; }
+        #hero-title-container p { font-size: 1.2rem; }
+    }
+    @media (max-width: 768px) {
+         #hero-title-container { top: 48%; } /* Sposta leggermente su */
+         #hero-title-container h1 { font-size: 2.5rem; letter-spacing: 1.5px; }
+         #hero-title-container p { font-size: 1.1rem; }
+    }
+    @media (max-width: 480px) {
+         #hero-title-container { top: 45%; } /* Ancora più su */
+         #hero-title-container h1 { font-size: 2rem; letter-spacing: 1px; }
+         #hero-title-container p { font-size: 1rem; }
+    }
 
-        @media (max-width: 768px) {
-             #hero-title-container { top: 48%; }
-             #hero-title-container h1 { font-size: 2.5rem; letter-spacing: 1.5px; }
-             #hero-title-container p { font-size: 1.1rem; }
-        }
 
-        @media (max-width: 480px) {
-             #hero-title-container { top: 45%; }
-             #hero-title-container h1 { font-size: 2rem; letter-spacing: 1px; }
-             #hero-title-container p { font-size: 1rem; }
-             .dropdown-button { width: 40px; height: 40px; font-size: 18px; }
-             #goChat { width: 55px; height: 55px; bottom: 20px; right: 20px;}
-             #goChat .chat-icon { font-size: 25px; }
-             .navbar { padding: 8px 15px; }
-             .dropdown-content { min-width: 200px; } /* Usa classe invece di ID */
-             .dropdown-content ul li a { padding: 12px 15px; font-size: 0.9rem;}
-             #request-orientation-button { bottom: 85px; padding: 8px 15px; font-size: 0.9rem; }
-        }
+    /* === CONTENUTO PRINCIPALE (Mantenuto selettore, ma probabilmente non usato/visibile) === */
+    .main-content {
+        position: relative;
+        z-index: 2;
+        padding-top: 70px; /* Potrebbe necessitare aggiustamento se navbar cambia altezza */
+        padding-left: 20px;
+        padding-right: 20px;
+        padding-bottom: 20px;
+        /* Potrebbe essere nascosto o rimosso se tutto è gestito dal 3D e UI fissa */
+        display: none; /* Esempio: nascondilo se non serve */
+    }
 
-    </style>
+     /* --- Pulsante Richiesta Permessi (NUOVO, per iOS Device Orientation) --- */
+     #request-orientation-button {
+        position: fixed;
+        bottom: 100px; /* Posizionato sopra il pulsante chat */
+        left: 50%;
+        transform: translateX(-50%);
+        padding: 10px 20px;
+        background-color: rgba(170, 100, 255, 0.8);
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        z-index: 1001; /* Sopra navbar/chat, sotto menu aperto */
+        font-family: 'Roboto', sans-serif;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.4);
+        display: none; /* Mostrato solo se necessario dal JS */
+     }
+     #request-orientation-button:hover {
+         background-color: rgba(200, 150, 255, 1);
+     }
+
+    /* === RESPONSIVNESS GENERALE (Aggiustamenti UI Magica) === */
+    @media (max-width: 992px) {
+        /* Già gestito sopra per Hero Title */
+        .dropdown-button { width: 42px; height: 42px; font-size: 20px; } /* Dimensione icona */
+        #goChat { width: 60px; height: 60px; }
+        #goChat .chat-icon { font-size: 28px; }
+        .navbar { padding: 10px 20px; }
+    }
+
+    @media (max-width: 768px) {
+        /* Già gestito sopra per Hero Title */
+    }
+
+    @media (max-width: 480px) {
+        /* Già gestito sopra per Hero Title */
+        .dropdown-button { width: 40px; height: 40px; font-size: 18px; }
+        #goChat { width: 55px; height: 55px; bottom: 20px; right: 20px;}
+        #goChat .chat-icon { font-size: 25px; }
+        .navbar { padding: 8px 15px; }
+        #menuContent.dropdown-content { min-width: 200px; }
+        #menuContent.dropdown-content ul li a { padding: 12px 15px; font-size: 0.9rem;}
+        #request-orientation-button { bottom: 85px; padding: 8px 15px; font-size: 0.9rem; }
+    }
+
+  </style>
 </head>
 <body>
 
-    <!-- Contenitore per il Canvas 3D -->
-    <div id="three-canvas-container"></div>
+  <!-- Contenitore Canvas Three.js (NUOVO) -->
+  <div id="three-canvas-container"></div>
 
-    <!-- Navbar Originale (Verrà stilizzata dal CSS sopra) -->
-    <div class="navbar">
-        <div class="dropdown">
-            <!-- Bottone Originale - Testo sostituito con icona span -->
-            <button onclick="toggleMenu()" class="dropdown-button" aria-label="Apri menu">
-                <span class="menu-icon">🪄</span> <!-- Placeholder Icona Menu -->
-            </button>
-            <!-- Contenuto Dropdown Originale (ID modificato in classe per coerenza CSS) -->
-            <div id="menuContent" class="dropdown-content">
-                <!-- Il contenuto di menu.html verrà caricato qui dallo script originale -->
-                <p style="padding: 10px; color: #555;">Caricamento menu...</p>
-            </div>
-        </div>
+  <!-- Navbar Originale (Stili modificati via CSS) -->
+  <div class="navbar">
+    <div class="dropdown">
+      <!-- Bottone Originale (Testo sostituito con icona span) -->
+      <button onclick="toggleMenu()" class="dropdown-button" aria-label="Apri menu">
+          <span class="menu-icon">🪄</span> <!-- Placeholder Icona Menu -->
+      </button>
+      <!-- Contenuto Dropdown Originale (Stili modificati via CSS) -->
+      <div id="menuContent" class="dropdown-content">
+        <!-- Il contenuto di menu.html verrà caricato qui dallo script originale -->
+        <p style="padding: 10px; color: #555;">Caricamento menu...</p>
+      </div>
     </div>
+  </div>
 
-    <!-- Contenitore Sfondo Dinamico Originale (RIMOSSO perché sostituito da #three-canvas-container) -->
-    <!-- <div id="dynamic-background-container"></div> -->
+  <!-- Contenitore Sfondo Dinamico Originale (RIMOSSO dal DOM) -->
+  <!-- <div id="dynamic-background-container"></div> -->
 
-    <!-- Titolo Hero Originale (Verrà stilizzato dal CSS sopra) -->
-    <div id="hero-title-container">
-        <h1>Team Due Mori</h1>
-        <!-- Testo Sottotitolo Aggiornato come da prompt -->
-        <p>Dove la magia incontra il gusto... dopo il caffè!</p>
-    </div>
+  <!-- Titolo Hero Originale (Testo P aggiornato, Stili modificati via CSS) -->
+  <div id="hero-title-container">
+      <h1>Team Due Mori</h1>
+      <!-- Testo Sottotitolo Aggiornato -->
+      <p>Dove la magia incontra il gusto... dopo il caffè!</p>
+  </div>
 
-    <!-- Contenuto Principale Originale (Nascosto di default nel CSS sopra) -->
-    <div class="main-content"> <!-- IL TUO CONTENUTO VA QUI! --> </div>
+  <!-- Contenuto Principale Originale (Nascosto di default nel CSS sopra) -->
+  <div class="main-content"> <!-- IL TUO CONTENUTO VA QUI! --> </div>
 
-    <!-- Bottone Chat Originale (Verrà stilizzato dal CSS sopra) -->
-    <div id="goChatContainer">
-        <a href="chat.html" aria-label="Apri chat">
-             <!-- Bottone Originale - Icona aggiunta come span interno -->
-            <button id="goChat">
-                <span class="chat-icon">💬</span> <!-- Placeholder Icona Chat -->
-            </button>
-        </a>
-    </div>
+  <!-- Bottone Chat Originale (Icona aggiunta come span interno, Stili modificati via CSS) -->
+  <div id="goChatContainer">
+      <a href="chat.html" aria-label="Apri chat">
+          <button id="goChat">
+              <span class="chat-icon">💬</span> <!-- Placeholder Icona Chat -->
+          </button>
+      </a>
+  </div>
 
-    <!-- Bottone per richiesta permessi iOS (come prima) -->
-    <button id="request-orientation-button">Abilita Controllo Inclinazione</button>
+  <!-- Bottone per richiesta permessi iOS (NUOVO) -->
+  <button id="request-orientation-button">Abilita Controllo Inclinazione</button>
 
-    <!-- == SCRIPT ORIGINALE PER MENU (con piccole correzioni/adattamenti) == -->
-    <script>
-        // Assicurati che la funzione sia globale o chiama da un listener
-        function toggleMenu() {
-            // Seleziona usando l'ID originale
-            const menuContent = document.getElementById("menuContent");
-            if (!menuContent) {
-                console.error("Elemento #menuContent non trovato!");
-                return;
+  <!-- === SCRIPT ORIGINALE (MENU + CHIUSURA ESTERNA) === -->
+  <!-- Logica per lo sfondo dinamico originale RIMOSSA -->
+  <script>
+    // --- SCRIPT PER IL MENU A TENDINA (MANTENUTO E LEGGERMENTE ADATTATO) ---
+    function toggleMenu() {
+      const menuContent = document.getElementById("menuContent");
+      if (!menuContent) return; // Sicurezza
+      const isCurrentlyShown = menuContent.classList.contains("show");
+
+      // CONDIZIONE PER IL FETCH ESATTAMENTE COME NEL TUO CODICE ORIGINALE FUNZIONANTE:
+      if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
+        fetch('menu.html') // Assicurati che menu.html sia nella stessa cartella
+          .then(response => {
+            if (!response.ok) {
+              throw new Error('Errore nel caricamento di menu.html: ' + response.status + ' ' + response.statusText);
             }
-            // Usa la classe 'show' per la visibilità come nel CSS
-            const isCurrentlyShown = menuContent.classList.contains("show");
+            return response.text();
+          })
+          .then(data => {
+            menuContent.innerHTML = data.trim() === '' ? '<p style="padding: 10px; color: #888;">Menu vuoto.</p>' : data;
+          })
+          .catch(error => {
+            // Usa stile CSS per errore (rosso)
+            menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
+            console.error('Dettagli errore fetch menu.html:', error);
+          });
+      }
 
-            // Logica FETCH originale mantenuta
-            if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
-                fetch('menu.html') // Assicurati che menu.html sia nella stessa cartella
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error('Errore nel caricamento di menu.html: ' + response.status + ' ' + response.statusText);
+      menuContent.classList.toggle("show"); // Mostra o nascondi il menu
+
+      // Chiudi sottomenu aperti se il menu principale si chiude
+      if (!menuContent.classList.contains("show")) {
+        closeAllSubmenus(menuContent);
+      }
+    }
+
+    // Funzione per mostrare/nascondere i sottomenu (Globale per essere chiamata da HTML caricato)
+    window.toggleSubmenu = function(event, triggerElement) {
+      event.preventDefault();
+      event.stopPropagation();
+      const submenu = triggerElement.nextElementSibling;
+      if (submenu && submenu.classList.contains('submenu')) {
+        const wasOpen = submenu.classList.contains('open');
+        // Chiudi tutti gli altri sottomenu allo stesso livello prima di aprirne uno nuovo
+        const parentLi = triggerElement.closest('.submenu-item');
+        if (parentLi && parentLi.parentElement) {
+            const siblings = parentLi.parentElement.querySelectorAll(':scope > .submenu-item');
+            siblings.forEach(sib => {
+                if (sib !== parentLi) {
+                    const otherSubmenu = sib.querySelector(':scope > .submenu');
+                    const otherTrigger = sib.querySelector(':scope > .submenu-trigger');
+                    if (otherSubmenu && otherSubmenu.classList.contains('open')) {
+                        otherSubmenu.classList.remove('open');
                     }
-                    return response.text();
-                })
-                .then(data => {
-                    if (data.trim() === '') {
-                        menuContent.innerHTML = '<p style="padding: 10px; color: #888;">Menu vuoto.</p>';
-                    } else {
-                        menuContent.innerHTML = data; // Inserisci l'HTML caricato nel div
+                     if (otherTrigger && otherTrigger.classList.contains('open')) {
+                        otherTrigger.classList.remove('open');
                     }
-                })
-                .catch(error => {
-                    // Messaggio di errore stilizzato nel CSS
-                    menuContent.innerHTML = '<p style="color: #ff8080;">Errore caricamento menu.</p>';
-                    console.error('Dettagli errore fetch menu.html:', error);
-                });
-            }
-
-            menuContent.classList.toggle("show"); // Mostra o nascondi il menu
-
-            // Chiudi sottomenu aperti se il menu principale si chiude
-            if (!menuContent.classList.contains("show")) {
-                closeAllSubmenus(menuContent); // Usa la funzione helper definita sotto
-            }
-        }
-
-        // Funzione per mostrare/nascondere i sottomenu (chiamata da onclick nel menu.html)
-        // Assicurati che sia globale se chiamata direttamente da HTML caricato
-        window.toggleSubmenu = function(event, triggerElement) {
-            event.preventDefault();
-            event.stopPropagation(); // Impedisce la chiusura del menu principale
-            const submenu = triggerElement.nextElementSibling;
-            if (submenu && submenu.classList.contains('submenu')) {
-                const wasOpen = submenu.classList.contains('open');
-                // Chiudi altri sottomenu allo stesso livello
-                const parentUl = triggerElement.closest('ul');
-                if (parentUl) {
-                   const allTriggers = parentUl.querySelectorAll(':scope > .submenu-item > .submenu-trigger'); // Più specifico
-                   allTriggers.forEach(trig => {
-                       if (trig !== triggerElement) {
-                            const sub = trig.nextElementSibling;
-                            if (sub && sub.classList.contains('submenu')) {
-                                sub.classList.remove('open');
-                                trig.classList.remove('open');
-                            }
-                       }
-                   });
                 }
-                 // Apri/chiudi quello cliccato
-                 submenu.classList.toggle('open', !wasOpen);
-                 triggerElement.classList.toggle('open', !wasOpen);
-            }
+            });
         }
+        // Apri/chiudi quello cliccato
+        submenu.classList.toggle('open', !wasOpen);
+        triggerElement.classList.toggle('open', !wasOpen);
+      }
+    }
 
-         // Funzione helper per chiudere tutti i sottomenu
-         function closeAllSubmenus(menuContainer) {
-             const openSubmenus = menuContainer.querySelectorAll('.submenu.open');
-             openSubmenus.forEach(submenu => {
-                 submenu.classList.remove('open');
-                 const trigger = submenu.previousElementSibling;
-                 if (trigger && trigger.classList.contains('submenu-trigger')) {
-                     trigger.classList.remove('open');
-                 }
-             });
-         }
-
-        // Chiudi il menu principale (e i sottomenu) se l'utente clicca fuori da esso (Logica Originale adattata)
-        window.addEventListener('click', function(event) {
-            const menuContent = document.getElementById("menuContent");
-            // Usa il selettore corretto per il bottone menu
-            const dropdownButton = document.querySelector('.dropdown-button');
-
-            // Controlla se esistono e se il click è FUORI da entrambi
-            if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
-                if (menuContent.classList.contains("show")) {
-                    menuContent.classList.remove('show');
-                    closeAllSubmenus(menuContent); // Chiudi anche i sottomenu
-                }
-            }
-        });
-
-        // --- SCRIPT SFONDO DINAMICO ORIGINALE (RIMOSSO) ---
-        // Lo script che gestiva #dynamic-background-container e le classi .background-slide è stato rimosso.
-
-    </script>
-
-    <!-- == SCRIPT THREE.JS E INTERATTIVITÀ (Aggiunto) == -->
-    <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
-            }
-        }
-    </script>
-
-    <script type="module">
-        import * as THREE from 'three';
-        // Non sono necessari controlli specifici qui, ma potrebbero servire in futuro
-        // import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-
-        // Variabili globali per la scena 3D (stesse del codice precedente)
-        let scene, camera, renderer, clock;
-        let spaceBackgroundSphere;
-        let floatingEmojis = [];
-        let particles;
-        let geometricShapes = [];
-        let mouseX = 0, mouseY = 0;
-        let targetRotationX = 0, targetRotationY = 0;
-        let windowHalfX = window.innerWidth / 2;
-        let windowHalfY = window.innerHeight / 2;
-        let deviceOrientationAvailable = false;
-        let deviceOrientationPermissionGranted = false;
-        let permissionButton = document.getElementById('request-orientation-button');
-
-        // Lista Emoji (come prima, assicurati che i file PNG esistano)
-        const emojiTextures = {};
-        const emojiList = [
-            'spaghetti.png', 'steak.png', 'sushi.png', 'salad.png', 'soup.png',
-            'broccoli.png', 'carrot.png', 'tomato.png', 'mushroom.png',
-            'chef-male.png', 'chef-female.png',
-            'plate.png', 'wine-glass.png', 'champagne-glass.png', 'salt-shaker.png'
-        ];
-        // Immagine base per lo sfondo 3D (scegli una delle tue)
-        const backgroundTextureBase = 'home.PNG'; // O 'home1.PNG', etc.
-
-        // --- Funzioni Three.js (Identiche alla versione precedente) ---
-        // initThreeJS, createFloatingEmojis, createParticles, createGeometricShapes,
-        // onWindowResize, onDocumentMouseMove, setupDeviceOrientation,
-        // requestOrientationPermission, onDeviceOrientation, animate
-
-        function initThreeJS() {
-            scene = new THREE.Scene();
-            clock = new THREE.Clock();
-
-            // Camera
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
-            camera.position.z = 50;
-
-            // Renderer
-            const container = document.getElementById('three-canvas-container');
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); // alpha: true per vedere il body background se necessario (ma coperto da nebbia/sfera)
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-            container.appendChild(renderer.domElement);
-
-            // Luci
-            const ambientLight = new THREE.AmbientLight(0x401060, 1.5);
-            scene.add(ambientLight);
-            const pointLight1 = new THREE.PointLight(0xaa64ff, 2, 800, 1);
-            pointLight1.position.set(100, 200, 150);
-            scene.add(pointLight1);
-            const pointLight2 = new THREE.PointLight(0xffa07a, 1.5, 600, 1);
-            pointLight2.position.set(-150, -100, -100);
-            scene.add(pointLight2);
-
-             // Nebbia Cosmica
-             scene.fog = new THREE.FogExp2(0x0A0514, 0.0018);
-
-            // Caricamento Texture e Creazione Elementi
-            const textureLoader = new THREE.TextureLoader();
-
-            // 1. Sfondo Universo (Basato sull'immagine specificata)
-            textureLoader.load(
-                backgroundTextureBase, // Usa l'immagine scelta
-                (texture) => {
-                    texture.wrapS = THREE.RepeatWrapping;
-                    texture.wrapT = THREE.RepeatWrapping;
-                    texture.repeat.set(1, 1);
-                    texture.colorSpace = THREE.SRGBColorSpace;
-
-                    const backgroundMaterial = new THREE.MeshBasicMaterial({
-                        map: texture,
-                        side: THREE.BackSide,
-                        fog: false, // Lo sfondo non è affetto dalla nebbia
-                    });
-                    // Applica tinta/modifica base
-                    backgroundMaterial.color.setRGB(0.8, 0.7, 1.0); // Tinta viola/blu chiaro
-
-                    const backgroundGeometry = new THREE.SphereGeometry(1000, 64, 32);
-                    spaceBackgroundSphere = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-                    scene.add(spaceBackgroundSphere);
-                },
-                undefined,
-                (error) => {
-                    console.error(`Errore nel caricamento della texture di sfondo (${backgroundTextureBase}):`, error);
-                    scene.background = new THREE.Color(0x0a0514); // Fallback colore solido
-                }
-            );
-
-            // 2. Caricamento Texture Emoji (asincrono)
-            let texturesLoadedCount = 0;
-            const totalTextures = emojiList.length; // Numero totale di texture da caricare
-            if (totalTextures === 0) {
-                 console.warn("Nessun emoji specificato nella lista emojiList.");
-                 // Potresti voler chiamare createFloatingEmojis() qui se non ci sono texture da caricare
-                 // o gestire diversamente. Per ora, createFloatingEmojis sarà chiamato sotto
-                 // ma non creerà nulla se emojiTextures è vuoto.
-            } else {
-                emojiList.forEach(emojiFile => {
-                    textureLoader.load(
-                        emojiFile,
-                        (texture) => {
-                            texture.colorSpace = THREE.SRGBColorSpace;
-                            emojiTextures[emojiFile] = texture;
-                            texturesLoadedCount++;
-                            if (texturesLoadedCount === totalTextures) {
-                                console.log("Tutte le texture emoji caricate.");
-                                createFloatingEmojis(); // Chiamato solo al completamento
-                            }
-                        },
-                        undefined,
-                        (error) => {
-                            console.warn(`Errore caricamento texture emoji: ${emojiFile}`, error);
-                            texturesLoadedCount++; // Incrementa anche in caso di errore
-                            if (texturesLoadedCount === totalTextures) {
-                                console.log("Caricamento texture emoji completato (con errori).");
-                                createFloatingEmojis(); // Chiamato anche se ci sono errori
-                            }
-                        }
-                    );
-                });
-            }
-            // Se non ci sono emoji, chiamiamo comunque createFloatingEmojis
-             if (totalTextures === 0) {
-                createFloatingEmojis();
+    // Funzione helper per chiudere tutti i sottomenu (richiamata da toggleMenu e click esterno)
+    function closeAllSubmenus(menuContainer) {
+         const openSubmenus = menuContainer.querySelectorAll('.submenu.open');
+         openSubmenus.forEach(submenu => {
+             submenu.classList.remove('open');
+             // Trova il trigger corrispondente (potrebbe non essere l'elemento precedente diretto se la struttura cambia)
+             const trigger = submenu.closest('.submenu-item')?.querySelector('.submenu-trigger');
+             if (trigger && trigger.classList.contains('open')) {
+                 trigger.classList.remove('open');
              }
+         });
+    }
 
-            // 3. Particelle Scintillanti
-            createParticles();
 
-            // 4. Forme Geometriche Astratte
-            createGeometricShapes();
-
-            // Aggiungi Listener Eventi
-            window.addEventListener('resize', onWindowResize);
-            document.addEventListener('mousemove', onDocumentMouseMove);
-
-            // Gestione Device Orientation (con richiesta permessi)
-            setupDeviceOrientation();
-
-            // Inizia Loop di Animazione
-            animate();
+    // Chiudi il menu principale (e i sottomenu) se l'utente clicca fuori da esso (Logica Originale Mantenuta)
+    window.onclick = function(event) {
+      const menuContent = document.getElementById("menuContent");
+      const dropdownButton = document.querySelector('.dropdown-button'); // Selettore corretto
+      // Aggiunto controllo per assicurarsi che esistano prima di accedere a .contains
+      if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) {
+        if (menuContent.classList.contains("show")) {
+          menuContent.classList.remove('show');
+          closeAllSubmenus(menuContent); // Chiudi anche i sottomenu
         }
+      }
+    }
 
-        function createFloatingEmojis() {
-             const emojiGeometry = new THREE.PlaneGeometry(8, 8);
-             const spawnRadius = 150;
-             const minSpawnDist = 40;
-             const numEmojis = 30; // Numero di emoji da creare
+    // --- SCRIPT PER SFONDO DINAMICO ORIGINALE (RIMOSSO) ---
+    // La parte document.addEventListener('DOMContentLoaded', ...) che gestiva lo slideshow è stata eliminata.
 
-             console.log(`Tentativo creazione di ${numEmojis} emoji 3D...`);
-             let createdCount = 0;
+  </script>
 
-             // Se non ci sono texture caricate, esci
-              if (Object.keys(emojiTextures).length === 0 && emojiList.length > 0) {
-                  console.warn("Nessuna texture emoji caricata con successo, impossibile creare emoji.");
-                  return;
+  <!-- === SCRIPT THREE.JS E INTERATTIVITÀ (NUOVO) === -->
+  <script type="importmap">
+      {
+          "imports": {
+              "three": "https://unpkg.com/three@0.162.0/build/three.module.js",
+              "three/addons/": "https://unpkg.com/three@0.162.0/examples/jsm/"
+          }
+      }
+  </script>
+
+  <script type="module">
+      import * as THREE from 'three';
+      // Non importiamo OrbitControls perché non le usiamo attivamente qui
+
+      // --- Variabili Globali Scena 3D ---
+      let scene, camera, renderer, clock;
+      let spaceBackgroundSphere;
+      let floatingEmojis = [];
+      let particles;
+      let geometricShapes = [];
+      let mouseX = 0, mouseY = 0;
+      let targetRotationX = 0, targetRotationY = 0;
+      let windowHalfX = window.innerWidth / 2;
+      let windowHalfY = window.innerHeight / 2;
+      let deviceOrientationAvailable = false;
+      let deviceOrientationPermissionGranted = false;
+      let permissionButton = document.getElementById('request-orientation-button');
+
+      // --- Configurazioni ---
+      const emojiTextures = {}; // Oggetto per tenere le texture caricate
+      // Lista dei file PNG degli emoji (assicurati che esistano nella cartella!)
+      const emojiList = [
+          'spaghetti.png', 'steak.png', 'sushi.png', 'salad.png', 'soup.png',
+          'broccoli.png', 'carrot.png', 'tomato.png', 'mushroom.png',
+          'chef-male.png', 'chef-female.png',
+          'plate.png', 'wine-glass.png', 'champagne-glass.png', 'salt-shaker.png'
+      ];
+      // Immagine base per lo sfondo 3D (scegli una delle tue immagini originali)
+      const backgroundTextureBase = 'home.PNG'; // Cambia se necessario
+
+      // --- Inizializzazione Three.js ---
+      function initThreeJS() {
+          scene = new THREE.Scene();
+          clock = new THREE.Clock();
+
+          // Camera
+          camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 2000);
+          camera.position.z = 50; // Posizione iniziale camera
+
+          // Renderer
+          const container = document.getElementById('three-canvas-container');
+          if (!container) {
+              console.error("Elemento #three-canvas-container non trovato!");
+              return;
+          }
+          renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+          container.appendChild(renderer.domElement);
+
+          // Luci
+          const ambientLight = new THREE.AmbientLight(0x401060, 1.5); // Viola scuro ambientale
+          scene.add(ambientLight);
+          const pointLight1 = new THREE.PointLight(0xaa64ff, 2, 800, 1); // Viola luminoso
+          pointLight1.position.set(100, 200, 150);
+          scene.add(pointLight1);
+          const pointLight2 = new THREE.PointLight(0xffa07a, 1.5, 600, 1); // Pesca/Arancio
+          pointLight2.position.set(-150, -100, -100);
+          scene.add(pointLight2);
+
+           // Nebbia Cosmica
+           scene.fog = new THREE.FogExp2(0x0A0514, 0.0018); // Colore scuro, densità
+
+          // Caricamento Texture e Creazione Elementi
+          const textureLoader = new THREE.TextureLoader();
+
+          // 1. Sfondo Universo (Sfera Invertita basata su tua immagine)
+          textureLoader.load(
+              backgroundTextureBase,
+              (texture) => {
+                  texture.wrapS = THREE.RepeatWrapping;
+                  texture.wrapT = THREE.RepeatWrapping;
+                  texture.repeat.set(1, 1);
+                  texture.colorSpace = THREE.SRGBColorSpace; // Correzione colore
+
+                  const backgroundMaterial = new THREE.MeshBasicMaterial({
+                      map: texture,
+                      side: THREE.BackSide, // Mostra interno
+                      fog: false, // Sfondo non affetto da nebbia
+                  });
+                  // Applica tinta/modifica creativa base
+                  backgroundMaterial.color.setRGB(0.8, 0.7, 1.0); // Tinta viola/blu chiaro
+
+                  const backgroundGeometry = new THREE.SphereGeometry(1000, 64, 32); // Sfera grande
+                  spaceBackgroundSphere = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+                  scene.add(spaceBackgroundSphere);
+              },
+              undefined, // Progress callback (non usato)
+              (error) => {
+                  console.error(`Errore caricamento texture di sfondo (${backgroundTextureBase}):`, error);
+                  scene.background = new THREE.Color(0x0a0514); // Fallback colore solido
               }
-               if (emojiList.length === 0) {
-                   console.log("Lista emoji vuota, nessun emoji da creare.");
-                   return;
+          );
+
+          // 2. Caricamento Texture Emoji (asincrono)
+          let texturesLoadedCount = 0;
+          const totalTextures = emojiList.length;
+          if (totalTextures > 0) {
+              emojiList.forEach(emojiFile => {
+                  textureLoader.load(
+                      emojiFile,
+                      (texture) => {
+                          texture.colorSpace = THREE.SRGBColorSpace;
+                          emojiTextures[emojiFile] = texture; // Salva texture nell'oggetto
+                          texturesLoadedCount++;
+                          if (texturesLoadedCount === totalTextures) {
+                              console.log("Tutte le texture emoji caricate.");
+                              createFloatingEmojis(); // Crea emoji solo quando tutte sono caricate
+                          }
+                      },
+                      undefined,
+                      (error) => {
+                          console.warn(`Errore caricamento texture emoji: ${emojiFile}`, error);
+                          texturesLoadedCount++; // Incrementa anche in caso di errore per non bloccare
+                          if (texturesLoadedCount === totalTextures) {
+                              console.warn("Caricamento texture emoji completato (con alcuni errori).");
+                              createFloatingEmojis(); // Crea comunque gli emoji con le texture disponibili
+                          }
+                      }
+                  );
+              });
+          } else {
+              console.log("Nessun emoji nella lista, non verranno caricati/creati.");
+              createFloatingEmojis(); // Chiama comunque per consistenza (non farà nulla)
+          }
+
+          // 3. Particelle Scintillanti
+          createParticles();
+
+          // 4. Forme Geometriche Astratte
+          createGeometricShapes();
+
+          // --- Aggiungi Listener Eventi ---
+          window.addEventListener('resize', onWindowResize);
+          document.addEventListener('mousemove', onDocumentMouseMove);
+
+          // Gestione Device Orientation (con richiesta permessi)
+          setupDeviceOrientation();
+
+          // --- Inizia Loop di Animazione ---
+          animate();
+      }
+
+      // --- Funzione Creazione Emoji Fluttuanti ---
+      function createFloatingEmojis() {
+           const numEmojis = 30; // Numero di emoji da creare
+           const spawnRadius = 150;
+           const minSpawnDist = 40;
+
+           console.log(`Tentativo creazione di ${numEmojis} emoji 3D...`);
+           let createdCount = 0;
+
+           // Se non ci sono texture valide caricate, esci
+           const availableTextures = Object.keys(emojiTextures);
+           if (availableTextures.length === 0) {
+                if (emojiList.length > 0) console.warn("Nessuna texture emoji valida caricata, impossibile creare emoji.");
+                else console.log("Lista emoji vuota, nessun emoji da creare.");
+                return;
+           }
+
+           for (let i = 0; i < numEmojis; i++) {
+               // Scegli una texture casuale TRA QUELLE CARICATE con successo
+               const randomTextureKey = availableTextures[Math.floor(Math.random() * availableTextures.length)];
+               const texture = emojiTextures[randomTextureKey];
+
+              // Usa SpriteMaterial per billboard effect
+              const material = new THREE.SpriteMaterial({
+                  map: texture,
+                  transparent: true,
+                  alphaTest: 0.1, // Aiuta con bordi PNG
+                  depthWrite: false, // Per blending
+                  fog: true, // Influenzato da nebbia
+                  sizeAttenuation: true // Scala con distanza
+                  // blending: THREE.AdditiveBlending // Prova per effetto più luminoso
+              });
+
+              const emojiSprite = new THREE.Sprite(material);
+
+              // Posizione casuale sferica (non troppo vicina al centro)
+              let x, y, z, distance;
+              do {
+                  x = (Math.random() - 0.5) * 2 * spawnRadius;
+                  y = (Math.random() - 0.5) * 2 * spawnRadius;
+                  z = (Math.random() - 0.5) * 2 * spawnRadius;
+                  distance = Math.sqrt(x*x + y*y + z*z);
+              } while (distance < minSpawnDist || distance > spawnRadius);
+
+              emojiSprite.position.set(x, y, z);
+              emojiSprite.scale.set(8, 8, 8); // Dimensione sprite
+
+              // Dati custom per animazione
+               emojiSprite.userData = {
+                   initialY: y,
+                   driftSpeed: (Math.random() - 0.5) * 0.4, // Velocità deriva verticale (positiva o negativa)
+                   // rotationSpeed non ha effetto visibile sugli Sprite
+               };
+
+              scene.add(emojiSprite);
+              floatingEmojis.push(emojiSprite);
+              createdCount++;
+          }
+           console.log(`${createdCount} emoji creati con successo.`);
+      }
+
+      // --- Funzione Creazione Particelle ---
+      function createParticles() {
+          const particleCount = 8000;
+          const positions = new Float32Array(particleCount * 3);
+          const colors = new Float32Array(particleCount * 3);
+          const spawnRange = 500; // Ampiezza distribuzione
+
+          const baseColor1 = new THREE.Color(0x6a0dad); // Viola
+          const baseColor2 = new THREE.Color(0x4169e1); // Blu Royal
+          const baseColor3 = new THREE.Color(0xff00ff); // Magenta
+
+          for (let i = 0; i < particleCount; i++) {
+              const i3 = i * 3;
+
+              // Posizione
+              positions[i3] = (Math.random() - 0.5) * spawnRange * 2;
+              positions[i3 + 1] = (Math.random() - 0.5) * spawnRange * 2;
+              positions[i3 + 2] = (Math.random() - 0.5) * spawnRange * 2;
+
+              // Colore casuale tra i 3 base con variazione luminosità
+               const randomChoice = Math.random();
+               let targetColor = (randomChoice < 0.33) ? baseColor1 : (randomChoice < 0.66 ? baseColor2 : baseColor3);
+               const color = new THREE.Color(targetColor);
+               color.multiplyScalar(Math.random() * 0.5 + 0.7); // Variazione luminosità
+
+              colors[i3] = color.r;
+              colors[i3 + 1] = color.g;
+              colors[i3 + 2] = color.b;
+          }
+
+          const particleGeometry = new THREE.BufferGeometry();
+          particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+          particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
+
+          const particleMaterial = new THREE.PointsMaterial({
+              size: 0.8, // Dimensione particella
+              vertexColors: true, // Usa colori da attributo
+              blending: THREE.AdditiveBlending, // Effetto luminoso
+              transparent: true,
+              depthWrite: false, // Importante per blending additivo
+              fog: true, // Influenzato da nebbia
+              sizeAttenuation: true // Scala con distanza
+          });
+
+          particles = new THREE.Points(particleGeometry, particleMaterial);
+          scene.add(particles);
+      }
+
+      // --- Funzione Creazione Forme Geometriche ---
+      function createGeometricShapes() {
+           const shapeCount = 25;
+           const geometries = [
+               new THREE.TetrahedronGeometry(5, 0),
+               new THREE.OctahedronGeometry(6, 0),
+               new THREE.IcosahedronGeometry(7, 0),
+               new THREE.TorusKnotGeometry(4, 1, 100, 12, 2, 3) // Nodo più complesso
+           ];
+           const spawnRadius = 180;
+           const minSpawnDist = 50;
+
+           for (let i = 0; i < shapeCount; i++) {
+               const geometry = geometries[Math.floor(Math.random() * geometries.length)];
+               let material;
+
+               // Materiale casuale: 60% Solido Riflettente, 40% Wireframe Luminoso
+               if (Math.random() > 0.4) {
+                   material = new THREE.MeshStandardMaterial({
+                       color: new THREE.Color(Math.random() * 0x888888 + 0x444444), // Colori metallici scuri/medi
+                       metalness: Math.random() * 0.5 + 0.5,
+                       roughness: Math.random() * 0.4 + 0.1,
+                       fog: true
+                   });
+               } else {
+                   material = new THREE.MeshBasicMaterial({
+                       color: new THREE.Color(Math.random() * 0x8040ff + 0x8040ff), // Viola/Blu/Magenta luminosi
+                       wireframe: true,
+                       transparent: true,
+                       opacity: 0.6,
+                       blending: THREE.AdditiveBlending,
+                       depthWrite: false,
+                       fog: true
+                   });
                }
 
+               const mesh = new THREE.Mesh(geometry, material);
 
-             for (let i = 0; i < numEmojis; i++) {
-                 const randomEmojiFile = emojiList[Math.floor(Math.random() * emojiList.length)];
-                 const texture = emojiTextures[randomEmojiFile];
+               // Posizione casuale
+              let x, y, z, distance;
+              do {
+                  x = (Math.random() - 0.5) * 2 * spawnRadius;
+                  y = (Math.random() - 0.5) * 2 * spawnRadius;
+                  z = (Math.random() - 0.5) * 2 * spawnRadius;
+                  distance = Math.sqrt(x*x + y*y + z*z);
+              } while (distance < minSpawnDist || distance > spawnRadius);
+              mesh.position.set(x, y, z);
 
-                 if (!texture) {
-                     // Questo non dovrebbe accadere se aspettiamo il caricamento, ma è una sicurezza
-                     // console.warn(`Texture non trovata per ${randomEmojiFile} durante la creazione, saltando.`);
-                     continue;
-                 }
+              // Rotazione iniziale e velocità di rotazione casuali
+               mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
+               mesh.userData = {
+                   rotationSpeed: new THREE.Vector3(
+                       (Math.random() - 0.5) * 0.01,
+                       (Math.random() - 0.5) * 0.01,
+                       (Math.random() - 0.5) * 0.01
+                   )
+               };
+               scene.add(mesh);
+               geometricShapes.push(mesh);
+           }
+       }
 
-                const material = new THREE.SpriteMaterial({
-                    map: texture,
-                    transparent: true,
-                    alphaTest: 0.1,
-                    depthWrite: false,
-                    fog: true,
-                    sizeAttenuation: true,
-                    blending: THREE.NormalBlending
-                });
+      // --- Handler Ridimensionamento Finestra ---
+      function onWindowResize() {
+          windowHalfX = window.innerWidth / 2;
+          windowHalfY = window.innerHeight / 2;
+          camera.aspect = window.innerWidth / window.innerHeight;
+          camera.updateProjectionMatrix();
+          renderer.setSize(window.innerWidth, window.innerHeight);
+          renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+      }
 
-                const emojiSprite = new THREE.Sprite(material);
+      // --- Handler Movimento Mouse ---
+      function onDocumentMouseMove(event) {
+          // Aggiorna solo se l'orientamento del dispositivo non è attivo/disponibile
+          if (!deviceOrientationAvailable || !deviceOrientationPermissionGranted) {
+              mouseX = (event.clientX - windowHalfX) * 0.1; // Scala l'effetto
+              mouseY = (event.clientY - windowHalfY) * 0.1;
+          }
+      }
 
-                let x, y, z, distance;
-                do {
-                    x = (Math.random() - 0.5) * 2 * spawnRadius;
-                    y = (Math.random() - 0.5) * 2 * spawnRadius;
-                    z = (Math.random() - 0.5) * 2 * spawnRadius;
-                    distance = Math.sqrt(x*x + y*y + z*z);
-                } while (distance < minSpawnDist || distance > spawnRadius);
+       // --- Setup Device Orientation (con richiesta permessi iOS) ---
+      function setupDeviceOrientation() {
+          // Controlla se l'API per richiedere il permesso esiste (iOS 13+)
+          if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
+               permissionButton.style.display = 'block'; // Mostra bottone
+               permissionButton.onclick = requestOrientationPermission; // Assegna handler al click
+          } else {
+               // Se non serve permesso (Android, iOS < 13, Desktop), prova ad aggiungere listener direttamente
+               // Potrebbe non funzionare ovunque o non fornire dati
+               window.addEventListener('deviceorientation', onDeviceOrientation, true);
+               // Assumiamo sia disponibile finché non riceviamo un evento senza dati
+               deviceOrientationAvailable = true;
+               deviceOrientationPermissionGranted = true; // Non serve permesso esplicito
+               console.log("DeviceOrientation: Permesso non richiesto esplicitamente o API non supportata per richiederlo.");
+          }
+      }
 
+      // --- Richiesta Permesso Orientamento (iOS 13+) ---
+      function requestOrientationPermission() {
+          DeviceOrientationEvent.requestPermission()
+              .then(permissionState => {
+                  if (permissionState === 'granted') {
+                      window.addEventListener('deviceorientation', onDeviceOrientation, true);
+                      deviceOrientationAvailable = true;
+                      deviceOrientationPermissionGranted = true;
+                      permissionButton.style.display = 'none'; // Nascondi bottone
+                      console.log("DeviceOrientation: Permesso concesso.");
+                  } else {
+                       deviceOrientationAvailable = false; // Permesso negato esplicitamente
+                       deviceOrientationPermissionGranted = false;
+                       permissionButton.style.display = 'none'; // Nascondi comunque
+                       console.warn("DeviceOrientation: Permesso negato.");
+                  }
+              })
+              .catch(error => {
+                   deviceOrientationAvailable = false;
+                   deviceOrientationPermissionGranted = false;
+                   permissionButton.style.display = 'none';
+                   console.error("DeviceOrientation: Errore richiesta permesso:", error);
+              });
+      }
 
-                emojiSprite.position.set(x, y, z);
-                emojiSprite.scale.set(8, 8, 8);
+      // --- Handler Device Orientation ---
+      function onDeviceOrientation(event) {
+           // Controlla se gamma e beta sono null o undefined, indica sensore non utilizzabile o dati incompleti
+          if (event.gamma == null || event.beta == null) {
+               // console.warn("DeviceOrientation: Dati gamma/beta null/undefined ricevuti.");
+               // Non impostare available = false, altrimenti l'event listener viene perso se il permesso era stato dato
+               // Semplicemente non aggiornare targetRotation
+               return;
+          }
 
-                 emojiSprite.userData = {
-                     initialY: y,
-                     driftSpeed: Math.random() * 0.3 + 0.1,
-                     rotationSpeed: (Math.random() - 0.5) * 0.005
-                 };
+           // Se arriviamo qui con dati validi, i sensori funzionano
+           deviceOrientationAvailable = true;
+           deviceOrientationPermissionGranted = true; // Se riceviamo dati, il permesso è implicitamente ok o è stato concesso
 
-                scene.add(emojiSprite);
-                floatingEmojis.push(emojiSprite);
-                createdCount++;
-            }
-             console.log(`${createdCount} emoji creati con successo.`);
-        }
+          // Mappa inclinazione a rotazione camera (sottile)
+          const tiltX = THREE.MathUtils.clamp(event.beta, -90, 90); // Fronte-Retro
+          const tiltY = THREE.MathUtils.clamp(event.gamma, -90, 90); // Sinistra-Destra
+          const scaleFactor = 0.005; // Fattore di sensibilità
+          targetRotationX = THREE.MathUtils.degToRad(tiltX) * scaleFactor * 3; // Effetto verticale
+          targetRotationY = THREE.MathUtils.degToRad(tiltY) * scaleFactor * 5; // Effetto orizzontale
 
-        function createParticles() {
-            const particleCount = 8000;
-            const positions = new Float32Array(particleCount * 3);
-            const colors = new Float32Array(particleCount * 3);
-            const spawnRange = 500;
+          // Resetta valori mouse se l'orientamento è attivo per evitare conflitti
+           mouseX = 0;
+           mouseY = 0;
+      }
 
-            const baseColor1 = new THREE.Color(0x6a0dad); // Viola
-            const baseColor2 = new THREE.Color(0x4169e1); // Blu Royal
-            const baseColor3 = new THREE.Color(0xff00ff); // Magenta
+      // --- Loop di Animazione Principale ---
+      function animate() {
+          requestAnimationFrame(animate); // Richiede il prossimo frame
+          const delta = clock.getDelta(); // Tempo trascorso dall'ultimo frame
+          const elapsedTime = clock.getElapsedTime(); // Tempo totale trascorso
 
-            for (let i = 0; i < particleCount; i++) {
-                const i3 = i * 3;
-                positions[i3] = (Math.random() - 0.5) * spawnRange * 2;
-                positions[i3 + 1] = (Math.random() - 0.5) * spawnRange * 2;
-                positions[i3 + 2] = (Math.random() - 0.5) * spawnRange * 2;
+          // 1. Animazione Elementi Fluttuanti
+          floatingEmojis.forEach(emoji => {
+               // Movimento verticale oscillante + deriva
+               emoji.position.y = emoji.userData.initialY + Math.sin(elapsedTime * 0.5 + emoji.position.x * 0.1) * 5;
+               emoji.position.y += emoji.userData.driftSpeed * delta * 10; // Deriva (velocità * tempo)
+               // Loop verticale (se esce troppo, riappare dall'altra parte)
+               if (emoji.position.y > 200) {
+                   emoji.position.y = -200;
+                   emoji.userData.initialY = -200; // Resetta posizione base Y
+                   emoji.position.x = (Math.random() - 0.5) * 300; // Riposiziona orizzontalmente
+                   emoji.position.z = (Math.random() - 0.5) * 300;
+               } else if (emoji.position.y < -200) {
+                   emoji.position.y = 200;
+                   emoji.userData.initialY = 200;
+                   emoji.position.x = (Math.random() - 0.5) * 300;
+                   emoji.position.z = (Math.random() - 0.5) * 300;
+               }
+          });
 
-                 const randomChoice = Math.random();
-                 let targetColor = (randomChoice < 0.33) ? baseColor1 : (randomChoice < 0.66 ? baseColor2 : baseColor3);
-                 const color = new THREE.Color(targetColor);
-                 color.multiplyScalar(Math.random() * 0.5 + 0.7);
+          geometricShapes.forEach(shape => {
+               // Rotazione continua basata su velocità userData
+               shape.rotation.x += shape.userData.rotationSpeed.x * delta * 60; // Moltiplica per 60 per normalizzare a velocità al secondo circa
+               shape.rotation.y += shape.userData.rotationSpeed.y * delta * 60;
+               shape.rotation.z += shape.userData.rotationSpeed.z * delta * 60;
+           });
 
-                colors[i3] = color.r;
-                colors[i3 + 1] = color.g;
-                colors[i3 + 2] = color.b;
-            }
+          // 2. Animazione Particelle (Opzionale: rotazione globale lenta)
+           // if (particles) particles.rotation.y += delta * 0.01;
 
-            const particleGeometry = new THREE.BufferGeometry();
-            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-            particleGeometry.setAttribute('color', new THREE.BufferAttribute(colors, 3));
-
-            const particleMaterial = new THREE.PointsMaterial({
-                size: 0.8, vertexColors: true, blending: THREE.AdditiveBlending,
-                transparent: true, depthWrite: false, fog: true, sizeAttenuation: true
-            });
-
-            particles = new THREE.Points(particleGeometry, particleMaterial);
-            scene.add(particles);
-        }
-
-        function createGeometricShapes() {
-             const shapeCount = 25;
-             const geometries = [
-                 new THREE.TetrahedronGeometry(5, 0), new THREE.OctahedronGeometry(6, 0),
-                 new THREE.IcosahedronGeometry(7, 0), new THREE.TorusKnotGeometry(4, 1, 100, 12)
-             ];
-             const spawnRadius = 180;
-             const minSpawnDist = 50;
-
-             for (let i = 0; i < shapeCount; i++) {
-                 const geometry = geometries[Math.floor(Math.random() * geometries.length)];
-                 let material = (Math.random() > 0.4)
-                    ? new THREE.MeshStandardMaterial({ // Solido
-                         color: new THREE.Color(Math.random() * 0x888888 + 0x444444),
-                         metalness: Math.random() * 0.5 + 0.5, roughness: Math.random() * 0.4 + 0.1, fog: true
-                     })
-                    : new THREE.MeshBasicMaterial({ // Wireframe
-                         color: new THREE.Color(Math.random() * 0x8040ff + 0x8040ff), wireframe: true,
-                         transparent: true, opacity: 0.6, fog: true, depthWrite: false, blending: THREE.AdditiveBlending
-                     });
-
-                 const mesh = new THREE.Mesh(geometry, material);
-
-                 let x, y, z, distance;
-                 do {
-                     x = (Math.random() - 0.5) * 2 * spawnRadius;
-                     y = (Math.random() - 0.5) * 2 * spawnRadius;
-                     z = (Math.random() - 0.5) * 2 * spawnRadius;
-                     distance = Math.sqrt(x*x + y*y + z*z);
-                 } while (distance < minSpawnDist || distance > spawnRadius);
-                 mesh.position.set(x, y, z);
-                 mesh.rotation.set(Math.random() * Math.PI * 2, Math.random() * Math.PI * 2, Math.random() * Math.PI * 2);
-                 mesh.userData = { rotationSpeed: new THREE.Vector3((Math.random()-0.5)*0.01, (Math.random()-0.5)*0.01, (Math.random()-0.5)*0.01) };
-                 scene.add(mesh);
-                 geometricShapes.push(mesh);
-             }
-         }
-
-        function onWindowResize() {
-            windowHalfX = window.innerWidth / 2;
-            windowHalfY = window.innerHeight / 2;
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-        }
-
-        function onDocumentMouseMove(event) {
-            if (!deviceOrientationAvailable || !deviceOrientationPermissionGranted) {
-                mouseX = (event.clientX - windowHalfX) * 0.1;
-                mouseY = (event.clientY - windowHalfY) * 0.1;
-            }
-        }
-
-        function setupDeviceOrientation() {
-            if (typeof DeviceOrientationEvent !== 'undefined' && typeof DeviceOrientationEvent.requestPermission === 'function') {
-                 permissionButton.style.display = 'block';
-                 permissionButton.onclick = requestOrientationPermission; // Assegna handler
-            } else {
-                 window.addEventListener('deviceorientation', onDeviceOrientation, true);
-                 // Assumiamo che se requestPermission non esiste, non serva o non sia supportato
-                 deviceOrientationAvailable = true; // Potrebbe essere sovrascritto se l'evento non invia dati
-                 deviceOrientationPermissionGranted = true;
-                 console.log("DeviceOrientation: Permesso non richiesto o API non supportata per richiederlo.");
-            }
-        }
-
-        function requestOrientationPermission() {
-            DeviceOrientationEvent.requestPermission()
-                .then(permissionState => {
-                    if (permissionState === 'granted') {
-                        window.addEventListener('deviceorientation', onDeviceOrientation, true);
-                        deviceOrientationAvailable = true;
-                        deviceOrientationPermissionGranted = true;
-                        permissionButton.style.display = 'none';
-                        console.log("DeviceOrientation: Permesso concesso.");
-                    } else {
-                         deviceOrientationAvailable = false;
-                         deviceOrientationPermissionGranted = false; // Esplicita negazione
-                         permissionButton.style.display = 'none';
-                         console.warn("DeviceOrientation: Permesso negato.");
-                    }
-                })
-                .catch(error => {
-                     deviceOrientationAvailable = false;
-                     permissionButton.style.display = 'none';
-                     console.error("DeviceOrientation: Errore richiesta permesso:", error);
-                });
-        }
+          // 3. Aggiornamento Camera (Interazione Mouse/Tilt con Interpolazione)
+           const lerpFactor = 0.05; // Fattore di "smorzamento" per movimento fluido
+           if (deviceOrientationAvailable && deviceOrientationPermissionGranted) {
+               // Usa Device Orientation se attiva e permessa
+               camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetRotationX, lerpFactor);
+               camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, targetRotationY, lerpFactor);
+           } else {
+               // Altrimenti, usa Mouse Movement
+               targetRotationY = mouseX * 0.0005; // Scala ulteriormente per movimento mouse
+               targetRotationX = mouseY * 0.0005;
+               camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetRotationX, lerpFactor);
+               camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, targetRotationY, lerpFactor);
+           }
+           // Manteniamo la Z della rotazione a 0
+           camera.rotation.z = 0;
 
 
-        function onDeviceOrientation(event) {
-             // Controlla se gamma e beta sono null, potrebbe indicare che il sensore non è utilizzabile
-            if (event.gamma === null || event.beta === null) {
-                // console.warn("DeviceOrientation: Dati gamma/beta null ricevuti.");
-                 // Non impostare deviceOrientationAvailable = false qui, altrimenti si perde il listener
-                 // Semplicemente non aggiornare targetRotation se i dati non sono validi
-                 return;
-            }
+          // 4. Render della scena
+          renderer.render(scene, camera);
+      }
 
-             // Se arriviamo qui con dati validi, i sensori funzionano
-             deviceOrientationAvailable = true;
-             deviceOrientationPermissionGranted = true; // Assumiamo permesso ok se riceviamo dati
+      // --- Avvio Inizializzazione ---
+      // Verifica che il DOM sia pronto prima di iniziare (anche se script è alla fine)
+      if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', initThreeJS);
+      } else {
+          initThreeJS();
+      }
 
-             const tiltX = THREE.MathUtils.clamp(event.beta ?? 0, -90, 90); // Usa ?? 0 per fallback se beta fosse null
-             const tiltY = THREE.MathUtils.clamp(event.gamma ?? 0, -90, 90); // Usa ?? 0 per fallback se gamma fosse null
-             const scaleFactor = 0.005;
-             targetRotationX = THREE.MathUtils.degToRad(tiltX) * scaleFactor * 3;
-             targetRotationY = THREE.MathUtils.degToRad(tiltY) * scaleFactor * 5;
-             mouseX = 0; mouseY = 0; // Resetta mouse se orientamento attivo
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            const delta = clock.getDelta();
-            const elapsedTime = clock.getElapsedTime();
-
-            // 1. Anima Elementi Fluttuanti
-            floatingEmojis.forEach(emoji => {
-                 emoji.position.y = emoji.userData.initialY + Math.sin(elapsedTime * 0.5 + emoji.position.x * 0.1) * 5;
-                 emoji.position.y += emoji.userData.driftSpeed * delta * 10;
-                 if (emoji.position.y > 200) {
-                     emoji.position.y = -200;
-                     emoji.userData.initialY = -200;
-                     emoji.position.x = (Math.random() - 0.5) * 300;
-                     emoji.position.z = (Math.random() - 0.5) * 300;
-                 }
-            });
-             geometricShapes.forEach(shape => {
-                 shape.rotation.x += shape.userData.rotationSpeed.x;
-                 shape.rotation.y += shape.userData.rotationSpeed.y;
-                 shape.rotation.z += shape.userData.rotationSpeed.z;
-             });
-
-            // 2. Anima Particelle (se necessario)
-             // particles.rotation.y += delta * 0.01;
-
-            // 3. Aggiorna Camera (Interazione con Lerp)
-             if (deviceOrientationAvailable && deviceOrientationPermissionGranted) {
-                 camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetRotationX, 0.05);
-                 camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, targetRotationY, 0.05);
-             } else {
-                 targetRotationY = mouseX * 0.0005;
-                 targetRotationX = mouseY * 0.0005;
-                 camera.rotation.x = THREE.MathUtils.lerp(camera.rotation.x, targetRotationX, 0.05);
-                 camera.rotation.y = THREE.MathUtils.lerp(camera.rotation.y, targetRotationY, 0.05);
-             }
-
-            // 4. Render
-            renderer.render(scene, camera);
-        }
-
-        // --- Inizializzazione Three.js ---
-        initThreeJS();
-
-    </script>
+  </script>
 
 </body>
 </html>

@@ -1,15 +1,6 @@
-// report.js (identico a prima, con Express, Nodemailer, ecc.)
+// File: api/report.js
 require('dotenv').config();
-const express = require('express');
 const nodemailer = require('nodemailer');
-const bodyParser = require('body-parser');
-const cors = require('cors');
-
-const app = express();
-const port = process.env.PORT || 3000; // O la porta che preferisci
-
-app.use(cors());
-app.use(bodyParser.json());
 
 const transporter = nodemailer.createTransport({
     service: 'gmail',
@@ -19,29 +10,30 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-app.post('/send-on-exit-report', (req, res) => { // Ho cambiato un po' il nome dell'endpoint per chiarezza
-    const { conversation } = req.body;
-    if (!conversation) {
-        return res.status(400).send({ message: 'Conversazione mancante.' });
+export default async function handler(req, res) {
+    if (req.method !== 'POST') {
+        res.setHeader('Allow', ['POST']);
+        return res.status(405).end(`Method ${req.method} Not Allowed`);
     }
 
-    const mailOptions = {
-        from: process.env.EMAIL_USER,
-        to: process.env.EMAIL_TO,
-        subject: 'Report Chat (Chiusura Pagina Utente)',
-        text: `Trascrizione della chat terminata dall'utente:\n\n${conversation}`
-    };
-
-    transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-            console.error('Errore Nodemailer:', error);
-            return res.status(500).send({ message: 'Errore invio email.' });
+    try {
+        const { conversation } = req.body;
+        if (!conversation) {
+            return res.status(400).json({ message: 'Conversazione mancante.' });
         }
-        console.log('Email di report chiusura inviata: ' + info.response);
-        res.status(200).send({ message: 'Report ricevuto e email in invio.' }); // Il client non vedrà questa risposta
-    });
-});
 
-app.listen(port, () => {
-    console.log(`Server report.js in ascolto su http://localhost:${port}`);
-});
+        const mailOptions = {
+            from: process.env.EMAIL_USER,
+            to: process.env.EMAIL_TO,
+            subject: 'Report Chat (Vercel)',
+            text: `Trascrizione:\n\n${conversation}`
+        };
+
+        await transporter.sendMail(mailOptions);
+        return res.status(202).json({ message: 'Report accettato.' });
+
+    } catch (error) {
+        console.error('API Error:', error);
+        return res.status(500).json({ message: 'Errore invio report.' });
+    }
+}

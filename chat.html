@@ -26,7 +26,7 @@
     }
     header a {color:inherit;text-decoration:none;font-size:24px;margin-right:12px;}
     header .title {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-    #messages { /* NOME CAMBIATO DA messagesEl A messages PER COERENZA CON GLI ID */
+    #messages {
       position: fixed;
       top: calc(var(--header-height) + var(--safe-area-top));
       bottom: calc(var(--input-height) + var(--safe-area-bottom));
@@ -55,7 +55,7 @@
     #input-bar button svg{width:24px;height:24px;fill:currentColor;display:block;}
     @media(min-width:601px){
       html, body { height: auto; overflow: auto; position: static; overscroll-behavior: auto; }
-      header, #messages, #input-bar { display: none; } /* #messages era messagesEl */
+      header, #messages, #input-bar { display: none; }
       body::before { content:'🛑 Questa chat è ottimizzata per smartphone. Aprila da un dispositivo mobile.'; display:flex; align-items:center; justify-content:center; position:fixed; top:0; left:0; height:100vh; width:100%; font-size:2rem; font-weight:bold; background:#000c; color:#fff; text-align:center; padding:20px; z-index:2000; backdrop-filter:blur(5px); }
     }
   </style>
@@ -66,9 +66,7 @@
     <span class="title">Don Alfred 🤵🏻‍♂️</span>
   </header>
 
-  <div id="messages" role="log" aria-live="polite">
-    <!-- Messaggi verranno aggiunti qui -->
-  </div>
+  <div id="messages" role="log" aria-live="polite"></div>
 
   <form id="input-bar" autocomplete="off">
     <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
@@ -78,13 +76,13 @@
   </form>
 
   <script>
-    const messagesContainer = document.getElementById('messages'); // ID dell'elemento che contiene i messaggi
+    const messagesContainer = document.getElementById('messages');
     const userInput = document.getElementById('message-input');
     const chatForm = document.getElementById('input-bar');
     const sendButton = document.getElementById('send-button');
 
-    let conversationHistoryForAI = []; // Per l'API OpenAI (come [{role: 'user', content: '...'}])
-    let fullReadableLog = ""; // Per il report email leggibile
+    let conversationHistoryForAI = [];
+    let fullReadableLog = "";
 
     function scrollToBottom(behavior = 'auto') {
       requestAnimationFrame(() => {
@@ -94,11 +92,10 @@
       });
     }
 
-    // Modificata per loggare anche per il report e per la history dell'AI
     function addMessageToDisplay(who, text, roleForAI) {
         const time = new Date().toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' });
         const msgDiv = document.createElement('div');
-        msgDiv.className = `msg ${who}`; // 'me' o 'you'
+        msgDiv.className = `msg ${who}`;
         const bubDiv = document.createElement('div');
         bubDiv.className = 'bub';
         bubDiv.textContent = text;
@@ -115,12 +112,10 @@
             console.error("Cannot add message, #messages element not found!");
         }
 
-        // Log per il report email
         const prefix = (roleForAI === 'user') ? 'Utente' : 'IA';
         fullReadableLog += `${prefix}: ${text}\n`;
 
-        // Log per l'API OpenAI (aggiungiamo solo se ha un roleForAI definito)
-        if (roleForAI) {
+        if (roleForAI) { // Solo se roleForAI è definito (cioè non per messaggi di sistema/errore solo display)
             conversationHistoryForAI.push({ role: roleForAI, content: text });
         }
     }
@@ -134,49 +129,64 @@
         sendButton.disabled = true;
         userInput.placeholder = "Invio in corso...";
 
-        addMessageToDisplay('me', userText, 'user'); // 'me' per CSS, 'user' per AI
+        // Aggiungi il messaggio dell'utente al display e alla cronologia AI
+        addMessageToDisplay('me', userText, 'user');
         userInput.value = '';
 
-        // --- INIZIO SIMULAZIONE CHIAMATA API OPENAI ---
-        // La tua chiamata originale a '/api/chat' è commentata sotto.
-        // La riattiveremo quando avremo il proxy API per OpenAI.
+        // --- INIZIO CHIAMATA REALE ALL'API /api/chat ---
         try {
-            // console.log("History per AI (prima della chiamata simulata):", JSON.stringify(conversationHistoryForAI));
-            // Simula un ritardo di rete
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Risposta simulata
-            const aiSimulatedReply = "Questa è una risposta simulata da Don Alfred a: \"" + userText.substring(0, 30) + "...\"";
-            
-            addMessageToDisplay('you', aiSimulatedReply, 'assistant'); // 'you' per CSS, 'assistant' per AI
+            // La cronologia da inviare al backend è tutta quella accumulata FINO A PRIMA dell'ultimo messaggio dell'utente
+            // perché l'ultimo messaggio dell'utente viene inviato nel campo 'message'.
+            // Il tuo backend /api/chat.js poi ricostruisce la history completa per OpenAI.
+            const historyForBackend = conversationHistoryForAI.slice(0, -1);
 
-            /* LA TUA VECCHIA LOGICA DI CHIAMATA API (LA RIUTILIZZEREMO CON UN PROXY):
             const response = await fetch('/api/chat', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ message: userText, history: conversationHistoryForAI }) // Invia la cronologia completa
+                body: JSON.stringify({
+                    message: userText,
+                    history: historyForBackend
+                })
             });
+
             if (!response.ok) {
-                throw new Error(`Errore HTTP! Status: ${response.status} ${response.statusText}`);
+                let errorDetails = `Errore HTTP! Status: ${response.status}`;
+                try {
+                    const errorData = await response.json(); // Tenta di leggere l'errore JSON dal tuo backend
+                    errorDetails += ` - ${errorData.reply || errorData.message || 'Dettagli non disponibili'}`;
+                } catch (jsonError) {
+                    // Se il corpo dell'errore non è JSON, prova a leggerlo come testo
+                    try {
+                        const textError = await response.text();
+                        errorDetails += ` - ${textError || 'Nessun dettaglio testuale'}`;
+                    } catch (textParseError) { /* non fare nulla */ }
+                }
+                throw new Error(errorDetails);
             }
+
             const data = await response.json();
+
             if (data && data.reply) {
+                // La risposta dell'IA viene aggiunta al display e alla cronologia AI
                 addMessageToDisplay('you', data.reply, 'assistant');
             } else {
-                console.warn("Risposta JSON ricevuta ma senza chiave 'reply':", data);
-                addMessageToDisplay('you', 'Ho ricevuto una risposta inaspettata. 🤔', 'assistant');
+                console.warn("Risposta JSON ricevuta da /api/chat ma senza chiave 'reply':", data);
+                // Aggiungi un messaggio di errore al display, ma non alla cronologia AI come 'assistant'
+                addMessageToDisplay('you', 'Ho ricevuto una risposta inaspettata dal server. 🤔', null);
             }
-            */
+
         } catch (error) {
-            console.error("Errore durante la chiamata (simulata) all'IA:", error);
-            addMessageToDisplay('you', 'Ops! C\'è stato un problema. Riprova tra poco. 😢', 'assistant');
+            console.error("Errore durante la chiamata a /api/chat:", error);
+            // Aggiungi un messaggio di errore al display, ma non alla cronologia AI come 'assistant'
+            addMessageToDisplay('you', `Ops! C'è stato un problema: ${error.message} 😢`, null);
         } finally {
             userInput.disabled = false;
             sendButton.disabled = false;
             userInput.placeholder = "Scrivi un messaggio a Don Alfred…";
-            userInput.focus(); // Rimetti il focus sull'input
-            setTimeout(scrollToBottom, 50); // Scrolla di nuovo per sicurezza
+            userInput.focus();
+            setTimeout(scrollToBottom, 50);
         }
+        // --- FINE CHIAMATA REALE ALL'API /api/chat ---
     });
 
     userInput.addEventListener('keydown', (e) => {
@@ -188,7 +198,6 @@
         }
     });
 
-    // --- GESTIONE FOCUS E VIEWPORT (Mantenuta dalla tua versione) ---
     const KEYBOARD_ANIMATION_DELAY = 350;
     userInput.addEventListener('focus', () => {
       setTimeout(() => { scrollToBottom('auto'); }, KEYBOARD_ANIMATION_DELAY);
@@ -208,36 +217,24 @@
         window.addEventListener('resize', () => setTimeout(()=>scrollToBottom('auto'), 100));
     }
 
-    // --- FUNZIONE PER INVIARE IL REPORT SU CHIUSURA PAGINA ---
     function sendReportOnExit() {
         if (fullReadableLog.trim() === "") {
-            console.log("Nessuna conversazione da inviare per il report.");
             return;
         }
-        const reportServerUrl = '/api/report'; // URL della Serverless Function su Vercel
+        const reportServerUrl = '/api/report';
         const dataToReport = { conversation: fullReadableLog };
-
         if (navigator.sendBeacon) {
             const blob = new Blob([JSON.stringify(dataToReport)], {type: 'application/json'});
-            const sent = navigator.sendBeacon(reportServerUrl, blob);
-            if (sent) {
-                console.log("Beacon inviato per il report della chat a:", reportServerUrl);
-            } else {
-                console.error("Beacon per il report della chat NON inviato (controlla URL e limiti di dimensione).");
-            }
-        } else {
-            // Fallback molto meno affidabile, specialmente su mobile
-            console.warn("navigator.sendBeacon non supportato. L'invio del report su chiusura potrebbe non funzionare.");
+            navigator.sendBeacon(reportServerUrl, blob);
         }
     }
     window.addEventListener('pagehide', sendReportOnExit);
 
-
-    // --- INIZIALIZZAZIONE ---
     window.addEventListener('load', () => {
         setTimeout(() => {
             const welcomeMessage = 'Ciao, sono Don Alfred. Dimmi pure!';
-            addMessageToDisplay('you', welcomeMessage, 'assistant'); // Logga anche il benvenuto
+            // Il messaggio di benvenuto viene aggiunto al display e alla cronologia AI
+            addMessageToDisplay('you', welcomeMessage, 'assistant');
             setTimeout(() => scrollToBottom('auto'), 50);
         }, 600);
     });
@@ -245,7 +242,6 @@
         setTimeout(() => scrollToBottom('auto'), 100);
     });
     window.addEventListener('orientationchange', () => setTimeout(()=>scrollToBottom('auto'), 100));
-
   </script>
 </body>
 </html>

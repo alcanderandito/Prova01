@@ -230,6 +230,20 @@
    <!-- Bottone Chat -->
   <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a></div>
 
+  <!-- AGGIUNTA CANZONE -->
+  <audio src="indexsong.mp3" autoplay loop></audio>
+  <!-- Per una migliore compatibilità con l'autoplay, specialmente su mobile,
+       potrebbe essere necessario iniziare l'audio con "muted" e poi
+       sbloccarlo dopo un'interazione dell'utente.
+       Esempio: <audio src="indexsong.mp3" autoplay loop muted id="backgroundMusic"></audio>
+       E poi in JS: document.body.addEventListener('click', () => {
+                        const music = document.getElementById('backgroundMusic');
+                        if (music.muted) music.muted = false;
+                     }, { once: true });
+       Ma per la richiesta specifica, "autoplay" è sufficiente.
+       Ho aggiunto "loop" nel caso si desideri che la canzone si ripeta. Rimuoverlo se non necessario.
+  -->
+
   <script>
     // --- SCRIPT MENU (invariato) ---
     function toggleMenu() {
@@ -325,7 +339,7 @@
     function createEmojiSnow() {
         const container = document.getElementById('emoji-snow-container');
         if (!container) return;
-        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍣', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
+        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
         const numberOfEmojis = 80;
         for (let i = 0; i < numberOfEmojis; i++) {
             const emoji = document.createElement('span');

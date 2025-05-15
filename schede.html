@@ -415,7 +415,7 @@
     </a>
 
     <header class="page-header">
-        <h1>Lo Staff Stellare del Due Mori</h1>
+        <h1>Lo Staff Stellare del Team Due Mori</h1>
         <p>Personaggi mitici, abilità leggendarie e un pizzico di magia!</p>
     </header>
 
@@ -442,7 +442,7 @@
     </div>
     
     <footer class="page-footer">
-        <p>© 2024 Le Schede Mitiche del Due Mori - Creazione magica</p>
+        <p>© 2025 Le Schede Mitiche del Team Due Mori - Creazione magica by Alejandro</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
@@ -763,5 +763,33 @@
         });
 
     </script>
+
+    <!-- AGGIUNTA CODICE PER LA CANZONE (non modifica lo script sopra) -->
+    <audio id="schedePageSong" src="schedesong.mp3" loop></audio>
+    <script>
+      window.addEventListener('load', () => {
+        const song = document.getElementById('schedePageSong');
+        if (song) {
+          song.play().then(() => {
+            console.log("schedesong.mp3: Riproduzione avviata o in tentativo.");
+          }).catch(error => {
+            console.warn("schedesong.mp3: Autoplay bloccato dal browser. È richiesta un'interazione dell'utente. Errore:", error.name, error.message);
+            // Fallback: prova ad avviare la musica al primo click dell'utente sulla pagina
+            document.body.addEventListener('click', function playOnClickSchede() {
+              song.play().then(() => {
+                console.log("schedesong.mp3: Riproduzione avviata dopo interazione utente.");
+              }).catch(e => {
+                console.error("schedesong.mp3: Errore nel tentativo di play manuale dopo click:", e.name, e.message);
+              });
+              document.body.removeEventListener('click', playOnClickSchede);
+            }, { once: false });
+          });
+        } else {
+          console.error("Elemento audio con id 'schedePageSong' non trovato.");
+        }
+      });
+    </script>
+    <!-- FINE AGGIUNTA CODICE PER LA CANZONE -->
+
 </body>
 </html>

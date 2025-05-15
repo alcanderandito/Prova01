@@ -230,20 +230,7 @@
    <!-- Bottone Chat -->
   <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a></div>
 
-  <!-- AGGIUNTA CANZONE -->
-  <audio src="indexsong.mp3" autoplay loop></audio>
-  <!-- Per una migliore compatibilità con l'autoplay, specialmente su mobile,
-       potrebbe essere necessario iniziare l'audio con "muted" e poi
-       sbloccarlo dopo un'interazione dell'utente.
-       Esempio: <audio src="indexsong.mp3" autoplay loop muted id="backgroundMusic"></audio>
-       E poi in JS: document.body.addEventListener('click', () => {
-                        const music = document.getElementById('backgroundMusic');
-                        if (music.muted) music.muted = false;
-                     }, { once: true });
-       Ma per la richiesta specifica, "autoplay" è sufficiente.
-       Ho aggiunto "loop" nel caso si desideri che la canzone si ripeta. Rimuoverlo se non necessario.
-  -->
-
+  <!-- Il tuo script esistente rimane invariato -->
   <script>
     // --- SCRIPT MENU (invariato) ---
     function toggleMenu() {
@@ -339,7 +326,7 @@
     function createEmojiSnow() {
         const container = document.getElementById('emoji-snow-container');
         if (!container) return;
-        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
+        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍣', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
         const numberOfEmojis = 80;
         for (let i = 0; i < numberOfEmojis; i++) {
             const emoji = document.createElement('span');
@@ -355,6 +342,37 @@
         }
     }
   </script>
+
+  <!-- AGGIUNTA CODICE PER LA CANZONE (non modifica lo script sopra) -->
+  <audio id="indexPageSong" src="indexsong.mp3" loop></audio>
+  <script>
+    window.addEventListener('load', () => {
+      const song = document.getElementById('indexPageSong');
+      if (song) {
+        // Tenta di avviare la riproduzione
+        song.play().then(() => {
+          console.log("indexsong.mp3: Riproduzione avviata o in tentativo.");
+        }).catch(error => {
+          console.warn("indexsong.mp3: Autoplay bloccato dal browser. È richiesta un'interazione dell'utente (es. un click sulla pagina). Errore:", error.name, error.message);
+          // Fallback: prova ad avviare la musica al primo click dell'utente sulla pagina
+          // Questo listener viene aggiunto solo se l'autoplay automatico fallisce.
+          document.body.addEventListener('click', function playOnClick() {
+            song.play().then(() => {
+              console.log("indexsong.mp3: Riproduzione avviata dopo interazione utente.");
+            }).catch(e => {
+              console.error("indexsong.mp3: Errore nel tentativo di play manuale dopo click:", e.name, e.message);
+            });
+            // Rimuovi il listener dopo il primo tentativo per non interferire ulteriormente
+            document.body.removeEventListener('click', playOnClick);
+          }, { once: false }); // Usiamo once:false e lo rimuoviamo manualmente per gestire meglio il logging.
+                               // Oppure si potrebbe usare { once: true } se non serve un logging dettagliato del secondo tentativo.
+        });
+      } else {
+        console.error("Elemento audio con id 'indexPageSong' non trovato.");
+      }
+    });
+  </script>
+  <!-- FINE AGGIUNTA CODICE PER LA CANZONE -->
 
 </body>
 </html>

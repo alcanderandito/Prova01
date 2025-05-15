@@ -372,16 +372,16 @@
         
         /* Responsive adjustments */
         @media (max-width: 768px) {
-            body { padding-top: 60px; } /* Ridotto per il pulsante home più piccolo */
+            body { padding-top: 60px; } 
             .home-button { 
-                padding: 6px 10px; /* Ridotto */
-                font-size: 0.8em; /* Ridotto */
+                padding: 6px 10px; 
+                font-size: 0.8em; 
                 top: 12px;
                 left: 12px;
             }
             .home-button svg { 
-                width: 14px; /* Ridotto */
-                height: 14px; /* Ridotto */
+                width: 14px; 
+                height: 14px; 
             }
 
             .page-header h1 { font-size: 2.5em; }
@@ -442,7 +442,7 @@
     </div>
     
     <footer class="page-footer">
-        <p>© 2025 Le Schede Mitiche del Team Due Mori - Creazione magica by Alejandro</p>
+        <p>© 2025 Le Schede Mitiche del Team Due Mori - Creazione by Alejandro</p>
     </footer>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
@@ -470,7 +470,7 @@
                 altezza: "Circa 1.66 m",
                 mansione: "Cameriera d’onore, dispensatrice ufficiale di amore, coccole e saggezza. La mamma che tutti vorrebbero, anche se non sei parente.",
                 velocita: "Tartaruga zen – si muove con calma e grazia, ma con l’eleganza di una leggenda vivente",
-                colore_preferito: "Da definire", // Campo specifico per Lucia
+                colore_preferito: "Da definire", 
                 piatto_preferito: "Tutto",
                 fetish: "Fare regalini ai figli (qualsiasi occasione è buona per portare qualcosa a qualcuno)",
                 debolezza: "NESSUNA. È un carro armato sorridente. Un Panzer di bontà.",
@@ -764,28 +764,88 @@
 
     </script>
 
-    <!-- AGGIUNTA CODICE PER LA CANZONE (non modifica lo script sopra) -->
+    <!-- AGGIUNTA CODICE PER LA CANZONE -->
     <audio id="schedePageSong" src="schedesong.mp3" loop></audio>
     <script>
       window.addEventListener('load', () => {
         const song = document.getElementById('schedePageSong');
-        if (song) {
+        let hasInteracted = false; 
+        let interactionListenersAdded = false;
+
+        // Funzione per tentare di avviare la musica e rimuovere i listener
+        const tryPlayMusic = (eventSource) => {
+          // Controlla se c'è già stata un'interazione valida, se la canzone non esiste,
+          // o se la canzone è già in riproduzione.
+          // readyState > 2 (HAVE_CURRENT_DATA) significa che i dati per la posizione corrente sono disponibili,
+          // ma potrebbe non essere sufficiente per play. readyState > 3 (HAVE_FUTURE_DATA) o 4 (HAVE_ENOUGH_DATA) è meglio.
+          if (hasInteracted || !song || (song.currentTime > 0 && !song.paused && !song.ended && song.readyState >= 3) ) {
+            if (interactionListenersAdded) removeInteractionListeners(); // Pulisci listener se presenti
+            return;
+          }
+          hasInteracted = true; // Segna l'interazione
+
           song.play().then(() => {
-            console.log("schedesong.mp3: Riproduzione avviata o in tentativo.");
+            console.log(`schedesong.mp3: Riproduzione avviata dopo interazione utente via ${eventSource || 'autoplay permesso'}.`);
+          }).catch(e => {
+            console.error(`schedesong.mp3: Errore nel tentativo di play dopo interazione via ${eventSource || 'autoplay fallito'}:`, e.name, e.message);
+            hasInteracted = false; // Resetta il flag se il play fallisce, per permettere un altro tentativo
+                                   // Potrebbe essere opportuno NON resettare per evitare tentativi multipli su errori persistenti.
+                                   // Ma per ora lo lasciamo per dare un'altra chance se l'errore era temporaneo.
+          }).finally(() => {
+             // Rimuovi i listener in ogni caso dopo il primo tentativo seguito da un'interazione,
+             // o se l'autoplay iniziale ha funzionato.
+             if (interactionListenersAdded) removeInteractionListeners();
+          });
+        };
+
+        // Mappa degli eventi di interazione e dei loro gestori
+        const interactionEventsMap = {
+          'click': { target: document.body, handler: () => tryPlayMusic('click') },
+          'scroll': { target: window, handler: () => tryPlayMusic('scroll') },
+          'mousemove': { target: document.body, handler: () => tryPlayMusic('mousemove') },
+          'touchstart': { target: document.body, handler: () => tryPlayMusic('touchstart') },
+          'keydown': { target: window, handler: () => tryPlayMusic('keydown') }
+        };
+        
+        // Funzione per aggiungere i listener di interazione
+        const addInteractionListeners = () => {
+          if (interactionListenersAdded) return; // Non aggiungere più volte
+          Object.keys(interactionEventsMap).forEach(eventType => {
+            const eventInfo = interactionEventsMap[eventType];
+            // Usiamo { once: true } per assicurarci che ogni listener scatti una sola volta
+            eventInfo.target.addEventListener(eventType, eventInfo.handler, { once: true });
+          });
+          interactionListenersAdded = true;
+          console.log("schedesong.mp3: Listener di interazione aggiunti (per click, scroll, mousemove, touchstart, keydown).");
+        };
+
+        // Funzione per rimuovere i listener di interazione
+        const removeInteractionListeners = () => {
+          if (!interactionListenersAdded) return; // Non tentare di rimuovere se non aggiunti
+          Object.keys(interactionEventsMap).forEach(eventType => {
+            const eventInfo = interactionEventsMap[eventType];
+            // Rimuoviamo il listener specifico. Poiché è stato aggiunto con {once: true},
+            // si auto-rimuoverà dopo l'esecuzione, ma questa è una pulizia esplicita
+            // se tryPlayMusic viene chiamata prima che un evento scatti.
+            eventInfo.target.removeEventListener(eventType, eventInfo.handler);
+          });
+          interactionListenersAdded = false;
+          console.log("schedesong.mp3: Listener di interazione rimossi.");
+        };
+
+        if (song) {
+          // Tenta l'autoplay iniziale
+          song.play().then(() => {
+            console.log("schedesong.mp3: Riproduzione avviata automaticamente (il browser lo ha permesso).");
+            hasInteracted = true; // Considera l'autoplay riuscito come un'interazione
+                                  // Non c'è bisogno di aggiungere altri listener se l'autoplay funziona.
           }).catch(error => {
-            console.warn("schedesong.mp3: Autoplay bloccato dal browser. È richiesta un'interazione dell'utente. Errore:", error.name, error.message);
-            // Fallback: prova ad avviare la musica al primo click dell'utente sulla pagina
-            document.body.addEventListener('click', function playOnClickSchede() {
-              song.play().then(() => {
-                console.log("schedesong.mp3: Riproduzione avviata dopo interazione utente.");
-              }).catch(e => {
-                console.error("schedesong.mp3: Errore nel tentativo di play manuale dopo click:", e.name, e.message);
-              });
-              document.body.removeEventListener('click', playOnClickSchede);
-            }, { once: false });
+            console.warn("schedesong.mp3: Autoplay iniziale bloccato dal browser. In attesa di interazione utente. Errore:", error.name, error.message);
+            // Se l'autoplay è bloccato, aggiungi i listener per le interazioni dell'utente
+            addInteractionListeners();
           });
         } else {
-          console.error("Elemento audio con id 'schedePageSong' non trovato.");
+          console.error("Elemento audio con id 'schedePageSong' non trovato nel DOM.");
         }
       });
     </script>

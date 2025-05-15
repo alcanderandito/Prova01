@@ -271,62 +271,52 @@
         const slideDuration = 7500;
         const kenBurnsAnimationDuration = 25;
 
-        // Preloading (opzionale ma buono)
-        // images.forEach(src => { const img = new Image(); img.src = src; });
-
         console.log("Creazione slide..."); // LOG 2
         images.forEach((imageName, index) => {
             const slide = document.createElement('div');
             slide.classList.add('background-slide');
-            const imageUrl = `url('${imageName}')`; // Verifica che imageName sia corretto qui
+            const imageUrl = `url('${imageName}')`; 
             slide.style.backgroundImage = imageUrl;
             if (index % 2 !== 0) { slide.classList.add('even-slide-kenburns'); }
             backgroundContainer.appendChild(slide);
-            console.log(` - Creata slide ${index} con immagine ${imageUrl}`); // LOG 3 (per ogni slide)
+            console.log(` - Creata slide ${index} con immagine ${imageUrl}`); 
         });
 
         const slides = backgroundContainer.querySelectorAll('.background-slide');
         if (slides.length === 0) {
-             console.error("ERRORE: Nessuna slide trovata/creata nel contenitore."); // LOG ERRORE
+             console.error("ERRORE: Nessuna slide trovata/creata nel contenitore."); 
              return;
         }
-        console.log(`Trovate ${slides.length} slide. Avvio slideshow.`); // LOG 4
+        console.log(`Trovate ${slides.length} slide. Avvio slideshow.`); 
 
         function showNextSlide() {
-            // Rimuovi classe e reset animazione dalla slide precedente (se esiste)
             if (currentImageIndex >= 0 && slides[currentImageIndex]) {
                 slides[currentImageIndex].classList.remove('active');
                 slides[currentImageIndex].style.animation = 'none';
-                void slides[currentImageIndex].offsetHeight; // Forza reflow per reset animazione
+                void slides[currentImageIndex].offsetHeight; 
             }
-
-            // Calcola indice prossima slide
             currentImageIndex = (currentImageIndex + 1) % slides.length;
-
-             // Attiva la nuova slide e applica animazione
             if (slides[currentImageIndex]) {
-                console.log(`Mostrando slide ${currentImageIndex} (${images[currentImageIndex]})`); // LOG 5
+                console.log(`Mostrando slide ${currentImageIndex} (${images[currentImageIndex]})`); 
                 slides[currentImageIndex].classList.add('active');
                 const animationName = slides[currentImageIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns';
                 slides[currentImageIndex].style.animation = `${animationName} ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
             } else {
-                 console.error(`ERRORE: Tentativo di accesso a slide inesistente all'indice ${currentImageIndex}`); // LOG ERRORE
+                 console.error(`ERRORE: Tentativo di accesso a slide inesistente all'indice ${currentImageIndex}`); 
             }
         }
-
-        // Mostra la prima slide e avvia intervallo
-        showNextSlide(); // Mostra subito la prima immagine
+        showNextSlide(); 
         setInterval(showNextSlide, slideDuration);
 
         // --- Avvio SCRIPT PER EMOJI SNOW ---
-        createEmojiSnow(); // Assicurati che anche questa funzione venga chiamata
+        createEmojiSnow(); 
     });
 
     // --- SCRIPT EMOJI SNOW (invariato) ---
     function createEmojiSnow() {
         const container = document.getElementById('emoji-snow-container');
         if (!container) return;
-        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍣', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
+        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
         const numberOfEmojis = 80;
         for (let i = 0; i < numberOfEmojis; i++) {
             const emoji = document.createElement('span');
@@ -346,29 +336,67 @@
   <!-- AGGIUNTA CODICE PER LA CANZONE (non modifica lo script sopra) -->
   <audio id="indexPageSong" src="indexsong.mp3" loop></audio>
   <script>
+    // Questo script è per indexsong.mp3
     window.addEventListener('load', () => {
       const song = document.getElementById('indexPageSong');
-      if (song) {
-        // Tenta di avviare la riproduzione
+      let hasInteracted = false; 
+      let interactionListenersAdded = false;
+
+      const tryPlayMusic = (eventSource) => {
+        if (hasInteracted || !song || (song.currentTime > 0 && !song.paused && !song.ended && song.readyState >= 3) ) {
+          if (interactionListenersAdded) removeInteractionListeners();
+          return;
+        }
+        hasInteracted = true; 
+
         song.play().then(() => {
-          console.log("indexsong.mp3: Riproduzione avviata o in tentativo.");
+          console.log(`indexsong.mp3: Riproduzione avviata dopo interazione utente via ${eventSource || 'autoplay permesso'}.`);
+        }).catch(e => {
+          console.error(`indexsong.mp3: Errore nel tentativo di play dopo interazione via ${eventSource || 'autoplay fallito'}:`, e.name, e.message);
+          hasInteracted = false; 
+        }).finally(() => {
+           if (interactionListenersAdded) removeInteractionListeners();
+        });
+      };
+
+      const interactionEventsMap = {
+        'click': { target: document.body, handler: () => tryPlayMusic('click') },
+        'scroll': { target: window, handler: () => tryPlayMusic('scroll') },
+        'mousemove': { target: document.body, handler: () => tryPlayMusic('mousemove') },
+        'touchstart': { target: document.body, handler: () => tryPlayMusic('touchstart') },
+        'keydown': { target: window, handler: () => tryPlayMusic('keydown') }
+      };
+      
+      const addInteractionListeners = () => {
+        if (interactionListenersAdded) return;
+        Object.keys(interactionEventsMap).forEach(eventType => {
+          const eventInfo = interactionEventsMap[eventType];
+          eventInfo.target.addEventListener(eventType, eventInfo.handler, { once: true });
+        });
+        interactionListenersAdded = true;
+        console.log("indexsong.mp3: Listener di interazione aggiunti (per click, scroll, mousemove, touchstart, keydown).");
+      };
+
+      const removeInteractionListeners = () => {
+        if (!interactionListenersAdded) return;
+        Object.keys(interactionEventsMap).forEach(eventType => {
+          const eventInfo = interactionEventsMap[eventType];
+          eventInfo.target.removeEventListener(eventType, eventInfo.handler);
+        });
+        interactionListenersAdded = false;
+        console.log("indexsong.mp3: Listener di interazione rimossi.");
+      };
+
+      if (song) {
+        song.play().then(() => {
+          console.log("indexsong.mp3: Riproduzione avviata automaticamente (il browser lo ha permesso).");
+          hasInteracted = true; 
         }).catch(error => {
-          console.warn("indexsong.mp3: Autoplay bloccato dal browser. È richiesta un'interazione dell'utente (es. un click sulla pagina). Errore:", error.name, error.message);
-          // Fallback: prova ad avviare la musica al primo click dell'utente sulla pagina
-          // Questo listener viene aggiunto solo se l'autoplay automatico fallisce.
-          document.body.addEventListener('click', function playOnClick() {
-            song.play().then(() => {
-              console.log("indexsong.mp3: Riproduzione avviata dopo interazione utente.");
-            }).catch(e => {
-              console.error("indexsong.mp3: Errore nel tentativo di play manuale dopo click:", e.name, e.message);
-            });
-            // Rimuovi il listener dopo il primo tentativo per non interferire ulteriormente
-            document.body.removeEventListener('click', playOnClick);
-          }, { once: false }); // Usiamo once:false e lo rimuoviamo manualmente per gestire meglio il logging.
-                               // Oppure si potrebbe usare { once: true } se non serve un logging dettagliato del secondo tentativo.
+          console.warn("indexsong.mp3: Autoplay iniziale bloccato dal browser. In attesa di interazione utente. Errore:", error.name, error.message);
+          addInteractionListeners();
         });
       } else {
-        console.error("Elemento audio con id 'indexPageSong' non trovato.");
+        console.error("Elemento audio con id 'indexPageSong' non trovato nel DOM.");
       }
     });
   </script>

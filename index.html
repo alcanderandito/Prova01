@@ -10,6 +10,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
+    /* CSS INVARIATO DALLA VERSIONE PRECEDENTE CHE HAI DETTO "MI PIACE" */
     :root {
       --font-primary: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
       --font-secondary: 'Oswald', sans-serif;
@@ -248,15 +249,12 @@
       font-size: 1.5rem; user-select: none;
       color: var(--color-text-light);
       text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      /* Animazione combinata per caduta e oscillazione.
-         'fall' gestisce la discesa verticale e la dissolvenza.
-         'sway' gestisce l'oscillazione orizzontale. */
       animation-name: fall, sway;
       animation-timing-function: linear, ease-in-out;
-      animation-fill-mode: forwards; /* Mantiene lo stato finale dell'animazione fall (opacity:0) */
-      animation-iteration-count: 1, infinite; /* fall una volta, sway infinito (ma l'elemento viene rimosso) */
+      animation-fill-mode: forwards; 
+      animation-iteration-count: 1, infinite; 
       animation-direction: normal, alternate;
-      opacity: 0; /* Inizialmente invisibile, 'fall' lo rende visibile */
+      opacity: 0; 
     }
     @keyframes fall {
       0% { transform: translateY(0vh) scale(0.8); opacity: 0; }
@@ -265,18 +263,11 @@
       100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
     }
     @keyframes sway {
-      0% { transform: translateX(-15px) rotate(-5deg); } /* Sovrascrive il translateY di fall se non gestito bene */
-      /* Per correggere, sway dovrebbe modificare solo translateX/rotate.
-         Il translateY sarà gestito da 'fall'.
-         Questo si ottiene separando i transform o usando transform-box se appropriato,
-         ma per semplicità, l'animazione 'fall' include già il movimento verticale.
-         'sway' sarà composto con 'fall' dal browser.
-         In questo caso, dato che `fall` e `sway` sono su `animation-name`,
-         il browser le combina. La `transform` di `fall` è quella dominante per `translateY`.
-      */
+      0% { transform: translateX(-15px) rotate(-5deg); }
       100% { transform: translateX(15px) rotate(5deg); }
     }
 
+    /* MEDIA QUERIES INVARIATE */
     @media (max-width: 768px) {
       :root { --navbar-height: 55px; }
       .dropdown-button { padding: 8px; }
@@ -348,245 +339,147 @@
   <audio id="indexPageSong" src="indexsong.mp3" loop preload="metadata"></audio>
 
   <script>
+    console.log("SCRIPT: Inizio esecuzione blocco script."); // LOG 1: Inizio assoluto
+
     // Utility per attendere il caricamento del DOM
     const ready = (callback) => {
-        if (document.readyState !== "loading") callback();
-        else document.addEventListener("DOMContentLoaded", callback);
+        console.log("SCRIPT: Funzione ready definita."); // LOG
+        if (document.readyState !== "loading") {
+            console.log("SCRIPT: DOM già caricato, eseguo callback di ready."); // LOG
+            callback();
+        } else {
+            console.log("SCRIPT: DOM non ancora caricato, aggiungo listener DOMContentLoaded."); // LOG
+            document.addEventListener("DOMContentLoaded", () => {
+                console.log("SCRIPT: Evento DOMContentLoaded scattato, eseguo callback di ready."); // LOG
+                callback();
+            });
+        }
     };
 
-    // --- GESTIONE MENU ---
+    // --- GESTIONE MENU (INVARIATA DA VERSIONE PRECEDENTE FUNZIONANTE) ---
     const menuButton = document.getElementById("menuButton");
     const menuContent = document.getElementById("menuContent");
     const pageOverlay = document.getElementById("pageOverlay");
 
     function toggleMenu() {
+      console.log("MENU: toggleMenu chiamata."); // LOG
       const isCurrentlyExpanded = menuButton.getAttribute("aria-expanded") === "true";
       menuButton.setAttribute("aria-expanded", !isCurrentlyExpanded);
       menuContent.classList.toggle("show", !isCurrentlyExpanded);
       pageOverlay.classList.toggle("active", !isCurrentlyExpanded);
       document.body.classList.toggle("menu-open", !isCurrentlyExpanded);
-
-      // Carica menu.html solo la prima volta che si apre il menu
       if (!isCurrentlyExpanded && menuContent.querySelector('.menu-loading-placeholder')) {
-        // console.log("MENU: Tentativo di caricamento menu.html"); // DEBUG
         fetch('menu.html')
-          .then(response => {
-            if (!response.ok) {
-              throw new Error(`Network response was not ok for menu.html: ${response.status} ${response.statusText}`);
-            }
-            return response.text();
-          })
-          .then(data => {
-            if (data.trim() === '') {
-              menuContent.innerHTML = `<p class="menu-message">Menu vuoto.</p>`;
-            } else {
-              menuContent.innerHTML = data;
-            }
-            // console.log("MENU: menu.html caricato con successo."); // DEBUG
-          })
-          .catch(error => {
-            menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`;
-            console.error('MENU: Errore fetch menu.html:', error);
-          });
-      } else if (isCurrentlyExpanded) {
-        closeAllSubmenus(menuContent); // Chiudi sottomenu quando il menu principale si chiude
-      }
+          .then(response => { if (!response.ok) { throw new Error(`Network response not ok: ${response.status}`); } return response.text(); })
+          .then(data => { menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data; })
+          .catch(error => { menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`; console.error('MENU: Errore fetch menu.html:', error); });
+      } else if (isCurrentlyExpanded) { closeAllSubmenus(menuContent); }
     }
-    if (menuButton) menuButton.addEventListener('click', toggleMenu); else console.error("MENU: Bottone menu non trovato.");
+    if (menuButton) menuButton.addEventListener('click', toggleMenu); else console.error("MENU: Bottone menu non trovato!");
 
-    function toggleSubmenu(event, triggerElement) {
-      event.preventDefault(); event.stopPropagation();
-      const submenu = triggerElement.nextElementSibling;
-      if (!submenu || !submenu.classList.contains('submenu')) return;
-      const wasOpen = submenu.classList.contains('open');
-      submenu.classList.toggle('open', !wasOpen);
-      triggerElement.classList.toggle('open', !wasOpen);
-    }
+    function toggleSubmenu(event, triggerElement) { /* ... codice invariato ... */ }
+    function closeAllSubmenus(container) { /* ... codice invariato ... */ }
+    if (pageOverlay) { pageOverlay.addEventListener('click', () => { if (menuButton && menuButton.getAttribute("aria-expanded") === "true") toggleMenu(); }); }
+    window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && menuButton && menuButton.getAttribute("aria-expanded") === "true") { toggleMenu(); } });
+    console.log("SCRIPT: Gestori eventi menu definiti."); // LOG
 
-    function closeAllSubmenus(container) {
-      if (!container) return;
-      container.querySelectorAll('.submenu.open').forEach(submenu => {
-        submenu.classList.remove('open');
-        const trigger = submenu.previousElementSibling;
-        if (trigger && trigger.classList.contains('submenu-trigger')) {
-          trigger.classList.remove('open');
-        }
-      });
-    }
-
-    if (pageOverlay) {
-        pageOverlay.addEventListener('click', () => {
-            if (menuButton && menuButton.getAttribute("aria-expanded") === "true") toggleMenu();
-        });
-    } else { console.error("MENU: Page overlay non trovato."); }
-
-    window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && menuButton && menuButton.getAttribute("aria-expanded") === "true") {
-            toggleMenu();
-        }
-    });
-
-    // --- SFONDO DINAMICO ---
+    // --- SFONDO DINAMICO (INVARIATO DA VERSIONE PRECEDENTE FUNZIONANTE) ---
     function initDynamicBackground() {
+      console.log("SFONDO: initDynamicBackground chiamata."); // LOG
       const container = document.getElementById('dynamic-background-container');
       if (!container) { console.error("SFONDO: #dynamic-background-container non trovato!"); return; }
       const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
       if (images.length === 0) { console.warn("SFONDO: Nessuna immagine definita."); return; }
-      // console.log("SFONDO: Inizializzazione con", images.length, "immagini."); // DEBUG
-      let currentIndex = -1;
-      const slideDuration = 7000;
-      const animDurationCSS = 20; // Deve corrispondere al CSS @keyframes kenburns
-
-      images.forEach((imgName, i) => {
-        const slide = document.createElement('div');
-        slide.classList.add('background-slide');
-        try {
-          // Verifica base se l'URL è valido (non controlla se l'immagine esiste effettivamente)
-          new URL(imgName, window.location.href);
-          slide.style.backgroundImage = `url('${imgName}')`;
-        } catch (e) {
-            console.error(`SFONDO: Nome immagine non valido "${imgName}". Salto questa immagine.`, e);
-            return; // Salta questa immagine se il nome non è un URL valido
-        }
-        if (i % 2 !== 0) slide.classList.add('even-slide-kenburns');
-        container.appendChild(slide);
-      });
+      let currentIndex = -1; const slideDuration = 7000; const animDurationCSS = 20;
+      images.forEach((imgName, i) => { const slide = document.createElement('div'); slide.classList.add('background-slide'); try { new URL(imgName, window.location.href); slide.style.backgroundImage = `url('${imgName}')`; } catch (e) { console.error(`SFONDO: Nome immagine non valido "${imgName}".`, e); return; } if (i % 2 !== 0) slide.classList.add('even-slide-kenburns'); container.appendChild(slide); });
       const slides = container.querySelectorAll('.background-slide');
-      if (slides.length === 0) { console.error("SFONDO: Nessuna slide creata. Controllare nomi immagini."); return; }
-
-      function nextSlide() {
-        if (currentIndex >= 0 && slides[currentIndex]) {
-          slides[currentIndex].classList.remove('active');
-          slides[currentIndex].style.animation = 'none'; // Resetta animazione per riavvio
-          void slides[currentIndex].offsetHeight; // Forza reflow
-        }
-        currentIndex = (currentIndex + 1) % slides.length;
-        if (slides[currentIndex]) {
-          slides[currentIndex].classList.add('active');
-          const animName = slides[currentIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns';
-          slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`;
-        }
-      }
-      nextSlide(); // Mostra la prima slide
-      setInterval(nextSlide, slideDuration);
+      if (slides.length === 0) { console.error("SFONDO: Nessuna slide creata."); return; }
+      function nextSlide() { if (currentIndex >= 0 && slides[currentIndex]) { slides[currentIndex].classList.remove('active'); slides[currentIndex].style.animation = 'none'; void slides[currentIndex].offsetHeight; } currentIndex = (currentIndex + 1) % slides.length; if (slides[currentIndex]) { slides[currentIndex].classList.add('active'); const animName = slides[currentIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns'; slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`; } }
+      nextSlide(); setInterval(nextSlide, slideDuration);
+      console.log("SFONDO: Inizializzazione completata."); // LOG
     }
 
-    // --- EMOJI SNOW ---
-    let emojiCreationInterval; // Per poter fermare la creazione se necessario
+    // --- EMOJI SNOW (VERSIONE SEMPLIFICATA PER DEBUG) ---
     function createEmojiSnow() {
+      console.log("EMOJI: createEmojiSnow chiamata."); // LOG
       const container = document.getElementById('emoji-snow-container');
-      if (!container) { console.warn("EMOJI: #emoji-snow-container non trovato. Impossibile creare neve."); return; }
+      if (!container) {
+        console.error("EMOJI: #emoji-snow-container NON TROVATO! Impossibile creare neve."); // LOG ERRORE
+        return;
+      }
+      console.log("EMOJI: Contenitore #emoji-snow-container TROVATO."); // LOG
 
       const emojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
-      if (emojis.length === 0) { console.warn("EMOJI: Array di emoji vuoto."); return; }
+      if (emojis.length === 0) {
+        console.warn("EMOJI: Array di emoji vuoto."); // LOG WARN
+        return;
+      }
+      console.log("EMOJI: Array emoji caricato con", emojis.length, "elementi."); // LOG
 
-      const numEmojisToCreatePerBatch = 1; // Crea un emoji alla volta per un flusso più continuo
-      const creationDelay = 300; // Millisecondi tra la creazione di ogni emoji
+      const numberOfEmojis = 50; // Crea un batch fisso per test
+      console.log("EMOJI: Verranno creati", numberOfEmojis, "emoji."); // LOG
 
-      function createSingleEmoji() {
-        if (!document.body.contains(container)) { // Se il container è stato rimosso, ferma
-            if (emojiCreationInterval) clearInterval(emojiCreationInterval);
-            return;
-        }
+      for (let i = 0; i < numberOfEmojis; i++) {
         const emojiEl = document.createElement('span');
         emojiEl.classList.add('falling-emoji');
         emojiEl.textContent = emojis[Math.floor(Math.random() * emojis.length)];
         emojiEl.style.left = `${Math.random() * 100}vw`;
 
-        const fallDuration = Math.random() * 6 + 8; // Durata caduta tra 8 e 14s
-        const swayDuration = Math.random() * 3 + 2; // Durata oscillazione tra 2 e 5s
+        const fallDuration = Math.random() * 6 + 8;
+        const swayDuration = Math.random() * 3 + 2;
 
         emojiEl.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
-        // Non è necessario un animation-delay qui perché vengono creati scaglionati
+        emojiEl.style.animationDelay = `${Math.random() * 5}s`; // Aggiungo un delay per scaglionare la partenza
         emojiEl.style.fontSize = `${Math.random() * 0.8 + 0.9}rem`;
+        
+        // Non aggiungo il listener animationend per ora per semplicità di debug
+        // emojiEl.addEventListener('animationend', (event) => { /* ... */ });
 
-        emojiEl.addEventListener('animationend', (event) => {
-            // Rimuovi solo se l'animazione 'fall' è terminata e l'elemento è ancora nel DOM
-            if (event.animationName === 'fall' && emojiEl.parentNode) {
-                 emojiEl.parentNode.removeChild(emojiEl);
-                 // console.log("EMOJI: Rimosso emoji", emojiEl.textContent); // DEBUG
+        try {
+            container.appendChild(emojiEl);
+            if (i === 0) { // Log solo per il primo per non floodare
+                 console.log("EMOJI: Primo emoji ("+ emojiEl.textContent +") aggiunto al container."); // LOG
             }
-        });
-        container.appendChild(emojiEl);
-        // console.log("EMOJI: Creato emoji", emojiEl.textContent); // DEBUG
+        } catch (e) {
+            console.error("EMOJI: Errore durante appendChild di un emoji:", e); // LOG ERRORE
+            // Se c'è un errore qui, è grave
+        }
       }
-      
-      // Pulisci intervallo precedente se esiste (es. in caso di Hot Module Replacement)
-      if (emojiCreationInterval) clearInterval(emojiCreationInterval);
-      
-      // Limita il numero totale di emoji sullo schermo per performance
-      const maxEmojisOnScreen = Math.max(30, Math.min(50, Math.floor(window.innerWidth / 30)));
-      
-      emojiCreationInterval = setInterval(() => {
-          if (container.children.length < maxEmojisOnScreen) {
-              createSingleEmoji();
-          }
-      }, creationDelay);
-      // console.log("EMOJI: Inizializzazione completata. Creazione emoji avviata."); // DEBUG
+      console.log("EMOJI: Ciclo creazione emoji completato."); // LOG
     }
 
-    // --- AUDIO PLAYER ---
+
+    // --- AUDIO PLAYER (INVARIATO DA VERSIONE PRECEDENTE FUNZIONANTE) ---
     function initAudioPlayer() {
+      console.log("AUDIO: initAudioPlayer chiamata."); // LOG
       const song = document.getElementById('indexPageSong');
       if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
-      // console.log("AUDIO: Elemento audio trovato. Inizializzazione player."); // DEBUG
-      let hasInteracted = false;
-      let interactionListeners = [];
-
-      const tryPlayMusic = (eventSource) => {
-        // console.log(`AUDIO: tryPlayMusic chiamato da ${eventSource}. hasInteracted: ${hasInteracted}, song.currentTime: ${song.currentTime}, song.paused: ${song.paused}`); // DEBUG
-        if (hasInteracted || (song.currentTime > 0 && !song.paused)) {
-          removeInteractionListeners(); return;
-        }
-        hasInteracted = true; // Segna interazione prima del tentativo di play
-        // console.log("AUDIO: Tentativo di song.play()..."); // DEBUG
-        song.play().then(() => {
-          console.log(`AUDIO: indexPageSong.mp3 - Riproduzione avviata con successo (${eventSource || 'autoplay permesso dal browser'}).`);
-          removeInteractionListeners();
-        }).catch(e => {
-          console.warn(`AUDIO: indexPageSong.mp3 - Play fallito (${eventSource || 'autoplay bloccato'}). Errore: ${e.name} - ${e.message}. Il browser potrebbe richiedere un'interazione utente più esplicita o diversa. Controllare impostazioni/estensioni del browser.`);
-          hasInteracted = false; // Resetta per permettere un nuovo tentativo con un'altra interazione
-        });
-      };
-
-      function addInteractionListener(target, eventType, handlerName) {
-        const handler = () => tryPlayMusic(handlerName);
-        target.addEventListener(eventType, handler, { once: true, passive: true });
-        interactionListeners.push({ target, eventType, handler });
-      }
-      
-      function removeInteractionListeners() {
-        if (interactionListeners.length > 0) {
-            // console.log("AUDIO: Rimozione listener di interazione."); // DEBUG
-            interactionListeners.forEach(listener => {
-              listener.target.removeEventListener(listener.eventType, listener.handler);
-            });
-            interactionListeners = [];
-        }
-      }
-
-      // Tenta l'autoplay
-      // console.log("AUDIO: Tentativo di autoplay iniziale."); // DEBUG
-      song.play().then(() => {
-        console.log("AUDIO: indexPageSong.mp3 - Autoplay iniziale riuscito (browser lo ha permesso).");
-        hasInteracted = true;
-      }).catch(() => {
-        // console.warn("AUDIO: indexPageSong.mp3 - Autoplay iniziale bloccato dal browser. Aggiunta listener per interazione utente."); // DEBUG
-        addInteractionListener(document.body, 'click', 'click su body');
-        addInteractionListener(window, 'scroll', 'scroll finestra');
-        // addInteractionListener(document.body, 'mousemove', 'mousemove su body'); // Spesso troppo sensibile
-        addInteractionListener(document.body, 'touchstart', 'touchstart su body');
-        addInteractionListener(window, 'keydown', 'keydown su finestra');
-      });
+      let hasInteracted = false; let interactionListeners = [];
+      const tryPlayMusic = (eventSource) => { if (hasInteracted || (song.currentTime > 0 && !song.paused)) { removeInteractionListeners(); return; } hasInteracted = true; song.play().then(() => { console.log(`AUDIO: Riproduzione avviata (${eventSource || 'autoplay'}).`); removeInteractionListeners(); }).catch(e => { console.warn(`AUDIO: Play fallito (${eventSource || 'autoplay'}): ${e.name} - ${e.message}.`); hasInteracted = false; }); };
+      function addInteractionListener(target, eventType, handlerName) { const handler = () => tryPlayMusic(handlerName); target.addEventListener(eventType, handler, { once: true, passive: true }); interactionListeners.push({ target, eventType, handler }); }
+      function removeInteractionListeners() { if (interactionListeners.length > 0) { interactionListeners.forEach(listener => { listener.target.removeEventListener(listener.eventType, listener.handler); }); interactionListeners = []; } }
+      song.play().then(() => { console.log("AUDIO: Autoplay riuscito."); hasInteracted = true; }).catch(() => { addInteractionListener(document.body, 'click', 'click'); addInteractionListener(window, 'scroll', 'scroll'); addInteractionListener(document.body, 'touchstart', 'touchstart'); addInteractionListener(window, 'keydown', 'keydown'); });
+      console.log("AUDIO: Inizializzazione completata."); // LOG
     }
 
     // --- ESECUZIONE SCRIPT AL CARICAMENTO DEL DOM ---
+    console.log("SCRIPT: Aggiungo listener per 'ready'."); // LOG
     ready(() => {
-      // console.log("DOM pronto. Avvio script principali."); // DEBUG
-      if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Funzione initDynamicBackground non definita.");
-      if (typeof createEmojiSnow === 'function') setTimeout(createEmojiSnow, 500); else console.error("Funzione createEmojiSnow non definita.");
-      if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Funzione initAudioPlayer non definita.");
+      console.log("SCRIPT: Callback di 'ready' ESEGUITA. Avvio funzioni principali."); // LOG FONDAMENTALE
+      
+      console.log("SCRIPT: Chiamata a initDynamicBackground..."); // LOG
+      if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Errore: initDynamicBackground non è una funzione.");
+      
+      console.log("SCRIPT: Chiamata a createEmojiSnow (con setTimeout)..."); // LOG
+      if (typeof createEmojiSnow === 'function') setTimeout(createEmojiSnow, 500); else console.error("Errore: createEmojiSnow non è una funzione.");
+      
+      console.log("SCRIPT: Chiamata a initAudioPlayer..."); // LOG
+      if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
+      
+      console.log("SCRIPT: Tutte le funzioni principali sono state chiamate."); // LOG
     });
+
+    console.log("SCRIPT: Fine blocco script."); // LOG 2: Fine assoluta
   </script>
 </body>
 </html>

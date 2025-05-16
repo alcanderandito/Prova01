@@ -11,396 +11,625 @@
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400&display=swap" rel="stylesheet">
 
   <style>
-    /* mini‑reset */
-    *{margin:0;padding:0;box-sizing:border-box}
-    html,body{
-      font-family: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
+    /* === VARIABILI CSS GLOBALI === */
+    :root {
+      --font-primary: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
+      --font-secondary: 'Oswald', sans-serif;
+
+      --color-text-light: #ffffff;
+      --color-text-dark: #333;
+      --color-text-placeholder: #777;
+      --color-text-error: red;
+
+      --color-bg-navbar: #383838;
+      --color-bg-dropdown: #ffffff;
+      --color-bg-dropdown-hover: #f5f5f5;
+      --color-bg-dropdown-submenu: #f8f8f8;
+      --color-bg-dynamic-fallback: #222;
+      --color-bg-overlay: rgba(0, 0, 0, 0.5); /* Per overlay menu mobile */
+
+      --color-accent-primary: #4caf50;
+      --color-accent-primary-light: #6ad96a;
+      --color-accent-primary-dark: #5cb85c;
+
+      --color-chat-button: #25d366;
+      --color-chat-button-hover: #28e06e;
+      --color-chat-button-active: #22c05c;
+
+      --shadow-light: rgba(0,0,0,0.1);
+      --shadow-medium: rgba(0,0,0,0.15);
+      --shadow-strong: rgba(0,0,0,0.25);
+      --shadow-text-dark: rgba(0, 0, 0, 0.8);
+
+      --navbar-height: 60px; /* Altezza approssimativa della navbar, utile per padding */
+
+      --z-index-background: 0;
+      --z-index-snow: 1;
+      --z-index-main-content: 2;
+      --z-index-hero-title: 3;
+      --z-index-page-overlay: 400; /* Sotto la navbar ma sopra il contenuto quando il menu è aperto */
+      --z-index-navbar: 500;
+      --z-index-dropdown-content: 501; /* Leggermente sopra la navbar per mobile */
+      --z-index-chat-button: 1000;
+    }
+
+    /* === MINI-RESET E STILI BASE === */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    html {
+      scroll-behavior: smooth; /* Scroll morbido per ancore interne, se usate */
+    }
+    html, body {
+      font-family: var(--font-primary);
       height: 100%;
-      /* RIMOSSO: background-color: #f0f0f0; */
       overflow-x: hidden;
     }
+    body.menu-open { /* Classe aggiunta al body quando il menu è aperto su mobile */
+        overflow-y: hidden; /* Previene scroll della pagina dietro al menu */
+    }
+
 
     /* === NAVBAR FISSA === */
     .navbar {
-      background-color: #383838;
-      padding: 10px 20px;
+      background-color: var(--color-bg-navbar);
+      padding: 0 20px; /* Padding verticale gestito da altezza fissa per coerenza */
+      height: var(--navbar-height);
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
-      z-index: 500; /* Alto, sopra tutto tranne chat */
+      z-index: var(--z-index-navbar);
       display: flex;
       align-items: center;
-      box-shadow: 0 3px 8px rgba(0,0,0,0.25);
+      box-shadow: 0 3px 8px var(--shadow-strong);
     }
-    /* ... (stili dropdown e bottone menu invariati) ... */
-     .dropdown {
+
+    /* === DROPDOWN MENU === */
+    .dropdown {
       position: relative;
       display: inline-block;
     }
     .dropdown-button {
-      background: linear-gradient(145deg, #6ad96a, #4caf50);
-      color: white;
-      padding: 12px 20px;
+      background: linear-gradient(145deg, var(--color-accent-primary-light), var(--color-accent-primary));
+      color: var(--color-text-light);
+      padding: 10px 18px; /* Leggermente aggiustato per coerenza con altezza navbar */
       font-size: 16px;
       border: none;
       cursor: pointer;
       border-radius: 8px;
-      font-family: 'Roboto', sans-serif;
+      font-family: var(--font-primary);
       font-weight: 500;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.15), 0 1px 3px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 6px var(--shadow-medium), 0 1px 3px var(--shadow-light);
       transition: all 0.2s ease-out;
       text-shadow: 0 1px 1px rgba(0,0,0,0.2);
+      display: flex; /* Per allineare icona e testo */
+      align-items: center;
     }
-    .dropdown-button:hover, .dropdown-button:focus {
-      background: linear-gradient(145deg, #7ae07a, #5cb85c);
+    .dropdown-button .menu-icon {
+        vertical-align: middle;
+        margin-right: 8px;
+        font-size: 1.2em; /* Icona leggermente più grande */
+    }
+    .dropdown-button:hover, .dropdown-button:focus-visible { /* :focus-visible per accessibilità */
+      background: linear-gradient(145deg, #7ae07a, var(--color-accent-primary-dark));
       transform: translateY(-2px);
-      box-shadow: 0 8px 12px rgba(0,0,0,0.2), 0 3px 6px rgba(0,0,0,0.15);
+      box-shadow: 0 8px 12px rgba(0,0,0,0.2), 0 3px 6px var(--shadow-medium);
+      outline: 2px solid var(--color-accent-primary-light); /* Focus visibile */
+      outline-offset: 2px;
     }
      .dropdown-button:active {
         transform: translateY(1px);
-        box-shadow: 0 2px 3px rgba(0,0,0,0.15), 0 1px 2px rgba(0,0,0,0.1);
-        background: linear-gradient(145deg, #4caf50, #6ad96a);
+        box-shadow: 0 2px 3px var(--shadow-medium), 0 1px 2px var(--shadow-light);
+        background: linear-gradient(145deg, var(--color-accent-primary), var(--color-accent-primary-light));
      }
     .dropdown-content {
       display: none;
       position: absolute;
-      background-color: #ffffff;
-      min-width: 230px;
-      box-shadow: 0px 10px 20px 0px rgba(0,0,0,0.25);
-      z-index: 999; /* Assicura sia sopra altri elementi navbar */
+      background-color: var(--color-bg-dropdown);
+      min-width: 240px; /* Leggermente aumentato */
+      box-shadow: 0px 10px 20px 0px var(--shadow-strong);
+      z-index: var(--z-index-dropdown-content);
       border-radius: 8px;
       margin-top: 8px;
-      overflow: hidden;
+      overflow: hidden; /* Per bordi arrotondati su elementi figli */
+      max-height: calc(100vh - var(--navbar-height) - 20px); /* Previene che il menu sia troppo lungo */
+      overflow-y: auto; /* Scroll se il contenuto è più lungo */
+    }
+    .dropdown-content .menu-loading-placeholder {
+        padding: 18px 20px; /* Aumentato padding */
+        color: var(--color-text-placeholder);
+        font-style: italic;
     }
     .dropdown-content ul { list-style-type: none; }
     .dropdown-content ul li a {
-      color: #333;
-      padding: 14px 18px;
+      color: var(--color-text-dark);
+      padding: 15px 20px; /* Aumentato padding */
       text-decoration: none;
       display: block;
-      font-family: 'Roboto', sans-serif;
+      font-family: var(--font-primary);
+      font-size: 0.95rem;
       transition: background-color 0.2s ease, color 0.2s ease;
+      border-bottom: 1px solid #eee; /* Separatori leggeri */
     }
-    .dropdown-content ul li a:hover {
-        background-color: #f5f5f5;
-        color: #4caf50;
+    .dropdown-content ul li:last-child a {
+        border-bottom: none; /* No bordo per l'ultimo elemento */
     }
-    .show { display: block; }
+    .dropdown-content ul li a:hover,
+    .dropdown-content ul li a:focus-visible {
+        background-color: var(--color-bg-dropdown-hover);
+        color: var(--color-accent-primary);
+        outline: none;
+    }
+    .dropdown-content.show { display: block; }
+
     .dropdown-content ul li.submenu-item { position: relative; }
     .dropdown-content ul li.submenu-item .submenu {
-        display: none; padding-left: 0; background-color: #f8f8f8;
-        border-left: 3px solid #4caf50; margin-left: 10px; margin-right: 10px; border-radius: 0 0 5px 5px;
+        display: none;
+        padding-left: 0;
+        background-color: var(--color-bg-dropdown-submenu);
+        border-left: 3px solid var(--color-accent-primary);
+        margin: 0 10px 5px 10px; /* Aggiustato margine */
+        border-radius: 0 0 5px 5px;
     }
-    .dropdown-content ul li.submenu-item .submenu ul li a { padding: 12px 15px 12px 25px; font-size: 0.9em; }
-    .dropdown-content ul li.submenu-item .submenu ul li a:hover { background-color: #e9e9e9; color: #333;}
+    .dropdown-content ul li.submenu-item .submenu ul li a {
+        padding: 12px 15px 12px 25px;
+        font-size: 0.9em;
+        border-bottom: 1px solid #e0e0e0; /* Separatori submenu */
+    }
+    .dropdown-content ul li.submenu-item .submenu ul li:last-child a {
+        border-bottom: none;
+    }
+    .dropdown-content ul li.submenu-item .submenu ul li a:hover,
+    .dropdown-content ul li.submenu-item .submenu ul li a:focus-visible {
+        background-color: #e9e9e9;
+        color: var(--color-text-dark);
+    }
     .dropdown-content ul li.submenu-item .submenu.open { display: block; }
-    .submenu-trigger .arrow { display: inline-block; margin-left: 8px; transition: transform 0.3s ease; font-size: 0.8em; }
+    .submenu-trigger .arrow {
+        display: inline-block;
+        margin-left: auto; /* Spinge la freccia a destra */
+        padding-left: 10px; /* Spazio dalla scritta */
+        transition: transform 0.3s ease;
+        font-size: 0.8em;
+    }
     .submenu-trigger.open .arrow { transform: rotate(180deg); }
+    .submenu-trigger { display: flex; align-items: center; width: 100%; } /* Per far funzionare margin-left: auto sulla freccia */
+
+
+    /* === PAGE OVERLAY (per menu mobile) === */
+    .page-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: var(--color-bg-overlay);
+        z-index: var(--z-index-page-overlay);
+    }
+    .page-overlay.active {
+        display: block;
+    }
 
 
     /* === BOTTONE CHAT === */
-    #goChatContainer { position: fixed; bottom: 25px; right: 25px; z-index: 1000; /* Il più alto */ }
+    #goChatContainer {
+      position: fixed; bottom: 25px; right: 25px;
+      z-index: var(--z-index-chat-button);
+    }
     #goChat{
-      width: 65px; height: 65px; border: none; border-radius: 50%;
-      background: #25d366 url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/55% no-repeat;
-      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.25), 0 2px 5px rgba(0,0,0,0.15);
+      width: 60px; height: 60px; /* Leggermente più piccolo su mobile di default */
+      border: none; border-radius: 50%;
+      background: var(--color-chat-button) url("https://img.icons8.com/ios-filled/50/ffffff/chat--v1.png") center/50% no-repeat; /* Icona leggermente più piccola */
+      box-shadow: 0 5px 15px var(--shadow-strong), 0 2px 5px var(--shadow-medium);
       cursor: pointer; transition: all 0.2s ease-out;
     }
-    #goChat:hover{
+    #goChat:hover, #goChat:focus-visible {
       transform: translateY(-3px) scale(1.05);
       box-shadow: 0 8px 20px rgba(37, 211, 102, 0.4), 0 4px 8px rgba(0,0,0,0.2);
-      background-color: #28e06e;
+      background-color: var(--color-chat-button-hover);
+      outline: 2px solid var(--color-chat-button-hover);
+      outline-offset: 2px;
     }
     #goChat:active{
       transform: translateY(1px) scale(0.95);
-      box-shadow: 0 2px 6px rgba(0,0,0,0.2), 0 1px 3px rgba(0,0,0,0.1);
-      background-color: #22c05c;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2), 0 1px 3px var(--shadow-light);
+      background-color: var(--color-chat-button-active);
     }
 
-    /* === SFONDO DINAMICO (z-index modificato) === */
+    /* === SFONDO DINAMICO === */
     #dynamic-background-container {
       position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
-      z-index: 0; /* MODIFICATO: Base level */
+      z-index: var(--z-index-background);
       overflow: hidden;
-      background-color: #222; /* Fallback visibile se immagini non caricano */
+      background-color: var(--color-bg-dynamic-fallback);
     }
     .background-slide {
-        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-        background-size: cover; background-position: center center;
-        opacity: 0;
-        transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
-        transform: scale(1.03); /* Base per Ken Burns */
+      position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+      background-size: cover; background-position: center center;
+      opacity: 0;
+      transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+      transform: scale(1.03);
     }
     .background-slide.active {
-        opacity: 1; /* Dovrebbe renderlo visibile */
-        animation: kenburns 25s infinite alternate ease-in-out;
-     }
+      opacity: 1;
+      animation: kenburns 25s infinite alternate ease-in-out;
+    }
     @keyframes kenburns { 0% { transform: scale(1.03) translate(0%, 0%); } 100% { transform: scale(1.12) translate(-1.5%, 1.5%); } }
     .background-slide.active.even-slide-kenburns { animation-name: kenburns-alt; }
     @keyframes kenburns-alt { 0% { transform: scale(1.03) translate(0%, 0%); } 100% { transform: scale(1.12) translate(1.5%, -1.5%); } }
 
-    /* === TITOLO EROE (z-index modificato) === */
+    /* === TITOLO EROE === */
     #hero-title-container {
       position: fixed; top: 48%; left: 50%; transform: translate(-50%, -50%);
-      text-align: center; color: #ffffff;
-      z-index: 3; /* MODIFICATO: Sopra sfondo e neve */
+      text-align: center; color: var(--color-text-light);
+      z-index: var(--z-index-hero-title);
       padding: 20px; width: 90%; max-width: 850px;
     }
-    /* ... (stili titolo h1 e p invariati) ... */
-     #hero-title-container h1 {
-      font-family: 'Oswald', sans-serif; font-size: 3.8rem; font-weight: 700;
-      margin-bottom: 0.4em; line-height: 1.15; letter-spacing: 2px; text-transform: uppercase;
-      background: linear-gradient(45deg, #ffffff, #ffeecc); -webkit-background-clip: text; background-clip: text; color: transparent;
-      filter: drop-shadow(0px 3px 6px rgba(0, 0, 0, 0.8));
+    #hero-title-container h1 {
+      font-family: var(--font-secondary); font-size: 2.5rem; /* Adattato per mobile first */
+      font-weight: 700;
+      margin-bottom: 0.4em; line-height: 1.15; letter-spacing: 1px; text-transform: uppercase;
+      background: linear-gradient(45deg, var(--color-text-light), #ffeecc);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
+      filter: drop-shadow(0px 3px 6px var(--shadow-text-dark));
     }
     #hero-title-container p {
-        font-family: 'Roboto', sans-serif; font-size: 1.35rem; font-weight: 300;
-        line-height: 1.6; opacity: 0.95; text-shadow: 0px 2px 5px rgba(0, 0, 0, 0.8);
-     }
-     /* Media queries invariate */
-     @media (max-width: 992px) { #hero-title-container h1 { font-size: 3.2rem; } #hero-title-container p { font-size: 1.2rem; } }
-    @media (max-width: 768px) { #hero-title-container { top: 45%; } #hero-title-container h1 { font-size: 2.8rem; } #hero-title-container p { font-size: 1.05rem; } }
-    @media (max-width: 480px) { #hero-title-container h1 { font-size: 2.2rem; letter-spacing: 1px; } #hero-title-container p { font-size: 0.95rem; } }
-
-
-    /* === CONTENUTO PRINCIPALE (z-index verificato) === */
-    .main-content {
-        position: relative;
-        z-index: 2; /* Sopra sfondo e neve, sotto titolo */
-        padding-top: 80px; padding-left: 20px; padding-right: 20px; padding-bottom: 80px;
-        min-height: calc(100vh - 80px);
-        /* Aggiungi un background semi-trasparente se vuoi che il contenuto sia leggibile sopra lo sfondo */
-        /* background-color: rgba(255, 255, 255, 0.8); */
-        /* border-radius: 8px; */
-        /* margin: 20px; */ /* Aggiungi margini se usi background */
+      font-family: var(--font-primary); font-size: 1rem; /* Adattato per mobile first */
+      font-weight: 300;
+      line-height: 1.6; opacity: 0.95;
+      text-shadow: 0px 2px 5px var(--shadow-text-dark);
     }
 
-    /* === EMOJI SNOW (z-index verificato) === */
+    /* === CONTENUTO PRINCIPALE === */
+    .main-content {
+      position: relative;
+      z-index: var(--z-index-main-content);
+      padding-top: calc(var(--navbar-height) + 20px); /* Padding per non sovrapporre la navbar */
+      padding-left: 20px; padding-right: 20px; padding-bottom: 80px;
+      min-height: calc(100vh - var(--navbar-height));
+      /*
+        Quando aggiungi contenuto qui, considera di usare:
+        display: flex; flex-direction: column; align-items: center;
+        o CSS Grid per layout responsive.
+        Esempio:
+        .your-content-section {
+            width: 100%;
+            max-width: 1200px; (per limitare la larghezza su schermi grandi)
+            margin: 0 auto; (per centrare)
+        }
+      */
+    }
+
+    /* === EMOJI SNOW === */
     #emoji-snow-container {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none; overflow: hidden;
-      z-index: 1; /* Sopra lo sfondo dinamico, sotto il resto */
+      z-index: var(--z-index-snow);
     }
     .falling-emoji {
       position: absolute; top: -40px; font-size: 1.5rem; user-select: none;
-      animation: fall linear infinite; color: #fff; text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      animation: fall linear infinite; color: var(--color-text-light);
+      text-shadow: 0 1px 3px var(--shadow-medium);
     }
     @keyframes fall {
       0% { transform: translateY(0vh) rotate(0deg); opacity: 1; }
       100% { transform: translateY(105vh) rotate(720deg); opacity: 0.5; }
     }
 
+    /* === MEDIA QUERIES PER RESPONSIVE DESIGN === */
+
+    /* Tablet e schermi più piccoli (fino a 768px) */
+    @media (max-width: 768px) {
+      #hero-title-container { top: 45%; }
+      #hero-title-container h1 { font-size: 2.8rem; letter-spacing: 1.5px; }
+      #hero-title-container p { font-size: 1.1rem; }
+
+      .dropdown-content {
+        /* Modifiche per menu full-width-ish su mobile */
+        position: fixed; /* Cambia da absolute a fixed per coprire lo schermo */
+        left: 0;
+        top: var(--navbar-height); /* Sotto la navbar */
+        width: 100vw;
+        max-width: 100vw; /* Assicura che non superi la larghezza della viewport */
+        min-width: auto; /* Rimuove il min-width precedente */
+        height: calc(100vh - var(--navbar-height)); /* Altezza completa meno navbar */
+        max-height: calc(100vh - var(--navbar-height));
+        border-radius: 0; /* No bordi arrotondati per full screen */
+        margin-top: 0;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.2); /* Ombra diversa se necessario */
+        overflow-y: auto; /* Scroll se il contenuto è tanto */
+        z-index: var(--z-index-dropdown-content); /* Già impostato, ma per chiarezza */
+      }
+      .dropdown-content ul li a {
+        padding: 18px 25px; /* Più padding per tocco facile */
+        font-size: 1rem;
+      }
+       .dropdown-content ul li.submenu-item .submenu {
+        margin-left: 0; margin-right: 0; border-radius: 0;
+        border-left: none; border-top: 2px solid var(--color-accent-primary);
+      }
+      .dropdown-content ul li.submenu-item .submenu ul li a {
+        padding-left: 35px; /* Indentazione maggiore per submenu */
+      }
+
+      #goChat { width: 55px; height: 55px; background-size: 50%; }
+    }
+
+    /* Schermi più grandi di tablet (min-width: 769px) */
+    @media (min-width: 769px) {
+        #hero-title-container h1 { font-size: 3.2rem; letter-spacing: 2px;}
+        #hero-title-container p { font-size: 1.2rem; }
+        #goChat { width: 65px; height: 65px; background-size: 55%; }
+    }
+
+    /* Desktop (min-width: 993px) */
+    @media (min-width: 993px) {
+      #hero-title-container h1 { font-size: 3.8rem; }
+      #hero-title-container p { font-size: 1.35rem; }
+    }
+
   </style>
 </head>
 <body>
+  <!-- Overlay per quando il menu mobile è aperto -->
+  <div class="page-overlay" id="pageOverlay"></div>
 
-  <div class="navbar">
-     <!-- ... (contenuto navbar invariato) ... -->
-      <div class="dropdown">
-          <button onclick="toggleMenu()" class="dropdown-button">
-              <span style="vertical-align: middle; margin-right: 8px;">☰</span> Menu
-          </button>
-          <div id="menuContent" class="dropdown-content">
-              <p style="padding: 15px; color: #777;">Caricamento menu...</p>
-          </div>
-      </div>
-  </div>
+  <header class="navbar">
+    <nav class="dropdown">
+        <button onclick="toggleMenu()" class="dropdown-button" id="menuButton" aria-haspopup="true" aria-expanded="false" aria-controls="menuContent">
+            <span class="menu-icon">☰</span> Menu
+        </button>
+        <div id="menuContent" class="dropdown-content" role="menu" aria-labelledby="menuButton">
+            <p class="menu-loading-placeholder">Caricamento menu...</p>
+        </div>
+    </nav>
+    <!-- Altri elementi della navbar potrebbero andare qui, es. logo -->
+    <!-- Esempio: <a href="/" class="navbar-logo">TeamDueMori</a> -->
+  </header>
 
-  <!-- Contenitore per gli emoji che cadono -->
   <div id="emoji-snow-container"></div>
-
-  <!-- Contenitore sfondo dinamico -->
   <div id="dynamic-background-container"></div>
-
-  <!-- Titolo -->
   <div id="hero-title-container"><h1>Team Due Mori</h1><p>Il Dream Team (almeno la mattina, dopo il caffè).</p></div>
 
-  <!-- Contenuto Principale -->
-  <div class="main-content">
+  <main class="main-content">
       <!-- IL TUO CONTENUTO VA QUI! -->
       <!-- Esempio:
-      <div style="background: rgba(255,255,255,0.8); padding: 20px; border-radius: 8px;">
+      <div style="background: rgba(255,255,255,0.9); padding: 20px; border-radius: 8px; margin: 20px auto; max-width: 800px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
           <h2>Contenuto di prova</h2>
-          <p>Testo per vedere la sovrapposizione.</p>
+          <p>Testo per vedere la sovrapposizione e la leggibilità su mobile e desktop.</p>
+          <p>Aggiungi qui i tuoi elementi, usando flexbox o grid per un layout responsive.</p>
       </div>
        -->
-   </div>
+   </main>
 
-   <!-- Bottone Chat -->
-  <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat"></button></a></div>
+  <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat" aria-label="Avvia chat"></button></a></div>
 
-  <!-- Il tuo script esistente rimane invariato -->
+  <audio id="indexPageSong" src="indexsong.mp3" loop preload="metadata"></audio>
+
   <script>
-    // --- SCRIPT MENU (invariato) ---
+    // --- INIZIALIZZAZIONE GLOBALE E UTILITY ---
+    const ready = (callback) => {
+        if (document.readyState !== "loading") callback();
+        else document.addEventListener("DOMContentLoaded", callback);
+    };
+
+    // --- GESTIONE MENU ---
+    const menuButton = document.getElementById("menuButton");
+    const menuContent = document.getElementById("menuContent");
+    const pageOverlay = document.getElementById("pageOverlay"); // Overlay
+
     function toggleMenu() {
-      const menuContent = document.getElementById("menuContent");
       const isCurrentlyShown = menuContent.classList.contains("show");
-      if (!isCurrentlyShown && (menuContent.querySelector('p') || menuContent.innerHTML.trim() === '')) {
+      menuButton.setAttribute("aria-expanded", !isCurrentlyShown);
+      menuContent.classList.toggle("show");
+      pageOverlay.classList.toggle("active"); // Attiva/disattiva overlay
+      document.body.classList.toggle("menu-open"); // Blocca/sblocca scroll del body
+
+      if (!isCurrentlyShown && (menuContent.querySelector('.menu-loading-placeholder') || menuContent.innerHTML.trim() === '')) {
         fetch('menu.html')
           .then(response => {
-            if (!response.ok) { throw new Error('Errore nel caricamento di menu.html: ' + response.status); }
+            if (!response.ok) { throw new Error('Errore caricamento menu.html: ' + response.status); }
             return response.text();
           })
           .then(data => {
-            menuContent.innerHTML = data.trim() === '' ? '<p style="padding: 10px; color: #888;">Menu vuoto.</p>' : data;
+            menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message" style="padding: 18px 20px; color: var(--color-text-placeholder);">Menu vuoto.</p>` : data;
           })
           .catch(error => {
-            menuContent.innerHTML = '<p style="padding: 10px; color: red;">Errore caricamento menu.</p>';
+            menuContent.innerHTML = `<p class="menu-message" style="padding: 18px 20px; color: var(--color-text-error);">Errore caricamento menu.</p>`;
             console.error('Dettagli errore fetch menu.html:', error);
           });
       }
-      menuContent.classList.toggle("show");
-      if (!menuContent.classList.contains("show")) { closeAllSubmenus(menuContent); }
+      if (!menuContent.classList.contains("show")) {
+        closeAllSubmenus(menuContent);
+      }
     }
-    function toggleSubmenu(event, triggerElement) { /* ... (invariato) ... */ event.preventDefault(); event.stopPropagation(); const submenu = triggerElement.nextElementSibling; if (submenu && submenu.classList.contains('submenu')) { submenu.classList.toggle('open'); triggerElement.classList.toggle('open'); } }
-    function closeAllSubmenus(menuContainer) { /* ... (invariato) ... */ const openSubmenus = menuContainer.querySelectorAll('.submenu.open'); openSubmenus.forEach(submenu => { submenu.classList.remove('open'); const trigger = submenu.previousElementSibling; if (trigger && trigger.classList.contains('submenu-trigger')) { trigger.classList.remove('open'); } }); }
-    window.onclick = function(event) { /* ... (invariato) ... */ const menuContent = document.getElementById("menuContent"); const dropdownButton = document.querySelector('.dropdown-button'); if (menuContent && dropdownButton && !dropdownButton.contains(event.target) && !menuContent.contains(event.target)) { if (menuContent.classList.contains("show")) { menuContent.classList.remove('show'); closeAllSubmenus(menuContent); } } }
 
-    // --- SCRIPT SFONDO DINAMICO con LOGGING AGGIUNTO ---
-    document.addEventListener('DOMContentLoaded', () => {
-        console.log("DOM Caricato. Avvio script sfondo dinamico."); // LOG 1
-        const backgroundContainer = document.getElementById('dynamic-background-container');
-        if (!backgroundContainer) {
-            console.error("ERRORE: Contenitore sfondo #dynamic-background-container non trovato!"); // LOG ERRORE
-            return;
+    function toggleSubmenu(event, triggerElement) {
+      event.preventDefault();
+      event.stopPropagation();
+      const submenu = triggerElement.nextElementSibling;
+      const wasOpen = submenu && submenu.classList.contains('open');
+
+      // Chiudi tutti gli altri sottomenu allo stesso livello (opzionale, ma buona UX)
+      // const parentUl = triggerElement.closest('ul');
+      // if (parentUl) {
+      //   parentUl.querySelectorAll('.submenu.open').forEach(openSub => {
+      //     if (openSub !== submenu) {
+      //       openSub.classList.remove('open');
+      //       const prevTrig = openSub.previousElementSibling;
+      //       if(prevTrig) prevTrig.classList.remove('open');
+      //     }
+      //   });
+      // }
+
+      if (submenu && submenu.classList.contains('submenu')) {
+        submenu.classList.toggle('open', !wasOpen);
+        triggerElement.classList.toggle('open', !wasOpen);
+      }
+    }
+
+    function closeAllSubmenus(menuContainer) {
+      menuContainer.querySelectorAll('.submenu.open').forEach(submenu => {
+        submenu.classList.remove('open');
+        const trigger = submenu.previousElementSibling;
+        if (trigger && trigger.classList.contains('submenu-trigger')) {
+          trigger.classList.remove('open');
         }
+      });
+    }
 
-        const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
-        let currentImageIndex = -1;
-        const slideDuration = 7500;
-        const kenBurnsAnimationDuration = 25;
-
-        console.log("Creazione slide..."); // LOG 2
-        images.forEach((imageName, index) => {
-            const slide = document.createElement('div');
-            slide.classList.add('background-slide');
-            const imageUrl = `url('${imageName}')`; 
-            slide.style.backgroundImage = imageUrl;
-            if (index % 2 !== 0) { slide.classList.add('even-slide-kenburns'); }
-            backgroundContainer.appendChild(slide);
-            console.log(` - Creata slide ${index} con immagine ${imageUrl}`); 
-        });
-
-        const slides = backgroundContainer.querySelectorAll('.background-slide');
-        if (slides.length === 0) {
-             console.error("ERRORE: Nessuna slide trovata/creata nel contenitore."); 
-             return;
+    // Chiudi il menu se si clicca fuori (sull'overlay o altrove)
+    window.addEventListener('click', function(event) {
+      if (menuContent.classList.contains("show")) {
+        if (!menuButton.contains(event.target) && !menuContent.contains(event.target)) {
+          toggleMenu(); // Usa toggleMenu per gestire overlay e body class
         }
-        console.log(`Trovate ${slides.length} slide. Avvio slideshow.`); 
-
-        function showNextSlide() {
-            if (currentImageIndex >= 0 && slides[currentImageIndex]) {
-                slides[currentImageIndex].classList.remove('active');
-                slides[currentImageIndex].style.animation = 'none';
-                void slides[currentImageIndex].offsetHeight; 
-            }
-            currentImageIndex = (currentImageIndex + 1) % slides.length;
-            if (slides[currentImageIndex]) {
-                console.log(`Mostrando slide ${currentImageIndex} (${images[currentImageIndex]})`); 
-                slides[currentImageIndex].classList.add('active');
-                const animationName = slides[currentImageIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns';
-                slides[currentImageIndex].style.animation = `${animationName} ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
-            } else {
-                 console.error(`ERRORE: Tentativo di accesso a slide inesistente all'indice ${currentImageIndex}`); 
-            }
+      }
+    });
+    // Chiudi menu con tasto ESC
+    window.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape' && menuContent.classList.contains('show')) {
+            toggleMenu();
         }
-        showNextSlide(); 
-        setInterval(showNextSlide, slideDuration);
-
-        // --- Avvio SCRIPT PER EMOJI SNOW ---
-        createEmojiSnow(); 
     });
 
-    // --- SCRIPT EMOJI SNOW (invariato) ---
-    function createEmojiSnow() {
-        const container = document.getElementById('emoji-snow-container');
-        if (!container) return;
-        const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
-        const numberOfEmojis = 80;
-        for (let i = 0; i < numberOfEmojis; i++) {
-            const emoji = document.createElement('span');
-            emoji.classList.add('falling-emoji');
-            emoji.textContent = restaurantEmojis[Math.floor(Math.random() * restaurantEmojis.length)];
-            emoji.style.left = `${Math.random() * 100}vw`;
-            const duration = Math.random() * 8 + 7;
-            emoji.style.animationDuration = `${duration}s`;
-            emoji.style.animationDelay = `${Math.random() * 10}s`;
-            emoji.style.fontSize = `${Math.random() * 1 + 1}rem`;
-            emoji.style.opacity = `${Math.random() * 0.5 + 0.5}`;
-            container.appendChild(emoji);
-        }
-    }
-  </script>
 
-  <!-- AGGIUNTA CODICE PER LA CANZONE (non modifica lo script sopra) -->
-  <audio id="indexPageSong" src="indexsong.mp3" loop></audio>
-  <script>
-    // Questo script è per indexsong.mp3
-    window.addEventListener('load', () => {
+    // --- SCRIPT SFONDO DINAMICO ---
+    function initDynamicBackground() {
+      // console.log("Avvio script sfondo dinamico."); // Rimosso per meno console noise
+      const backgroundContainer = document.getElementById('dynamic-background-container');
+      if (!backgroundContainer) {
+        console.error("ERRORE: #dynamic-background-container non trovato!"); return;
+      }
+      const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
+      if (images.length === 0) { console.warn("Nessuna immagine per lo sfondo dinamico."); return; }
+      let currentImageIndex = -1;
+      const slideDuration = 7500;
+      const kenBurnsAnimationDuration = 25;
+
+      images.forEach((imageName, index) => {
+        const slide = document.createElement('div');
+        slide.classList.add('background-slide');
+        slide.style.backgroundImage = `url('${imageName}')`;
+        if (index % 2 !== 0) { slide.classList.add('even-slide-kenburns'); }
+        backgroundContainer.appendChild(slide);
+      });
+
+      const slides = backgroundContainer.querySelectorAll('.background-slide');
+      if (slides.length === 0) { console.error("ERRORE: Nessuna slide creata per lo sfondo."); return; }
+
+      function showNextSlide() {
+        if (currentImageIndex >= 0 && slides[currentImageIndex]) {
+          slides[currentImageIndex].classList.remove('active');
+          slides[currentImageIndex].style.animation = 'none';
+          void slides[currentImageIndex].offsetHeight;
+        }
+        currentImageIndex = (currentImageIndex + 1) % slides.length;
+        if (slides[currentImageIndex]) {
+          slides[currentImageIndex].classList.add('active');
+          const animationName = slides[currentImageIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns';
+          slides[currentImageIndex].style.animation = `${animationName} ${kenBurnsAnimationDuration}s infinite alternate ease-in-out`;
+        }
+      }
+      showNextSlide();
+      setInterval(showNextSlide, slideDuration);
+    }
+
+    // --- SCRIPT EMOJI SNOW ---
+    function createEmojiSnow() {
+      const container = document.getElementById('emoji-snow-container');
+      if (!container) { console.warn("#emoji-snow-container non trovato."); return; }
+      const restaurantEmojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
+      const numberOfEmojis = Math.min(80, Math.floor(window.innerWidth / 20)); // Meno emoji su schermi piccoli
+
+      for (let i = 0; i < numberOfEmojis; i++) {
+        const emoji = document.createElement('span');
+        emoji.classList.add('falling-emoji');
+        emoji.textContent = restaurantEmojis[Math.floor(Math.random() * restaurantEmojis.length)];
+        emoji.style.left = `${Math.random() * 100}vw`;
+        const duration = Math.random() * 8 + 7;
+        emoji.style.animationDuration = `${duration}s`;
+        emoji.style.animationDelay = `${Math.random() * (duration / 2)}s`; // Delay proporzionale alla durata
+        emoji.style.fontSize = `${Math.random() * 1 + 0.8}rem`; // Leggermente più piccolo
+        emoji.style.opacity = `${Math.random() * 0.4 + 0.4}`; // Un po' più trasparente
+        container.appendChild(emoji);
+      }
+    }
+
+    // --- SCRIPT AUDIO PLAYER ---
+    function initAudioPlayer() {
       const song = document.getElementById('indexPageSong');
-      let hasInteracted = false; 
+      if (!song) { console.error("#indexPageSong non trovato."); return; }
+
+      let hasInteracted = false;
       let interactionListenersAdded = false;
 
       const tryPlayMusic = (eventSource) => {
-        if (hasInteracted || !song || (song.currentTime > 0 && !song.paused && !song.ended && song.readyState >= 3) ) {
+        if (hasInteracted || (song.currentTime > 0 && !song.paused && !song.ended && song.readyState >= 3) ) {
           if (interactionListenersAdded) removeInteractionListeners();
           return;
         }
-        hasInteracted = true; 
+        hasInteracted = true;
 
         song.play().then(() => {
-          console.log(`indexsong.mp3: Riproduzione avviata dopo interazione utente via ${eventSource || 'autoplay permesso'}.`);
+          console.log(`indexsong.mp3: Riproduzione avviata (${eventSource || 'autoplay'}).`);
         }).catch(e => {
-          console.error(`indexsong.mp3: Errore nel tentativo di play dopo interazione via ${eventSource || 'autoplay fallito'}:`, e.name, e.message);
-          hasInteracted = false; 
+          console.warn(`indexsong.mp3: Play fallito (${eventSource || 'autoplay'}):`, e.name);
+          hasInteracted = false;
         }).finally(() => {
            if (interactionListenersAdded) removeInteractionListeners();
         });
       };
 
-      const interactionEventsMap = {
-        'click': { target: document.body, handler: () => tryPlayMusic('click') },
-        'scroll': { target: window, handler: () => tryPlayMusic('scroll') },
-        'mousemove': { target: document.body, handler: () => tryPlayMusic('mousemove') },
-        'touchstart': { target: document.body, handler: () => tryPlayMusic('touchstart') },
-        'keydown': { target: window, handler: () => tryPlayMusic('keydown') }
-      };
-      
+      const interactionEvents = ['click', 'scroll', 'mousemove', 'touchstart', 'keydown'];
+      const eventHandlers = {};
+
       const addInteractionListeners = () => {
         if (interactionListenersAdded) return;
-        Object.keys(interactionEventsMap).forEach(eventType => {
-          const eventInfo = interactionEventsMap[eventType];
-          eventInfo.target.addEventListener(eventType, eventInfo.handler, { once: true });
+        interactionEvents.forEach(eventType => {
+          const handler = () => tryPlayMusic(eventType);
+          eventHandlers[eventType] = handler; // Salva il riferimento per rimuoverlo
+          const target = (eventType === 'scroll' || eventType === 'keydown') ? window : document.body;
+          target.addEventListener(eventType, handler, { once: true, passive: true });
         });
         interactionListenersAdded = true;
-        console.log("indexsong.mp3: Listener di interazione aggiunti (per click, scroll, mousemove, touchstart, keydown).");
+        // console.log("indexsong.mp3: Listener interazione aggiunti.");
       };
 
       const removeInteractionListeners = () => {
         if (!interactionListenersAdded) return;
-        Object.keys(interactionEventsMap).forEach(eventType => {
-          const eventInfo = interactionEventsMap[eventType];
-          eventInfo.target.removeEventListener(eventType, eventInfo.handler);
+        interactionEvents.forEach(eventType => {
+          const handler = eventHandlers[eventType];
+          if (handler) {
+            const target = (eventType === 'scroll' || eventType === 'keydown') ? window : document.body;
+            target.removeEventListener(eventType, handler);
+          }
         });
         interactionListenersAdded = false;
-        console.log("indexsong.mp3: Listener di interazione rimossi.");
+        // console.log("indexsong.mp3: Listener interazione rimossi.");
       };
 
-      if (song) {
-        song.play().then(() => {
-          console.log("indexsong.mp3: Riproduzione avviata automaticamente (il browser lo ha permesso).");
-          hasInteracted = true; 
-        }).catch(error => {
-          console.warn("indexsong.mp3: Autoplay iniziale bloccato dal browser. In attesa di interazione utente. Errore:", error.name, error.message);
-          addInteractionListeners();
-        });
-      } else {
-        console.error("Elemento audio con id 'indexPageSong' non trovato nel DOM.");
-      }
-    });
-  </script>
-  <!-- FINE AGGIUNTA CODICE PER LA CANZONE -->
+      song.play().then(() => {
+        console.log("indexsong.mp3: Autoplay riuscito.");
+        hasInteracted = true;
+      }).catch(() => {
+        // console.warn("indexsong.mp3: Autoplay bloccato. In attesa di interazione.");
+        addInteractionListeners();
+      });
+    }
 
+    // --- ESECUZIONE DEGLI SCRIPT AL CARICAMENTO DEL DOM ---
+    ready(() => {
+      initDynamicBackground();
+      createEmojiSnow();
+      initAudioPlayer();
+      // Altri script...
+    });
+
+  </script>
 </body>
 </html>

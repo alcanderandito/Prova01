@@ -20,17 +20,15 @@
       --color-text-placeholder: #888;
       --color-text-error: #dc3545;
 
-      --color-bg-navbar: rgba(40, 40, 40, 0.85); /* Sfondo navbar con trasparenza */
+      --color-bg-navbar: rgba(40, 40, 40, 0.85);
       --color-bg-navbar-solid: #282828;
       --color-bg-dropdown: #ffffff;
       --color-bg-dropdown-hover: #f8f9fa;
       --color-bg-dropdown-submenu: #f1f1f1;
       --color-bg-dynamic-fallback: #1a1a1a;
       --color-bg-overlay: rgba(0, 0, 0, 0.6);
-      --color-bg-main-content-overlay: rgba(0, 0, 0, 0.1); /* Leggero overlay sul contenuto per contrasto con testo eroe */
 
-
-      --color-accent-primary: #5cb85c; /* Verde più brillante */
+      --color-accent-primary: #5cb85c;
       --color-accent-primary-light: #81c784;
       --color-accent-primary-dark: #388e3c;
 
@@ -67,165 +65,109 @@
       font-family: var(--font-primary);
       height: 100%;
       overflow-x: hidden;
-      background-color: var(--color-bg-dynamic-fallback); /* Fallback se lo sfondo dinamico non carica */
+      background-color: var(--color-bg-dynamic-fallback);
       line-height: 1.6;
       color: var(--color-text-dark);
     }
     body.menu-open { overflow-y: hidden; }
 
-    /* === NAVBAR === */
     .navbar {
       background-color: var(--color-bg-navbar);
-      backdrop-filter: blur(10px); /* Effetto vetro smerigliato */
+      backdrop-filter: blur(10px);
       -webkit-backdrop-filter: blur(10px);
       padding: 0 20px;
       height: var(--navbar-height);
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
+      position: fixed; top: 0; left: 0; width: 100%;
       z-index: var(--z-index-navbar);
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       box-shadow: 0 2px 10px var(--shadow-medium);
       transition: background-color var(--transition-duration-fast) ease;
     }
 
-    /* === DROPDOWN MENU BUTTON (ANIMATED ICON) === */
     .dropdown-button {
-      background: transparent; /* Reso trasparente, lo stile sarà sul testo/icona */
-      color: var(--color-text-light);
-      padding: 10px; /* Padding per area cliccabile */
-      font-size: 1rem;
-      font-weight: 500;
-      border: none;
-      cursor: pointer;
-      border-radius: var(--border-radius-small);
+      background: transparent; color: var(--color-text-light);
+      padding: 10px; font-size: 1rem; font-weight: 500;
+      border: none; cursor: pointer; border-radius: var(--border-radius-small);
       font-family: var(--font-primary);
       transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease;
-      display: flex;
-      align-items: center;
+      display: flex; align-items: center;
       text-shadow: 0 1px 2px var(--shadow-medium);
-      position: relative; /* Per z-index icona */
+      position: relative;
     }
     .dropdown-button:hover, .dropdown-button:focus-visible {
-      background-color: rgba(255,255,255,0.1);
-      outline: none;
+      background-color: rgba(255,255,255,0.1); outline: none;
     }
     .menu-icon-container {
-      width: 24px; /* Larghezza fissa per l'animazione */
-      height: 20px; /* Altezza fissa */
-      display: flex;
-      flex-direction: column;
-      justify-content: space-between;
-      margin-right: 10px;
-      cursor: pointer;
-      z-index: 1; /* Sopra il testo per il click */
+      width: 24px; height: 20px;
+      display: flex; flex-direction: column; justify-content: space-between;
+      margin-right: 10px; cursor: pointer; z-index: 1;
     }
     .menu-icon-container .line {
-      display: block;
-      height: 3px; /* Spessore linee hamburger */
-      width: 100%;
-      background-color: var(--color-text-light);
-      border-radius: 3px;
+      display: block; height: 3px; width: 100%;
+      background-color: var(--color-text-light); border-radius: 3px;
       transition: transform var(--transition-duration-normal) ease-in-out,
                   opacity var(--transition-duration-normal) ease-in-out;
     }
-    .dropdown-button[aria-expanded="true"] .menu-icon-container .line1 {
-      transform: translateY(8.5px) rotate(45deg);
-    }
-    .dropdown-button[aria-expanded="true"] .menu-icon-container .line2 {
-      opacity: 0;
-    }
-    .dropdown-button[aria-expanded="true"] .menu-icon-container .line3 {
-      transform: translateY(-8.5px) rotate(-45deg);
-    }
-    .dropdown-button-text {
-        transition: color var(--transition-duration-fast) ease;
-    }
+    .dropdown-button[aria-expanded="true"] .menu-icon-container .line1 { transform: translateY(8.5px) rotate(45deg); }
+    .dropdown-button[aria-expanded="true"] .menu-icon-container .line2 { opacity: 0; }
+    .dropdown-button[aria-expanded="true"] .menu-icon-container .line3 { transform: translateY(-8.5px) rotate(-45deg); }
+    .dropdown-button-text { transition: color var(--transition-duration-fast) ease; }
 
-    /* === DROPDOWN CONTENT === */
     .dropdown-content {
-      display: none;
-      position: absolute;
-      top: calc(var(--navbar-height) - 10px); /* Spostato più in su per allineamento */
-      left: 10px;
+      display: none; position: absolute;
+      top: calc(var(--navbar-height) - 10px); left: 10px;
       background-color: var(--color-bg-dropdown);
-      min-width: 250px;
-      box-shadow: 0 8px 25px var(--shadow-strong);
+      min-width: 250px; box-shadow: 0 8px 25px var(--shadow-strong);
       z-index: var(--z-index-dropdown-content);
       border-radius: var(--border-radius-medium);
-      overflow: hidden;
-      opacity: 0;
-      transform: translateY(10px);
+      overflow: hidden; opacity: 0; transform: translateY(10px);
       transition: opacity var(--transition-duration-fast) ease-out, transform var(--transition-duration-fast) ease-out;
-      max-height: calc(100vh - var(--navbar-height) - 20px);
-      overflow-y: auto;
+      max-height: calc(100vh - var(--navbar-height) - 20px); overflow-y: auto;
     }
-    .dropdown-content.show {
-      display: block;
-      opacity: 1;
-      transform: translateY(0);
-    }
-    .dropdown-content .menu-loading-placeholder,
-    .dropdown-content .menu-message {
-        padding: 20px;
-        color: var(--color-text-placeholder);
-        font-style: italic;
-        text-align: center;
+    .dropdown-content.show { display: block; opacity: 1; transform: translateY(0); }
+    .dropdown-content .menu-loading-placeholder, .dropdown-content .menu-message {
+      padding: 20px; color: var(--color-text-placeholder); font-style: italic; text-align: center;
     }
     .dropdown-content ul { list-style-type: none; }
     .dropdown-content ul li a {
-      color: var(--color-text-dark);
-      padding: 12px 20px;
-      text-decoration: none;
-      display: block;
-      font-size: 0.95rem;
-      font-weight: 400;
+      color: var(--color-text-dark); padding: 12px 20px; text-decoration: none;
+      display: block; font-size: 0.95rem; font-weight: 400;
       transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease, padding-left var(--transition-duration-fast) ease;
       border-bottom: 1px solid #eee;
     }
     .dropdown-content ul li:last-child a { border-bottom: none; }
-    .dropdown-content ul li a:hover,
-    .dropdown-content ul li a:focus-visible {
-        background-color: var(--color-bg-dropdown-hover);
-        color: var(--color-accent-primary);
-        padding-left: 25px;
-        outline: none;
+    .dropdown-content ul li a:hover, .dropdown-content ul li a:focus-visible {
+      background-color: var(--color-bg-dropdown-hover); color: var(--color-accent-primary);
+      padding-left: 25px; outline: none;
     }
     .dropdown-content ul li.submenu-item .submenu {
-        display: none; padding-left: 0; background-color: var(--color-bg-dropdown-submenu);
-        border-left: 3px solid var(--color-accent-primary);
-        margin: 5px 10px 5px 15px;
-        border-radius: var(--border-radius-small);
+      display: none; padding-left: 0; background-color: var(--color-bg-dropdown-submenu);
+      border-left: 3px solid var(--color-accent-primary);
+      margin: 5px 10px 5px 15px; border-radius: var(--border-radius-small);
     }
     .dropdown-content ul li.submenu-item .submenu ul li a {
-        padding: 10px 15px 10px 20px; font-size: 0.9em;
-        border-bottom: 1px solid #e0e0e0;
+      padding: 10px 15px 10px 20px; font-size: 0.9em; border-bottom: 1px solid #e0e0e0;
     }
     .dropdown-content ul li.submenu-item .submenu ul li:last-child a { border-bottom: none; }
     .dropdown-content ul li.submenu-item .submenu ul li a:hover,
     .dropdown-content ul li.submenu-item .submenu ul li a:focus-visible {
-        background-color: #e9e9e9; color: var(--color-text-dark); padding-left: 25px;
+      background-color: #e9e9e9; color: var(--color-text-dark); padding-left: 25px;
     }
     .dropdown-content ul li.submenu-item .submenu.open { display: block; }
     .submenu-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; }
     .submenu-trigger .arrow {
-        transition: transform var(--transition-duration-normal) ease; font-size: 0.8em; margin-left: 8px;
+      transition: transform var(--transition-duration-normal) ease; font-size: 0.8em; margin-left: 8px;
     }
     .submenu-trigger.open .arrow { transform: rotate(180deg); }
 
-    /* === PAGE OVERLAY === */
     .page-overlay {
-        display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background-color: var(--color-bg-overlay);
-        z-index: var(--z-index-page-overlay);
-        opacity: 0;
-        transition: opacity var(--transition-duration-normal) ease;
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background-color: var(--color-bg-overlay);
+      z-index: var(--z-index-page-overlay);
+      opacity: 0; transition: opacity var(--transition-duration-normal) ease;
     }
     .page-overlay.active { display: block; opacity: 1; }
 
-    /* === BOTTONE CHAT === */
     #goChatContainer { position: fixed; bottom: 25px; right: 25px; z-index: var(--z-index-chat-button); }
     #goChat{
       width: 60px; height: 60px; border: none; border-radius: 50%;
@@ -237,12 +179,10 @@
       transform: translateY(-4px) scale(1.1);
       box-shadow: 0 8px 20px var(--color-chat-button-hover), 0 4px 10px var(--shadow-medium);
       background-color: var(--color-chat-button-hover);
-      outline: 3px solid rgba(255,255,255,0.3);
-      outline-offset: 2px;
+      outline: 3px solid rgba(255,255,255,0.3); outline-offset: 2px;
     }
     #goChat:active{ transform: translateY(0px) scale(1); background-color: var(--color-chat-button-active); }
 
-    /* === SFONDO DINAMICO === */
     #dynamic-background-container {
       position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
       z-index: var(--z-index-background); overflow: hidden;
@@ -251,19 +191,16 @@
     .background-slide {
       position: absolute; top: 0; left: 0; width: 100%; height: 100%;
       background-size: cover; background-position: center center;
-      opacity: 0;
-      transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
+      opacity: 0; transition: opacity 1.8s cubic-bezier(0.4, 0, 0.2, 1);
       transform: scale(1.03);
     }
     .background-slide.active {
-      opacity: 1;
-      animation: kenburns 20s infinite alternate ease-in-out; /* Durata Ken Burns leggermente ridotta */
+      opacity: 1; animation: kenburns 20s infinite alternate ease-in-out;
     }
     @keyframes kenburns { 0% { transform: scale(1.03) translate(0%, 0%); } 100% { transform: scale(1.10) translate(-1%, 1%); } }
     .background-slide.active.even-slide-kenburns { animation-name: kenburns-alt; }
     @keyframes kenburns-alt { 0% { transform: scale(1.03) translate(0%, 0%); } 100% { transform: scale(1.10) translate(1%, -1%); } }
 
-    /* === TITOLO EROE (CON ANIMAZIONE ENTRATA) === */
     #hero-title-container {
       position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
       text-align: center; color: var(--color-text-light);
@@ -272,78 +209,76 @@
       transition: text-shadow var(--transition-duration-fast) ease;
     }
     #hero-title-container:hover {
-        text-shadow: 0 0 15px var(--shadow-text-hero-hover), 0 0 25px var(--shadow-text-hero-hover);
+      text-shadow: 0 0 15px var(--shadow-text-hero-hover), 0 0 25px var(--shadow-text-hero-hover);
     }
     #hero-title-container h1, #hero-title-container p {
-        opacity: 0; /* Inizialmente invisibile per animazione */
-        transform: translateY(20px); /* Inizialmente spostato in basso */
+      opacity: 0; transform: translateY(20px);
     }
     #hero-title-container h1 {
       font-family: var(--font-secondary); font-size: 2.8rem; font-weight: 700;
       margin-bottom: 0.5em; line-height: 1.2; letter-spacing: 1.5px; text-transform: uppercase;
-      background: linear-gradient(45deg, var(--color-text-light), #f0e0c0); /* Gradiente leggermente più caldo */
+      background: linear-gradient(45deg, var(--color-text-light), #f0e0c0);
       -webkit-background-clip: text; background-clip: text; color: transparent;
       filter: drop-shadow(0px 4px 8px var(--shadow-text-hero));
-      animation: fadeInUp 0.8s 0.5s ease-out forwards; /* Animazione entrata */
+      animation: fadeInUp 0.8s 0.5s ease-out forwards;
     }
     #hero-title-container p {
       font-family: var(--font-primary); font-size: 1.1rem; font-weight: 300;
-      line-height: 1.7; opacity: 0.9;
+      line-height: 1.7; opacity: 0; /* Opacità iniziale a 0 per animazione */
       text-shadow: 0px 2px 6px var(--shadow-text-hero);
-      max-width: 700px; margin-left: auto; margin-right: auto; /* Per centrare se più corto */
-      animation: fadeInUp 0.8s 0.8s ease-out forwards; /* Animazione entrata con ritardo */
+      max-width: 700px; margin-left: auto; margin-right: auto;
+      animation: fadeInUp 0.8s 0.8s ease-out forwards;
     }
-    @keyframes fadeInUp {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
+    @keyframes fadeInUp { to { opacity: 1; transform: translateY(0); } }
 
-    /* === CONTENUTO PRINCIPALE === */
     .main-content {
-      position: relative;
-      z-index: var(--z-index-main-content);
+      position: relative; z-index: var(--z-index-main-content);
       padding-top: calc(var(--navbar-height) + 30px);
       padding-left: 25px; padding-right: 25px; padding-bottom: 80px;
-      min-height: 100vh; /* Occupa almeno tutta l'altezza della viewport */
-      /* Aggiunto un leggero overlay per migliorare il contrasto del titolo eroe se il contenuto è chiaro */
-      /* background-color: var(--color-bg-main-content-overlay); */
+      min-height: 100vh;
     }
 
-    /* === EMOJI SNOW (CON CADUTA MIGLIORATA E DISSOLVENZA) === */
     #emoji-snow-container {
       position: fixed; top: 0; left: 0; width: 100%; height: 100%;
       pointer-events: none; overflow: hidden;
       z-index: var(--z-index-snow);
     }
     .falling-emoji {
-      position: absolute; top: -50px; /* Partono un po' più in alto */
+      position: absolute; top: -50px;
       font-size: 1.5rem; user-select: none;
       color: var(--color-text-light);
       text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      animation-name: fall, sway; /* Due animazioni: caduta e oscillazione */
+      /* Animazione combinata per caduta e oscillazione.
+         'fall' gestisce la discesa verticale e la dissolvenza.
+         'sway' gestisce l'oscillazione orizzontale. */
+      animation-name: fall, sway;
       animation-timing-function: linear, ease-in-out;
-      animation-iteration-count: infinite, infinite;
-      animation-direction: normal, alternate; /* Oscillazione avanti e indietro */
-      opacity: 0; /* Inizia trasparente, gestito da JS */
+      animation-fill-mode: forwards; /* Mantiene lo stato finale dell'animazione fall (opacity:0) */
+      animation-iteration-count: 1, infinite; /* fall una volta, sway infinito (ma l'elemento viene rimosso) */
+      animation-direction: normal, alternate;
+      opacity: 0; /* Inizialmente invisibile, 'fall' lo rende visibile */
     }
-    /* Animazione di caduta e dissolvenza */
     @keyframes fall {
-      0% { transform: translateY(0vh) scale(0.8); opacity: 0; } /* Inizia più piccolo e trasparente */
-      10% { transform: translateY(5vh) scale(1); opacity: 1; } /* Diventa visibile e a grandezza normale */
-      90% { transform: translateY(95vh) scale(1); opacity: 1; } /* Poco prima di toccare il fondo */
-      100% { transform: translateY(100vh) scale(0.5); opacity: 0; } /* Si rimpicciolisce e scompare */
+      0% { transform: translateY(0vh) scale(0.8); opacity: 0; }
+      10% { transform: translateY(5vh) scale(1); opacity: 1; }
+      90% { transform: translateY(95vh) scale(1); opacity: 1; }
+      100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
     }
-    /* Animazione di oscillazione laterale */
     @keyframes sway {
-      0% { transform: translateX(-15px) rotate(-5deg); }
+      0% { transform: translateX(-15px) rotate(-5deg); } /* Sovrascrive il translateY di fall se non gestito bene */
+      /* Per correggere, sway dovrebbe modificare solo translateX/rotate.
+         Il translateY sarà gestito da 'fall'.
+         Questo si ottiene separando i transform o usando transform-box se appropriato,
+         ma per semplicità, l'animazione 'fall' include già il movimento verticale.
+         'sway' sarà composto con 'fall' dal browser.
+         In questo caso, dato che `fall` e `sway` sono su `animation-name`,
+         il browser le combina. La `transform` di `fall` è quella dominante per `translateY`.
+      */
       100% { transform: translateX(15px) rotate(5deg); }
     }
 
-    /* === MEDIA QUERIES === */
     @media (max-width: 768px) {
-      :root { --navbar-height: 55px; } /* Navbar leggermente più bassa su mobile */
+      :root { --navbar-height: 55px; }
       .dropdown-button { padding: 8px; }
       .menu-icon-container { margin-right: 8px; width: 22px; height: 18px;}
       .menu-icon-container .line { height: 2.5px; }
@@ -356,7 +291,7 @@
         height: calc(100vh - var(--navbar-height)); max-height: calc(100vh - var(--navbar-height));
         border-radius: 0; margin-top: 0;
         box-shadow: none; border-top: 1px solid rgba(255,255,255,0.1);
-        transform: translateX(-100%); /* Entra da sinistra */
+        transform: translateX(-100%);
         transition: transform var(--transition-duration-normal) ease-in-out;
       }
       .dropdown-content.show { transform: translateX(0); }
@@ -371,16 +306,14 @@
       #goChat { width: 55px; height: 55px; background-size: 45%; }
       #goChatContainer { bottom: 20px; right: 20px; }
     }
-
     @media (min-width: 769px) {
-        #hero-title-container h1 { font-size: 3.5rem; letter-spacing: 2px;}
-        #hero-title-container p { font-size: 1.25rem; }
+      #hero-title-container h1 { font-size: 3.5rem; letter-spacing: 2px;}
+      #hero-title-container p { font-size: 1.25rem; }
     }
     @media (min-width: 993px) {
-      #hero-title-container h1 { font-size: 4.2rem; } /* Titolo ancora più grande su desktop */
+      #hero-title-container h1 { font-size: 4.2rem; }
       #hero-title-container p { font-size: 1.4rem; }
     }
-
   </style>
 </head>
 <body>
@@ -415,6 +348,7 @@
   <audio id="indexPageSong" src="indexsong.mp3" loop preload="metadata"></audio>
 
   <script>
+    // Utility per attendere il caricamento del DOM
     const ready = (callback) => {
         if (document.readyState !== "loading") callback();
         else document.addEventListener("DOMContentLoaded", callback);
@@ -426,55 +360,51 @@
     const pageOverlay = document.getElementById("pageOverlay");
 
     function toggleMenu() {
-      const isCurrentlyShown = menuButton.getAttribute("aria-expanded") === "true";
-      menuButton.setAttribute("aria-expanded", !isCurrentlyShown);
-      menuContent.classList.toggle("show", !isCurrentlyShown);
-      pageOverlay.classList.toggle("active", !isCurrentlyShown);
-      document.body.classList.toggle("menu-open", !isCurrentlyShown);
+      const isCurrentlyExpanded = menuButton.getAttribute("aria-expanded") === "true";
+      menuButton.setAttribute("aria-expanded", !isCurrentlyExpanded);
+      menuContent.classList.toggle("show", !isCurrentlyExpanded);
+      pageOverlay.classList.toggle("active", !isCurrentlyExpanded);
+      document.body.classList.toggle("menu-open", !isCurrentlyExpanded);
 
-      if (!isCurrentlyShown && (menuContent.querySelector('.menu-loading-placeholder') || menuContent.innerHTML.trim() === '')) {
+      // Carica menu.html solo la prima volta che si apre il menu
+      if (!isCurrentlyExpanded && menuContent.querySelector('.menu-loading-placeholder')) {
+        // console.log("MENU: Tentativo di caricamento menu.html"); // DEBUG
         fetch('menu.html')
           .then(response => {
-            if (!response.ok) { throw new Error('Network response was not ok for menu.html: ' + response.status); }
+            if (!response.ok) {
+              throw new Error(`Network response was not ok for menu.html: ${response.status} ${response.statusText}`);
+            }
             return response.text();
           })
           .then(data => {
-            menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data;
+            if (data.trim() === '') {
+              menuContent.innerHTML = `<p class="menu-message">Menu vuoto.</p>`;
+            } else {
+              menuContent.innerHTML = data;
+            }
+            // console.log("MENU: menu.html caricato con successo."); // DEBUG
           })
           .catch(error => {
             menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`;
-            console.error('Errore fetch menu.html:', error);
+            console.error('MENU: Errore fetch menu.html:', error);
           });
-      }
-      if (isCurrentlyShown) { // Se il menu era aperto e lo stiamo chiudendo
-        closeAllSubmenus(menuContent);
+      } else if (isCurrentlyExpanded) {
+        closeAllSubmenus(menuContent); // Chiudi sottomenu quando il menu principale si chiude
       }
     }
-    menuButton.addEventListener('click', toggleMenu);
+    if (menuButton) menuButton.addEventListener('click', toggleMenu); else console.error("MENU: Bottone menu non trovato.");
 
     function toggleSubmenu(event, triggerElement) {
       event.preventDefault(); event.stopPropagation();
       const submenu = triggerElement.nextElementSibling;
       if (!submenu || !submenu.classList.contains('submenu')) return;
-
       const wasOpen = submenu.classList.contains('open');
-      // Opzionale: chiudi altri sottomenu aperti allo stesso livello
-      // const parentLi = triggerElement.closest('li.submenu-item');
-      // if (parentLi) {
-      //   const parentUl = parentLi.parentElement;
-      //   parentUl.querySelectorAll('li.submenu-item .submenu.open').forEach(openSub => {
-      //     if (openSub !== submenu) {
-      //       openSub.classList.remove('open');
-      //       const prevTrig = openSub.previousElementSibling;
-      //       if(prevTrig) prevTrig.classList.remove('open');
-      //     }
-      //   });
-      // }
       submenu.classList.toggle('open', !wasOpen);
       triggerElement.classList.toggle('open', !wasOpen);
     }
 
     function closeAllSubmenus(container) {
+      if (!container) return;
       container.querySelectorAll('.submenu.open').forEach(submenu => {
         submenu.classList.remove('open');
         const trigger = submenu.previousElementSibling;
@@ -484,11 +414,14 @@
       });
     }
 
-    pageOverlay.addEventListener('click', () => {
-        if (menuButton.getAttribute("aria-expanded") === "true") toggleMenu();
-    });
+    if (pageOverlay) {
+        pageOverlay.addEventListener('click', () => {
+            if (menuButton && menuButton.getAttribute("aria-expanded") === "true") toggleMenu();
+        });
+    } else { console.error("MENU: Page overlay non trovato."); }
+
     window.addEventListener('keydown', (event) => {
-        if (event.key === 'Escape' && menuButton.getAttribute("aria-expanded") === "true") {
+        if (event.key === 'Escape' && menuButton && menuButton.getAttribute("aria-expanded") === "true") {
             toggleMenu();
         }
     });
@@ -496,129 +429,163 @@
     // --- SFONDO DINAMICO ---
     function initDynamicBackground() {
       const container = document.getElementById('dynamic-background-container');
-      if (!container) { console.error("#dynamic-background-container non trovato!"); return; }
+      if (!container) { console.error("SFONDO: #dynamic-background-container non trovato!"); return; }
       const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
-      if (images.length === 0) { console.warn("Nessuna immagine per sfondo dinamico."); return; }
+      if (images.length === 0) { console.warn("SFONDO: Nessuna immagine definita."); return; }
+      // console.log("SFONDO: Inizializzazione con", images.length, "immagini."); // DEBUG
       let currentIndex = -1;
-      const slideDuration = 7000; // Leggermente più veloce
-      const animDuration = 20; // Deve corrispondere al CSS @keyframes kenburns
+      const slideDuration = 7000;
+      const animDurationCSS = 20; // Deve corrispondere al CSS @keyframes kenburns
 
       images.forEach((imgName, i) => {
         const slide = document.createElement('div');
         slide.classList.add('background-slide');
-        slide.style.backgroundImage = `url('${imgName}')`;
+        try {
+          // Verifica base se l'URL è valido (non controlla se l'immagine esiste effettivamente)
+          new URL(imgName, window.location.href);
+          slide.style.backgroundImage = `url('${imgName}')`;
+        } catch (e) {
+            console.error(`SFONDO: Nome immagine non valido "${imgName}". Salto questa immagine.`, e);
+            return; // Salta questa immagine se il nome non è un URL valido
+        }
         if (i % 2 !== 0) slide.classList.add('even-slide-kenburns');
         container.appendChild(slide);
       });
       const slides = container.querySelectorAll('.background-slide');
-      if (slides.length === 0) { console.error("Nessuna slide creata per sfondo."); return; }
+      if (slides.length === 0) { console.error("SFONDO: Nessuna slide creata. Controllare nomi immagini."); return; }
 
       function nextSlide() {
         if (currentIndex >= 0 && slides[currentIndex]) {
           slides[currentIndex].classList.remove('active');
-          slides[currentIndex].style.animation = 'none';
-          void slides[currentIndex].offsetHeight; // Reflow
+          slides[currentIndex].style.animation = 'none'; // Resetta animazione per riavvio
+          void slides[currentIndex].offsetHeight; // Forza reflow
         }
         currentIndex = (currentIndex + 1) % slides.length;
         if (slides[currentIndex]) {
           slides[currentIndex].classList.add('active');
           const animName = slides[currentIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns';
-          slides[currentIndex].style.animation = `${animName} ${animDuration}s infinite alternate ease-in-out`;
+          slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`;
         }
       }
-      nextSlide();
+      nextSlide(); // Mostra la prima slide
       setInterval(nextSlide, slideDuration);
     }
 
     // --- EMOJI SNOW ---
+    let emojiCreationInterval; // Per poter fermare la creazione se necessario
     function createEmojiSnow() {
       const container = document.getElementById('emoji-snow-container');
-      if (!container) { console.warn("#emoji-snow-container non trovato."); return; }
-      const emojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
-      const numEmojis = Math.max(30, Math.min(60, Math.floor(window.innerWidth / 25))); // Adattivo, ma con min/max
+      if (!container) { console.warn("EMOJI: #emoji-snow-container non trovato. Impossibile creare neve."); return; }
 
-      for (let i = 0; i < numEmojis; i++) {
+      const emojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
+      if (emojis.length === 0) { console.warn("EMOJI: Array di emoji vuoto."); return; }
+
+      const numEmojisToCreatePerBatch = 1; // Crea un emoji alla volta per un flusso più continuo
+      const creationDelay = 300; // Millisecondi tra la creazione di ogni emoji
+
+      function createSingleEmoji() {
+        if (!document.body.contains(container)) { // Se il container è stato rimosso, ferma
+            if (emojiCreationInterval) clearInterval(emojiCreationInterval);
+            return;
+        }
         const emojiEl = document.createElement('span');
         emojiEl.classList.add('falling-emoji');
         emojiEl.textContent = emojis[Math.floor(Math.random() * emojis.length)];
         emojiEl.style.left = `${Math.random() * 100}vw`;
-        
+
         const fallDuration = Math.random() * 6 + 8; // Durata caduta tra 8 e 14s
         const swayDuration = Math.random() * 3 + 2; // Durata oscillazione tra 2 e 5s
-        
+
         emojiEl.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
-        emojiEl.style.animationDelay = `${Math.random() * fallDuration * 0.8}s`; // Delay per scaglionare
-        emojiEl.style.fontSize = `${Math.random() * 0.8 + 0.9}rem`; // Dimensione tra 0.9rem e 1.7rem
-        
-        // Rimuovi l'emoji dal DOM dopo che l'animazione di caduta è completata per pulizia
+        // Non è necessario un animation-delay qui perché vengono creati scaglionati
+        emojiEl.style.fontSize = `${Math.random() * 0.8 + 0.9}rem`;
+
         emojiEl.addEventListener('animationend', (event) => {
+            // Rimuovi solo se l'animazione 'fall' è terminata e l'elemento è ancora nel DOM
             if (event.animationName === 'fall' && emojiEl.parentNode) {
                  emojiEl.parentNode.removeChild(emojiEl);
+                 // console.log("EMOJI: Rimosso emoji", emojiEl.textContent); // DEBUG
             }
         });
         container.appendChild(emojiEl);
+        // console.log("EMOJI: Creato emoji", emojiEl.textContent); // DEBUG
       }
-      // Ricrea gli emoji a intervalli per un effetto continuo senza riempire troppo il DOM
-      // Questo è un modo semplice, per un effetto infinito più complesso si potrebbe usare un pool di oggetti
-      // setTimeout(createEmojiSnow, numEmojis * 300); // Ricrea dopo un po'
+      
+      // Pulisci intervallo precedente se esiste (es. in caso di Hot Module Replacement)
+      if (emojiCreationInterval) clearInterval(emojiCreationInterval);
+      
+      // Limita il numero totale di emoji sullo schermo per performance
+      const maxEmojisOnScreen = Math.max(30, Math.min(50, Math.floor(window.innerWidth / 30)));
+      
+      emojiCreationInterval = setInterval(() => {
+          if (container.children.length < maxEmojisOnScreen) {
+              createSingleEmoji();
+          }
+      }, creationDelay);
+      // console.log("EMOJI: Inizializzazione completata. Creazione emoji avviata."); // DEBUG
     }
-
 
     // --- AUDIO PLAYER ---
     function initAudioPlayer() {
       const song = document.getElementById('indexPageSong');
-      if (!song) { console.error("#indexPageSong non trovato."); return; }
+      if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
+      // console.log("AUDIO: Elemento audio trovato. Inizializzazione player."); // DEBUG
       let hasInteracted = false;
-      let interactionListeners = []; // Per tenere traccia dei listener
+      let interactionListeners = [];
 
       const tryPlayMusic = (eventSource) => {
+        // console.log(`AUDIO: tryPlayMusic chiamato da ${eventSource}. hasInteracted: ${hasInteracted}, song.currentTime: ${song.currentTime}, song.paused: ${song.paused}`); // DEBUG
         if (hasInteracted || (song.currentTime > 0 && !song.paused)) {
           removeInteractionListeners(); return;
         }
-        hasInteracted = true;
+        hasInteracted = true; // Segna interazione prima del tentativo di play
+        // console.log("AUDIO: Tentativo di song.play()..."); // DEBUG
         song.play().then(() => {
-          console.log(`indexPageSong.mp3: Riproduzione avviata (${eventSource || 'autoplay'}).`);
+          console.log(`AUDIO: indexPageSong.mp3 - Riproduzione avviata con successo (${eventSource || 'autoplay permesso dal browser'}).`);
           removeInteractionListeners();
         }).catch(e => {
-          console.warn(`indexPageSong.mp3: Play fallito (${eventSource || 'autoplay'}): ${e.name} - ${e.message}. L'interazione potrebbe non essere stata sufficiente per il browser.`);
-          hasInteracted = false; // Permetti un altro tentativo
-          // Non rimuovere i listener qui, l'utente potrebbe interagire di nuovo
+          console.warn(`AUDIO: indexPageSong.mp3 - Play fallito (${eventSource || 'autoplay bloccato'}). Errore: ${e.name} - ${e.message}. Il browser potrebbe richiedere un'interazione utente più esplicita o diversa. Controllare impostazioni/estensioni del browser.`);
+          hasInteracted = false; // Resetta per permettere un nuovo tentativo con un'altra interazione
         });
       };
 
       function addInteractionListener(target, eventType, handlerName) {
         const handler = () => tryPlayMusic(handlerName);
         target.addEventListener(eventType, handler, { once: true, passive: true });
-        interactionListeners.push({ target, eventType, handler }); // Salva per rimozione
+        interactionListeners.push({ target, eventType, handler });
       }
       
       function removeInteractionListeners() {
-        interactionListeners.forEach(listener => {
-          listener.target.removeEventListener(listener.eventType, listener.handler);
-        });
-        interactionListeners = []; // Svuota l'array
-        // console.log("indexPageSong.mp3: Listener interazione rimossi.");
+        if (interactionListeners.length > 0) {
+            // console.log("AUDIO: Rimozione listener di interazione."); // DEBUG
+            interactionListeners.forEach(listener => {
+              listener.target.removeEventListener(listener.eventType, listener.handler);
+            });
+            interactionListeners = [];
+        }
       }
 
+      // Tenta l'autoplay
+      // console.log("AUDIO: Tentativo di autoplay iniziale."); // DEBUG
       song.play().then(() => {
-        console.log("indexPageSong.mp3: Autoplay riuscito.");
+        console.log("AUDIO: indexPageSong.mp3 - Autoplay iniziale riuscito (browser lo ha permesso).");
         hasInteracted = true;
       }).catch(() => {
-        // console.warn("indexPageSong.mp3: Autoplay bloccato. In attesa di interazione.");
-        addInteractionListener(document.body, 'click', 'click');
-        addInteractionListener(window, 'scroll', 'scroll');
-        addInteractionListener(document.body, 'mousemove', 'mousemove');
-        addInteractionListener(document.body, 'touchstart', 'touchstart');
-        addInteractionListener(window, 'keydown', 'keydown');
+        // console.warn("AUDIO: indexPageSong.mp3 - Autoplay iniziale bloccato dal browser. Aggiunta listener per interazione utente."); // DEBUG
+        addInteractionListener(document.body, 'click', 'click su body');
+        addInteractionListener(window, 'scroll', 'scroll finestra');
+        // addInteractionListener(document.body, 'mousemove', 'mousemove su body'); // Spesso troppo sensibile
+        addInteractionListener(document.body, 'touchstart', 'touchstart su body');
+        addInteractionListener(window, 'keydown', 'keydown su finestra');
       });
     }
 
-    // --- ESECUZIONE SCRIPT ---
+    // --- ESECUZIONE SCRIPT AL CARICAMENTO DEL DOM ---
     ready(() => {
-      initDynamicBackground();
-      // Ritarda leggermente l'avvio degli emoji per non sovraccaricare il primo paint
-      setTimeout(createEmojiSnow, 500);
-      initAudioPlayer();
+      // console.log("DOM pronto. Avvio script principali."); // DEBUG
+      if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Funzione initDynamicBackground non definita.");
+      if (typeof createEmojiSnow === 'function') setTimeout(createEmojiSnow, 500); else console.error("Funzione createEmojiSnow non definita.");
+      if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Funzione initAudioPlayer non definita.");
     });
   </script>
 </body>

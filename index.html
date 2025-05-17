@@ -10,7 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
 
   <style>
-    /* CSS INVARIATO DALLA VERSIONE PRECEDENTE CHE HAI DETTO "MI PIACE" */
     :root {
       --font-primary: 'Roboto', -apple-system, Segoe UI, Arial, sans-serif;
       --font-secondary: 'Oswald', sans-serif;
@@ -51,7 +50,7 @@
       --transition-duration-normal: 0.3s;
 
       --z-index-background: 0;
-      --z-index-snow: 1; /* MODIFICATO: Riutilizzato per il nuovo effetto particelle */
+      --z-index-snow: 1; 
       --z-index-main-content: 2;
       --z-index-hero-title: 3;
       --z-index-page-overlay: 490;
@@ -130,38 +129,60 @@
       padding: 20px; color: var(--color-text-placeholder); font-style: italic; text-align: center;
     }
     .dropdown-content ul { list-style-type: none; }
-    .dropdown-content ul li a {
+    
+    /* Stile per <a> che sono figli diretti di <li> che sono figli diretti di <ul> dentro .dropdown-content */
+    /* Questo copre le voci principali e i trigger dei sottomenu se sono direttamente sotto <ul> */
+    .dropdown-content > ul > li > a {
       color: var(--color-text-dark); padding: 12px 20px; text-decoration: none;
       display: block; font-size: 0.95rem; font-weight: 400;
       transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease, padding-left var(--transition-duration-fast) ease;
       border-bottom: 1px solid #eee;
     }
-    .dropdown-content ul li:last-child a { border-bottom: none; }
-    .dropdown-content ul li a:hover, .dropdown-content ul li a:focus-visible {
+    .dropdown-content > ul > li:last-child > a { border-bottom: none; }
+    .dropdown-content > ul > li > a:hover, 
+    .dropdown-content > ul > li > a:focus-visible {
       background-color: var(--color-bg-dropdown-hover); color: var(--color-accent-primary);
       padding-left: 25px; outline: none;
     }
-    /* Stili per sottomenu */
-    .dropdown-content ul li.submenu-item .submenu {
-      display: none; padding-left: 0; background-color: var(--color-bg-dropdown-submenu);
-      border-left: 3px solid var(--color-accent-primary);
-      margin: 5px 10px 5px 15px; border-radius: var(--border-radius-small);
+    
+    /* Stili CSS specifici per la struttura del tuo menu.html (con .submenu-item, .submenu-trigger, .submenu) */
+    .dropdown-content li.submenu-item > a.submenu-trigger { /* Il trigger del sottomenu */
+        display: flex; /* Necessario per allineare la freccia */
+        align-items: center;
+        justify-content: space-between; /* Spinge la freccia a destra */
+        /* Eredita gli altri stili da .dropdown-content > ul > li > a se è un <a> */
     }
-    .dropdown-content ul li.submenu-item .submenu ul li a {
-      padding: 10px 15px 10px 20px; font-size: 0.9em; border-bottom: 1px solid #e0e0e0;
-    }
-    .dropdown-content ul li.submenu-item .submenu ul li:last-child a { border-bottom: none; }
-    .dropdown-content ul li.submenu-item .submenu ul li a:hover,
-    .dropdown-content ul li.submenu-item .submenu ul li a:focus-visible {
-      background-color: #e9e9e9; color: var(--color-text-dark); padding-left: 25px;
-    }
-    .dropdown-content ul li.submenu-item .submenu.open { display: block; } /* Mostra sottomenu aperto */
-    /* Stili per il trigger del sottomenu (es. link "Giochi") */
-    .submenu-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; }
-    .submenu-trigger .arrow {
+    .dropdown-content li.submenu-item > a.submenu-trigger .arrow {
       transition: transform var(--transition-duration-normal) ease; font-size: 0.8em; margin-left: 8px;
     }
-    .submenu-trigger.open .arrow { transform: rotate(180deg); } /* Ruota freccia quando sottomenu è aperto */
+    .dropdown-content li.submenu-item > a.submenu-trigger.open .arrow { transform: rotate(180deg); }
+
+    .dropdown-content li.submenu-item .submenu { /* Il contenitore del sottomenu */
+      display: none; /* Nascosto di default */
+      padding-left: 0; 
+      background-color: var(--color-bg-dropdown-submenu);
+      border-left: 3px solid var(--color-accent-primary);
+      margin: 5px 10px 5px 15px; 
+      border-radius: var(--border-radius-small);
+    }
+    .dropdown-content li.submenu-item .submenu.open { display: block; } /* Mostra quando ha la classe 'open' */
+
+    .dropdown-content li.submenu-item .submenu ul li a { /* Le singole voci dentro al sottomenu */
+      padding: 10px 15px 10px 20px; 
+      font-size: 0.9em; 
+      border-bottom: 1px solid #e0e0e0;
+      color: var(--color-text-dark); 
+      display: block; 
+      text-decoration: none;
+      transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease, padding-left var(--transition-duration-fast) ease;
+    }
+    .dropdown-content li.submenu-item .submenu ul li:last-child a { border-bottom: none; }
+    .dropdown-content li.submenu-item .submenu ul li a:hover,
+    .dropdown-content li.submenu-item .submenu ul li a:focus-visible {
+      background-color: #e9e9e9; 
+      color: var(--color-text-dark); 
+      padding-left: 25px;
+    }
 
     .page-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -227,7 +248,7 @@
     }
     #hero-title-container p {
       font-family: var(--font-primary); font-size: 1.1rem; font-weight: 300;
-      line-height: 1.7; opacity: 0; /* Opacità iniziale a 0 per animazione */
+      line-height: 1.7; opacity: 0;
       text-shadow: 0px 2px 6px var(--shadow-text-hero);
       max-width: 700px; margin-left: auto; margin-right: auto;
       animation: fadeInUp 0.8s 0.8s ease-out forwards;
@@ -241,19 +262,16 @@
       min-height: 100vh;
     }
 
-    /* --- CSS PER IL NUOVO EFFETTO PARTICELLE --- */
     #particle-effect-canvas {
       position: fixed;
       top: 0;
       left: 0;
       width: 100%;
       height: 100%;
-      pointer-events: none; /* Importante per non bloccare le interazioni con elementi sottostanti */
-      z-index: var(--z-index-snow); /* Riutilizzo la variabile z-index esistente per posizionarlo correttamente */
+      pointer-events: none;
+      z-index: var(--z-index-snow);
     }
-    /* --- FINE CSS EFFETTO PARTICELLE --- */
 
-    /* MEDIA QUERIES INVARIATE */
     @media (max-width: 768px) {
       :root { --navbar-height: 55px; }
       .dropdown-button { padding: 8px; }
@@ -272,11 +290,12 @@
         transition: transform var(--transition-duration-normal) ease-in-out;
       }
       .dropdown-content.show { transform: translateX(0); }
-      .dropdown-content ul li a { padding: 15px 25px; font-size: 1rem; }
-      .dropdown-content ul li.submenu-item .submenu {
+      .dropdown-content > ul > li > a { padding: 15px 25px; font-size: 1rem; }
+      
+      .dropdown-content li.submenu-item .submenu {
         margin: 0; border-radius: 0; border-left: none; border-top: 2px solid var(--color-accent-primary);
       }
-      .dropdown-content ul li.submenu-item .submenu ul li a { padding-left: 35px; }
+      .dropdown-content li.submenu-item .submenu ul li a { padding-left: 35px; }
 
       #hero-title-container h1 { font-size: 2.2rem; letter-spacing: 1px; }
       #hero-title-container p { font-size: 1rem; line-height: 1.6; }
@@ -318,7 +337,6 @@
   <div id="hero-title-container"><h1>Team Due Mori</h1><p>Il Dream Team (almeno la mattina, dopo il caffè).</p></div>
 
   <main class="main-content">
-      <!-- IL TUO CONTENUTO VA QUI! -->
    </main>
 
   <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat" aria-label="Avvia chat"></button></a></div>
@@ -326,230 +344,191 @@
   <audio id="indexPageSong" src="indexsong.mp3" loop preload="metadata"></audio>
 
   <script>
-    console.log("SCRIPT: Inizio esecuzione blocco script.");
-
-    const ready = (callback) => {
-        if (document.readyState !== "loading") {
-            callback();
-        } else {
-            document.addEventListener("DOMContentLoaded", callback);
-        }
-    };
-
-    const menuButton = document.getElementById("menuButton");
-    const menuContent = document.getElementById("menuContent");
-    const pageOverlay = document.getElementById("pageOverlay");
-
-    // --- INIZIO MODIFICHE PER SOTTOMENU ---
-    function toggleMenu() {
-      console.log("MENU: toggleMenu chiamata.");
-      const isCurrentlyExpanded = menuButton.getAttribute("aria-expanded") === "true";
-      menuButton.setAttribute("aria-expanded", !isCurrentlyExpanded);
-      menuContent.classList.toggle("show", !isCurrentlyExpanded);
-      pageOverlay.classList.toggle("active", !isCurrentlyExpanded);
-      document.body.classList.toggle("menu-open", !isCurrentlyExpanded);
-
-      if (!isCurrentlyExpanded && menuContent.querySelector('.menu-loading-placeholder')) {
-        fetch('menu.html')
-          .then(response => {
-            if (!response.ok) { throw new Error(`Network response not ok: ${response.status}`); }
-            return response.text();
-          })
-          .then(data => {
-            menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data;
-            addEventListenersToSubmenuTriggers(); // <-- CHIAMATA ALLA NUOVA FUNZIONE
-          })
-          .catch(error => {
-            menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`;
-            console.error('MENU: Errore fetch menu.html:', error);
-          });
-      } else if (isCurrentlyExpanded) {
-        closeAllSubmenus(menuContent);
+    // rendi le funzioni accessibili globalmente per gli onclick in menu.html
+    window.toggleSubmenu = function(event, triggerElement) {
+      console.log("GLOBAL toggleSubmenu: Chiamata per:", triggerElement.textContent.trim());
+      if (event) {
+        event.preventDefault();
+        // event.stopPropagation(); // L'onclick in menu.html lo fa già
       }
-    }
 
-    function toggleSubmenu(event, triggerElement) {
-      console.log("SUBMENU: toggleSubmenu chiamata per:", triggerElement.textContent.trim());
-      event.preventDefault();
-      event.stopPropagation();
-
-      const submenuItem = triggerElement.closest('.submenu-item');
-      if (!submenuItem) {
-        console.error("SUBMENU: Elemento .submenu-item non trovato per il trigger:", triggerElement);
+      const parentLi = triggerElement.closest('.submenu-item');
+      if (!parentLi) {
+        console.warn("GLOBAL toggleSubmenu: Elemento .submenu-item non trovato per il trigger:", triggerElement);
         return;
       }
-      const submenu = submenuItem.querySelector('.submenu');
-      if (!submenu) {
-        console.error("SUBMENU: Elemento .submenu non trovato dentro .submenu-item:", submenuItem);
-        return;
-      }
+      const submenu = parentLi.querySelector('.submenu');
 
-      const isOpening = !submenu.classList.contains('open');
-
-      if (isOpening) {
-        const parentList = submenuItem.parentElement;
-        if (parentList) {
-          parentList.querySelectorAll('.submenu-item .submenu.open').forEach(openSub => {
-            if (openSub !== submenu) {
-              openSub.classList.remove('open');
-              const otherTrigger = openSub.parentElement.querySelector('.submenu-trigger');
-              if (otherTrigger) {
-                otherTrigger.classList.remove('open');
-                otherTrigger.setAttribute('aria-expanded', 'false');
-              }
-            }
-          });
+      if (submenu) {
+        const isOpening = !submenu.classList.contains('open');
+        // Opzionale: chiudi altri sottomenu
+        if (isOpening && parentLi.parentElement) {
+            Array.from(parentLi.parentElement.children).forEach(siblingLi => {
+                if (siblingLi !== parentLi && siblingLi.classList.contains('submenu-item')) {
+                    const otherSubmenu = siblingLi.querySelector('.submenu.open');
+                    if (otherSubmenu) {
+                        otherSubmenu.classList.remove('open');
+                        const otherTrigger = siblingLi.querySelector('.submenu-trigger.open');
+                        if (otherTrigger) {
+                            otherTrigger.classList.remove('open');
+                            if (otherTrigger.hasAttribute('aria-expanded')) otherTrigger.setAttribute('aria-expanded', 'false');
+                        }
+                    }
+                }
+            });
         }
-      }
+        // Fine opzionale
 
-      submenu.classList.toggle('open');
-      triggerElement.classList.toggle('open');
-      triggerElement.setAttribute('aria-expanded', submenu.classList.contains('open'));
-      console.log("SUBMENU: Stato sottomenu '" + triggerElement.textContent.trim() + "': " + (submenu.classList.contains('open') ? "aperto" : "chiuso"));
-    }
-
-    function closeAllSubmenus(container) {
-      console.log("SUBMENU: closeAllSubmenus chiamata.");
-      if (!container) {
-        console.warn("SUBMENU: closeAllSubmenus chiamata senza un elemento container.");
-        return;
-      }
-      container.querySelectorAll('.submenu-item .submenu.open').forEach(submenu => {
-        submenu.classList.remove('open');
-        const trigger = submenu.closest('.submenu-item')?.querySelector('.submenu-trigger');
-        if (trigger) {
-          trigger.classList.remove('open');
-          trigger.setAttribute('aria-expanded', 'false');
+        submenu.classList.toggle('open');
+        triggerElement.classList.toggle('open'); // Per la freccia
+        if (triggerElement.hasAttribute('aria-expanded')) {
+            triggerElement.setAttribute('aria-expanded', submenu.classList.contains('open'));
         }
-      });
-    }
-
-    function addEventListenersToSubmenuTriggers() {
-      console.log("MENU: addEventListenersToSubmenuTriggers chiamata.");
-      const submenuTriggers = menuContent.querySelectorAll('.submenu-trigger');
-      submenuTriggers.forEach(trigger => {
-        if (trigger.dataset.listenerAdded === 'true') return;
-        trigger.addEventListener('click', (event) => {
-          toggleSubmenu(event, trigger);
-        });
-        trigger.dataset.listenerAdded = 'true';
-        const submenu = trigger.closest('.submenu-item')?.querySelector('.submenu');
-        trigger.setAttribute('aria-expanded', submenu && submenu.classList.contains('open'));
-      });
-      if (submenuTriggers.length > 0) {
-        console.log("MENU: Aggiunti listener a", submenuTriggers.length, "trigger di sottomenu.");
+        console.log("GLOBAL toggleSubmenu: Stato sottomenu '" + triggerElement.textContent.trim() + "': " + (submenu.classList.contains('open') ? "aperto" : "chiuso"));
       } else {
-        console.log("MENU: Nessun elemento con classe '.submenu-trigger' trovato nel menu caricato. Controlla la struttura di menu.html.");
+        console.warn("GLOBAL toggleSubmenu: .submenu non trovato dentro a .submenu-item per:", triggerElement);
       }
     }
-    // --- FINE MODIFICHE PER SOTTOMENU ---
 
-    if (menuButton) menuButton.addEventListener('click', toggleMenu); else console.error("MENU: Bottone menu non trovato!");
-    if (pageOverlay) { pageOverlay.addEventListener('click', () => { if (menuButton && menuButton.getAttribute("aria-expanded") === "true") toggleMenu(); }); }
-    window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && menuButton && menuButton.getAttribute("aria-expanded") === "true") { toggleMenu(); } });
-    console.log("SCRIPT: Gestori eventi menu definiti.");
-
-    // --- SFONDO DINAMICO ---
-    function initDynamicBackground() {
-      console.log("SFONDO: initDynamicBackground chiamata.");
-      const container = document.getElementById('dynamic-background-container');
-      if (!container) { console.error("SFONDO: #dynamic-background-container non trovato!"); return; }
-      const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
-      if (images.length === 0) { console.warn("SFONDO: Nessuna immagine definita."); return; }
-      let currentIndex = -1; const slideDuration = 7000; const animDurationCSS = 20;
-      images.forEach((imgName, i) => { const slide = document.createElement('div'); slide.classList.add('background-slide'); try { new URL(imgName, window.location.href); slide.style.backgroundImage = `url('${imgName}')`; } catch (e) { console.error(`SFONDO: Nome immagine non valido "${imgName}".`, e); return; } if (i % 2 !== 0) slide.classList.add('even-slide-kenburns'); container.appendChild(slide); });
-      const slides = container.querySelectorAll('.background-slide');
-      if (slides.length === 0) { console.error("SFONDO: Nessuna slide creata."); return; }
-      function nextSlide() { if (currentIndex >= 0 && slides[currentIndex]) { slides[currentIndex].classList.remove('active'); slides[currentIndex].style.animation = 'none'; void slides[currentIndex].offsetHeight; } currentIndex = (currentIndex + 1) % slides.length; if (slides[currentIndex]) { slides[currentIndex].classList.add('active'); const animName = slides[currentIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns'; slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`; } }
-      nextSlide(); setInterval(nextSlide, slideDuration);
-      console.log("SFONDO: Inizializzazione completata.");
-    }
-
-    // --- NUOVO EFFETTO PARTICELLE LUMINOSE ---
-    function initParticleEffect() {
-        console.log("PARTICLES: initParticleEffect chiamata.");
-        const canvas = document.getElementById('particle-effect-canvas');
-        if (!canvas) { console.error("PARTICLES: #particle-effect-canvas NON TROVATO!"); return; }
-        const ctx = canvas.getContext('2d');
-        let particlesArray;
-
-        function setCanvasSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
-        setCanvasSize();
-
-        class Particle {
-            constructor() {
-                this.x = Math.random() * canvas.width;
-                this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5;
-                this.speedX = (Math.random() * 0.8 - 0.4);
-                this.speedY = (Math.random() * 0.8 - 0.4);
-                this.baseOpacity = Math.random() * 0.4 + 0.2;
-                this.opacity = this.baseOpacity;
-                this.opacitySpeed = (Math.random() - 0.5) * 0.01;
-            }
-            update() {
-                this.x += this.speedX; this.y += this.speedY;
-                this.opacity += this.opacitySpeed;
-                if (this.opacity > this.baseOpacity + 0.2 || this.opacity < this.baseOpacity - 0.2) { this.opacitySpeed *= -1; }
-                if (this.opacity < 0) this.opacity = 0; if (this.opacity > 1) this.opacity = 1;
-                if (this.x < -this.size) this.x = canvas.width + this.size;
-                if (this.x > canvas.width + this.size) this.x = -this.size;
-                if (this.y < -this.size) this.y = canvas.height + this.size;
-                if (this.y > canvas.height + this.size) this.y = -this.size;
-            }
-            draw() {
-                ctx.fillStyle = `rgba(255, 255, 230, ${this.opacity})`;
-                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
+    window.closeAllSubmenus = function(container) {
+      console.log("GLOBAL closeAllSubmenus: Chiamata.");
+      if (!container) {
+          console.warn("GLOBAL closeAllSubmenus: Nessun container fornito.");
+          return;
+      }
+      container.querySelectorAll('.submenu.open').forEach(submenu => {
+        submenu.classList.remove('open');
+        const parentLi = submenu.closest('.submenu-item');
+        if (parentLi) {
+            const trigger = parentLi.querySelector('.submenu-trigger.open');
+            if (trigger) {
+                trigger.classList.remove('open');
+                if (trigger.hasAttribute('aria-expanded')) trigger.setAttribute('aria-expanded', 'false');
             }
         }
-
-        function initParticles() {
-            particlesArray = [];
-            const numberOfParticles = Math.max(50, Math.floor((canvas.width * canvas.height) / 15000));
-            console.log("PARTICLES: Creando", numberOfParticles, "particelle.");
-            for (let i = 0; i < numberOfParticles; i++) { particlesArray.push(new Particle()); }
-        }
-        function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); particlesArray[i].draw(); }
-            requestAnimationFrame(animateParticles);
-        }
-        initParticles(); animateParticles();
-        console.log("PARTICLES: Animazione particelle avviata.");
-        let resizeTimeout;
-        window.addEventListener('resize', () => {
-            clearTimeout(resizeTimeout);
-            resizeTimeout = setTimeout(() => {
-                console.log("PARTICLES: Finestra ridimensionata, riadatto canvas e particelle.");
-                setCanvasSize(); initParticles();
-            }, 250);
-        });
-        console.log("PARTICLES: Inizializzazione effetto particelle completata.");
+      });
     }
 
-    // --- AUDIO PLAYER ---
-    function initAudioPlayer() {
-      console.log("AUDIO: initAudioPlayer chiamata.");
-      const song = document.getElementById('indexPageSong');
-      if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
-      let hasInteracted = false; let interactionListeners = [];
-      const tryPlayMusic = (eventSource) => { if (hasInteracted || (song.currentTime > 0 && !song.paused)) { removeInteractionListeners(); return; } hasInteracted = true; song.play().then(() => { console.log(`AUDIO: Riproduzione avviata (${eventSource || 'autoplay'}).`); removeInteractionListeners(); }).catch(e => { console.warn(`AUDIO: Play fallito (${eventSource || 'autoplay'}): ${e.name} - ${e.message}.`); hasInteracted = false; }); };
-      function addInteractionListener(target, eventType, handlerName) { const handler = () => tryPlayMusic(handlerName); target.addEventListener(eventType, handler, { once: true, passive: true }); interactionListeners.push({ target, eventType, handler }); }
-      function removeInteractionListeners() { if (interactionListeners.length > 0) { interactionListeners.forEach(listener => { listener.target.removeEventListener(listener.eventType, listener.handler); }); interactionListeners = []; } }
-      song.play().then(() => { console.log("AUDIO: Autoplay riuscito."); hasInteracted = true; }).catch(() => { addInteractionListener(document.body, 'click', 'click'); addInteractionListener(window, 'scroll', 'scroll'); addInteractionListener(document.body, 'touchstart', 'touchstart'); addInteractionListener(window, 'keydown', 'keydown'); });
-      console.log("AUDIO: Inizializzazione completata.");
-    }
+    // Script principale
+    (function() {
+      console.log("SCRIPT: Inizio esecuzione blocco script IIFE.");
 
-    // --- ESECUZIONE SCRIPT AL CARICAMENTO DEL DOM ---
-    ready(() => {
-      console.log("SCRIPT: DOM Caricato. Avvio funzioni principali.");
-      if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Errore: initDynamicBackground non è una funzione.");
-      if (typeof initParticleEffect === 'function') initParticleEffect(); else console.error("Errore: initParticleEffect non è una funzione.");
-      if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
-      console.log("SCRIPT: Tutte le funzioni principali sono state chiamate.");
-    });
+      const ready = (callback) => {
+          if (document.readyState !== "loading") callback();
+          else document.addEventListener("DOMContentLoaded", callback);
+      };
 
-    console.log("SCRIPT: Fine blocco script.");
+      const menuButton = document.getElementById("menuButton");
+      const menuContent = document.getElementById("menuContent");
+      const pageOverlay = document.getElementById("pageOverlay");
+
+      function toggleMenu() {
+        console.log("MENU: toggleMenu chiamata.");
+        const isCurrentlyExpanded = menuButton.getAttribute("aria-expanded") === "true";
+        menuButton.setAttribute("aria-expanded", !isCurrentlyExpanded);
+        menuContent.classList.toggle("show", !isCurrentlyExpanded);
+        pageOverlay.classList.toggle("active", !isCurrentlyExpanded);
+        document.body.classList.toggle("menu-open", !isCurrentlyExpanded);
+
+        if (!isCurrentlyExpanded && (menuContent.querySelector('.menu-loading-placeholder') || menuContent.innerHTML.trim() === '')) {
+          fetch('menu.html')
+            .then(response => {
+              if (!response.ok) { throw new Error(`Network response not ok: ${response.status}`); }
+              return response.text();
+            })
+            .then(data => {
+              menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data;
+              // Inizializza aria-expanded per i trigger appena caricati
+              menuContent.querySelectorAll('.submenu-trigger').forEach(trigger => {
+                  if (trigger.hasAttribute('aria-expanded')) { // Solo se l'attributo è previsto
+                    const parentLi = trigger.closest('.submenu-item');
+                    if (parentLi) {
+                        const submenu = parentLi.querySelector('.submenu');
+                        trigger.setAttribute('aria-expanded', submenu && submenu.classList.contains('open'));
+                    } else {
+                        trigger.setAttribute('aria-expanded', 'false');
+                    }
+                  }
+              });
+              console.log("MENU: Contenuto caricato. Gli onclick in menu.html sono responsabili dei sottomenu.");
+            })
+            .catch(error => {
+              menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`;
+              console.error('MENU: Errore fetch menu.html:', error);
+            });
+        } else if (isCurrentlyExpanded) {
+          if (typeof window.closeAllSubmenus === 'function') {
+              window.closeAllSubmenus(menuContent);
+          }
+        }
+      }
+
+      if (menuButton) menuButton.addEventListener('click', toggleMenu); 
+      else console.error("MENU: Bottone menu non trovato!");
+      
+      if (pageOverlay) { 
+        pageOverlay.addEventListener('click', () => { 
+          if (menuButton && menuButton.getAttribute("aria-expanded") === "true") toggleMenu(); 
+        }); 
+      }
+      window.addEventListener('keydown', (event) => { 
+        if (event.key === 'Escape' && menuButton && menuButton.getAttribute("aria-expanded") === "true") { 
+          toggleMenu(); 
+        } 
+      });
+      console.log("SCRIPT: Gestori eventi menu definiti.");
+
+      function initDynamicBackground() {
+        const container = document.getElementById('dynamic-background-container');
+        if (!container) { console.error("SFONDO: #dynamic-background-container non trovato!"); return; }
+        const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
+        if (images.length === 0) { console.warn("SFONDO: Nessuna immagine definita."); return; }
+        let currentIndex = -1; const slideDuration = 7000; const animDurationCSS = 20;
+        images.forEach((imgName, i) => { const slide = document.createElement('div'); slide.classList.add('background-slide'); try { new URL(imgName, window.location.href); slide.style.backgroundImage = `url('${imgName}')`; } catch (e) { console.error(`SFONDO: Nome immagine non valido "${imgName}".`, e); return; } if (i % 2 !== 0) slide.classList.add('even-slide-kenburns'); container.appendChild(slide); });
+        const slides = container.querySelectorAll('.background-slide');
+        if (slides.length === 0) { console.error("SFONDO: Nessuna slide creata."); return; }
+        function nextSlide() { if (currentIndex >= 0 && slides[currentIndex]) { slides[currentIndex].classList.remove('active'); slides[currentIndex].style.animation = 'none'; void slides[currentIndex].offsetHeight; } currentIndex = (currentIndex + 1) % slides.length; if (slides[currentIndex]) { slides[currentIndex].classList.add('active'); const animName = slides[currentIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns'; slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`; } }
+        nextSlide(); setInterval(nextSlide, slideDuration);
+      }
+
+      function initParticleEffect() {
+          const canvas = document.getElementById('particle-effect-canvas');
+          if (!canvas) { console.error("PARTICLES: #particle-effect-canvas NON TROVATO!"); return; }
+          const ctx = canvas.getContext('2d');
+          let particlesArray;
+          function setCanvasSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
+          setCanvasSize();
+          class Particle {
+              constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 2 + 0.5; this.speedX = (Math.random() * 0.8 - 0.4); this.speedY = (Math.random() * 0.8 - 0.4); this.baseOpacity = Math.random() * 0.4 + 0.2; this.opacity = this.baseOpacity; this.opacitySpeed = (Math.random() - 0.5) * 0.01; }
+              update() { this.x += this.speedX; this.y += this.speedY; this.opacity += this.opacitySpeed; if (this.opacity > this.baseOpacity + 0.2 || this.opacity < this.baseOpacity - 0.2) { this.opacitySpeed *= -1; } if (this.opacity < 0) this.opacity = 0; if (this.opacity > 1) this.opacity = 1; if (this.x < -this.size) this.x = canvas.width + this.size; if (this.x > canvas.width + this.size) this.x = -this.size; if (this.y < -this.size) this.y = canvas.height + this.size; if (this.y > canvas.height + this.size) this.y = -this.size; }
+              draw() { ctx.fillStyle = `rgba(255, 255, 230, ${this.opacity})`; ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill(); }
+          }
+          function initParticles() { particlesArray = []; const numberOfParticles = Math.max(50, Math.floor((canvas.width * canvas.height) / 15000)); for (let i = 0; i < numberOfParticles; i++) { particlesArray.push(new Particle()); } }
+          function animateParticles() { ctx.clearRect(0, 0, canvas.width, canvas.height); for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); particlesArray[i].draw(); } requestAnimationFrame(animateParticles); }
+          initParticles(); animateParticles();
+          let resizeTimeout; window.addEventListener('resize', () => { clearTimeout(resizeTimeout); resizeTimeout = setTimeout(() => { setCanvasSize(); initParticles(); }, 250); });
+      }
+
+      function initAudioPlayer() {
+        const song = document.getElementById('indexPageSong');
+        if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
+        let hasInteracted = false; let interactionListeners = [];
+        const tryPlayMusic = (eventSource) => { if (hasInteracted || (song.currentTime > 0 && !song.paused)) { removeInteractionListeners(); return; } hasInteracted = true; song.play().then(() => { removeInteractionListeners(); }).catch(e => { hasInteracted = false; }); };
+        function addInteractionListener(target, eventType, handlerName) { const handler = () => tryPlayMusic(handlerName); target.addEventListener(eventType, handler, { once: true, passive: true }); interactionListeners.push({ target, eventType, handler }); }
+        function removeInteractionListeners() { if (interactionListeners.length > 0) { interactionListeners.forEach(listener => { listener.target.removeEventListener(listener.eventType, listener.handler); }); interactionListeners = []; } }
+        song.play().then(() => { hasInteracted = true; }).catch(() => { addInteractionListener(document.body, 'click', 'click'); addInteractionListener(window, 'scroll', 'scroll'); addInteractionListener(document.body, 'touchstart', 'touchstart'); addInteractionListener(window, 'keydown', 'keydown'); });
+      }
+
+      ready(() => {
+        console.log("SCRIPT: DOM Caricato. Avvio funzioni principali.");
+        if (typeof initDynamicBackground === 'function') initDynamicBackground();
+        if (typeof initParticleEffect === 'function') initParticleEffect();
+        if (typeof initAudioPlayer === 'function') initAudioPlayer();
+        console.log("SCRIPT: Tutte le funzioni principali sono state chiamate.");
+      });
+
+      console.log("SCRIPT: Fine blocco script IIFE.");
+    })(); // Chiusura e chiamata della IIFE
   </script>
 </body>
 </html>

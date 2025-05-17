@@ -38,12 +38,12 @@
             width: 100%;
             max-width: 800px; /* Stessa larghezza max del canvas se impostata */
             padding: 10px 0;
-            font-size: 1.2em;
+            font-size: 1.1em; /* Leggermente ridotto per far spazio al timer */
             background-color: rgba(0,0,0,0.5);
             border-radius: 0 0 10px 10px;
         }
         .ui-element {
-            margin: 0 10px;
+            margin: 0 8px; /* Leggermente ridotto */
         }
         #touchControls {
             display: none; /* Nascosti di default, mostrati via JS per mobile */
@@ -116,6 +116,8 @@
         <div id="ui">
             <div id="lives" class="ui-element">Vite: 5</div>
             <div id="score" class="ui-element">Punteggio: 0</div>
+            <div id="timerDisplay" class="ui-element">Tempo: 60</div> <!-- NUOVO: Timer UI -->
+            <div id="levelDisplay" class="ui-element">Livello: 1</div> <!-- NUOVO: Livello UI -->
             <div id="powerUpTimer" class="ui-element"></div>
         </div>
         <div id="touchControls">
@@ -138,11 +140,13 @@
     <script>
         const canvas = document.getElementById('gameCanvas');
         const ctx = canvas.getContext('2d');
-        const gameContainer = document.getElementById('gameContainer'); // Riferimento al contenitore
+        const gameContainer = document.getElementById('gameContainer');
 
         const livesDisplay = document.getElementById('lives');
         const scoreDisplay = document.getElementById('score');
         const powerUpTimerDisplay = document.getElementById('powerUpTimer');
+        const timerDisplay = document.getElementById('timerDisplay'); // NUOVO: Riferimento UI Timer
+        const levelDisplay = document.getElementById('levelDisplay'); // NUOVO: Riferimento UI Livello
 
         const startButton = document.getElementById('startButton');
         const retryButton = document.getElementById('retryButton');
@@ -155,33 +159,25 @@
         const jumpButton = document.getElementById('jumpButton');
         const shootButton = document.getElementById('shootButton');
 
-        // <<< AGGIUNTA MUSICA: Inizializzazione dell'oggetto Audio >>>
         const backgroundMusic = new Audio('fabiosong.mp3');
-        backgroundMusic.loop = true; // Per far ripetere la musica
+        backgroundMusic.loop = true;
         backgroundMusic.onerror = () => {
-            console.error("Errore nel caricamento del file audio: fabiosong.mp3. Assicurati che il file sia presente nella stessa cartella dell'HTML o che il percorso sia corretto.");
+            console.error("Errore nel caricamento del file audio: fabiosong.mp3.");
         };
-        // <<< FINE AGGIUNTA MUSICA >>>
 
         let gameWidth = 800;
         let gameHeight = 450;
         canvas.width = gameWidth;
         canvas.height = gameHeight;
 
-        // Pulsanti overlay
         function positionOverlayButton(button, topFactor = 0.75) {
-            button.style.display = 'block'; // Assicura che sia visibile per misurazione
-
+            button.style.display = 'block';
             const canvasRect = canvas.getBoundingClientRect();
             const gameContainerRect = gameContainer.getBoundingClientRect();
-
-            // Posizione del canvas RELATIVA al gameContainer
             const canvasTopInContainer = canvasRect.top - gameContainerRect.top;
             const canvasLeftInContainer = canvasRect.left - gameContainerRect.left;
-
             const buttonLeft = canvasLeftInContainer + (canvasRect.width / 2) - (button.offsetWidth / 2);
             const buttonTop = canvasTopInContainer + (canvasRect.height * topFactor) - (button.offsetHeight / 2);
-
             button.style.left = `${buttonLeft}px`;
             button.style.top = `${buttonTop}px`;
         }
@@ -194,31 +190,17 @@
         }
 
         window.addEventListener('resize', () => {
-            // Ricalcola gameWidth e gameHeight in base alla dimensione effettiva del canvas
-            const canvasStyle = window.getComputedStyle(canvas);
-            const actualCanvasWidth = parseInt(canvasStyle.width, 10);
-            const actualCanvasHeight = parseInt(canvasStyle.height, 10);
-
-            // Se le dimensioni del canvas sono cambiate significativamente (es. per rotazione schermo)
-            // Potrebbe essere necessario aggiornare gameWidth/Height e ridisegnare
-            // Per ora, ci limitiamo a riposizionare i pulsanti
-            // gameWidth = actualCanvasWidth; // Queste linee potrebbero essere necessarie se il layout del gioco
-            // gameHeight = actualCanvasHeight; // dovesse adattarsi dinamicamente alle dimensioni reali del canvas
-            // canvas.width = gameWidth;       // e non solo all'aspect ratio.
-            // canvas.height = gameHeight;
-
-            if (startButton.style.display === 'block') positionOverlayButton(startButton, 0.70); // Aggiornato topFactor
+            if (startButton.style.display === 'block') positionOverlayButton(startButton, 0.70);
             if (retryButton.style.display === 'block') positionOverlayButton(retryButton, 0.75);
             if (playAgainButton.style.display === 'block') positionOverlayButton(playAgainButton, 0.75);
             if (nextLevelButton.style.display === 'block') positionOverlayButton(nextLevelButton, 0.75);
         });
 
-
         const images = {};
         const imageSources = {
             player: 'fabiogame2.PNG',
             enemy: 'mostro.PNG',
-            background: 'fabiogame.PNG'
+            background: 'fabiogame.PNG' // Assicurati che questa sia l'immagine di sfondo desiderata
         };
         let imagesLoaded = 0;
         let totalImages = Object.keys(imageSources).length;
@@ -235,9 +217,9 @@
                 };
                 images[key].onerror = () => {
                     console.error(`Errore caricamento immagine: ${imageSources[key]}`);
-                    imagesLoaded++; // Incrementa comunque per non bloccare il caricamento
+                    imagesLoaded++;
                     if (imagesLoaded === totalImages) {
-                        callback(); // Chiama il callback anche se un'immagine fallisce, per evitare stallo
+                        callback();
                     }
                 }
             }
@@ -259,67 +241,75 @@
         const groundFriction = 0.8;
 
         let powerUpActive = false;
-        let powerUpDuration = 15000;
+        let powerUpDuration = 15000; // 15 secondi
         let powerUpTimer = 0;
         let enemiesKilledForPowerUp = 0;
-        const powerUpSpawnThreshold = 6;
+        const powerUpSpawnThreshold = 4; // Ridotto per test, puoi rialzare a 6
 
         let boss = null;
-        const bossMaxHealth = 10;
+        const bossMaxHealth = 15; // Aumentata leggermente la vita del boss
 
-        const PLAYER_DEFAULT_HEIGHT = 60; // Altezza di riferimento per il player sprite
+        const PLAYER_DEFAULT_HEIGHT = 60;
+
+        // NUOVO: Variabili per il timer di livello
+        const LEVEL_TIME_LIMIT = 60000; // 60 secondi in millisecondi
+        let currentLevelTimeRemaining = LEVEL_TIME_LIMIT;
 
         const levels = [
             { // Livello 1: Cielo
-                scoreToAdvance: 1000,
+                // scoreToAdvance: 1000, // RIMOSSO
                 bgColor: '#70c5ce',
                 themeName: "Cielo Sereno",
                 playerStartX: 60,
                 playerStartPlatformTopY: gameHeight - 120,
                 platforms: [
-                    { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#8FBC8F' },
-                    { x: 30, y: gameHeight - 120, width: 100, height: 20, color: '#A0522D' },
+                    { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#8FBC8F' }, // Ground
+                    { x: 30, y: gameHeight - 120, width: 100, height: 20, color: '#A0522D' }, // Start platform
                     { x: 200, y: gameHeight - 140, width: 150, height: 20, color: '#A0522D' },
                     { x: 400, y: gameHeight - 200, width: 200, height: 20, color: '#A0522D' },
                     { x: 650, y: gameHeight - 100, width: 100, height: 20, color: '#A0522D' }
                 ],
-                enemies: [ { x: 300, y: gameHeight - 80 }, { x: 500, y: gameHeight - 80 } ],
-                collectibles: [
-                    { x: 230, y: gameHeight - 180 }, { x: 270, y: gameHeight - 180 },
-                    { x: 450, y: gameHeight - 240 }, { x: 490, y: gameHeight - 240 },
-                    { x: 680, y: gameHeight - 140 }, { x: 150, y: gameHeight - 80 },
-                    { x: 550, y: gameHeight - 80 }, { x: 350, y: gameHeight - 80 },
-                    { x: 750, y: gameHeight - 80 }, { x: 400, y: gameHeight - 80 }
+                enemies: [ 
+                    { x: 300, y: gameHeight - 80 }, { x: 500, y: gameHeight - 80 },
+                    { x: 450, y: gameHeight - 240 } // Nemico aggiunto su piattaforma alta
+                ],
+                collectibles: [ // Numero e posizionamento rivisti
+                    { x: 80, y: gameHeight - 160 }, // Sulla piattaforma di partenza
+                    { x: 250, y: gameHeight - 180 }, // Sulla seconda piattaforma
+                    { x: 480, y: gameHeight - 240 }, // Sulla terza piattaforma (più alta)
+                    { x: 680, y: gameHeight - 140 }, // Sulla quarta piattaforma
+                    { x: 150, y: gameHeight - 80 },  // A terra
+                    { x: 550, y: gameHeight - 80 }   // A terra
                 ]
             },
             { // Livello 2: Deserto
-                scoreToAdvance: 2000,
                 bgColor: '#F4A460',
                 themeName: "Deserto Infuocato",
                 playerStartX: 60,
                 playerStartPlatformTopY: gameHeight - 150,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#D2B48C' },
-                    { x: 30, y: gameHeight - 150, width: 100, height: 20, color: '#CD853F' },
+                    { x: 30, y: gameHeight - 150, width: 100, height: 20, color: '#CD853F' }, // Start
                     { x: 200, y: gameHeight - 120, width: 100, height: 20, color: '#CD853F' },
-                    { x: 300, y: gameHeight - 180, width: 200, height: 20, color: '#CD853F' },
-                    { x: 550, y: gameHeight - 100, width: 150, height: 20, color: '#CD853F' },
-                    { x: 200, y: gameHeight - 280, width: 150, height: 20, color: '#CD853F' },
+                    { x: 350, y: gameHeight - 180, width: 180, height: 20, color: '#CD853F' },
+                    { x: 600, y: gameHeight - 100, width: 150, height: 20, color: '#CD853F' },
+                    { x: 250, y: gameHeight - 280, width: 120, height: 20, color: '#CD853F' }, // Piattaforma alta
                 ],
                 enemies: [
                     { x: 250, y: gameHeight - 80 }, { x: 450, y: gameHeight - 80 },
-                    { x: 600, y: gameHeight - 80 }, { x: 350, y: gameHeight - 220 }
+                    { x: 650, y: gameHeight - 80 }, { x: 380, y: gameHeight - 220 },
+                    { x: 280, y: gameHeight - 320 } // Nemico su piattaforma alta
                 ],
-                collectibles: [
-                    { x: 220, y: gameHeight - 160 }, { x: 330, y: gameHeight - 220 },
-                    { x: 580, y: gameHeight - 140 }, { x: 230, y: gameHeight - 320 },
+                collectibles: [ // Aumentati e riposizionati
+                    { x: 70, y: gameHeight - 190 },
+                    { x: 220, y: gameHeight - 160 }, { x: 400, y: gameHeight - 220 },
+                    { x: 630, y: gameHeight - 140 },
+                    { x: 280, y: gameHeight - 320, isDifficult: true }, // Insalata difficile
                     { x: 150, y: gameHeight - 80 }, { x: 350, y: gameHeight - 80 },
-                    { x: 400, y: gameHeight - 80 }, { x: 650, y: gameHeight - 80 },
-                    { x: 750, y: gameHeight - 80 }
+                    { x: 500, y: gameHeight - 80 }, { x: 750, y: gameHeight - 80 }
                 ]
             },
             { // Livello 3: Foresta (Inizio Power-up)
-                scoreToAdvance: 3000,
                 bgColor: '#228B22',
                 themeName: "Foresta Omrbosa",
                 powerUpEnabled: true,
@@ -327,22 +317,28 @@
                 playerStartPlatformTopY: gameHeight - 150,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#556B2F' },
-                    { x: 50, y: gameHeight - 150, width: 150, height: 20, color: '#8B4513' },
+                    { x: 50, y: gameHeight - 150, width: 150, height: 20, color: '#8B4513' }, // Start
                     { x: 250, y: gameHeight - 220, width: 100, height: 20, color: '#8B4513' },
                     { x: 400, y: gameHeight - 120, width: 200, height: 20, color: '#8B4513' },
-                    { x: 650, y: gameHeight - 250, width: 120, height: 20, color: '#8B4513' }
+                    { x: 650, y: gameHeight - 250, width: 120, height: 20, color: '#8B4513' },
+                    { x: 300, y: gameHeight - 320, width: 80, height: 20, color: '#8B4513'} // Piattaforma molto alta
                 ],
                 enemies: [
-                    { x: 250, y: gameHeight - 80 },
-                    { x: 350, y: gameHeight - 80 },
+                    { x: 150, y: gameHeight - 80 }, { x: 350, y: gameHeight - 80 },
                     { x: 500, y: gameHeight - 80 }, { x: 700, y: gameHeight - 80 },
-                    { x: 280, y: gameHeight - 260 },
-                    { x: 450, y: gameHeight - 160 }
+                    { x: 280, y: gameHeight - 260 }, { x: 450, y: gameHeight - 160 },
+                    { x: 680, y: gameHeight - 290 }
                 ],
-                collectibles: Array.from({length: 15}, (_, i) => ({ x: 50 + i * 50, y: gameHeight - 80 - (i%3 * 50) }))
+                collectibles: [
+                    { x: 100, y: gameHeight - 190 }, { x: 280, y: gameHeight - 260 },
+                    { x: 450, y: gameHeight - 160 }, { x: 680, y: gameHeight - 290 },
+                    { x: 330, y: gameHeight - 360, isDifficult: true }, // Insalata difficile sulla piattaforma alta
+                    { x: 80, y: gameHeight - 80 }, { x: 200, y: gameHeight - 80 },
+                    { x: 320, y: gameHeight - 80 }, { x: 550, y: gameHeight - 80 },
+                    { x: 650, y: gameHeight - 80 }, { x: 750, y: gameHeight - 80 }
+                ]
             },
             { // Livello 4: Città
-                scoreToAdvance: 4000,
                 bgColor: '#778899',
                 themeName: "Metropoli Grigia",
                 powerUpEnabled: true,
@@ -350,24 +346,34 @@
                 playerStartPlatformTopY: gameHeight - 180,
                 platforms: [
                     { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#A9A9A9' },
-                    { x: 0, y: gameHeight - 180, width: 150, height: 20, color: '#696969' },
+                    { x: 0, y: gameHeight - 180, width: 150, height: 20, color: '#696969' }, // Start
                     { x: gameWidth - 150, y: gameHeight - 180, width: 150, height: 20, color: '#696969' },
                     { x: 200, y: gameHeight - 120, width: 100, height: 20, color: '#696969' },
                     { x: 350, y: gameHeight - 250, width: 100, height: 20, color: '#696969' },
-                    { x: 500, y: gameHeight - 120, width: 100, height: 20, color: '#696969' }
+                    { x: 500, y: gameHeight - 120, width: 100, height: 20, color: '#696969' },
+                    { x: gameWidth/2 - 50, y: gameHeight - 350, width: 100, height: 20, color: '#696969'} // Piattaforma molto alta e centrale
                 ],
                 enemies: [
-                    { x: 250, y: gameHeight - 80 },
-                    { x: 350, y: gameHeight - 80 },
-                    { x: 420, y: gameHeight - 80 }, { x: 600, y: gameHeight - 80 },
-                    { x: 720, y: gameHeight - 80 },
+                    { x: 100, y: gameHeight - 80 }, { x: 250, y: gameHeight - 80 },
+                    { x: 380, y: gameHeight - 80 }, { x: 520, y: gameHeight - 80 },
+                    { x: 650, y: gameHeight - 80 },
                     { x: gameWidth - 100, y: gameHeight - 220 },
-                    { x: 400, y: gameHeight - 290 }
+                    { x: 400, y: gameHeight - 290 },
+                    { x: 230, y: gameHeight - 160 },
+                    { x: 530, y: gameHeight - 160 }
                 ],
-                collectibles: Array.from({length: 20}, (_, i) => ({ x: 30 + i * 40, y: gameHeight - 80 - (i%4 * 40) }))
+                collectibles: [
+                    { x: 50, y: gameHeight - 220 }, { x: gameWidth - 100, y: gameHeight - 220 },
+                    { x: 230, y: gameHeight - 160 }, { x: 380, y: gameHeight - 290 },
+                    { x: 530, y: gameHeight - 160 },
+                    { x: gameWidth/2 - 15, y: gameHeight - 390, isDifficult: true }, // Insalata difficile
+                    { x: 100, y: gameHeight - 80 }, { x: 200, y: gameHeight - 80 },
+                    { x: 300, y: gameHeight - 80 }, { x: 400, y: gameHeight - 80 },
+                    { x: 500, y: gameHeight - 80 }, { x: 600, y: gameHeight - 80 },
+                    { x: 700, y: gameHeight - 80 }
+                ]
             },
             { // Livello 5: Castello (Boss)
-                scoreToAdvance: Infinity,
                 bgColor: '#483D8B',
                 themeName: "Castello Oscuro",
                 powerUpEnabled: true,
@@ -375,17 +381,26 @@
                 playerStartX: 120,
                 playerStartPlatformTopY: gameHeight - 150,
                 platforms: [
-                    { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#2F4F4F' },
-                    { x: 100, y: gameHeight - 150, width: 150, height: 20, color: '#708090' },
+                    { x: 0, y: gameHeight - 40, width: gameWidth, height: 40, color: '#2F4F4F' }, // Ground
+                    { x: 100, y: gameHeight - 150, width: 150, height: 20, color: '#708090' }, // Start Platform
                     { x: gameWidth - 250, y: gameHeight - 150, width: 150, height: 20, color: '#708090' },
-                    { x: gameWidth/2 - 75, y: gameHeight - 250, width: 150, height: 20, color: '#708090' }
+                    { x: gameWidth/2 - 75, y: gameHeight - 250, width: 150, height: 20, color: '#708090' } // Piattaforma centrale alta
                 ],
-                enemies: [
-                    { x: 200, y: gameHeight - 80 },
-                    { x: gameWidth - 200, y: gameHeight - 80 }
+                enemies: [ // Pochi nemici normali prima del boss
+                    { x: 250, y: gameHeight - 80 },
+                    { x: gameWidth - 300, y: gameHeight - 80 }
                 ],
-                bossData: { x: gameWidth / 2 - 50, y: gameHeight - 120, health: bossMaxHealth },
-                collectibles: Array.from({length: 10}, (_, i) => ({ x: 50 + i * 70, y: gameHeight - 80 - (i%2 * 60) }))
+                bossData: {
+                    x: gameWidth / 2 - 50, y: gameHeight - 120, health: bossMaxHealth,
+                    speedX: 3, speedY: 2, // NUOVO: velocità per il boss
+                    minY: gameHeight - 300, maxY: gameHeight - 100 // NUOVO: limiti verticali per il boss
+                },
+                collectibles: [ // Meno collezionabili, ma alcuni in posizioni difficili
+                    { x: 150, y: gameHeight - 190 },
+                    { x: gameWidth - 200, y: gameHeight - 190 },
+                    { x: gameWidth/2 - 15, y: gameHeight - 290, isDifficult: true }, // Insalata difficile
+                    { x: 50, y: gameHeight - 80 }, { x: gameWidth - 100, y: gameHeight - 80 }
+                ]
             }
         ];
 
@@ -444,8 +459,9 @@
                 if (this.x < 0) this.x = 0;
                 if (this.x + this.width > gameWidth) this.x = gameWidth - this.width;
 
-                if (this.y > gameHeight) { // Se il giocatore cade fuori dallo schermo
+                if (this.y > gameHeight) {
                     loseLife();
+                    if (lives > 0) resetLevelTimer(); // Resetta timer solo se non è game over
                 }
 
                 if (this.shootCooldown > 0) {
@@ -465,64 +481,80 @@
 
         class Platform {
             constructor(x, y, width, height, color) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.color = color;
+                this.x = x; this.y = y; this.width = width; this.height = height; this.color = color;
             }
-            draw() {
-                ctx.fillStyle = this.color;
-                ctx.fillRect(this.x, this.y, this.width, this.height);
-            }
+            draw() { ctx.fillStyle = this.color; ctx.fillRect(this.x, this.y, this.width, this.height); }
         }
 
         class Enemy {
-            constructor(x, y, isBoss = false, health = 1) {
+            constructor(x, y, isBoss = false, bossData = null) { // Modificato per passare bossData
                 this.isBoss = isBoss;
                 this.width = isBoss ? 100 : 40;
                 this.height = isBoss ? 100 : 40;
                 this.x = x;
-                this.y = y - (this.height - 40); // Allinea la base del nemico con y (se hanno altezze diverse dal riferimento 40)
-                this.dx = (Math.random() < 0.5 ? 1 : -1) * (isBoss ? 1 : 2);
+                this.y = y - (this.height - 40);
                 this.image = images.enemy;
-                this.health = health;
-                this.maxHealth = health;
+
+                if (isBoss && bossData) {
+                    this.health = bossData.health;
+                    this.maxHealth = bossData.health;
+                    this.dx = bossData.speedX * (Math.random() < 0.5 ? 1 : -1); // Direzione X iniziale casuale per il boss
+                    this.dyBoss = bossData.speedY; // Velocità verticale
+                    this.minY = bossData.minY;
+                    this.maxY = bossData.maxY;
+                } else {
+                    this.health = 1;
+                    this.maxHealth = 1;
+                    this.dx = (Math.random() < 0.5 ? 1 : -1) * 2; // Velocità nemici normali
+                }
             }
+
             update() {
                 this.x += this.dx;
-                if (this.x < 0 || this.x + this.width > gameWidth) {
-                    this.dx *= -1;
-                }
-                // Logica per non cadere dalle piattaforme (semplificata)
-                let onPlatform = false;
-                for (const platform of platforms) {
-                    // Controlla se il nemico è sopra una piattaforma
-                    if (this.x + this.width > platform.x && this.x < platform.x + platform.width &&
-                        this.y + this.height >= platform.y && this.y + this.height <= platform.y + platform.height + 5) { // +5 per tolleranza
-                        onPlatform = true;
-                        // Controlla se c'è terreno davanti
-                        const lookAheadX = this.x + (this.dx > 0 ? this.width + 5 : -5); // Guarda un po' avanti
-                        let groundAhead = false;
-                        for (const p of platforms) { // Controlla su tutte le piattaforme
-                            if (lookAheadX + (this.dx > 0 ? 0 : this.width) > p.x && lookAheadX + (this.dx > 0 ? 0 : this.width) < p.x + p.width &&
-                                this.y + this.height >= p.y && this.y + this.height <= p.y + p.height + 5) {
-                                groundAhead = true;
-                                break;
+
+                if (this.isBoss) {
+                    this.y += this.dyBoss;
+                    if (this.y + this.height > this.maxY || this.y < this.minY) {
+                        this.dyBoss *= -1; // Inverti direzione verticale
+                        this.y += this.dyBoss; // Piccola correzione per evitare di uscire dai limiti
+                    }
+                    // Il boss può attraversare i bordi laterali e riapparire dall'altro lato
+                    if (this.x + this.width < 0) this.x = gameWidth;
+                    else if (this.x > gameWidth) this.x = -this.width;
+
+                } else { // Logica per nemici normali
+                    if (this.x < 0 || this.x + this.width > gameWidth) {
+                        this.dx *= -1;
+                    }
+                    // Logica per non cadere dalle piattaforme (semplificata)
+                    let onPlatform = false;
+                    let groundAhead = false;
+                    for (const platform of platforms) {
+                        if (this.x + this.width > platform.x && this.x < platform.x + platform.width &&
+                            this.y + this.height >= platform.y && this.y + this.height <= platform.y + platform.height + 5) {
+                            onPlatform = true;
+                            const lookAheadX = this.x + (this.dx > 0 ? this.width + 5 : -5);
+                            for (const p of platforms) {
+                                if (lookAheadX + (this.dx > 0 ? 0 : this.width) > p.x && lookAheadX + (this.dx > 0 ? 0 : this.width) < p.x + p.width &&
+                                    this.y + this.height >= p.y && this.y + this.height <= p.y + p.height + 5) {
+                                    groundAhead = true;
+                                    break;
+                                }
                             }
+                            if (!groundAhead && onPlatform) {
+                                 this.dx *= -1;
+                            }
+                            break;
                         }
-                        if (!groundAhead && onPlatform) { // Se è su una piattaforma ma non c'è terreno davanti
-                             this.dx *= -1; // Inverte la direzione
-                        }
-                        break; // Trovata la piattaforma su cui è, non serve controllare le altre per questo
                     }
                 }
             }
+
             draw() {
                 if (this.image && this.image.complete && this.image.naturalWidth !== 0) {
                     ctx.drawImage(this.image, this.x, this.y, this.width, this.height);
                 } else {
-                    ctx.fillStyle = 'red';
+                    ctx.fillStyle = this.isBoss ? 'purple' : 'red'; // Colore diverso per il boss se l'immagine manca
                     ctx.fillRect(this.x, this.y, this.width, this.height);
                 }
                 if (this.isBoss && this.health < this.maxHealth) {
@@ -539,13 +571,16 @@
         }
 
         class Collectible {
-            constructor(x, y) {
+            constructor(x, y, isDifficult = false) { // Aggiunto isDifficult per debug o stile futuro
                 this.x = x; this.y = y; this.width = 30; this.height = 30;
                 this.emoji = '🥗'; this.fontSize = 30;
+                this.isDifficult = isDifficult; // Potrebbe essere usato per uno stile diverso
             }
             draw() {
                 ctx.font = `${this.fontSize}px Arial`; ctx.textAlign = "center";
-                ctx.fillText(this.emoji, this.x + this.width/2, this.y + this.height - 5); // Aggiustato per centrare meglio l'emoji
+                // if (this.isDifficult) ctx.fillStyle = 'gold'; else ctx.fillStyle = 'white'; // Esempio stile per insalata difficile
+                ctx.fillText(this.emoji, this.x + this.width/2, this.y + this.height - 5);
+                ctx.fillStyle = 'white'; // Resetta fillStyle
             }
         }
 
@@ -556,7 +591,7 @@
             }
             draw() {
                 ctx.font = `${this.fontSize}px Arial`; ctx.textAlign = "center";
-                ctx.fillText(this.emoji, this.x + this.width/2, this.y + this.height - 5); // Aggiustato
+                ctx.fillText(this.emoji, this.x + this.width/2, this.y + this.height - 5);
             }
         }
 
@@ -568,7 +603,7 @@
             update() { this.x += this.dx; }
             draw() {
                 ctx.font = `${this.fontSize}px Arial`; ctx.textAlign = "center";
-                ctx.fillText(this.emoji, this.x + this.width/2, this.y + this.height/2 + 5); // Aggiustato per centrare meglio
+                ctx.fillText(this.emoji, this.x + this.width/2, this.y + this.height/2 + 5);
             }
         }
 
@@ -581,16 +616,14 @@
         function handleJumpPress() { if (gameState === 'PLAYING') player.jump(); }
         function handleShootPress() { if (gameState === 'PLAYING' && powerUpActive) player.shoot(); }
 
-        // Gestione input da tastiera
         window.addEventListener('keydown', (e) => {
             if (e.code === 'Space' || e.code === 'ArrowUp' || e.code === 'KeyW') { e.preventDefault(); handleJumpPress(); }
             if (e.code === 'KeyX' || e.code === 'ControlLeft') { e.preventDefault(); handleShootPress(); }
         });
 
-        // Setup controlli touch
         function setupTouchControls() {
             if ('ontouchstart' in window || navigator.maxTouchPoints > 0) {
-                touchControlsDiv.style.display = 'flex'; // Mostra i controlli touch
+                touchControlsDiv.style.display = 'flex';
                 leftButton.addEventListener('touchstart', (e) => { e.preventDefault(); touchLeft = true; });
                 leftButton.addEventListener('touchend', (e) => { e.preventDefault(); touchLeft = false; });
                 rightButton.addEventListener('touchstart', (e) => { e.preventDefault(); touchRight = true; });
@@ -599,118 +632,96 @@
                 shootButton.addEventListener('touchstart', (e) => { e.preventDefault(); handleShootPress(); });
             }
         }
-        setupTouchControls(); // Chiama la funzione per attivare i controlli touch se disponibili
+        setupTouchControls();
 
-        // Funzione di collisione AABB
         function AABB(rect1, rect2) {
             return rect1.x < rect2.x + rect2.width && rect1.x + rect1.width > rect2.x &&
                    rect1.y < rect2.y + rect2.height && rect1.y + rect1.height > rect2.y;
         }
 
         function handleCollisions() {
-            player.onGround = false; // Resetta lo stato onGround all'inizio di ogni frame
-            // Collisioni con le piattaforme
+            player.onGround = false;
             for (const platform of platforms) {
                 if (AABB(player, platform)) {
-                    // Collisione dall'alto (atterraggio)
-                    if (player.dy > 0 && player.y + player.height - player.dy <= platform.y) { // player.dy vecchio per confronto
+                    if (player.dy > 0 && player.y + player.height - player.dy <= platform.y) {
                         player.y = platform.y - player.height;
-                        player.dy = 0;
-                        player.onGround = true;
-                        player.isJumping = false;
+                        player.dy = 0; player.onGround = true; player.isJumping = false;
                     }
-                    // Collisione laterale da destra verso sinistra
                     else if (player.dx > 0 && player.x + player.width - player.dx <= platform.x) {
-                        player.x = platform.x - player.width;
-                        player.dx = 0;
+                        player.x = platform.x - player.width; player.dx = 0;
                     }
-                    // Collisione laterale da sinistra verso destra
                     else if (player.dx < 0 && player.x - player.dx >= platform.x + platform.width) {
-                        player.x = platform.x + platform.width;
-                        player.dx = 0;
+                        player.x = platform.x + platform.width; player.dx = 0;
                     }
-                    // Collisione dal basso (colpisce la piattaforma con la testa)
                     else if (player.dy < 0 && player.y - player.dy >= platform.y + platform.height) {
-                        player.y = platform.y + platform.height;
-                        player.dy = 0; // Ferma il movimento verticale
+                        player.y = platform.y + platform.height; player.dy = 0;
                     }
                 }
             }
 
-            // Collisioni con i collezionabili
             for (let i = collectibles.length - 1; i >= 0; i--) {
                 if (AABB(player, collectibles[i])) {
-                    collectibles.splice(i, 1); // Rimuove il collezionabile
-                    score += 100;
+                    collectibles.splice(i, 1);
+                    score += 100; // Il punteggio continua ad accumularsi
                     updateUI();
                 }
             }
 
-            // Collisione con il PowerUpCollectible
             if (powerUpCollectible && AABB(player, powerUpCollectible)) {
                 activatePowerUp();
-                powerUpCollectible = null; // Rimuove il power-up dalla mappa
+                powerUpCollectible = null;
             }
 
-            // Collisioni con i nemici
             for (let i = enemies.length - 1; i >= 0; i--) {
                 const enemy = enemies[i];
                 if (AABB(player, enemy)) {
-                    // Se il giocatore salta sopra il nemico
-                    if (player.dy > 0 && (player.y + player.height - player.dy) <= enemy.y + enemy.height / 2) { // Controlla se il piede del giocatore è sopra la metà superiore del nemico
-                        enemies.splice(i, 1); // Rimuove il nemico
+                    if (player.dy > 0 && (player.y + player.height - player.dy) <= enemy.y + enemy.height / 2) {
+                        enemies.splice(i, 1);
                         score += 200;
-                        player.dy = -player.jumpForce / 2; // Piccolo balzo
+                        player.dy = -player.jumpForce / 2;
                         enemiesKilledForPowerUp++;
                         checkSpawnPowerUp();
-                    } else { // Altrimenti, il giocatore viene colpito
+                    } else {
                         loseLife();
+                        if (lives > 0) resetLevelTimer();
                     }
                     updateUI();
                 }
             }
-             // Collisione con il Boss
+
             if (boss && AABB(player, boss)) {
-                if (player.dy > 0 && (player.y + player.height - player.dy) <= boss.y + boss.height / 2) { // Salto sul boss
-                    if (boss.takeDamage(1)) { // Il boss prende 1 danno
+                if (player.dy > 0 && (player.y + player.height - player.dy) <= boss.y + boss.height / 3) { // modificato il punto di salto (/3 invece di /2 per essere più generosi)
+                    if (boss.takeDamage(1)) {
                         defeatBoss();
                     } else {
-                        player.dy = -player.jumpForce / 1.5; // Balzo più alto dal boss
+                        player.dy = -player.jumpForce / 1.5;
                     }
-                } else { // Collisione laterale o dal basso con il boss
+                } else {
                     loseLife();
+                    if (lives > 0) resetLevelTimer();
                 }
             }
 
-            // Collisioni dei proiettili
             for (let i = projectiles.length - 1; i >= 0; i--) {
                 const proj = projectiles[i];
-                let projectileHit = false; // Flag per indicare se il proiettile ha colpito qualcosa
+                let projectileHit = false;
 
-                // Contro i nemici normali
                 for (let j = enemies.length - 1; j >= 0; j--) {
                     if (AABB(proj, enemies[j])) {
-                        enemies.splice(j, 1); // Rimuove il nemico
-                        projectiles.splice(i, 1); // Rimuove il proiettile
-                        projectileHit = true;
-                        score += 250; // Punteggio extra per uccisione con proiettile
-                        enemiesKilledForPowerUp++;
-                        checkSpawnPowerUp();
-                        break; // Esce dal ciclo dei nemici, il proiettile è sparito
+                        enemies.splice(j, 1); projectiles.splice(i, 1); projectileHit = true;
+                        score += 250; enemiesKilledForPowerUp++; checkSpawnPowerUp();
+                        break;
                     }
                 }
-                if (projectileHit) continue; // Se il proiettile ha colpito un nemico, passa al prossimo proiettile
+                if (projectileHit) continue;
 
-                // Contro il Boss
                 if (boss && AABB(proj, boss)) {
-                     if (boss.takeDamage(0.2)) { // Il boss prende meno danno dai proiettili
+                     if (boss.takeDamage(0.5)) { // Boss prende un po' più danno dai proiettili
                         defeatBoss();
                     }
-                    projectiles.splice(i, 1); // Rimuove il proiettile
-                    // Non impostare projectileHit a true qui, per permettere di controllare uscita schermo
+                    projectiles.splice(i, 1);
                 }
 
-                // Rimuovi proiettili fuori schermo
                 if (proj.x < 0 || proj.x > gameWidth) {
                     projectiles.splice(i, 1);
                 }
@@ -718,11 +729,10 @@
         }
 
         function defeatBoss() {
-            score += 5000; // Punteggio bonus per aver sconfitto il boss
-            boss = null; enemies = []; // Rimuovi boss e altri nemici
+            score += 5000;
+            boss = null; // Non rimuovere gli `enemies` se vuoi che gli altri scompaiano solo al cambio livello
             updateUI();
-            gameState = 'VICTORY';
-            setTimeout(() => positionOverlayButton(playAgainButton, 0.75), 0); // Mostra il pulsante per giocare ancora
+            // La vittoria ora è gestita dalla logica di checkLevelCompletion
         }
 
         function loseLife() {
@@ -732,21 +742,40 @@
                 gameState = 'GAME_OVER';
                 setTimeout(() => positionOverlayButton(retryButton, 0.75), 0);
             } else {
-                // Resetta la posizione del giocatore all'inizio del livello corrente
+                // Resetta la posizione del giocatore e ricarica oggetti del livello
+                // ma non l'intero loadLevel() per non resettare il punteggio del livello o altre logiche
                 const levelData = levels[currentLevel];
                 player.x = levelData.playerStartX;
-                player.y = levelData.playerStartPlatformTopY - player.height; // Posiziona sopra la piattaforma di partenza
+                player.y = levelData.playerStartPlatformTopY - player.height;
                 player.dx = 0; player.dy = 0;
+                // Non ricarichiamo l'intero livello qui, solo la posizione del player.
+                // Il timer si resetta tramite resetLevelTimer() se chiamato.
+                // Gli oggetti del livello (nemici, collectibles) si resettano solo se il timer scade o si cambia livello.
             }
         }
+        
+        // NUOVA funzione per resettare il timer e ricaricare elementi del livello
+        function restartLevelDueToTimer() {
+            loseLife();
+            if (lives > 0) {
+                loadLevelElements(currentLevel); // Ricarica nemici, insalate, timer
+            }
+        }
+        
+        function resetLevelTimer() {
+            currentLevelTimeRemaining = LEVEL_TIME_LIMIT;
+        }
+
 
         function updateUI() {
             livesDisplay.textContent = `Vite: ${lives}`;
             scoreDisplay.textContent = `Punteggio: ${score}`;
+            timerDisplay.textContent = `Tempo: ${Math.max(0, Math.ceil(currentLevelTimeRemaining / 1000))}`; // Non mostrare negativi
+            levelDisplay.textContent = `Livello: ${currentLevel + 1}`;
+
             if (powerUpActive) {
                 powerUpTimerDisplay.textContent = `Chef Furioso: ${Math.ceil(powerUpTimer / 1000)}s`;
-                // Mostra il pulsante di sparo solo se il power-up è attivo e se il livello lo permette (es. livello 3+)
-                if (currentLevel >= 2 && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) { // Livello 3 è indice 2
+                if (currentLevel >= 2 && ('ontouchstart' in window || navigator.maxTouchPoints > 0)) {
                     shootButton.style.display = 'flex';
                 }
             } else {
@@ -758,33 +787,52 @@
         function activatePowerUp() {
             powerUpActive = true;
             powerUpTimer = powerUpDuration;
-            enemiesKilledForPowerUp = 0; // Resetta il contatore per il prossimo power-up
+            enemiesKilledForPowerUp = 0;
             updateUI();
         }
 
         function checkSpawnPowerUp() {
             const levelData = levels[currentLevel];
-            // Controlla se il power-up è abilitato per il livello, non è già attivo, non c'è già un power-up da raccogliere
-            // e il giocatore ha ucciso abbastanza nemici
             if (levelData.powerUpEnabled && !powerUpActive && !powerUpCollectible && enemiesKilledForPowerUp >= powerUpSpawnThreshold) {
                 let spawnX, spawnY;
-                // Cerca di spawnare su una piattaforma esistente (non quella base)
-                if (platforms.length > 1) { // Assicurati ci siano piattaforme oltre quella base
-                    // Scegli una piattaforma a caso, escludendo la prima (di solito il terreno)
+                if (platforms.length > 1) {
                     const p = platforms[Math.floor(Math.random() * (platforms.length -1)) + 1];
-                    spawnX = p.x + p.width / 2 - 20; // Centra il power-up sulla piattaforma
-                    spawnY = p.y - 50; // Posiziona sopra la piattaforma
-                } else { // Fallback se ci sono poche piattaforme
+                    spawnX = p.x + p.width / 2 - 20;
+                    spawnY = p.y - 50;
+                } else {
                     spawnX = gameWidth / 2;
                     spawnY = gameHeight - 150;
                 }
                 powerUpCollectible = new PowerUpCollectible(spawnX, spawnY);
-                enemiesKilledForPowerUp = 0; // Resetta il contatore
+                enemiesKilledForPowerUp = 0;
             }
         }
 
+        // Funzione separata per caricare solo gli elementi dinamici del livello
+        function loadLevelElements(levelIndex) {
+            const levelData = levels[levelIndex];
+            platforms = levelData.platforms.map(p => new Platform(p.x, p.y, p.width, p.height, p.color));
+            enemies = levelData.enemies.map(e => new Enemy(e.x, e.y, false)); // Assumiamo nemici normali qui
+            collectibles = levelData.collectibles.map(c => new Collectible(c.x, c.y, c.isDifficult));
+            projectiles = [];
+            powerUpCollectible = null;
+            enemiesKilledForPowerUp = 0;
+            resetLevelTimer(); // Resetta il timer specifico del livello
+
+            if (levelData.isBossLevel && levelData.bossData) {
+                // Passa l'intero oggetto bossData al costruttore di Enemy
+                boss = new Enemy(levelData.bossData.x, levelData.bossData.y, true, levelData.bossData);
+            } else {
+                boss = null;
+            }
+            player.x = levelData.playerStartX; // Riposiziona il giocatore
+            player.y = levelData.playerStartPlatformTopY - PLAYER_DEFAULT_HEIGHT;
+            player.dx = 0; player.dy = 0;
+        }
+
+
         function loadLevel(levelIndex) {
-            if (levelIndex >= levels.length) { // Se si supera l'ultimo livello
+            if (levelIndex >= levels.length) {
                 gameState = 'VICTORY';
                 setTimeout(() => positionOverlayButton(playAgainButton, 0.75), 0);
                 return;
@@ -792,23 +840,11 @@
             currentLevel = levelIndex;
             const levelData = levels[currentLevel];
 
-            player = new Player(levelData.playerStartX, levelData.playerStartPlatformTopY - PLAYER_DEFAULT_HEIGHT); // Usa costante per altezza
-
-            platforms = levelData.platforms.map(p => new Platform(p.x, p.y, p.width, p.height, p.color));
-            enemies = levelData.enemies.map(e => new Enemy(e.x, e.y));
-            collectibles = levelData.collectibles.map(c => new Collectible(c.x, c.y));
-            projectiles = []; // Resetta i proiettili
-            powerUpCollectible = null; // Resetta il power-up
-            enemiesKilledForPowerUp = 0; // Resetta contatore uccisioni per power-up
-
-            if (levelData.isBossLevel && levelData.bossData) {
-                boss = new Enemy(levelData.bossData.x, levelData.bossData.y, true, levelData.bossData.health);
-            } else {
-                boss = null;
-            }
+            player = new Player(levelData.playerStartX, levelData.playerStartPlatformTopY - PLAYER_DEFAULT_HEIGHT);
+            loadLevelElements(currentLevel); // Carica nemici, collezionabili, boss, timer
 
             canvas.style.backgroundColor = levelData.bgColor;
-            updateUI();
+            updateUI(); // Aggiorna UI dopo aver caricato tutto
             hideOverlayButtons();
             gameState = 'PLAYING';
         }
@@ -818,14 +854,27 @@
             score = 0;
             powerUpActive = false;
             powerUpTimer = 0;
-            currentLevel = 0; // Inizia dal primo livello
-            loadLevel(currentLevel);
+            currentLevel = 0;
+            loadLevel(currentLevel); // Questo ora include il reset del timer di livello
+        }
+        
+        // NUOVA funzione per controllare il completamento del livello
+        function checkLevelCompletion() {
+            const levelData = levels[currentLevel];
+            const allCollectiblesTaken = collectibles.length === 0;
+            const allEnemiesDefeated = enemies.length === 0;
+            const bossDefeated = !levelData.isBossLevel || (levelData.isBossLevel && boss === null);
+
+            if (allCollectiblesTaken && allEnemiesDefeated && bossDefeated) {
+                gameState = 'LEVEL_COMPLETE';
+                setTimeout(() => positionOverlayButton(nextLevelButton, 0.75), 0);
+            }
         }
 
+
         let lastTime = 0;
-        // Variabili per l'animazione degli sprite nella schermata titolo (posizioni iniziali)
-        let titleFabioX = gameWidth * 0.1, titleFabioDir = 1; // Adattato a gameWidth
-        let titleEnemyX = gameWidth * 0.8, titleEnemyDir = -1; // Adattato a gameWidth
+        let titleFabioX = gameWidth * 0.1, titleFabioDir = 1;
+        let titleEnemyX = gameWidth * 0.8, titleEnemyDir = -1;
 
 
         function gameLoop(timestamp) {
@@ -838,117 +887,160 @@
                 ctx.fillStyle = 'white'; ctx.font = '30px Arial';
                 ctx.textAlign = 'center'; ctx.fillText('Caricamento Risorse...', gameWidth / 2, gameHeight / 2);
             } else if (gameState === 'TITLE') {
-                // ======== INIZIO SEZIONE MODIFICATA PER TITLE SCREEN ========
-
-                // 1. Riempire lo sfondo del canvas con un colore cielo
-                ctx.fillStyle = '#70c5ce'; // Colore cielo di base
+                // Sfondo cielo
+                ctx.fillStyle = '#70c5ce';
                 ctx.fillRect(0, 0, gameWidth, gameHeight);
 
-                // 2. Disegnare l'immagine di sfondo (personaggio principale) abbassata e scalata
+                // Immagine di sfondo (fabiogame.PNG) scalata e posizionata
                 const bgImg = images.background;
                 if (bgImg && bgImg.complete && bgImg.naturalWidth !== 0) {
                     const aspectRatio = bgImg.naturalWidth / bgImg.naturalHeight;
-                    let drawWidth = gameWidth;
-                    let drawHeight = drawWidth / aspectRatio;
-
-                    if (drawHeight > gameHeight) {
-                        drawHeight = gameHeight;
-                        drawWidth = drawHeight * aspectRatio;
+                    let drawHeight = gameHeight * 0.8; // Usa l'80% dell'altezza del canvas
+                    let drawWidth = drawHeight * aspectRatio;
+                    if (drawWidth > gameWidth) {
+                        drawWidth = gameWidth * 0.9; // Usa il 90% della larghezza
+                        drawHeight = drawWidth / aspectRatio;
                     }
-                    
-                    const drawX = (gameWidth - drawWidth) / 2; 
-                    const drawY = gameHeight - drawHeight;     
-
+                    const drawX = (gameWidth - drawWidth) / 2;
+                    const drawY = gameHeight - drawHeight; // Appoggia in basso
                     ctx.drawImage(bgImg, drawX, drawY, drawWidth, drawHeight);
                 }
 
-                // 3. & 4. Disegnare il titolo con effetto 3D, posizionato in alto
+                // Titolo con effetto 3D
                 ctx.textAlign = 'center';
-                const titleY1 = gameHeight * 0.12; 
-                const titleOffset3D = Math.max(2, Math.floor(gameHeight * 0.007)); 
+                const titleY1 = gameHeight * 0.15;
+                const titleOffset3D = Math.max(2, Math.floor(gameHeight * 0.008));
                 
-                const mainTextColor = '#FFD700';     
-                const strokeColor = '#A0522D';      
-                const extrusionColor = '#502D0D';   
-                const shadowColor = 'rgba(0, 0, 0, 0.6)'; 
+                const mainTextColor = '#FFD700';     // Giallo oro
+                const strokeColor = '#A0522D';      // Marrone scuro per contorno
+                const extrusionColor = '#502D0D';   // Marrone molto scuro per estrusione
+                const shadowColor = 'rgba(0, 0, 0, 0.5)';
 
                 function drawEpicText(text, x, y, font, lineWidth) {
                     ctx.font = font;
+                    ctx.shadowColor = 'transparent';
                     
-                    ctx.shadowColor = 'transparent'; 
+                    // Estrusione
                     ctx.fillStyle = extrusionColor;
                     ctx.fillText(text, x + titleOffset3D, y + titleOffset3D);
 
+                    // Ombra principale
                     ctx.shadowColor = shadowColor;
-                    ctx.shadowBlur = 7;
-                    ctx.shadowOffsetX = titleOffset3D > 2 ? 3 : 2; 
-                    ctx.shadowOffsetY = titleOffset3D > 2 ? 3 : 2;
+                    ctx.shadowBlur = 6;
+                    ctx.shadowOffsetX = titleOffset3D > 2 ? 2 : 1;
+                    ctx.shadowOffsetY = titleOffset3D > 2 ? 2 : 1;
 
+                    // Testo con contorno
                     ctx.strokeStyle = strokeColor;
                     ctx.lineWidth = lineWidth;
                     ctx.strokeText(text, x, y);
                     ctx.fillStyle = mainTextColor;
                     ctx.fillText(text, x, y);
+
+                    // Reset ombra
+                    ctx.shadowColor = 'transparent';
+                    ctx.shadowBlur = 0; ctx.shadowOffsetX = 0; ctx.shadowOffsetY = 0;
                 }
 
-                let fontSize1 = Math.max(30, Math.min(65, Math.floor(gameHeight * 0.13))); 
-                drawEpicText("Super Fabio", gameWidth / 2, titleY1, `bold ${fontSize1}px Arial`, 4);
+                let fontSize1 = Math.max(35, Math.min(70, Math.floor(gameHeight * 0.14)));
+                drawEpicText("Super Fabio", gameWidth / 2, titleY1, `bold ${fontSize1}px 'Comic Sans MS', cursive, sans-serif`, Math.max(3, fontSize1 * 0.05));
 
-                let fontSize2 = Math.max(25, Math.floor(fontSize1 * 0.85)); 
-                const titleY2 = titleY1 + Math.floor(fontSize1 * 0.9); 
-                drawEpicText("bros", gameWidth / 2, titleY2, `bold ${fontSize2}px Arial`, 4);
+                let fontSize2 = Math.max(30, Math.floor(fontSize1 * 0.9));
+                const titleY2 = titleY1 + Math.floor(fontSize1 * 0.95);
+                drawEpicText("bros", gameWidth / 2, titleY2, `bold ${fontSize2}px 'Comic Sans MS', cursive, sans-serif`, Math.max(2, fontSize2 * 0.05));
 
-                ctx.shadowColor = 'transparent';
-                ctx.shadowBlur = 0;
-                ctx.shadowOffsetX = 0;
-                ctx.shadowOffsetY = 0;
 
-                // 5. Mini-personaggi animati e insalate decorative
-                if (images.player && images.player.complete) {
-                    titleFabioX += titleFabioDir * 0.5 * (deltaTime / 16); // Movimento basato su deltaTime
-                    if (titleFabioX > gameWidth * 0.25 || titleFabioX < gameWidth * 0.05) titleFabioDir *= -1; 
-                    let playerSpriteHeight = PLAYER_DEFAULT_HEIGHT * (gameHeight / 450); 
-                    let playerSpriteWidth = (images.player.naturalWidth / images.player.naturalHeight * playerSpriteHeight); // Mantieni aspect ratio
-                    ctx.drawImage(images.player, titleFabioX, gameHeight * 0.5, playerSpriteWidth, playerSpriteHeight);
-                }
-                if (images.enemy && images.enemy.complete) {
-                    titleEnemyX += titleEnemyDir * 0.7 * (deltaTime / 16); // Movimento basato su deltaTime
-                    if (titleEnemyX > gameWidth * 0.95 || titleEnemyX < gameWidth * 0.75) titleEnemyDir *= -1; 
-                    let enemySpriteSize = 40 * (gameHeight / 450); 
-                    ctx.drawImage(images.enemy, titleEnemyX, gameHeight * 0.55, enemySpriteSize, enemySpriteSize);
-                }
-
-                let saladFontSize = Math.max(20, Math.min(40, Math.floor(gameHeight * 0.08)));
-                ctx.font = `${saladFontSize}px Arial`;
-                ctx.fillText('🥗', gameWidth * 0.3, gameHeight * 0.6);
-                ctx.fillText('🥗', gameWidth * 0.7, gameHeight * 0.4);
+                // Mini-personaggi animati
+                const playerSpriteHeight = PLAYER_DEFAULT_HEIGHT * (gameHeight / 450) * 0.8; // Un po' più piccoli
+                const playerSpriteWidth = (images.player && images.player.naturalWidth > 0 ? (images.player.naturalWidth / images.player.naturalHeight) * playerSpriteHeight : playerSpriteHeight * 0.7);
                 
-                // ======== FINE SEZIONE MODIFICATA PER TITLE SCREEN ========
+                if (images.player && images.player.complete) {
+                    titleFabioX += titleFabioDir * 0.8 * (deltaTime / 16);
+                    if (titleFabioX > gameWidth * 0.3 || titleFabioX < gameWidth * 0.05) titleFabioDir *= -1;
+                    ctx.drawImage(images.player, titleFabioX, gameHeight * 0.55, playerSpriteWidth, playerSpriteHeight);
+                }
 
+                const enemySpriteSize = 40 * (gameHeight / 450) * 0.9;
+                if (images.enemy && images.enemy.complete) {
+                    titleEnemyX += titleEnemyDir * 1.0 * (deltaTime / 16);
+                    if (titleEnemyX > gameWidth * 0.9 || titleEnemyX < gameWidth * 0.65) titleEnemyDir *= -1;
+                    ctx.drawImage(images.enemy, titleEnemyX, gameHeight * 0.6, enemySpriteSize, enemySpriteSize);
+                }
+
+                // Insalate decorative
+                let saladFontSize = Math.max(25, Math.min(45, Math.floor(gameHeight * 0.09)));
+                ctx.font = `${saladFontSize}px Arial`;
+                ctx.fillText('🥗', gameWidth * 0.35, gameHeight * 0.7);
+                ctx.fillText('🥗', gameWidth * 0.65, gameHeight * 0.45);
+                
                 if (startButton.style.display === 'none') {
-                     setTimeout(() => positionOverlayButton(startButton, 0.70), 0); // Alzato leggermente il bottone
+                     setTimeout(() => positionOverlayButton(startButton, 0.80), 0); // Bottone un po' più in basso
                 }
 
             } else if (gameState === 'PLAYING') {
+                currentLevelTimeRemaining -= deltaTime; // Decrementa timer
+                if (currentLevelTimeRemaining <= 0) {
+                    currentLevelTimeRemaining = 0; // Evita negativi
+                    // Non chiamare loseLife() direttamente, ma una funzione che gestisce il reset del livello per scadenza timer
+                    restartLevelDueToTimer(); 
+                    // Se dopo loseLife() è game over, il loop non continuerà come 'PLAYING'
+                    if (gameState !== 'GAME_OVER') { // Assicurati che il gioco non sia finito
+                         updateUI(); // Aggiorna UI per il tempo e la vita persa
+                    }
+                }
+
+
                 const currentLevelData = levels[currentLevel];
                 ctx.fillStyle = currentLevelData.bgColor; ctx.fillRect(0, 0, gameWidth, gameHeight);
-                // Elementi grafici specifici per livello (nuvole, sole, etc.)
+
+                // Elementi grafici specifici per livello
+                ctx.save(); // Salva lo stato del contesto prima di disegnare elementi tematici
                 if (currentLevelData.themeName === "Cielo Sereno") {
                     ctx.fillStyle = "white";
+                    ctx.globalAlpha = 0.7;
                     // Nuvola 1
-                    ctx.beginPath(); ctx.arc(100, 100, 30, 0, Math.PI * 2); ctx.fill();
-                    ctx.beginPath(); ctx.arc(130, 90, 40, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(gameWidth * 0.15, gameHeight * 0.2, 30, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(gameWidth * 0.2, gameHeight * 0.18, 40, 0, Math.PI * 2); ctx.fill();
                     // Nuvola 2
-                    ctx.beginPath(); ctx.arc(500, 120, 50, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(gameWidth * 0.7, gameHeight * 0.25, 50, 0, Math.PI * 2); ctx.fill();
+                    ctx.beginPath(); ctx.arc(gameWidth * 0.75, gameHeight * 0.22, 35, 0, Math.PI * 2); ctx.fill();
                 } else if (currentLevelData.themeName === "Deserto Infuocato") {
-                    // Sole
                     ctx.fillStyle = "orange";
-                    ctx.beginPath(); ctx.arc(gameWidth - 80, 80, 50, 0, Math.PI * 2); ctx.fill();
-                    // Cactus (esempio)
-                    ctx.fillStyle = "#8B4513"; // Marrone per il tronco del cactus
-                    ctx.fillRect(100, gameHeight - 100, 20, 60); // Tronco
-                    ctx.fillRect(80, gameHeight - 80, 60, 20);  // "Braccia"
+                    ctx.globalAlpha = 0.8;
+                    ctx.beginPath(); ctx.arc(gameWidth - 80, 80, 50, 0, Math.PI * 2); ctx.fill(); // Sole
+                    ctx.fillStyle = "#A0522D"; // Marrone per cactus
+                    ctx.globalAlpha = 0.6;
+                    ctx.fillRect(gameWidth * 0.2, gameHeight - 100, 15, 60); // Tronco
+                    ctx.fillRect(gameWidth * 0.2 - 10, gameHeight - 80, 35, 15);  // "Braccia"
+                    ctx.fillRect(gameWidth * 0.8, gameHeight - 120, 20, 80); // Tronco altro cactus
+                } else if (currentLevelData.themeName === "Foresta Omrbosa"){
+                    ctx.globalAlpha = 0.5;
+                    // Alberi stilizzati
+                    const treeColors = ["#3A5F0B", "#556B2F", "#2E8B57"];
+                    for(let i=0; i<3; i++){
+                        ctx.fillStyle = treeColors[i % treeColors.length];
+                        ctx.fillRect(gameWidth * (0.1 + i * 0.3), gameHeight - 140, 40, 100); // Tronco
+                        ctx.beginPath();
+                        ctx.arc(gameWidth * (0.1 + i * 0.3) + 20, gameHeight - 140, 50, 0, Math.PI * 2); // Chioma
+                        ctx.fill();
+                    }
+                } else if (currentLevelData.themeName === "Metropoli Grigia") {
+                    ctx.globalAlpha = 0.4;
+                    const buildingColors = ["#505050", "#606060", "#707070"];
+                     for(let i=0; i<4; i++){
+                        ctx.fillStyle = buildingColors[i % buildingColors.length];
+                        ctx.fillRect(gameWidth * (0.05 + i * 0.25), gameHeight - (150 + Math.random()*100), 60, (150 + Math.random()*100));
+                    }
+                } else if (currentLevelData.themeName === "Castello Oscuro") {
+                    ctx.globalAlpha = 0.3;
+                    ctx.fillStyle = "#101010";
+                    // Finestre stilizzate
+                    for(let i=0; i<3; i++){
+                         ctx.fillRect(gameWidth * (0.2 + i * 0.3) , gameHeight * 0.3, 30, 50);
+                         ctx.fillRect(gameWidth * (0.2 + i * 0.3) + 10 , gameHeight * 0.28, 10, 70);
+                    }
                 }
+                ctx.restore(); // Ripristina lo stato del contesto
 
                 for (const platform of platforms) platform.draw();
                 for (const collectible of collectibles) collectible.draw();
@@ -967,14 +1059,9 @@
                         powerUpActive = false;
                         powerUpTimer = 0;
                     }
-                    updateUI();
                 }
-
-                const levelData = levels[currentLevel];
-                if (!levelData.isBossLevel && score >= levelData.scoreToAdvance) {
-                    gameState = 'LEVEL_COMPLETE';
-                    setTimeout(() => positionOverlayButton(nextLevelButton, 0.75), 0);
-                }
+                updateUI(); // Aggiorna UI per timer e altri stati
+                checkLevelCompletion(); // Controlla se il livello è completato
 
             } else if (gameState === 'LEVEL_COMPLETE') {
                 ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0,0,gameWidth, gameHeight);
@@ -982,23 +1069,28 @@
                 ctx.fillText('Livello Completato!', gameWidth / 2, gameHeight / 2 - 30);
                 ctx.font = '20px Arial';
                 ctx.fillText(`Punteggio: ${score}`, gameWidth / 2, gameHeight / 2 + 20);
+                ctx.fillText(`Collezionabili: ${collectibles.length}`, gameWidth / 2, gameHeight / 2 + 50);
+                ctx.fillText(`Nemici Rimasti: ${enemies.length + (boss ? 1:0)}`, gameWidth / 2, gameHeight / 2 + 80);
+
             } else if (gameState === 'GAME_OVER') {
-                if (images.background && images.background.complete) { // Usa immagine di sfondo se disponibile
+                if (images.background && images.background.complete) {
                     ctx.drawImage(images.background, 0, 0, gameWidth, gameHeight);
                 } else { ctx.fillStyle = 'black'; ctx.fillRect(0,0,gameWidth, gameHeight); }
-                ctx.fillStyle = 'rgba(0,0,0,0.5)'; ctx.fillRect(0,0,gameWidth, gameHeight); // Overlay scuro
-                ctx.fillStyle = 'red'; ctx.font = '60px Arial'; ctx.textAlign = 'center';
+                ctx.fillStyle = 'rgba(0,0,0,0.7)'; ctx.fillRect(0,0,gameWidth, gameHeight);
+                ctx.fillStyle = 'red'; ctx.font = `bold ${Math.min(60, gameWidth*0.1)}px Arial`; ctx.textAlign = 'center';
                 ctx.fillText('GAME OVER', gameWidth / 2, gameHeight / 2 - 40);
-                ctx.fillStyle = 'white'; ctx.font = '30px Arial';
+                ctx.fillStyle = 'white'; ctx.font = `${Math.min(30, gameWidth*0.05)}px Arial`;
                 ctx.fillText(`Punteggio Finale: ${score}`, gameWidth / 2, gameHeight / 2 + 20);
             } else if (gameState === 'VICTORY') {
-                 if (images.background && images.background.complete) { // Usa immagine di sfondo se disponibile
+                 if (images.background && images.background.complete) {
                     ctx.drawImage(images.background, 0, 0, gameWidth, gameHeight);
-                } else { ctx.fillStyle = '#FFD700'; ctx.fillRect(0,0,gameWidth, gameHeight); } // Sfondo dorato di vittoria
-                ctx.fillStyle = 'rgba(0,0,0,0.3)'; ctx.fillRect(0,0,gameWidth, gameHeight); // Overlay leggero
-                ctx.fillStyle = 'green'; ctx.font = '60px Arial'; ctx.textAlign = 'center';
+                } else { ctx.fillStyle = '#FFD700'; ctx.fillRect(0,0,gameWidth, gameHeight); }
+                ctx.fillStyle = 'rgba(0,100,0,0.4)'; ctx.fillRect(0,0,gameWidth, gameHeight);
+                ctx.fillStyle = 'gold'; ctx.font = `bold ${Math.min(60, gameWidth*0.1)}px Arial`; ctx.textAlign = 'center';
+                ctx.strokeStyle = 'darkgreen'; ctx.lineWidth = 3;
+                ctx.strokeText('HAI VINTO!', gameWidth / 2, gameHeight / 2 - 40);
                 ctx.fillText('HAI VINTO!', gameWidth / 2, gameHeight / 2 - 40);
-                ctx.fillStyle = 'white'; ctx.font = '30px Arial';
+                ctx.fillStyle = 'white'; ctx.font = `${Math.min(30, gameWidth*0.05)}px Arial`;
                 ctx.fillText(`Punteggio Finale: ${score}`, gameWidth / 2, gameHeight / 2 + 20);
             }
             requestAnimationFrame(gameLoop);
@@ -1006,10 +1098,10 @@
 
         startButton.addEventListener('click', () => {
             hideOverlayButtons();
-            resetGame();
+            resetGame(); // resetGame ora chiama loadLevel che resetta il timer
             if (backgroundMusic.paused) {
                 backgroundMusic.play().catch(error => {
-                    console.warn("La riproduzione automatica della musica potrebbe essere stata bloccata dal browser:", error);
+                    console.warn("Riproduzione musica bloccata:", error);
                 });
             }
         });
@@ -1024,19 +1116,20 @@
         nextLevelButton.addEventListener('click', () => {
             hideOverlayButtons();
             currentLevel++;
-            loadLevel(currentLevel);
+            loadLevel(currentLevel); // loadLevel resetta il timer per il nuovo livello
         });
 
         loadImages(() => {
             console.log("Immagini caricate!");
             gameState = 'TITLE';
+            // Aggiungi un piccolo ritardo prima di posizionare il pulsante
+            // per dare tempo al canvas di essere completamente renderizzato e avere dimensioni corrette.
             setTimeout(() => {
-                // Forzo un resize iniziale per calcolare le dimensioni effettive del canvas
-                // e posizionare correttamente il bottone start
-                // Questo è utile se il canvas ha max-width/max-height che lo rendono più piccolo di gameWidth/Height
-                window.dispatchEvent(new Event('resize')); 
-                positionOverlayButton(startButton, 0.70);
-            }, 0);
+                window.dispatchEvent(new Event('resize')); // Forza il ricalcolo se necessario
+                if (startButton.style.display !== 'block') { // Evita di chiamarlo se già visibile
+                    positionOverlayButton(startButton, 0.80);
+                }
+            }, 100); // Ritardo di 100ms
             lastTime = performance.now();
             requestAnimationFrame(gameLoop);
         });

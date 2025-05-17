@@ -141,6 +141,7 @@
       background-color: var(--color-bg-dropdown-hover); color: var(--color-accent-primary);
       padding-left: 25px; outline: none;
     }
+    /* Stili per sottomenu */
     .dropdown-content ul li.submenu-item .submenu {
       display: none; padding-left: 0; background-color: var(--color-bg-dropdown-submenu);
       border-left: 3px solid var(--color-accent-primary);
@@ -154,12 +155,13 @@
     .dropdown-content ul li.submenu-item .submenu ul li a:focus-visible {
       background-color: #e9e9e9; color: var(--color-text-dark); padding-left: 25px;
     }
-    .dropdown-content ul li.submenu-item .submenu.open { display: block; }
+    .dropdown-content ul li.submenu-item .submenu.open { display: block; } /* Mostra sottomenu aperto */
+    /* Stili per il trigger del sottomenu (es. link "Giochi") */
     .submenu-trigger { display: flex; align-items: center; justify-content: space-between; width: 100%; }
     .submenu-trigger .arrow {
       transition: transform var(--transition-duration-normal) ease; font-size: 0.8em; margin-left: 8px;
     }
-    .submenu-trigger.open .arrow { transform: rotate(180deg); }
+    .submenu-trigger.open .arrow { transform: rotate(180deg); } /* Ruota freccia quando sottomenu è aperto */
 
     .page-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -251,15 +253,6 @@
     }
     /* --- FINE CSS EFFETTO PARTICELLE --- */
 
-    /* RIMOZIONE CSS EMOJI SNOW */
-    /* 
-    #emoji-snow-container { ... }
-    .falling-emoji { ... }
-    @keyframes fall { ... }
-    @keyframes sway { ... }
-    */
-
-
     /* MEDIA QUERIES INVARIATE */
     @media (max-width: 768px) {
       :root { --navbar-height: 55px; }
@@ -318,11 +311,7 @@
         </div>
     </nav>
   </header>
-
-  <!-- RIMOZIONE CONTENITORE EMOJI SNOW -->
-  <!-- <div id="emoji-snow-container"></div> -->
   
-  <!-- AGGIUNTA CANVAS PER NUOVO EFFETTO PARTICELLE -->
   <canvas id="particle-effect-canvas"></canvas>
 
   <div id="dynamic-background-container"></div>
@@ -337,53 +326,132 @@
   <audio id="indexPageSong" src="indexsong.mp3" loop preload="metadata"></audio>
 
   <script>
-    console.log("SCRIPT: Inizio esecuzione blocco script."); // LOG 1: Inizio assoluto
+    console.log("SCRIPT: Inizio esecuzione blocco script.");
 
-    // Utility per attendere il caricamento del DOM
     const ready = (callback) => {
-        console.log("SCRIPT: Funzione ready definita."); // LOG
         if (document.readyState !== "loading") {
-            console.log("SCRIPT: DOM già caricato, eseguo callback di ready."); // LOG
             callback();
         } else {
-            console.log("SCRIPT: DOM non ancora caricato, aggiungo listener DOMContentLoaded."); // LOG
-            document.addEventListener("DOMContentLoaded", () => {
-                console.log("SCRIPT: Evento DOMContentLoaded scattato, eseguo callback di ready."); // LOG
-                callback();
-            });
+            document.addEventListener("DOMContentLoaded", callback);
         }
     };
 
-    // --- GESTIONE MENU (INVARIATA DA VERSIONE PRECEDENTE FUNZIONANTE) ---
     const menuButton = document.getElementById("menuButton");
     const menuContent = document.getElementById("menuContent");
     const pageOverlay = document.getElementById("pageOverlay");
 
+    // --- INIZIO MODIFICHE PER SOTTOMENU ---
     function toggleMenu() {
-      console.log("MENU: toggleMenu chiamata."); // LOG
+      console.log("MENU: toggleMenu chiamata.");
       const isCurrentlyExpanded = menuButton.getAttribute("aria-expanded") === "true";
       menuButton.setAttribute("aria-expanded", !isCurrentlyExpanded);
       menuContent.classList.toggle("show", !isCurrentlyExpanded);
       pageOverlay.classList.toggle("active", !isCurrentlyExpanded);
       document.body.classList.toggle("menu-open", !isCurrentlyExpanded);
+
       if (!isCurrentlyExpanded && menuContent.querySelector('.menu-loading-placeholder')) {
         fetch('menu.html')
-          .then(response => { if (!response.ok) { throw new Error(`Network response not ok: ${response.status}`); } return response.text(); })
-          .then(data => { menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data; })
-          .catch(error => { menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`; console.error('MENU: Errore fetch menu.html:', error); });
-      } else if (isCurrentlyExpanded) { closeAllSubmenus(menuContent); }
+          .then(response => {
+            if (!response.ok) { throw new Error(`Network response not ok: ${response.status}`); }
+            return response.text();
+          })
+          .then(data => {
+            menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data;
+            addEventListenersToSubmenuTriggers(); // <-- CHIAMATA ALLA NUOVA FUNZIONE
+          })
+          .catch(error => {
+            menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`;
+            console.error('MENU: Errore fetch menu.html:', error);
+          });
+      } else if (isCurrentlyExpanded) {
+        closeAllSubmenus(menuContent);
+      }
     }
-    if (menuButton) menuButton.addEventListener('click', toggleMenu); else console.error("MENU: Bottone menu non trovato!");
 
-    function toggleSubmenu(event, triggerElement) { /* ... codice invariato ... */ }
-    function closeAllSubmenus(container) { /* ... codice invariato ... */ }
+    function toggleSubmenu(event, triggerElement) {
+      console.log("SUBMENU: toggleSubmenu chiamata per:", triggerElement.textContent.trim());
+      event.preventDefault();
+      event.stopPropagation();
+
+      const submenuItem = triggerElement.closest('.submenu-item');
+      if (!submenuItem) {
+        console.error("SUBMENU: Elemento .submenu-item non trovato per il trigger:", triggerElement);
+        return;
+      }
+      const submenu = submenuItem.querySelector('.submenu');
+      if (!submenu) {
+        console.error("SUBMENU: Elemento .submenu non trovato dentro .submenu-item:", submenuItem);
+        return;
+      }
+
+      const isOpening = !submenu.classList.contains('open');
+
+      if (isOpening) {
+        const parentList = submenuItem.parentElement;
+        if (parentList) {
+          parentList.querySelectorAll('.submenu-item .submenu.open').forEach(openSub => {
+            if (openSub !== submenu) {
+              openSub.classList.remove('open');
+              const otherTrigger = openSub.parentElement.querySelector('.submenu-trigger');
+              if (otherTrigger) {
+                otherTrigger.classList.remove('open');
+                otherTrigger.setAttribute('aria-expanded', 'false');
+              }
+            }
+          });
+        }
+      }
+
+      submenu.classList.toggle('open');
+      triggerElement.classList.toggle('open');
+      triggerElement.setAttribute('aria-expanded', submenu.classList.contains('open'));
+      console.log("SUBMENU: Stato sottomenu '" + triggerElement.textContent.trim() + "': " + (submenu.classList.contains('open') ? "aperto" : "chiuso"));
+    }
+
+    function closeAllSubmenus(container) {
+      console.log("SUBMENU: closeAllSubmenus chiamata.");
+      if (!container) {
+        console.warn("SUBMENU: closeAllSubmenus chiamata senza un elemento container.");
+        return;
+      }
+      container.querySelectorAll('.submenu-item .submenu.open').forEach(submenu => {
+        submenu.classList.remove('open');
+        const trigger = submenu.closest('.submenu-item')?.querySelector('.submenu-trigger');
+        if (trigger) {
+          trigger.classList.remove('open');
+          trigger.setAttribute('aria-expanded', 'false');
+        }
+      });
+    }
+
+    function addEventListenersToSubmenuTriggers() {
+      console.log("MENU: addEventListenersToSubmenuTriggers chiamata.");
+      const submenuTriggers = menuContent.querySelectorAll('.submenu-trigger');
+      submenuTriggers.forEach(trigger => {
+        if (trigger.dataset.listenerAdded === 'true') return;
+        trigger.addEventListener('click', (event) => {
+          toggleSubmenu(event, trigger);
+        });
+        trigger.dataset.listenerAdded = 'true';
+        const submenu = trigger.closest('.submenu-item')?.querySelector('.submenu');
+        trigger.setAttribute('aria-expanded', submenu && submenu.classList.contains('open'));
+      });
+      if (submenuTriggers.length > 0) {
+        console.log("MENU: Aggiunti listener a", submenuTriggers.length, "trigger di sottomenu.");
+      } else {
+        console.log("MENU: Nessun elemento con classe '.submenu-trigger' trovato nel menu caricato. Controlla la struttura di menu.html.");
+      }
+    }
+    // --- FINE MODIFICHE PER SOTTOMENU ---
+
+    if (menuButton) menuButton.addEventListener('click', toggleMenu); else console.error("MENU: Bottone menu non trovato!");
     if (pageOverlay) { pageOverlay.addEventListener('click', () => { if (menuButton && menuButton.getAttribute("aria-expanded") === "true") toggleMenu(); }); }
     window.addEventListener('keydown', (event) => { if (event.key === 'Escape' && menuButton && menuButton.getAttribute("aria-expanded") === "true") { toggleMenu(); } });
-    console.log("SCRIPT: Gestori eventi menu definiti."); // LOG
+    console.log("SCRIPT: Gestori eventi menu definiti.");
 
-    // --- SFONDO DINAMICO (INVARIATO DA VERSIONE PRECEDENTE FUNZIONANTE) ---
+    // --- SFONDO DINAMICO ---
     function initDynamicBackground() {
-      console.log("SFONDO: initDynamicBackground chiamata."); // LOG
+      console.log("SFONDO: initDynamicBackground chiamata.");
       const container = document.getElementById('dynamic-background-container');
       if (!container) { console.error("SFONDO: #dynamic-background-container non trovato!"); return; }
       const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
@@ -394,116 +462,74 @@
       if (slides.length === 0) { console.error("SFONDO: Nessuna slide creata."); return; }
       function nextSlide() { if (currentIndex >= 0 && slides[currentIndex]) { slides[currentIndex].classList.remove('active'); slides[currentIndex].style.animation = 'none'; void slides[currentIndex].offsetHeight; } currentIndex = (currentIndex + 1) % slides.length; if (slides[currentIndex]) { slides[currentIndex].classList.add('active'); const animName = slides[currentIndex].classList.contains('even-slide-kenburns') ? 'kenburns-alt' : 'kenburns'; slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`; } }
       nextSlide(); setInterval(nextSlide, slideDuration);
-      console.log("SFONDO: Inizializzazione completata."); // LOG
+      console.log("SFONDO: Inizializzazione completata.");
     }
-
-    // --- RIMOZIONE FUNZIONE EMOJI SNOW ---
-    /*
-    function createEmojiSnow() {
-      // ... codice precedente ...
-    }
-    */
 
     // --- NUOVO EFFETTO PARTICELLE LUMINOSE ---
     function initParticleEffect() {
         console.log("PARTICLES: initParticleEffect chiamata.");
         const canvas = document.getElementById('particle-effect-canvas');
-        if (!canvas) {
-            console.error("PARTICLES: #particle-effect-canvas NON TROVATO!");
-            return;
-        }
+        if (!canvas) { console.error("PARTICLES: #particle-effect-canvas NON TROVATO!"); return; }
         const ctx = canvas.getContext('2d');
         let particlesArray;
 
-        function setCanvasSize() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
-        }
+        function setCanvasSize() { canvas.width = window.innerWidth; canvas.height = window.innerHeight; }
         setCanvasSize();
 
         class Particle {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 0.5; // Piccole dimensioni: da 0.5px a 2.5px
-                this.speedX = (Math.random() * 0.8 - 0.4); // Movimento orizzontale lento e casuale
-                this.speedY = (Math.random() * 0.8 - 0.4); // Movimento verticale lento e casuale
-                // Colore: bianco-giallastro tenue, con opacità variabile per un effetto "scintilla"
-                this.baseOpacity = Math.random() * 0.4 + 0.2; // Opacità base da 0.2 a 0.6
+                this.size = Math.random() * 2 + 0.5;
+                this.speedX = (Math.random() * 0.8 - 0.4);
+                this.speedY = (Math.random() * 0.8 - 0.4);
+                this.baseOpacity = Math.random() * 0.4 + 0.2;
                 this.opacity = this.baseOpacity;
-                this.opacitySpeed = (Math.random() - 0.5) * 0.01; // Leggera variazione di opacità
+                this.opacitySpeed = (Math.random() - 0.5) * 0.01;
             }
-
             update() {
-                this.x += this.speedX;
-                this.y += this.speedY;
-
-                // Variazione opacità per effetto "pulsante" leggero
+                this.x += this.speedX; this.y += this.speedY;
                 this.opacity += this.opacitySpeed;
-                if (this.opacity > this.baseOpacity + 0.2 || this.opacity < this.baseOpacity - 0.2) {
-                    this.opacitySpeed *= -1; // Inverti direzione variazione opacità
-                }
-                if (this.opacity < 0) this.opacity = 0;
-                if (this.opacity > 1) this.opacity = 1;
-
-
-                // Se la particella esce dai bordi, la facciamo rientrare dal lato opposto
-                // o la si riposiziona casualmente per un effetto più continuo
+                if (this.opacity > this.baseOpacity + 0.2 || this.opacity < this.baseOpacity - 0.2) { this.opacitySpeed *= -1; }
+                if (this.opacity < 0) this.opacity = 0; if (this.opacity > 1) this.opacity = 1;
                 if (this.x < -this.size) this.x = canvas.width + this.size;
                 if (this.x > canvas.width + this.size) this.x = -this.size;
                 if (this.y < -this.size) this.y = canvas.height + this.size;
                 if (this.y > canvas.height + this.size) this.y = -this.size;
             }
-
             draw() {
-                ctx.fillStyle = `rgba(255, 255, 230, ${this.opacity})`; // Colore giallo pallido con opacità
-                ctx.beginPath();
-                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
-                ctx.fill();
+                ctx.fillStyle = `rgba(255, 255, 230, ${this.opacity})`;
+                ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
             }
         }
 
         function initParticles() {
             particlesArray = [];
-            // Numero di particelle in base alla dimensione dello schermo (es. 1 particella ogni 15000 pixel)
             const numberOfParticles = Math.max(50, Math.floor((canvas.width * canvas.height) / 15000));
             console.log("PARTICLES: Creando", numberOfParticles, "particelle.");
-            for (let i = 0; i < numberOfParticles; i++) {
-                particlesArray.push(new Particle());
-            }
+            for (let i = 0; i < numberOfParticles; i++) { particlesArray.push(new Particle()); }
         }
-
         function animateParticles() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); // Pulisci il canvas ad ogni frame
-            for (let i = 0; i < particlesArray.length; i++) {
-                particlesArray[i].update();
-                particlesArray[i].draw();
-            }
-            requestAnimationFrame(animateParticles); // Loop di animazione
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < particlesArray.length; i++) { particlesArray[i].update(); particlesArray[i].draw(); }
+            requestAnimationFrame(animateParticles);
         }
-
-        initParticles();
-        animateParticles();
+        initParticles(); animateParticles();
         console.log("PARTICLES: Animazione particelle avviata.");
-
-        // Riadatta il canvas e le particelle al resize della finestra
         let resizeTimeout;
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
                 console.log("PARTICLES: Finestra ridimensionata, riadatto canvas e particelle.");
-                setCanvasSize();
-                initParticles(); // Re-inizializza le particelle per la nuova dimensione
-            }, 250); // Debounce per evitare troppe chiamate durante il resize
+                setCanvasSize(); initParticles();
+            }, 250);
         });
         console.log("PARTICLES: Inizializzazione effetto particelle completata.");
     }
-    // --- FINE EFFETTO PARTICELLE LUMINOSE ---
 
-
-    // --- AUDIO PLAYER (INVARIATO DA VERSIONE PRECEDENTE FUNZIONANTE) ---
+    // --- AUDIO PLAYER ---
     function initAudioPlayer() {
-      console.log("AUDIO: initAudioPlayer chiamata."); // LOG
+      console.log("AUDIO: initAudioPlayer chiamata.");
       const song = document.getElementById('indexPageSong');
       if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
       let hasInteracted = false; let interactionListeners = [];
@@ -511,28 +537,19 @@
       function addInteractionListener(target, eventType, handlerName) { const handler = () => tryPlayMusic(handlerName); target.addEventListener(eventType, handler, { once: true, passive: true }); interactionListeners.push({ target, eventType, handler }); }
       function removeInteractionListeners() { if (interactionListeners.length > 0) { interactionListeners.forEach(listener => { listener.target.removeEventListener(listener.eventType, listener.handler); }); interactionListeners = []; } }
       song.play().then(() => { console.log("AUDIO: Autoplay riuscito."); hasInteracted = true; }).catch(() => { addInteractionListener(document.body, 'click', 'click'); addInteractionListener(window, 'scroll', 'scroll'); addInteractionListener(document.body, 'touchstart', 'touchstart'); addInteractionListener(window, 'keydown', 'keydown'); });
-      console.log("AUDIO: Inizializzazione completata."); // LOG
+      console.log("AUDIO: Inizializzazione completata.");
     }
 
     // --- ESECUZIONE SCRIPT AL CARICAMENTO DEL DOM ---
-    console.log("SCRIPT: Aggiungo listener per 'ready'."); // LOG
     ready(() => {
-      console.log("SCRIPT: Callback di 'ready' ESEGUITA. Avvio funzioni principali."); // LOG FONDAMENTALE
-      
-      console.log("SCRIPT: Chiamata a initDynamicBackground..."); // LOG
+      console.log("SCRIPT: DOM Caricato. Avvio funzioni principali.");
       if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Errore: initDynamicBackground non è una funzione.");
-      
-      // MODIFICATO: Chiamata alla nuova funzione per le particelle
-      console.log("SCRIPT: Chiamata a initParticleEffect..."); // LOG
       if (typeof initParticleEffect === 'function') initParticleEffect(); else console.error("Errore: initParticleEffect non è una funzione.");
-      
-      console.log("SCRIPT: Chiamata a initAudioPlayer..."); // LOG
       if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
-      
-      console.log("SCRIPT: Tutte le funzioni principali sono state chiamate."); // LOG
+      console.log("SCRIPT: Tutte le funzioni principali sono state chiamate.");
     });
 
-    console.log("SCRIPT: Fine blocco script."); // LOG 2: Fine assoluta
+    console.log("SCRIPT: Fine blocco script.");
   </script>
 </body>
 </html>

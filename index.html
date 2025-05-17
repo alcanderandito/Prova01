@@ -23,11 +23,12 @@
       --color-bg-navbar-solid: #282828;
       --color-bg-dropdown: #ffffff;
       --color-bg-dropdown-hover: #f8f9fa;
-      --color-bg-dropdown-submenu: #f1f1f1;
+      /* MODIFICA CSS: Colore sfondo sottomenu leggermente diverso, più in linea con il vecchio */
+      --color-bg-dropdown-submenu: #f8f8f8; /* Era #f1f1f1, ma il vecchio era #f8f8f8 */
       --color-bg-dynamic-fallback: #1a1a1a;
       --color-bg-overlay: rgba(0, 0, 0, 0.6);
 
-      --color-accent-primary: #5cb85c;
+      --color-accent-primary: #5cb85c; /* Verde primario */
       --color-accent-primary-light: #81c784;
       --color-accent-primary-dark: #388e3c;
 
@@ -49,7 +50,7 @@
       --transition-duration-normal: 0.3s;
 
       --z-index-background: 0;
-      --z-index-snow: 1; /* Riutilizzato per il nuovo effetto particelle */
+      --z-index-snow: 1;
       --z-index-main-content: 2;
       --z-index-hero-title: 3;
       --z-index-page-overlay: 490;
@@ -128,44 +129,56 @@
       padding: 20px; color: var(--color-text-placeholder); font-style: italic; text-align: center;
     }
     .dropdown-content ul { list-style-type: none; }
-    .dropdown-content ul li a { /* Stile generale per link nel menu */
+    .dropdown-content ul li > a, /* Stile per link diretti e trigger */
+    .dropdown-content ul li > .submenu-trigger {
       color: var(--color-text-dark); padding: 12px 20px; text-decoration: none;
       display: block; font-size: 0.95rem; font-weight: 400;
       transition: background-color var(--transition-duration-fast) ease, color var(--transition-duration-fast) ease, padding-left var(--transition-duration-fast) ease;
       border-bottom: 1px solid #eee;
     }
-    .dropdown-content ul li:last-child > a { border-bottom: none; } /* Solo se l'ultimo figlio è un 'a' diretto */
+    /* Stile specifico per il trigger per allineare la freccia */
+    .dropdown-content ul li > .submenu-trigger {
+       display: flex; align-items: center; justify-content: space-between; width: 100%;
+    }
+    .dropdown-content ul li:last-child > a,
+    .dropdown-content ul li:last-child > .submenu-trigger { border-bottom: none; }
+
     .dropdown-content ul li > a:hover, 
-    .dropdown-content ul li > a:focus-visible {
+    .dropdown-content ul li > a:focus-visible,
+    .dropdown-content ul li > .submenu-trigger:hover,
+    .dropdown-content ul li > .submenu-trigger:focus-visible {
       background-color: var(--color-bg-dropdown-hover); color: var(--color-accent-primary);
       padding-left: 25px; outline: none;
     }
 
-    /* Stili specifici per sottomenu e trigger */
-    .dropdown-content ul li.submenu-item > .submenu-trigger { /* Stile per il trigger se è un 'a' diretto */
-       /* Eredita stili da .dropdown-content ul li a, ma puoi sovrascrivere */
-       display: flex; align-items: center; justify-content: space-between; width: 100%;
-    }
-    .dropdown-content ul li.submenu-item > .submenu-trigger .arrow {
+    .submenu-trigger .arrow { /* Freccia dentro il trigger */
       transition: transform var(--transition-duration-normal) ease; font-size: 0.8em; margin-left: 8px;
     }
-    .dropdown-content ul li.submenu-item > .submenu-trigger.open .arrow { transform: rotate(180deg); }
+    .submenu-trigger.open .arrow { transform: rotate(180deg); }
 
-    .dropdown-content ul li.submenu-item .submenu {
-      display: none; padding-left: 0; background-color: var(--color-bg-dropdown-submenu);
-      border-left: 3px solid var(--color-accent-primary);
-      margin: 5px 10px 5px 15px; border-radius: var(--border-radius-small);
+    /* Stili per il contenitore del sottomenu e i suoi link interni */
+    /* li > .submenu per il caso in cui il sottomenu sia fratello del trigger */
+    .dropdown-content ul li > .submenu {
+      display: none; padding-left: 0;
+      background-color: var(--color-bg-dropdown-submenu); /* Colore vecchio codice */
+      border-left: 3px solid var(--color-accent-primary); /* Come nel vecchio codice */
+      margin: 5px 10px 5px 15px; /* Adatta se necessario, simile al nuovo */
+      border-radius: var(--border-radius-small);
     }
-    .dropdown-content ul li.submenu-item .submenu ul li a { /* Link dentro un sottomenu */
-      padding: 10px 15px 10px 20px; font-size: 0.9em; border-bottom: 1px solid #e0e0e0;
-    }
-    .dropdown-content ul li.submenu-item .submenu ul li:last-child a { border-bottom: none; }
-    .dropdown-content ul li.submenu-item .submenu ul li a:hover,
-    .dropdown-content ul li.submenu-item .submenu ul li a:focus-visible {
-      background-color: #e9e9e9; color: var(--color-text-dark); padding-left: 25px;
-    }
-    .dropdown-content ul li.submenu-item .submenu.open { display: block; }
+    .dropdown-content ul li > .submenu.open { display: block; }
 
+    .dropdown-content ul li > .submenu ul li a { /* Link DENTRO un sottomenu */
+      padding: 10px 15px 10px 20px; font-size: 0.9em;
+      border-bottom: 1px solid #e0e0e0; /* Separatore link sottomenu */
+      color: var(--color-text-dark); /* Colore testo standard */
+    }
+    .dropdown-content ul li > .submenu ul li:last-child a { border-bottom: none; }
+    .dropdown-content ul li > .submenu ul li a:hover,
+    .dropdown-content ul li > .submenu ul li a:focus-visible {
+      background-color: #e9e9e9; /* Hover specifico per sottomenu (dal vecchio) */
+      color: var(--color-text-dark); /* Colore testo su hover sottomenu */
+      padding-left: 25px;
+    }
 
     .page-overlay {
       display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
@@ -231,7 +244,7 @@
     }
     #hero-title-container p {
       font-family: var(--font-primary); font-size: 1.1rem; font-weight: 300;
-      line-height: 1.7; opacity: 0; /* Opacità iniziale a 0 per animazione */
+      line-height: 1.7; opacity: 0;
       text-shadow: 0px 2px 6px var(--shadow-text-hero);
       max-width: 700px; margin-left: auto; margin-right: auto;
       animation: fadeInUp 0.8s 0.8s ease-out forwards;
@@ -273,11 +286,14 @@
         transition: transform var(--transition-duration-normal) ease-in-out;
       }
       .dropdown-content.show { transform: translateX(0); }
-      .dropdown-content ul li a { padding: 15px 25px; font-size: 1rem; }
-      .dropdown-content ul li.submenu-item .submenu {
+      /* Stili per link e trigger in mobile */
+      .dropdown-content ul li > a,
+      .dropdown-content ul li > .submenu-trigger { padding: 15px 25px; font-size: 1rem; }
+      /* Sottomenu in mobile */
+      .dropdown-content ul li > .submenu {
         margin: 0; border-radius: 0; border-left: none; border-top: 2px solid var(--color-accent-primary);
       }
-      .dropdown-content ul li.submenu-item .submenu ul li a { padding-left: 35px; }
+      .dropdown-content ul li > .submenu ul li a { padding-left: 35px; }
 
       #hero-title-container h1 { font-size: 2.2rem; letter-spacing: 1px; }
       #hero-title-container p { font-size: 1rem; line-height: 1.6; }
@@ -325,114 +341,92 @@
     console.log("SCRIPT: Inizio esecuzione blocco script.");
 
     const ready = (callback) => {
-        console.log("SCRIPT: Funzione ready definita.");
         if (document.readyState !== "loading") {
-            console.log("SCRIPT: DOM già caricato, eseguo callback di ready.");
             callback();
         } else {
-            console.log("SCRIPT: DOM non ancora caricato, aggiungo listener DOMContentLoaded.");
-            document.addEventListener("DOMContentLoaded", () => {
-                console.log("SCRIPT: Evento DOMContentLoaded scattato, eseguo callback di ready.");
-                callback();
-            });
+            document.addEventListener("DOMContentLoaded", callback);
         }
     };
 
-    // --- GESTIONE MENU ---
+    // --- GESTIONE MENU (CON LOGICA SOTTOMENU "STILE VECCHIO") ---
     const menuButton = document.getElementById("menuButton");
     const menuContent = document.getElementById("menuContent");
     const pageOverlay = document.getElementById("pageOverlay");
 
     function closeAllSubmenus(container) {
-      console.log("SUBMENU: closeAllSubmenus chiamata.");
+      console.log("SUBMENU: closeAllSubmenus (stile vecchio) chiamata.");
       if (!container) {
         console.error("SUBMENU: Errore in closeAllSubmenus - container non definito.");
         return;
       }
       container.querySelectorAll('.submenu.open').forEach(submenu => {
         submenu.classList.remove('open');
-        const parentItem = submenu.closest('.submenu-item');
-        if (parentItem) {
-          const trigger = parentItem.querySelector('.submenu-trigger');
-          if (trigger) {
-            trigger.classList.remove('open');
-            trigger.setAttribute('aria-expanded', 'false');
-          }
+        const trigger = submenu.previousElementSibling;
+        if (trigger && trigger.classList.contains('submenu-trigger')) {
+          trigger.classList.remove('open');
+          trigger.setAttribute('aria-expanded', 'false');
         }
       });
     }
 
     function toggleSubmenu(event, triggerElement) {
       event.preventDefault();
-      event.stopPropagation(); // Evita che il click chiuda immediatamente il menu principale
-      console.log("SUBMENU: toggleSubmenu chiamata per:", triggerElement);
+      event.stopPropagation();
+      console.log("SUBMENU: toggleSubmenu (stile vecchio) chiamata per:", triggerElement.textContent.trim());
 
-      const parentItem = triggerElement.closest('.submenu-item');
-      if (!parentItem) {
-        console.error("SUBMENU: Elemento .submenu-item genitore non trovato per il trigger:", triggerElement);
-        return;
-      }
-      const submenu = parentItem.querySelector('.submenu');
-      if (!submenu) {
-        console.error("SUBMENU: Elemento .submenu non trovato dentro:", parentItem);
-        return;
-      }
+      const submenu = triggerElement.nextElementSibling;
 
-      const isCurrentlyOpen = submenu.classList.contains('open');
+      if (submenu && submenu.classList.contains('submenu')) {
+        const isCurrentlyOpen = submenu.classList.contains('open');
 
-      // Chiudi altri sottomenu aperti nello stesso menu principale (ma non in sottomenu annidati)
-      if (!isCurrentlyOpen) {
-          const menuRoot = triggerElement.closest('.dropdown-content'); // o un selettore più specifico se hai sottomenu di sottomenu
-          if(menuRoot){
-            menuRoot.querySelectorAll('.submenu-item > .submenu-trigger.open').forEach(otherTrigger => {
-                if (otherTrigger !== triggerElement) {
-                    const otherParentItem = otherTrigger.closest('.submenu-item');
-                    if(otherParentItem){
-                        const otherSubmenu = otherParentItem.querySelector('.submenu');
-                        if (otherSubmenu && otherSubmenu.classList.contains('open')) {
-                            otherSubmenu.classList.remove('open');
-                            otherTrigger.classList.remove('open');
-                            otherTrigger.setAttribute('aria-expanded', 'false');
+        if (!isCurrentlyOpen) {
+            const parentLi = triggerElement.parentElement; // Il <li> che contiene trigger e sottomenu
+            if(parentLi) {
+                const parentUl = parentLi.parentElement; // L'<ul> che contiene tutti i <li> principali
+                if (parentUl) {
+                    parentUl.querySelectorAll(':scope > li > .submenu-trigger.open').forEach(otherTrigger => {
+                        if (otherTrigger !== triggerElement) {
+                            const otherSubmenu = otherTrigger.nextElementSibling;
+                            if (otherSubmenu && otherSubmenu.classList.contains('submenu')) {
+                                otherSubmenu.classList.remove('open');
+                                otherTrigger.classList.remove('open');
+                                otherTrigger.setAttribute('aria-expanded', 'false');
+                            }
                         }
-                    }
+                    });
                 }
-            });
-          }
+            }
+        }
+        
+        submenu.classList.toggle('open');
+        triggerElement.classList.toggle('open');
+        triggerElement.setAttribute('aria-expanded', String(!isCurrentlyOpen));
+
+      } else {
+        console.warn("SUBMENU: Sottomenu (classe .submenu) non trovato come fratello successivo di:", triggerElement);
       }
-      
-      submenu.classList.toggle('open', !isCurrentlyOpen);
-      triggerElement.classList.toggle('open', !isCurrentlyOpen);
-      triggerElement.setAttribute('aria-expanded', String(!isCurrentlyOpen));
     }
 
     function setupSubmenuEventListeners(container) {
-        console.log("SUBMENU: setupSubmenuEventListeners chiamata.");
+        console.log("SUBMENU: setupSubmenuEventListeners (stile vecchio) chiamata.");
         if (!container) {
             console.error("SUBMENU: Errore in setupSubmenuEventListeners - container non definito.");
             return;
         }
         const submenuTriggers = container.querySelectorAll('.submenu-trigger');
         submenuTriggers.forEach(trigger => {
-            // Per evitare di aggiungere listener multipli se la funzione viene chiamata più volte
-            // sullo stesso contenuto (improbabile con innerHTML, ma per sicurezza).
-            // Una semplice alternativa è non fare nulla se il listener è già stato "taggato".
             if (trigger.dataset.submenuListenerAttached === 'true') {
-                return;
+                return; 
             }
-
             trigger.addEventListener('click', (event) => {
                 toggleSubmenu(event, trigger);
             });
-            trigger.dataset.submenuListenerAttached = 'true'; // Segna che il listener è stato aggiunto
-
-            // Assicura stato ARIA iniziale corretto basato sulla classe 'open' (se presente da HTML statico)
-            const parentItem = trigger.closest('.submenu-item');
-            const submenu = parentItem ? parentItem.querySelector('.submenu') : null;
-            const isInitiallyOpen = submenu && submenu.classList.contains('open');
+            trigger.dataset.submenuListenerAttached = 'true';
+            const submenu = trigger.nextElementSibling;
+            const isInitiallyOpen = submenu && submenu.classList.contains('submenu') && submenu.classList.contains('open');
             trigger.setAttribute('aria-expanded', String(isInitiallyOpen));
-
         });
-        console.log(`SUBMENU: Aggiunti listener a ${submenuTriggers.length} trigger di sottomenu.`);
+        console.log(`SUBMENU: Aggiunti listener (stile vecchio) a ${submenuTriggers.length} trigger di sottomenu.`);
     }
 
     function toggleMenu() {
@@ -452,7 +446,6 @@
           })
           .then(data => { 
             menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data;
-            // FONDAMENTALE: Aggancia gli event listener ai sottomenu appena caricati
             setupSubmenuEventListeners(menuContent); 
           })
           .catch(error => { 
@@ -460,7 +453,6 @@
             console.error('MENU: Errore fetch menu.html:', error); 
           });
       } else if (isCurrentlyExpanded) {
-        // Se il menu si sta chiudendo, chiudi tutti i sottomenu aperti al suo interno
         closeAllSubmenus(menuContent);
       }
     }
@@ -477,8 +469,6 @@
                 toggleMenu();
             }
         });
-    } else {
-        console.warn("MENU: Page overlay (#pageOverlay) non trovato.");
     }
     
     window.addEventListener('keydown', (event) => {
@@ -494,35 +484,34 @@
       const container = document.getElementById('dynamic-background-container');
       if (!container) { console.error("SFONDO: #dynamic-background-container non trovato!"); return; }
       const images = ['home.PNG', 'home1.PNG', 'home2.PNG', 'home3.PNG', 'home4.PNG', 'home5.PNG', 'home6.PNG', 'home7.PNG'];
-      if (images.length === 0) { console.warn("SFONDO: Nessuna immagine definita."); container.innerHTML = '<p style="color:white; text-align:center; padding-top:20px;">Nessuna immagine per lo sfondo.</p>'; return; }
+      if (images.length === 0) { console.warn("SFONDO: Nessuna immagine definita."); return; }
       
       let currentIndex = -1; 
-      const slideDuration = 7000; // Durata di visualizzazione di una slide prima del cambio
-      const animDurationCSS = 20; // Deve corrispondere alla durata dell'animazione Ken Burns nel CSS (in secondi)
+      const slideDuration = 7000;
+      const animDurationCSS = 20;
 
       images.forEach((imgName, i) => { 
         const slide = document.createElement('div'); 
         slide.classList.add('background-slide'); 
         try { 
-          // Verifica base se il nome è valido come parte di un URL. Non valida l'esistenza del file.
           new URL(imgName, window.location.origin + window.location.pathname); 
           slide.style.backgroundImage = `url('${imgName}')`; 
         } catch (e) { 
-          console.error(`SFONDO: Nome immagine non valido o percorso problematico "${imgName}". Errore: ${e.message}. Slide non aggiunta.`); 
-          return; // Salta questa immagine
+          console.error(`SFONDO: Nome immagine non valido "${imgName}". Errore: ${e.message}.`); 
+          return;
         } 
         if (i % 2 !== 0) slide.classList.add('even-slide-kenburns'); 
         container.appendChild(slide); 
       });
       
       const slides = container.querySelectorAll('.background-slide');
-      if (slides.length === 0) { console.error("SFONDO: Nessuna slide valida creata/aggiunta. Lo sfondo dinamico non partirà."); return; }
+      if (slides.length === 0) { console.error("SFONDO: Nessuna slide valida creata."); return; }
       
       function nextSlide() { 
         if (currentIndex >= 0 && slides[currentIndex]) { 
           slides[currentIndex].classList.remove('active'); 
-          slides[currentIndex].style.animation = 'none'; // Resetta l'animazione per poterla riapplicare
-          void slides[currentIndex].offsetHeight; // Forza reflow per riavviare l'animazione correttamente
+          slides[currentIndex].style.animation = 'none';
+          void slides[currentIndex].offsetHeight; 
         } 
         currentIndex = (currentIndex + 1) % slides.length; 
         if (slides[currentIndex]) { 
@@ -531,21 +520,18 @@
           slides[currentIndex].style.animation = `${animName} ${animDurationCSS}s infinite alternate ease-in-out`; 
         } 
       }
-      nextSlide(); // Mostra la prima slide immediatamente
+      nextSlide();
       setInterval(nextSlide, slideDuration);
       console.log(`SFONDO: Inizializzazione completata con ${slides.length} slide.`);
     }
 
-    // --- NUOVO EFFETTO PARTICELLE LUMINOSE ---
+    // --- EFFETTO PARTICELLE LUMINOSE ---
     function initParticleEffect() {
         console.log("PARTICLES: initParticleEffect chiamata.");
         const canvas = document.getElementById('particle-effect-canvas');
-        if (!canvas) {
-            console.error("PARTICLES: #particle-effect-canvas NON TROVATO!");
-            return;
-        }
+        if (!canvas) { console.error("PARTICLES: #particle-effect-canvas NON TROVATO!"); return; }
         const ctx = canvas.getContext('2d');
-        let particlesArray = []; // Dichiarata qui per essere accessibile in tutto lo scope di initParticleEffect
+        let particlesArray = [];
 
         function setCanvasSize() {
             canvas.width = window.innerWidth;
@@ -553,7 +539,7 @@
         }
         setCanvasSize();
 
-        class Particle {
+        class Particle { /* ... (Classe Particle invariata) ... */ 
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
@@ -564,7 +550,6 @@
                 this.opacity = this.baseOpacity;
                 this.opacitySpeed = (Math.random() - 0.5) * 0.01;
             }
-
             update() {
                 this.x += this.speedX;
                 this.y += this.speedY;
@@ -574,13 +559,11 @@
                 }
                 if (this.opacity < 0) this.opacity = 0;
                 if (this.opacity > 1) this.opacity = 1;
-
                 if (this.x < -this.size) this.x = canvas.width + this.size;
                 if (this.x > canvas.width + this.size) this.x = -this.size;
                 if (this.y < -this.size) this.y = canvas.height + this.size;
                 if (this.y > canvas.height + this.size) this.y = -this.size;
             }
-
             draw() {
                 ctx.fillStyle = `rgba(255, 255, 230, ${this.opacity})`;
                 ctx.beginPath();
@@ -590,15 +573,14 @@
         }
 
         function initParticles() {
-            particlesArray = []; // Svuota e ricrea l'array
+            particlesArray = [];
             const numberOfParticles = Math.max(50, Math.floor((canvas.width * canvas.height) / 15000));
-            console.log("PARTICLES: Creando", numberOfParticles, "particelle.");
             for (let i = 0; i < numberOfParticles; i++) {
                 particlesArray.push(new Particle());
             }
         }
 
-        let animationFrameId = null; // Per poter cancellare il frame se necessario
+        let animationFrameId = null;
         function animateParticles() {
             ctx.clearRect(0, 0, canvas.width, canvas.height);
             for (let i = 0; i < particlesArray.length; i++) {
@@ -616,99 +598,71 @@
         window.addEventListener('resize', () => {
             clearTimeout(resizeTimeout);
             resizeTimeout = setTimeout(() => {
-                console.log("PARTICLES: Finestra ridimensionata, riadatto canvas e particelle.");
+                console.log("PARTICLES: Finestra ridimensionata.");
                 setCanvasSize();
-                // Cancella il vecchio loop di animazione prima di iniziarne uno nuovo
-                if (animationFrameId) {
-                    cancelAnimationFrame(animationFrameId);
-                }
+                if (animationFrameId) cancelAnimationFrame(animationFrameId);
                 initParticles(); 
-                animateParticles(); // Riavvia l'animazione con le nuove particelle
+                animateParticles();
             }, 250);
         });
         console.log("PARTICLES: Inizializzazione effetto particelle completata.");
     }
 
     // --- AUDIO PLAYER ---
-    function initAudioPlayer() {
+    function initAudioPlayer() { /* ... (Funzione initAudioPlayer invariata) ... */
       console.log("AUDIO: initAudioPlayer chiamata.");
       const song = document.getElementById('indexPageSong');
       if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
-      
       let hasInteracted = false;
       const interactionEvents = ['click', 'scroll', 'touchstart', 'keydown'];
       let eventListeners = [];
-
       const tryPlayMusic = (eventSource) => {
-        // Se la musica sta già suonando o è già stata avviata da interazione, non fare nulla
         if (song.currentTime > 0 && !song.paused && !song.ended || hasInteracted) {
-          removeInteractionListeners(); // Rimuovi i listener una volta che la musica è partita o l'interazione è avvenuta
+          removeInteractionListeners();
           return;
         }
-        
-        hasInteracted = true; // Segna che c'è stata un'interazione
+        hasInteracted = true;
         song.play().then(() => {
           console.log(`AUDIO: Riproduzione avviata (${eventSource}).`);
-          removeInteractionListeners(); // Successo, rimuovi i listener
+          removeInteractionListeners();
         }).catch(e => {
-          console.warn(`AUDIO: Play fallito (${eventSource}): ${e.name} - ${e.message}. L'utente potrebbe dover interagire di nuovo o il browser potrebbe averlo bloccato.`);
-          hasInteracted = false; // Play fallito, resetta per permettere un altro tentativo
-          // Non rimuovere i listener se il play fallisce, l'utente potrebbe provare un'altra interazione
+          console.warn(`AUDIO: Play fallito (${eventSource}): ${e.name} - ${e.message}.`);
+          hasInteracted = false;
         });
       };
-
       function addInteractionListener(target, eventType) {
         const handler = () => tryPlayMusic(eventType);
         target.addEventListener(eventType, handler, { once: true, passive: true });
         eventListeners.push({ target, eventType, handler });
       }
-
       function removeInteractionListeners() {
         if (eventListeners.length > 0) {
-          console.log("AUDIO: Rimozione listener di interazione.");
           eventListeners.forEach(listener => {
             listener.target.removeEventListener(listener.eventType, listener.handler);
           });
-          eventListeners = []; // Svuota l'array
+          eventListeners = [];
         }
       }
-
-      // Tenta l'autoplay immediato
       song.play().then(() => {
-        console.log("AUDIO: Autoplay riuscito all'avvio.");
-        hasInteracted = true; // Considera l'autoplay come un'interazione riuscita
+        console.log("AUDIO: Autoplay riuscito.");
+        hasInteracted = true;
       }).catch((error) => {
-        console.warn(`AUDIO: Autoplay iniziale bloccato: ${error.name} - ${error.message}. In attesa di interazione utente.`);
-        // Se l'autoplay fallisce, aggiungi i listener per le interazioni utente
+        console.warn(`AUDIO: Autoplay bloccato: ${error.name}. Attendo interazione.`);
         interactionEvents.forEach(eventType => {
-          // Per 'scroll' e 'keydown', ascolta su window. Per gli altri su document.body.
           const target = (eventType === 'scroll' || eventType === 'keydown') ? window : document.body;
           addInteractionListener(target, eventType);
         });
-        console.log("AUDIO: Listener di interazione aggiunti.");
       });
       console.log("AUDIO: Inizializzazione completata.");
     }
 
     // --- ESECUZIONE SCRIPT AL CARICAMENTO DEL DOM ---
-    console.log("SCRIPT: Aggiungo listener per 'ready'.");
     ready(() => {
-      console.log("SCRIPT: Callback di 'ready' ESEGUITA. Avvio funzioni principali.");
-      
-      console.log("SCRIPT: Chiamata a initDynamicBackground...");
-      if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Errore: initDynamicBackground non è una funzione.");
-      
-      console.log("SCRIPT: Chiamata a initParticleEffect...");
-      if (typeof initParticleEffect === 'function') initParticleEffect(); else console.error("Errore: initParticleEffect non è una funzione.");
-      
-      console.log("SCRIPT: Chiamata a initAudioPlayer...");
-      if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
-      
-      // Non è necessario chiamare setupSubmenuEventListeners qui perché il menu
-      // viene caricato solo quando l'utente clicca il bottone del menu.
-      // Viene chiamato DENTRO toggleMenu() dopo il fetch.
-
-      console.log("SCRIPT: Tutte le funzioni principali (tranne quelle legate al menu dinamico) sono state chiamate.");
+      console.log("SCRIPT: DOMContentLoaded. Avvio funzioni principali.");
+      if (typeof initDynamicBackground === 'function') initDynamicBackground();
+      if (typeof initParticleEffect === 'function') initParticleEffect();
+      if (typeof initAudioPlayer === 'function') initAudioPlayer();
+      console.log("SCRIPT: Funzioni principali inizializzate.");
     });
 
     console.log("SCRIPT: Fine blocco script.");

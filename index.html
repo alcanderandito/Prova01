@@ -51,7 +51,7 @@
       --transition-duration-normal: 0.3s;
 
       --z-index-background: 0;
-      --z-index-snow: 1;
+      --z-index-snow: 1; /* MODIFICATO: Riutilizzato per il nuovo effetto particelle */
       --z-index-main-content: 2;
       --z-index-hero-title: 3;
       --z-index-page-overlay: 490;
@@ -239,33 +239,26 @@
       min-height: 100vh;
     }
 
-    #emoji-snow-container {
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-      pointer-events: none; overflow: hidden;
-      z-index: var(--z-index-snow);
+    /* --- CSS PER IL NUOVO EFFETTO PARTICELLE --- */
+    #particle-effect-canvas {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none; /* Importante per non bloccare le interazioni con elementi sottostanti */
+      z-index: var(--z-index-snow); /* Riutilizzo la variabile z-index esistente per posizionarlo correttamente */
     }
-    .falling-emoji {
-      position: absolute; top: -50px;
-      font-size: 1.5rem; user-select: none;
-      color: var(--color-text-light);
-      text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-      animation-name: fall, sway;
-      animation-timing-function: linear, ease-in-out;
-      animation-fill-mode: forwards; 
-      animation-iteration-count: 1, infinite; 
-      animation-direction: normal, alternate;
-      opacity: 0; 
-    }
-    @keyframes fall {
-      0% { transform: translateY(0vh) scale(0.8); opacity: 0; }
-      10% { transform: translateY(5vh) scale(1); opacity: 1; }
-      90% { transform: translateY(95vh) scale(1); opacity: 1; }
-      100% { transform: translateY(100vh) scale(0.5); opacity: 0; }
-    }
-    @keyframes sway {
-      0% { transform: translateX(-15px) rotate(-5deg); }
-      100% { transform: translateX(15px) rotate(5deg); }
-    }
+    /* --- FINE CSS EFFETTO PARTICELLE --- */
+
+    /* RIMOZIONE CSS EMOJI SNOW */
+    /* 
+    #emoji-snow-container { ... }
+    .falling-emoji { ... }
+    @keyframes fall { ... }
+    @keyframes sway { ... }
+    */
+
 
     /* MEDIA QUERIES INVARIATE */
     @media (max-width: 768px) {
@@ -326,7 +319,12 @@
     </nav>
   </header>
 
-  <div id="emoji-snow-container"></div>
+  <!-- RIMOZIONE CONTENITORE EMOJI SNOW -->
+  <!-- <div id="emoji-snow-container"></div> -->
+  
+  <!-- AGGIUNTA CANVAS PER NUOVO EFFETTO PARTICELLE -->
+  <canvas id="particle-effect-canvas"></canvas>
+
   <div id="dynamic-background-container"></div>
   <div id="hero-title-container"><h1>Team Due Mori</h1><p>Il Dream Team (almeno la mattina, dopo il caffè).</p></div>
 
@@ -399,54 +397,108 @@
       console.log("SFONDO: Inizializzazione completata."); // LOG
     }
 
-    // --- EMOJI SNOW (VERSIONE SEMPLIFICATA PER DEBUG) ---
+    // --- RIMOZIONE FUNZIONE EMOJI SNOW ---
+    /*
     function createEmojiSnow() {
-      console.log("EMOJI: createEmojiSnow chiamata."); // LOG
-      const container = document.getElementById('emoji-snow-container');
-      if (!container) {
-        console.error("EMOJI: #emoji-snow-container NON TROVATO! Impossibile creare neve."); // LOG ERRORE
-        return;
-      }
-      console.log("EMOJI: Contenitore #emoji-snow-container TROVATO."); // LOG
-
-      const emojis = ['🍜', '🍝', '🍷', '🍸', '🍴', '🥄', '👩‍🍳', '👨‍🍳', '🍲', '🍤', '🍙', '🍚', '🍛', '🥗', '🥐', '🥖', '🧀', '🍇', '🍈', '🍉', '🍊', '🍋', '🍍', '🍎', '🍐', '🍑', '🍒', '🍓', '🥝', '🍅', '🍆', '🥑', '🥦', '🌶️', '🥕', '🍄', '☕', '🍵'];
-      if (emojis.length === 0) {
-        console.warn("EMOJI: Array di emoji vuoto."); // LOG WARN
-        return;
-      }
-      console.log("EMOJI: Array emoji caricato con", emojis.length, "elementi."); // LOG
-
-      const numberOfEmojis = 50; // Crea un batch fisso per test
-      console.log("EMOJI: Verranno creati", numberOfEmojis, "emoji."); // LOG
-
-      for (let i = 0; i < numberOfEmojis; i++) {
-        const emojiEl = document.createElement('span');
-        emojiEl.classList.add('falling-emoji');
-        emojiEl.textContent = emojis[Math.floor(Math.random() * emojis.length)];
-        emojiEl.style.left = `${Math.random() * 100}vw`;
-
-        const fallDuration = Math.random() * 6 + 8;
-        const swayDuration = Math.random() * 3 + 2;
-
-        emojiEl.style.animationDuration = `${fallDuration}s, ${swayDuration}s`;
-        emojiEl.style.animationDelay = `${Math.random() * 5}s`; // Aggiungo un delay per scaglionare la partenza
-        emojiEl.style.fontSize = `${Math.random() * 0.8 + 0.9}rem`;
-        
-        // Non aggiungo il listener animationend per ora per semplicità di debug
-        // emojiEl.addEventListener('animationend', (event) => { /* ... */ });
-
-        try {
-            container.appendChild(emojiEl);
-            if (i === 0) { // Log solo per il primo per non floodare
-                 console.log("EMOJI: Primo emoji ("+ emojiEl.textContent +") aggiunto al container."); // LOG
-            }
-        } catch (e) {
-            console.error("EMOJI: Errore durante appendChild di un emoji:", e); // LOG ERRORE
-            // Se c'è un errore qui, è grave
-        }
-      }
-      console.log("EMOJI: Ciclo creazione emoji completato."); // LOG
+      // ... codice precedente ...
     }
+    */
+
+    // --- NUOVO EFFETTO PARTICELLE LUMINOSE ---
+    function initParticleEffect() {
+        console.log("PARTICLES: initParticleEffect chiamata.");
+        const canvas = document.getElementById('particle-effect-canvas');
+        if (!canvas) {
+            console.error("PARTICLES: #particle-effect-canvas NON TROVATO!");
+            return;
+        }
+        const ctx = canvas.getContext('2d');
+        let particlesArray;
+
+        function setCanvasSize() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        setCanvasSize();
+
+        class Particle {
+            constructor() {
+                this.x = Math.random() * canvas.width;
+                this.y = Math.random() * canvas.height;
+                this.size = Math.random() * 2 + 0.5; // Piccole dimensioni: da 0.5px a 2.5px
+                this.speedX = (Math.random() * 0.8 - 0.4); // Movimento orizzontale lento e casuale
+                this.speedY = (Math.random() * 0.8 - 0.4); // Movimento verticale lento e casuale
+                // Colore: bianco-giallastro tenue, con opacità variabile per un effetto "scintilla"
+                this.baseOpacity = Math.random() * 0.4 + 0.2; // Opacità base da 0.2 a 0.6
+                this.opacity = this.baseOpacity;
+                this.opacitySpeed = (Math.random() - 0.5) * 0.01; // Leggera variazione di opacità
+            }
+
+            update() {
+                this.x += this.speedX;
+                this.y += this.speedY;
+
+                // Variazione opacità per effetto "pulsante" leggero
+                this.opacity += this.opacitySpeed;
+                if (this.opacity > this.baseOpacity + 0.2 || this.opacity < this.baseOpacity - 0.2) {
+                    this.opacitySpeed *= -1; // Inverti direzione variazione opacità
+                }
+                if (this.opacity < 0) this.opacity = 0;
+                if (this.opacity > 1) this.opacity = 1;
+
+
+                // Se la particella esce dai bordi, la facciamo rientrare dal lato opposto
+                // o la si riposiziona casualmente per un effetto più continuo
+                if (this.x < -this.size) this.x = canvas.width + this.size;
+                if (this.x > canvas.width + this.size) this.x = -this.size;
+                if (this.y < -this.size) this.y = canvas.height + this.size;
+                if (this.y > canvas.height + this.size) this.y = -this.size;
+            }
+
+            draw() {
+                ctx.fillStyle = `rgba(255, 255, 230, ${this.opacity})`; // Colore giallo pallido con opacità
+                ctx.beginPath();
+                ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        function initParticles() {
+            particlesArray = [];
+            // Numero di particelle in base alla dimensione dello schermo (es. 1 particella ogni 15000 pixel)
+            const numberOfParticles = Math.max(50, Math.floor((canvas.width * canvas.height) / 15000));
+            console.log("PARTICLES: Creando", numberOfParticles, "particelle.");
+            for (let i = 0; i < numberOfParticles; i++) {
+                particlesArray.push(new Particle());
+            }
+        }
+
+        function animateParticles() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height); // Pulisci il canvas ad ogni frame
+            for (let i = 0; i < particlesArray.length; i++) {
+                particlesArray[i].update();
+                particlesArray[i].draw();
+            }
+            requestAnimationFrame(animateParticles); // Loop di animazione
+        }
+
+        initParticles();
+        animateParticles();
+        console.log("PARTICLES: Animazione particelle avviata.");
+
+        // Riadatta il canvas e le particelle al resize della finestra
+        let resizeTimeout;
+        window.addEventListener('resize', () => {
+            clearTimeout(resizeTimeout);
+            resizeTimeout = setTimeout(() => {
+                console.log("PARTICLES: Finestra ridimensionata, riadatto canvas e particelle.");
+                setCanvasSize();
+                initParticles(); // Re-inizializza le particelle per la nuova dimensione
+            }, 250); // Debounce per evitare troppe chiamate durante il resize
+        });
+        console.log("PARTICLES: Inizializzazione effetto particelle completata.");
+    }
+    // --- FINE EFFETTO PARTICELLE LUMINOSE ---
 
 
     // --- AUDIO PLAYER (INVARIATO DA VERSIONE PRECEDENTE FUNZIONANTE) ---
@@ -470,8 +522,9 @@
       console.log("SCRIPT: Chiamata a initDynamicBackground..."); // LOG
       if (typeof initDynamicBackground === 'function') initDynamicBackground(); else console.error("Errore: initDynamicBackground non è una funzione.");
       
-      console.log("SCRIPT: Chiamata a createEmojiSnow (con setTimeout)..."); // LOG
-      if (typeof createEmojiSnow === 'function') setTimeout(createEmojiSnow, 500); else console.error("Errore: createEmojiSnow non è una funzione.");
+      // MODIFICATO: Chiamata alla nuova funzione per le particelle
+      console.log("SCRIPT: Chiamata a initParticleEffect..."); // LOG
+      if (typeof initParticleEffect === 'function') initParticleEffect(); else console.error("Errore: initParticleEffect non è una funzione.");
       
       console.log("SCRIPT: Chiamata a initAudioPlayer..."); // LOG
       if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");

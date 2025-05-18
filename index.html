@@ -49,12 +49,12 @@
 --transition-duration-normal: 0.3s;
 
 --z-index-background: 0;
---z-index-snow: 1;
+--z-index-snow: 1; /* Assicuriamoci che le particelle siano sotto il menu se il menu ha un suo z-index */
 --z-index-main-content: 2;
 --z-index-hero-title: 3;
 --z-index-page-overlay: 490;
 --z-index-navbar: 500;
---z-index-dropdown-content: 501;
+--z-index-dropdown-content: 501; /* Il menu dropdown è sopra la navbar */
 --z-index-chat-button: 1000;
 }
 
@@ -248,7 +248,7 @@ left: 0;
 width: 100%;
 height: 100%;
 pointer-events: none;
-z-index: var(--z-index-snow);
+z-index: var(--z-index-snow); /* Assicura che le particelle siano dietro il menu se il menu diventa trasparente */
 }
 
 @media (max-width: 768px) {
@@ -267,11 +267,25 @@ border-radius: 0; margin-top: 0;
 box-shadow: none; border-top: 1px solid rgba(255,255,255,0.1);
 transform: translateX(-100%);
 transition: transform var(--transition-duration-normal) ease-in-out;
+/* --- INIZIO PICCOLISSIMA MODIFICA --- */
+background-color: rgba(255, 255, 255, 0.92); /* MODIFICATA (aggiunta trasparenza) */
+backdrop-filter: blur(5px); /* NUOVA RIGA */
+-webkit-backdrop-filter: blur(5px); /* NUOVA RIGA (per Safari) */
+/* --- FINE PICCOLISSIMA MODIFICA --- */
 }
 .dropdown-content.show { transform: translateX(0); }
-.dropdown-content ul li a { padding: 15px 25px; font-size: 1rem; }
+.dropdown-content ul li a {
+padding: 15px 25px;
+font-size: 1rem;
+/* --- INIZIO PICCOLISSIMA MODIFICA --- */
+font-weight: 500; /* NUOVA RIGA */
+letter-spacing: 0.5px; /* NUOVA RIGA */
+/* --- FINE PICCOLISSIMA MODIFICA --- */
+}
 .dropdown-content ul li.submenu-item .submenu {
 margin: 0; border-radius: 0; border-left: none; border-top: 2px solid var(--color-accent-primary);
+/* Se vuoi rendere anche i sottomenu trasparenti e con blur, aggiungi qui background-color e backdrop-filter */
+/* Esempio: background-color: rgba(241, 241, 241, 0.9); se --color-bg-dropdown-submenu è #f1f1f1 */
 }
 .dropdown-content ul li.submenu-item .submenu ul li a { padding-left: 35px; }
 

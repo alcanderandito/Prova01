@@ -268,9 +268,9 @@ box-shadow: none; border-top: 1px solid rgba(255,255,255,0.1);
 transform: translateX(-100%);
 transition: transform var(--transition-duration-normal) ease-in-out;
 /* --- INIZIO PICCOLISSIMA MODIFICA --- */
-background-color: rgba(255, 255, 255, 0.92); /* MODIFICATA (aggiunta trasparenza) */
-backdrop-filter: blur(5px); /* NUOVA RIGA */
--webkit-backdrop-filter: blur(5px); /* NUOVA RIGA (per Safari) */
+background-color: rgba(255, 255, 255, 0.85); /* ULTERIORE MODIFICA (aumentata trasparenza) */
+backdrop-filter: blur(5px);
+-webkit-backdrop-filter: blur(5px);
 /* --- FINE PICCOLISSIMA MODIFICA --- */
 }
 .dropdown-content.show { transform: translateX(0); }
@@ -278,14 +278,14 @@ backdrop-filter: blur(5px); /* NUOVA RIGA */
 padding: 15px 25px;
 font-size: 1rem;
 /* --- INIZIO PICCOLISSIMA MODIFICA --- */
-font-weight: 500; /* NUOVA RIGA */
-letter-spacing: 0.5px; /* NUOVA RIGA */
+font-weight: 500;
+letter-spacing: 0.5px;
 /* --- FINE PICCOLISSIMA MODIFICA --- */
 }
 .dropdown-content ul li.submenu-item .submenu {
 margin: 0; border-radius: 0; border-left: none; border-top: 2px solid var(--color-accent-primary);
 /* Se vuoi rendere anche i sottomenu trasparenti e con blur, aggiungi qui background-color e backdrop-filter */
-/* Esempio: background-color: rgba(241, 241, 241, 0.9); se --color-bg-dropdown-submenu è #f1f1f1 */
+/* Esempio: background-color: rgba(241, 241, 241, 0.8); se --color-bg-dropdown-submenu è #f1f1f1 e vuoi stessa trasparenza */
 }
 .dropdown-content ul li.submenu-item .submenu ul li a { padding-left: 35px; }
 

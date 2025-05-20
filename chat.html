@@ -129,15 +129,10 @@
         sendButton.disabled = true;
         userInput.placeholder = "Invio in corso...";
 
-        // Aggiungi il messaggio dell'utente al display e alla cronologia AI
         addMessageToDisplay('me', userText, 'user');
         userInput.value = '';
 
-        // --- INIZIO CHIAMATA REALE ALL'API /api/chat ---
         try {
-            // La cronologia da inviare al backend è tutta quella accumulata FINO A PRIMA dell'ultimo messaggio dell'utente
-            // perché l'ultimo messaggio dell'utente viene inviato nel campo 'message'.
-            // Il tuo backend /api/chat.js poi ricostruisce la history completa per OpenAI.
             const historyForBackend = conversationHistoryForAI.slice(0, -1);
 
             const response = await fetch('/api/chat', {
@@ -152,10 +147,9 @@
             if (!response.ok) {
                 let errorDetails = `Errore HTTP! Status: ${response.status}`;
                 try {
-                    const errorData = await response.json(); // Tenta di leggere l'errore JSON dal tuo backend
+                    const errorData = await response.json();
                     errorDetails += ` - ${errorData.reply || errorData.message || 'Dettagli non disponibili'}`;
                 } catch (jsonError) {
-                    // Se il corpo dell'errore non è JSON, prova a leggerlo come testo
                     try {
                         const textError = await response.text();
                         errorDetails += ` - ${textError || 'Nessun dettaglio testuale'}`;
@@ -167,17 +161,14 @@
             const data = await response.json();
 
             if (data && data.reply) {
-                // La risposta dell'IA viene aggiunta al display e alla cronologia AI
                 addMessageToDisplay('you', data.reply, 'assistant');
             } else {
                 console.warn("Risposta JSON ricevuta da /api/chat ma senza chiave 'reply':", data);
-                // Aggiungi un messaggio di errore al display, ma non alla cronologia AI come 'assistant'
                 addMessageToDisplay('you', 'Ho ricevuto una risposta inaspettata dal server. 🤔', null);
             }
 
         } catch (error) {
             console.error("Errore durante la chiamata a /api/chat:", error);
-            // Aggiungi un messaggio di errore al display, ma non alla cronologia AI come 'assistant'
             addMessageToDisplay('you', `Ops! C'è stato un problema: ${error.message} 😢`, null);
         } finally {
             userInput.disabled = false;
@@ -186,7 +177,6 @@
             userInput.focus();
             setTimeout(scrollToBottom, 50);
         }
-        // --- FINE CHIAMATA REALE ALL'API /api/chat ---
     });
 
     userInput.addEventListener('keydown', (e) => {
@@ -229,11 +219,11 @@
         }
     }
     window.addEventListener('pagehide', sendReportOnExit);
+    window.addEventListener('beforeunload', sendReportOnExit); // <-- AGGIUNTA QUI
 
     window.addEventListener('load', () => {
         setTimeout(() => {
             const welcomeMessage = 'Ciao, sono Don Alfred. Dimmi pure!';
-            // Il messaggio di benvenuto viene aggiunto al display e alla cronologia AI
             addMessageToDisplay('you', welcomeMessage, 'assistant');
             setTimeout(() => scrollToBottom('auto'), 50);
         }, 600);

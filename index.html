@@ -445,6 +445,21 @@ const ready = (callback) => {
     }
 };
 
+// ----- INIZIO SPOSTAMENTO FUNZIONE closePopup -----
+// Funzione per chiudere una popup specifica
+function closePopup(popupElement) {
+    if (popupElement && popupElement.classList.contains('show')) { // Controlla se è visibile prima di tentare di chiudere
+        popupElement.classList.remove('show');
+        // Dopo la transizione, imposta display: none per rimuoverla dal flusso
+        setTimeout(() => {
+            if (!popupElement.classList.contains('show')) { // Ricontrolla nel caso sia stata riaperta velocemente
+                popupElement.style.display = 'none';
+            }
+        }, 300); // Corrisponde alla durata della transizione CSS
+    }
+}
+// ----- FINE SPOSTAMENTO FUNZIONE closePopup -----
+
 // --- GESTIONE MENU ---
 const menuButton = document.getElementById("menuButton");
 const menuContent = document.getElementById("menuContent");
@@ -457,13 +472,11 @@ function closeAllSubmenus(container, exceptThisTrigger = null) {
     console.log("MENU: closeAllSubmenus chiamata.");
     if (!container) return;
     container.querySelectorAll('.submenu.open').forEach(submenu => {
-        const trigger = submenu.previousElementSibling; // L'elemento <a> che precede il div.submenu
-        // Chiudi solo se non è il trigger che ha appena causato l'apertura
-        // (o se exceptThisTrigger è null, chiudi tutto)
+        const trigger = submenu.previousElementSibling; 
         if (!exceptThisTrigger || (trigger && trigger !== exceptThisTrigger)) {
             submenu.classList.remove('open');
             if (trigger && trigger.classList.contains('submenu-trigger')) {
-                trigger.classList.remove('open'); // Per lo stile della freccia
+                trigger.classList.remove('open'); 
                 trigger.setAttribute('aria-expanded', 'false');
             }
         }
@@ -471,28 +484,13 @@ function closeAllSubmenus(container, exceptThisTrigger = null) {
 }
 
 function toggleSubmenu(event, triggerElement) {
-    // event.preventDefault(); // Non strettamente necessario qui perché href="#" e l'utente gestisce l'evento
-    // event.stopPropagation(); // Già presente nell'onclick inline dell'utente
-
     console.log("MENU: toggleSubmenu chiamata per", triggerElement);
-    // Il sottomenu è l'elemento fratello (div.submenu) che segue il link (a.submenu-trigger)
     const submenu = triggerElement.nextElementSibling;
-
     if (submenu && submenu.classList.contains('submenu')) {
         const isCurrentlyOpen = submenu.classList.contains('open');
-
-        // Opzionale: se vuoi che si chiudano gli altri sottomenu allo stesso livello quando ne apri uno.
-        // Per fare questo, dovresti passare il contenitore corretto dei sottomenu (es. il <ul> genitore dell'li.submenu-item)
-        // if (!isCurrentlyOpen && triggerElement.parentElement && triggerElement.parentElement.parentElement) {
-        //    const parentList = triggerElement.closest('ul'); // Trova il primo UL antenato
-        //    if (parentList) {
-        //        closeAllSubmenus(parentList, triggerElement);
-        //    }
-        // }
-
         submenu.classList.toggle('open', !isCurrentlyOpen);
-        triggerElement.classList.toggle('open', !isCurrentlyOpen); // Per lo stile della freccia
-        triggerElement.setAttribute('aria-expanded', String(!isCurrentlyOpen)); // aria-expanded è una stringa "true" o "false"
+        triggerElement.classList.toggle('open', !isCurrentlyOpen);
+        triggerElement.setAttribute('aria-expanded', String(!isCurrentlyOpen));
     } else {
         console.warn("MENU: Sottomenu non trovato come fratello successivo per", triggerElement, ". Fratello successivo:", submenu);
     }
@@ -501,6 +499,17 @@ function toggleSubmenu(event, triggerElement) {
 function toggleMenu() {
     console.log("MENU: toggleMenu chiamata.");
     const isCurrentlyExpanded = menuButton.getAttribute("aria-expanded") === "true";
+    
+    // ----- INIZIO MODIFICA PER CHIUDERE POPUP -----
+    if (!isCurrentlyExpanded) { // Se il menu si sta per APRIRE
+        console.log("POPUP: Il menu si sta aprendo, chiudo le popup.");
+        const pChat = document.getElementById('popupDonAlfredChat');
+        const pMenu = document.getElementById('popupDiscoverMenu');
+        closePopup(pChat);
+        closePopup(pMenu);
+    }
+    // ----- FINE MODIFICA PER CHIUDERE POPUP -----
+
     menuButton.setAttribute("aria-expanded", String(!isCurrentlyExpanded));
     menuContent.classList.toggle("show", !isCurrentlyExpanded);
     pageOverlay.classList.toggle("active", !isCurrentlyExpanded);
@@ -514,16 +523,12 @@ function toggleMenu() {
             })
             .then(data => {
                 menuContent.innerHTML = data.trim() === '' ? `<p class="menu-message">Menu vuoto.</p>` : data;
-                // Poiché usi onclick inline in menu.html, non è necessario aggiungere
-                // qui altri listener per i .submenu-trigger che hanno già l'onclick.
-                // L'event.stopPropagation()nell'HTML è importante.
             })
             .catch(error => {
                 menuContent.innerHTML = `<p class="menu-message" style="color: var(--color-text-error);">Errore caricamento menu.</p>`;
                 console.error('MENU: Errore fetch menu.html:', error);
             });
     } else if (isCurrentlyExpanded) {
-        // Se il menu principale si sta chiudendo, chiudi tutti i sottomenu aperti.
         closeAllSubmenus(menuContent);
     }
 }
@@ -652,23 +657,12 @@ ready(() => {
 
     const popupChat = document.getElementById('popupDonAlfredChat');
     const popupMenu = document.getElementById('popupDiscoverMenu');
-    const chatButtonContainer = document.getElementById('goChatContainer'); // Target per popup chat
-    const menuButtonTarget = document.getElementById('menuButton'); // Target per popup menu
+    const chatButtonContainer = document.getElementById('goChatContainer'); 
+    const menuButtonTarget = document.getElementById('menuButton'); 
 
-    const arrowSize = 12; // px, dimensione principale della freccia (altezza o larghezza)
-    const generalOffset = 8; // px, spazio generale tra popup e target
-    const screenMargin = 15; // px, margine dai bordi dello schermo
-
-    function closePopup(popupElement) {
-        if (popupElement) {
-            popupElement.classList.remove('show');
-            setTimeout(() => {
-                if (!popupElement.classList.contains('show')) {
-                    popupElement.style.display = 'none';
-                }
-            }, 300); // Durata transizione CSS
-        }
-    }
+    const arrowSize = 12; 
+    const generalOffset = 8; 
+    const screenMargin = 15; 
     
     function resetArrowStyle(arrowElement) {
         arrowElement.style.display = 'block';
@@ -679,8 +673,7 @@ ready(() => {
         arrowElement.style.transform = '';
         arrowElement.style.borderColor = '';
         arrowElement.style.borderWidth = '';
-        // Rimuovi classi specifiche se ne avessi aggiunte
-        arrowElement.className = 'popup-arrow'; // Reset to base class
+        arrowElement.className = 'popup-arrow'; 
     }
 
 
@@ -688,33 +681,30 @@ ready(() => {
         popupChat.querySelector('.popup-close-btn').addEventListener('click', () => closePopup(popupChat));
         
         setTimeout(() => {
+            if (popupChat.classList.contains('show')) return; // Non mostrare se già visibile (o chiusa manualmente)
             console.log("POPUP: Mostro popup Don Alfred Chat.");
             const targetRect = chatButtonContainer.getBoundingClientRect();
-            popupChat.style.display = 'block'; // Rende l'elemento misurabile
+            popupChat.style.display = 'block'; 
             const popupRect = popupChat.getBoundingClientRect();
             const arrowChat = popupChat.querySelector('.popup-arrow');
-            resetArrowStyle(arrowChat); // Reset freccia
-            arrowChat.classList.add('chat-arrow'); // Aggiunge classe specifica
+            resetArrowStyle(arrowChat); 
+            arrowChat.classList.add('chat-arrow'); 
 
             let popupTop, popupLeft;
             const isMobile = window.innerWidth <= 768;
 
             if (isMobile) {
-                // Mobile: Popup SOPRA il bottone chat, centrata orizzontalmente (rispetto al bottone)
                 popupTop = targetRect.top - popupRect.height - arrowSize - generalOffset;
                 popupLeft = targetRect.left + (targetRect.width / 2) - (popupRect.width / 2);
                 
-                // Stile freccia per puntare in basso (popup sopra, freccia sotto)
                 arrowChat.style.borderColor = '#ffffff transparent transparent transparent';
                 arrowChat.style.borderWidth = `${arrowSize}px 10px 0 10px`;
                 arrowChat.style.left = '50%';
                 arrowChat.style.bottom = `-${arrowSize}px`;
                 arrowChat.style.transform = 'translateX(-50%)';
 
-                // Se non c'è spazio sopra, prova SOTTO
                 if (popupTop < screenMargin) {
                     popupTop = targetRect.bottom + arrowSize + generalOffset;
-                    // Stile freccia per puntare in alto (popup sotto, freccia sopra)
                     arrowChat.style.borderColor = 'transparent transparent #ffffff transparent';
                     arrowChat.style.borderWidth = `0 10px ${arrowSize}px 10px`;
                     arrowChat.style.left = '50%';
@@ -723,32 +713,25 @@ ready(() => {
                 }
 
             } else {
-                // Desktop: Popup a SINISTRA del bottone chat, centrata verticalmente
                 popupTop = targetRect.top + (targetRect.height / 2) - (popupRect.height / 2);
                 popupLeft = targetRect.left - popupRect.width - arrowSize - generalOffset;
-                // Stile freccia (default .chat-arrow) punta a destra (popup a sx, freccia a dx)
-                // (Già gestito da CSS, ma ri-assicuriamo per consistenza)
                 arrowChat.style.borderColor = 'transparent transparent transparent #ffffff';
                 arrowChat.style.borderWidth = `10px 0 10px ${arrowSize}px`;
                 arrowChat.style.right = `-${arrowSize}px`;
                 arrowChat.style.top = '50%';
                 arrowChat.style.transform = 'translateY(-50%)';
 
-
-                // Se esce a sinistra, prova a DESTRA
                 if (popupLeft < screenMargin) {
                     popupLeft = targetRect.right + arrowSize + generalOffset;
-                    // Stile freccia per puntare a sinistra (popup a dx, freccia a sx)
                     arrowChat.style.borderColor = 'transparent #ffffff transparent transparent';
                     arrowChat.style.borderWidth = `10px ${arrowSize}px 10px 0`;
-                    arrowChat.style.left = `-${arrowSize}px`; // Attaccata al bordo sinistro della popup
+                    arrowChat.style.left = `-${arrowSize}px`; 
                     arrowChat.style.right = 'auto';
                     arrowChat.style.top = '50%';
                     arrowChat.style.transform = 'translateY(-50%)';
                 }
             }
 
-            // Controlli bordi finali (comuni a mobile e desktop)
             if (popupLeft < screenMargin) popupLeft = screenMargin;
             if (popupLeft + popupRect.width > window.innerWidth - screenMargin) {
                 popupLeft = window.innerWidth - screenMargin - popupRect.width;
@@ -756,20 +739,16 @@ ready(() => {
             if (popupTop < screenMargin) popupTop = screenMargin;
             if (popupTop + popupRect.height > window.innerHeight - screenMargin) {
                 popupTop = window.innerHeight - screenMargin - popupRect.height;
-                // Se la popup viene spostata molto verticalmente, la freccia potrebbe non puntare più bene
-                // su mobile, la freccia è centrata, quindi ok. Su desktop, potrebbe disallinearsi
                  if (!isMobile && (Math.abs(targetRect.top + (targetRect.height / 2) - (popupTop + popupRect.height / 2)) > popupRect.height / 2)) {
-                    arrowChat.style.display = 'none'; // Nascondi se troppo disallineata
+                    arrowChat.style.display = 'none'; 
                  }
             }
-            // Se dopo tutti gli aggiustamenti la popup è troppo stretta/alta, nascondi freccia
             if (popupRect.width < 50 || popupRect.height < 30) arrowChat.style.display = 'none';
-
 
             popupChat.style.top = popupTop + 'px';
             popupChat.style.left = popupLeft + 'px';
             
-            void popupChat.offsetWidth; // Forza reflow per transizione
+            void popupChat.offsetWidth; 
             popupChat.classList.add('show');
 
         }, 2000);
@@ -781,9 +760,10 @@ ready(() => {
         popupMenu.querySelector('.popup-close-btn').addEventListener('click', () => closePopup(popupMenu));
 
         setTimeout(() => {
+            if (popupMenu.classList.contains('show')) return; // Non mostrare se già visibile
             console.log("POPUP: Mostro popup Discover Menu.");
             const targetRect = menuButtonTarget.getBoundingClientRect();
-            popupMenu.style.display = 'block'; // Rende l'elemento misurabile
+            popupMenu.style.display = 'block'; 
             const popupRect = popupMenu.getBoundingClientRect();
             const arrowMenu = popupMenu.querySelector('.popup-arrow');
             resetArrowStyle(arrowMenu);
@@ -792,68 +772,55 @@ ready(() => {
             let popupTop, popupLeft;
             const isMobile = window.innerWidth <= 768;
 
-            // Default: Popup SOTTO il bottone menu
             popupTop = targetRect.bottom + arrowSize + generalOffset;
-            popupLeft = targetRect.left + (targetRect.width / 2) - (popupRect.width / 2); // Centra sotto il bottone
+            popupLeft = targetRect.left + (targetRect.width / 2) - (popupRect.width / 2); 
             
-            // Stile freccia per puntare in alto (popup sotto, freccia sopra)
             arrowMenu.style.borderColor = 'transparent transparent #ffffff transparent';
             arrowMenu.style.borderWidth = `0 10px ${arrowSize}px 10px`;
             arrowMenu.style.top = `-${arrowSize}px`;
-            arrowMenu.style.left = '50%'; // Centra la freccia sulla popup
+            arrowMenu.style.left = '50%'; 
             arrowMenu.style.transform = 'translateX(-50%)';
 
             if (isMobile) {
-                // Se non c'è spazio sotto su mobile, prova SOPRA
                 if (popupTop + popupRect.height > window.innerHeight - screenMargin) {
                     popupTop = targetRect.top - popupRect.height - arrowSize - generalOffset;
-                    // Stile freccia per puntare in basso (popup sopra, freccia sotto)
                     arrowMenu.style.borderColor = '#ffffff transparent transparent transparent';
                     arrowMenu.style.borderWidth = `${arrowSize}px 10px 0 10px`;
                     arrowMenu.style.bottom = `-${arrowSize}px`;
-                    arrowMenu.style.top = 'auto'; // Reset top
-                    // left e transform restano 50% e translateX(-50%)
+                    arrowMenu.style.top = 'auto'; 
                 }
-            } else { // Desktop
-                // Su desktop, proviamo ad allineare a sinistra del bottone menu come prima
-                popupLeft = targetRect.left; // Allinea a sinistra del bottone menu
-                arrowMenu.style.left = (targetRect.width / 2) + 'px'; // Freccia al centro del bottone target
-                // (se la popup è larga quanto il menu, la freccia sarà al centro del bottone e della popup)
-                // Se la popup è più stretta, la freccia potrebbe non essere al 50% della popup
-                // Questo era `left: 25px` nel CSS, qui lo rendiamo più dinamico
+            } else { 
+                popupLeft = targetRect.left; 
                 const arrowMenuLeftInPopup = (targetRect.left + targetRect.width/2) - popupLeft;
                 arrowMenu.style.left = `${Math.max(10, Math.min(arrowMenuLeftInPopup, popupRect.width - 10))}px`;
             }
 
-            // Controlli bordi finali comuni
             if (popupLeft < screenMargin) popupLeft = screenMargin;
             if (popupLeft + popupRect.width > window.innerWidth - screenMargin) {
                 popupLeft = window.innerWidth - screenMargin - popupRect.width;
             }
-             // Ricalcola posizione freccia se popupLeft è cambiato molto (per desktop)
             if(!isMobile) {
                 const arrowMenuLeftInPopup = (targetRect.left + targetRect.width/2) - popupLeft;
-                arrowMenu.style.left = `${Math.max(10, Math.min(arrowMenuLeftInPopup, popupRect.width - 20))}px`; // 20 per larghezza freccia
+                arrowMenu.style.left = `${Math.max(10, Math.min(arrowMenuLeftInPopup, popupRect.width - 20))}px`; 
             }
 
-            if (popupTop < screenMargin) { // Se anche andando sopra non c'è spazio (raro per menu)
+            if (popupTop < screenMargin) { 
                 popupTop = screenMargin;
-                arrowMenu.style.display = 'none'; // Nascondi freccia se troppo schiacciata
+                arrowMenu.style.display = 'none'; 
             }
             if (popupTop + popupRect.height > window.innerHeight - screenMargin) {
                 popupTop = window.innerHeight - screenMargin - popupRect.height;
-                arrowMenu.style.display = 'none'; // Nascondi freccia se troppo schiacciata
+                arrowMenu.style.display = 'none'; 
             }
              if (popupRect.width < 50 || popupRect.height < 30) arrowMenu.style.display = 'none';
-
 
             popupMenu.style.top = popupTop + 'px';
             popupMenu.style.left = popupLeft + 'px';
             
-            void popupMenu.offsetWidth; // Forza reflow
+            void popupMenu.offsetWidth; 
             popupMenu.classList.add('show');
 
-        }, 4000); // 2 secondi dopo la prima
+        }, 4000); 
     } else {
         console.error("POPUP: Elementi per popup menu non trovati.", popupMenu, menuButtonTarget);
     }

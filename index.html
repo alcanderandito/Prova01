@@ -302,6 +302,79 @@ margin: 0; border-radius: 0; border-left: none; border-top: 2px solid var(--colo
 #hero-title-container h1 { font-size: 4.2rem; }
 #hero-title-container p { font-size: 1.4rem; }
 }
+
+/* ----- INIZIO NUOVO CSS PER POPUP ----- */
+.custom-popup {
+    position: fixed;
+    background-color: #ffffff;
+    color: var(--color-text-dark);
+    padding: 18px 22px;
+    padding-right: 35px; /* Spazio per il pulsante chiudi */
+    border-radius: var(--border-radius-medium);
+    box-shadow: 0 6px 25px var(--shadow-strong);
+    z-index: 2000; /* Sopra tutto tranne forse modali di sistema */
+    display: none;
+    opacity: 0;
+    transform: scale(0.95) translateY(10px);
+    transition: opacity 0.3s ease-out, transform 0.3s ease-out;
+    max-width: 290px;
+    font-family: var(--font-primary);
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+.custom-popup.show {
+    display: block;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+}
+.custom-popup p {
+    margin: 0;
+    font-weight: 400;
+}
+.custom-popup p strong {
+    color: var(--color-accent-primary-dark);
+    font-weight: 700;
+}
+.custom-popup .popup-close-btn {
+    position: absolute;
+    top: 5px;
+    right: 5px;
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    font-weight: bold;
+    color: #aaa;
+    cursor: pointer;
+    padding: 8px;
+    line-height: 1;
+    transition: color var(--transition-duration-fast);
+}
+.custom-popup .popup-close-btn:hover {
+    color: #777;
+}
+.popup-arrow {
+    position: absolute;
+    width: 0;
+    height: 0;
+    border-style: solid;
+}
+.popup-arrow.chat-arrow { /* Popup a SINISTRA del target, freccia punta a DESTRA */
+    border-width: 10px 0 10px 12px; /* Aumentata larghezza base freccia per stabilità visiva */
+    border-color: transparent transparent transparent #ffffff;
+    right: -12px;
+    top: 50%;
+    transform: translateY(-50%);
+    filter: drop-shadow(2px 0px 2px rgba(0,0,0,0.05));
+}
+.popup-arrow.menu-arrow { /* Popup SOTTO il target, freccia punta in ALTO */
+    border-width: 0 10px 12px 10px; /* Aumentata altezza base freccia */
+    border-color: transparent transparent #ffffff transparent;
+    top: -12px;
+    left: 25px; /* Adattato per un miglior allineamento col testo del menu */
+    transform: translateX(-50%); /* Centra la freccia */
+    filter: drop-shadow(0px -2px 2px rgba(0,0,0,0.05));
+}
+/* ----- FINE NUOVO CSS PER POPUP ----- */
 </style>
 </head>
 <body>
@@ -329,6 +402,21 @@ margin: 0; border-radius: 0; border-left: none; border-top: 2px solid var(--colo
 </main>
 <div id="goChatContainer"><a href="chat.html" aria-label="Apri chat"><button id="goChat" aria-label="Avvia chat"></button></a></div>
 <audio id="indexPageSong" src="indexsong.mp3" loop preload="metadata"></audio>
+
+<!-- ----- INIZIO NUOVO HTML PER POPUP ----- -->
+<div class="custom-popup" id="popupDonAlfredChat">
+    <button class="popup-close-btn" aria-label="Chiudi">×</button>
+    <p>Psst! Amante della buona cucina? 🍳 Prova i quiz trentini di <strong>Don Alfred</strong>! Clicca sull'icona della chat e mettiti alla prova!</p>
+    <div class="popup-arrow chat-arrow"></div>
+</div>
+
+<div class="custom-popup" id="popupDiscoverMenu">
+    <button class="popup-close-btn" aria-label="Chiudi">×</button>
+    <p>Ehi, esploratore! 🧭 Nel nostro <strong>Menu</strong> ti aspettano le schede dei mitici dipendenti e i giochi epici del <strong>Team Due Mori</strong>, incluso il capolavoro 'Super Fabio Bros'! Dai un'occhiata!</p>
+    <div class="popup-arrow menu-arrow"></div>
+</div>
+<!-- ----- FINE NUOVO HTML PER POPUP ----- -->
+
 <script>
 console.log("SCRIPT: Inizio esecuzione blocco script.");
 
@@ -547,6 +635,130 @@ ready(() => {
 
     console.log("SCRIPT: Chiamata a initAudioPlayer...");
     if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
+
+    // ----- INIZIO NUOVO CODICE PER POPUP GUIDATE -----
+    console.log("POPUP: Inizializzazione popup guidate.");
+
+    const popupChat = document.getElementById('popupDonAlfredChat');
+    const popupMenu = document.getElementById('popupDiscoverMenu');
+    const chatButtonContainer = document.getElementById('goChatContainer');
+    const menuButtonTarget = document.getElementById('menuButton');
+    const arrowOffset = 12; // px, corrisponde a border-width della freccia + piccolo spazio
+    const generalOffset = 5; // px, spazio generale tra popup e target
+
+    function closePopup(popupElement) {
+        if (popupElement) {
+            popupElement.classList.remove('show');
+            setTimeout(() => {
+                if (!popupElement.classList.contains('show')) {
+                    popupElement.style.display = 'none';
+                }
+            }, 300); // Durata transizione CSS
+        }
+    }
+
+    if (popupChat && chatButtonContainer) {
+        popupChat.querySelector('.popup-close-btn').addEventListener('click', () => closePopup(popupChat));
+        
+        setTimeout(() => {
+            console.log("POPUP: Mostro popup Don Alfred Chat.");
+            const chatContainerRect = chatButtonContainer.getBoundingClientRect();
+            popupChat.style.display = 'block'; // Rende l'elemento misurabile
+            
+            const popupChatHeight = popupChat.offsetHeight;
+            const popupChatWidth = popupChat.offsetWidth;
+
+            // Posiziona la popup a sinistra del bottone chat, centrata verticalmente
+            let chatPopupTop = chatContainerRect.top + (chatContainerRect.height / 2) - (popupChatHeight / 2);
+            let chatPopupLeft = chatContainerRect.left - popupChatWidth - arrowOffset - generalOffset;
+
+            // Controlla se esce in alto/basso
+            if (chatPopupTop < 10) chatPopupTop = 10;
+            if (chatPopupTop + popupChatHeight > window.innerHeight - 10) {
+                chatPopupTop = window.innerHeight - 10 - popupChatHeight;
+            }
+            // Controlla se esce a sinistra (e flippa se necessario)
+            const arrowChat = popupChat.querySelector('.chat-arrow');
+            if (chatPopupLeft < 10) {
+                console.log("POPUP: Chat popup troppo a sinistra, la sposto a destra del bottone chat.");
+                chatPopupLeft = chatContainerRect.right + arrowOffset + generalOffset;
+                if (arrowChat) { // Flip della freccia
+                    arrowChat.style.left = '-'+arrowOffset+'px';
+                    arrowChat.style.right = 'auto';
+                    arrowChat.style.borderColor = 'transparent #ffffff transparent transparent';
+                    arrowChat.style.borderWidth = '10px '+arrowOffset+'px 10px 0';
+                }
+            } else {
+                 if (arrowChat) { // Assicura stile freccia default
+                    arrowChat.style.left = 'auto';
+                    arrowChat.style.right = '-'+arrowOffset+'px';
+                    arrowChat.style.borderColor = 'transparent transparent transparent #ffffff';
+                    arrowChat.style.borderWidth = '10px 0 10px '+arrowOffset+'px';
+                 }
+            }
+
+            popupChat.style.top = chatPopupTop + 'px';
+            popupChat.style.left = chatPopupLeft + 'px';
+            
+            void popupChat.offsetWidth; // Forza reflow per transizione
+            popupChat.classList.add('show');
+        }, 2000);
+    } else {
+        console.error("POPUP: Elementi per popup chat non trovati.", popupChat, chatButtonContainer);
+    }
+
+    if (popupMenu && menuButtonTarget) {
+        popupMenu.querySelector('.popup-close-btn').addEventListener('click', () => closePopup(popupMenu));
+
+        setTimeout(() => {
+            console.log("POPUP: Mostro popup Discover Menu.");
+            const menuButtonRect = menuButtonTarget.getBoundingClientRect();
+            popupMenu.style.display = 'block'; // Rende l'elemento misurabile
+
+            const popupMenuHeight = popupMenu.offsetHeight;
+            const popupMenuWidth = popupMenu.offsetWidth;
+            
+            // Posiziona la popup sotto il bottone menu
+            let menuPopupTop = menuButtonRect.bottom + arrowOffset + generalOffset;
+            let menuPopupLeft = menuButtonRect.left;
+            
+            // Controlla se esce in basso
+            if (menuPopupTop + popupMenuHeight > window.innerHeight - 10) {
+                 menuPopupTop = window.innerHeight - 10 - popupMenuHeight;
+                 // Potrebbe essere necessario spostare la freccia se la popup si alza molto
+            }
+            // Controlla se esce a destra
+            if (menuPopupLeft + popupMenuWidth > window.innerWidth - 10) {
+                menuPopupLeft = window.innerWidth - 10 - popupMenuWidth;
+            }
+            // Assicura che non esca a sinistra
+            if (menuPopupLeft < 10) menuPopupLeft = 10;
+
+
+            popupMenu.style.top = menuPopupTop + 'px';
+            popupMenu.style.left = menuPopupLeft + 'px';
+            
+            // Aggiusta la posizione della freccia del menu se la popup si è spostata
+            const arrowMenu = popupMenu.querySelector('.menu-arrow');
+            if (arrowMenu) {
+                const targetCenter = menuButtonRect.left + (menuButtonRect.width / 2);
+                let arrowLeftPosition = targetCenter - menuPopupLeft - (arrowMenu.offsetWidth / 2); // arrowMenu.offsetWidth è circa 2*border-width laterale
+                
+                // Limita la posizione della freccia per non farla uscire dalla popup
+                const minArrowLeft = 5; // Minimo 5px dal bordo sx della popup
+                const maxArrowLeft = popupMenuWidth - arrowMenu.offsetWidth - 5; // Max 5px dal bordo dx
+                arrowLeftPosition = Math.max(minArrowLeft, Math.min(arrowLeftPosition, maxArrowLeft));
+                arrowMenu.style.left = arrowLeftPosition + 'px';
+            }
+
+            void popupMenu.offsetWidth; // Forza reflow
+            popupMenu.classList.add('show');
+        }, 4000); // 2 secondi dopo la prima
+    } else {
+        console.error("POPUP: Elementi per popup menu non trovati.", popupMenu, menuButtonTarget);
+    }
+    console.log("POPUP: Inizializzazione popup guidate completata.");
+    // ----- FINE NUOVO CODICE PER POPUP GUIDATE -----
 
     console.log("SCRIPT: Tutte le funzioni principali sono state chiamate.");
 });

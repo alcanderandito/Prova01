@@ -41,8 +41,13 @@ Per far funzionare l'applicazione, è necessario configurare le seguenti variabi
 
 -   `OPENAI_API_KEY`: La tua chiave API per OpenAI.
 -   `EMAIL_TO`: L'indirizzo email a cui verranno inviate le cronologie delle chat.
--   `EMAIL_USER`: Il nome utente per l'autenticazione al server SMTP.
--   `EMAIL_PASS`: La password per l'autenticazione al server SMTP.
+-   `EMAIL_USER`: Il tuo indirizzo email completo di Gmail (es. `nome.cognome@gmail.com`).
+-   `EMAIL_PASS`: Una **App Password** generata dal tuo account Google. **Non usare la tua password normale.** Puoi crearne una seguendo questi passaggi:
+    1.  Vai alla pagina di [gestione del tuo Account Google](https://myaccount.google.com/security).
+    2.  Assicurati che la "Verifica in 2 passaggi" sia attiva.
+    3.  Cerca la sezione "Password per le app".
+    4.  Crea una nuova password per l'app (puoi chiamarla "Vercel Chat").
+    5.  Copia la password di 16 caratteri generata e usala per questa variabile.
 
 Inoltre, nel file `api/send-message.js`, assicurati di impostare correttamente l'indirizzo del tuo `TUO_HOST_SMTP`.
 

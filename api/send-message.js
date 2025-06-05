@@ -61,13 +61,12 @@ module.exports = async (req, res) => {
         try {
             // Configura il transporter di Nodemailer usando le tue variabili d'ambiente
             const transporter = nodemailer.createTransport({
-                // NOTA: Ho impostato il server di iCloud. Se usi un altro provider (es. Gmail), cambialo.
-                host: 'smtp.mail.me.com',
-                port: 587, // Porta comune, potrebbe essere 465 per SSL
-                secure: false, // `true` per la porta 465, `false` per le altre
+                host: 'smtp.gmail.com',
+                port: 587,
+                secure: false, // `true` per la porta 465, `false` per le altre (TLS)
                 auth: {
-                    user: process.env.EMAIL_USER,
-                    pass: process.env.EMAIL_PASS,
+                    user: process.env.EMAIL_USER, // Il tuo indirizzo Gmail completo
+                    pass: process.env.EMAIL_PASS, // La tua App Password di Gmail
                 },
             });
 

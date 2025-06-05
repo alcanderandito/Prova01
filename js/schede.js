@@ -376,3 +376,19 @@ window.addEventListener('load', () => {
      console.error("Elemento audio con id 'schedePageSong' non trovato nel DOM.");
    }
 }); 
+
+// Evoca Don Alfred
+setTimeout(() => {
+    fetch('/api/get-alfred-comment', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pageContext: 'Pagina delle schede dei personaggi' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.comment && typeof showAlfredPopup === 'function') {
+            showAlfredPopup(data.comment);
+        }
+    })
+    .catch(error => console.error("SPIRIT: Errore durante l'evocazione di Don Alfred:", error));
+}, 1500); 

@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Le Mitiche Schede del Team Due Mori</title>
+    <link rel="stylesheet" href="../css/schede.css">
+</head>
+<body>
+    <a href="../index.html" class="home-button" title="Torna alla Home">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>Home</span>
+    </a>
+
+    <header class="page-header">
+        <h1>Lo Staff Stellare del Team Due Mori</h1>
+        <p>Personaggi mitici, abilità leggendarie e un pizzico di magia! Clicca e scopri l'intera scheda!</p>
+    </header>
+
+    <main class="staff-grid">
+        <!-- Le schede verranno inserite qui dal JavaScript -->
+    </main>
+
+    <!-- Modal Structure (nascosto di default) -->
+    <div class="modal-overlay" id="staffModal">
+        <div class="modal-content">
+            <button class="modal-close-button" id="modalCloseButton">×</button>
+            <div class="modal-image-container">
+                <img src="" alt="Foto del membro dello staff" class="modal-main-photo" id="modalMainPhoto">
+                <div class="modal-photo-thumbnails" id="modalPhotoThumbnails">
+                    <!-- Miniature per il modal verranno inserite qui -->
+                </div>
+            </div>
+            <h2 id="modalName"></h2>
+            <p class="description" id="modalDescription"></p>
+            <div class="details" id="modalDetails">
+                <!-- Dettagli verranno inseriti qui -->
+            </div>
+        </div>
+    </div>
+    
+    <footer class="page-footer">
+        <p>© 2025 Le Schede Mitiche del Team Due Mori - Creazione by Alejandro</p>
+    </footer>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/vanilla-tilt/1.8.0/vanilla-tilt.min.js"></script>
+    <script src="../js/schede.js" defer></script>
+
+    <!-- AGGIUNTA CODICE PER LA CANZONE -->
+    <audio id="schedePageSong" src="../assets/audio/schedesong.mp3" loop></audio>
+    <!-- IL SECONDO SCRIPT INLINE PER L'AUDIO E' STATO SPOSTATO IN JS/SCHEDE.JS -->
+    <!-- FINE AGGIUNTA CODICE PER LA CANZONE -->
+
+</body>
+</html> 

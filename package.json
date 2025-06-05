@@ -1,16 +1,16 @@
 {
   "name": "teamduemori",
   "version": "1.0.0",
-  "description": "Chat project with email reports",
-  "main": "index.html",
+  "description": "Progetto per il Team Due Mori",
+  "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "vercel dev"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "nodemailer": "^6.9.13",
-    "dotenv": "^16.4.5"
+    "nodemailer": "^6.9.14"
   }
-}
+} 

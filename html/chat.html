@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Chat • Don Alfred</title>
+  <link rel="stylesheet" href="../css/chat.css">
+</head>
+<body>
+  <div class="chat-desktop-container">
+    <header>
+      <a href="../index.html" aria-label="Indietro">‹</a>
+      <span class="title">Don Alfred 🤵🏻‍♂️</span>
+    </header>
+
+    <div id="messages" role="log" aria-live="polite"></div>
+
+    <form id="input-bar" autocomplete="off">
+      <input id="message-input" type="text" placeholder="Scrivi un messaggio a Don Alfred…" enterkeyhint="send" aria-label="Messaggio da inviare"/>
+      <button type="submit" aria-label="Invia messaggio" id="send-button">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+      </button>
+    </form>
+  </div>
+
+  <script src="../js/chat.js" defer></script>
+</body>
+</html> 

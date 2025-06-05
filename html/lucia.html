@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Lucia</title>
+<link rel="stylesheet" href="../css/scheda-personaggio.css">
+</head>
+
+<body>
+<div class="card">
+  <h2>Lucia</h2>
+
+  <!-- Immagini -->
+  <img src="../assets/images/lucia.PNG"  class="carousel-img active" alt="Lucia">
+  <img src="lucia1.PNG" class="carousel-img" alt="Lucia 1">
+  <img src="lucia2.PNG" class="carousel-img" alt="Lucia 2">
+  <img src="lucia3.PNG" class="carousel-img" alt="Lucia 3">
+
+  <!-- Frecce -->
+  <div class="controls">
+    <button class="nav" id="prev" aria-label="Foto precedente"></button>
+    <button class="nav" id="next" aria-label="Foto successiva"></button>
+  </div>
+
+  <!-- Profilo ufficiale (solo dati tuoi) -->
+  <h3>Descrizione</h3>
+  <p>Regina gentile, dolcezza armata, forza invincibile. Dà carezze, consigli, regali e sgridate soavi.</p>
+
+  <h3>Altezza</h3><p>Circa 1.66 m</p>
+  <h3>Mansione</h3><p>Cameriera d'onore, dispensatrice di amore</p>
+  <h3>Velocità</h3><p>Tartaruga zen</p>
+  <h3>Colore preferito</h3><p>Da definire</p>
+  <h3>Piatto preferito</h3><p>Tutto</p>
+  <h3>Fetish</h3><p>Fare regalini ai figli</p>
+  <h3>Debolezza</h3><p>NESSUNA (carro armato sorridente)</p>
+  <h3>Pazienza</h3><p>Eterna</p>
+  <h3>Paese preferito</h3><p>Italia</p>
+
+  <a class="back" href="../index.html">⟵ Torna alla Home</a>
+</div>
+
+<script>
+/* ===== Carousel JS ===== */
+const imgs=document.querySelectorAll('.carousel-img');
+let idx=0;
+document.getElementById('prev').onclick=()=>change(-1);
+document.getElementById('next').onclick=()=>change(1);
+function change(step){
+  imgs[idx].classList.remove('active');
+  idx=(idx+step+imgs.length)%imgs.length;
+  imgs[idx].classList.add('active');
+}
+</script>
+</body>
+</html> 

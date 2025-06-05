@@ -1,0 +1,43 @@
+/* ===== Layout generale ===== */
+body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#f4f4f4;padding:30px}
+.card{max-width:800px;margin:auto;background:#fff;border-radius:10px;box-shadow:0 4px 12px #0003;padding:24px;overflow:hidden}
+
+/* Titoli & testo */
+h2{margin-top:0;font-size:2em;color:#333;text-align:center}
+h3{margin:18px 0 6px;font-size:1.2em;color:#444}
+p{margin:4px 0;color:#555;line-height:1.6}
+
+/* ===== Carousel ===== */
+.carousel-img{width:100%;border-radius:10px;margin-bottom:14px;display:none}
+.carousel-img.active{display:block}
+
+/* ===== iPhone-style arrows ===== */
+.controls{display:flex;justify-content:center;gap:2rem;margin-bottom:20px}
+
+.nav{
+  width:44px;height:44px;
+  background:#f2f2f7;                 /* iOS light grey */
+  border:none;border-radius:50%;
+  box-shadow:0 2px 6px #0001;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;
+  transition:background .15s,box-shadow .15s;
+}
+.nav:hover  {background:#e5e5ec;box-shadow:0 4px 8px #0002;}
+.nav:active {background:#d9d9e0;box-shadow:0 1px 3px #0003;}
+.nav::before{
+  content:'';width:12px;height:12px;
+  border:solid #2c2c2e;               /* iOS dark grey */
+  border-width:0 2.5px 2.5px 0;
+  display:inline-block;
+}
+#prev::before{transform:rotate(135deg);}   /* ‹  */
+#next::before{transform:rotate(-45deg);}   /* ›  */
+
+/* ===== Bottone "Back" ===== */
+.back{
+  display:block;width:max-content;margin:40px auto 0;padding:14px 32px;border-radius:999px;
+  background:#9ecbff;color:#fff;font-weight:bold;text-decoration:none;box-shadow:0 3px 8px #0003;
+  transition:.2s background,.2s transform
+}
+.back:hover{background:#b7dcff;transform:scale(1.05)} 

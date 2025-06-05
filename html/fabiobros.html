@@ -136,7 +136,7 @@
     </div>
 
     <div id="homeButtonContainer">
-        <a href="index.html" id="homeButton">Torna alla Home</a>
+        <a href="../index.html" id="homeButton">Torna alla Home</a>
     </div>
 
     <script>
@@ -161,7 +161,7 @@
         const jumpButton = document.getElementById('jumpButton');
         const shootButton = document.getElementById('shootButton');
 
-        const backgroundMusic = new Audio('fabiosong.mp3');
+        const backgroundMusic = new Audio('../assets/fabiobros_assets/fabiosong.mp3');
         backgroundMusic.loop = true;
         backgroundMusic.onerror = () => {
             console.error("Errore nel caricamento del file audio: fabiosong.mp3.");
@@ -200,9 +200,9 @@
 
         const images = {};
         const imageSources = {
-            player: 'fabiogame2.PNG',
-            enemy: 'mostro.PNG',
-            background: 'fabiogame.PNG'
+            player: '../assets/fabiobros_assets/fabiogame2.PNG',
+            enemy: '../assets/fabiobros_assets/mostro.PNG',
+            background: '../assets/fabiobros_assets/fabiogame.PNG'
         };
         let imagesLoaded = 0;
         let totalImages = Object.keys(imageSources).length;

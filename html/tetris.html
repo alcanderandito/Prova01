@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Tetris Polenta e Formai della Roby</title>
+    <link rel="stylesheet" href="../css/tetris.css">
+</head>
+<body>
+    <div class="game-area">
+        <h1>Tetris Polenta e Formai</h1>
+        <div class="main-content">
+            <div class="game-board-container">
+                <canvas id="gameCanvas"></canvas>
+            </div>
+            <div class="info-and-next">
+                <div class="info-panel">
+                    <span id="score">Score: 0</span>
+                    <span id="lives">Vite: 3</span>
+                    <span id="level">Livello: 1</span>
+                </div>
+            </div>
+        </div>
+         <div id="messageOverlay" class="message-overlay">
+            <p id="messageText"></p>
+            <button id="restartButton" class="control-btn">Ricomincia</button>
+        </div>
+        <div class="controls">
+            <div class="empty-dpad-tl"></div>
+            <button id="up-btn" class="control-btn">GIRA</button>
+            <div class="empty-dpad-tr"></div>
+
+            <button id="left-btn" class="control-btn">◄</button>
+            <button id="down-btn" class="control-btn">▼</button>
+            <button id="right-btn" class="control-btn">►</button>
+
+            <div class="empty-dpad-bl"></div>
+            <button id="drop-btn" class="control-btn">CADE</button>
+            <div class="empty-dpad-br"></div>
+        </div>
+        <a href="../index.html" class="home-btn">Torna alla Home</a>
+    </div>
+
+    <script src="../js/tetris.js" defer></script>
+</body>
+</html> 

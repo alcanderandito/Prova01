@@ -66,7 +66,6 @@ La chat è stata recentemente aggiornata con le seguenti caratteristiche:
 
 -   **Responsive Design**: Adattata per funzionare su dispositivi desktop e mobile.
 -   **Input Dinamico**: L'area di testo si ridimensiona automaticamente con il contenuto.
--   **Salvataggio Cronologia**: La conversazione viene salvata nel `localStorage` e ripristinata al ricaricamento della pagina.
 -   **Copia Messaggi**: Un pulsante permette di copiare facilmente il testo di ogni messaggio.
 -   **Scroll Automatico**: Un pulsante per tornare in fondo alla chat appare quando si scorre verso l'alto.
 -   **Backend Simulata**: Utilizza una serverless function per simulare le risposte dell'AI, pronta per essere collegata a un vero servizio (es. OpenAI).

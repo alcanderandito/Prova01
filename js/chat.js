@@ -37,32 +37,6 @@ userInput.addEventListener('keydown', function(event) {
 });
 
 
-// Funzione per salvare la cronologia della chat nel localStorage
-function saveChatHistory() {
-    localStorage.setItem('chatHistory', JSON.stringify(conversationHistoryForAI));
-}
-
-// Funzione per caricare la cronologia della chat dal localStorage
-function loadChatHistory() {
-    const savedHistory = localStorage.getItem('chatHistory');
-    if (savedHistory) {
-        conversationHistoryForAI = JSON.parse(savedHistory);
-        messagesContainer.innerHTML = ''; // Pulisce i messaggi esistenti
-        conversationHistoryForAI.forEach(message => {
-            // Ricostruisce i messaggi nella UI basandosi sulla cronologia
-            if (message.role === 'user') {
-                addMessageToDisplay('me', message.content, null); // `null` per non ri-aggiungere alla cronologia
-            } else if (message.role === 'assistant') {
-                addMessageToDisplay('you', message.content, null); // `null` per non ri-aggiungere alla cronologia
-            }
-        });
-    }
-}
-
-// Carica la cronologia all'avvio
-window.addEventListener('load', loadChatHistory);
-
-
 function scrollToBottom(behavior = 'auto') {
   requestAnimationFrame(() => {
     if (messagesContainer) {
@@ -131,7 +105,6 @@ function addMessageToDisplay(who, text, roleForAI) {
 
     if (roleForAI) {
         conversationHistoryForAI.push({ role: roleForAI, content: text });
-        saveChatHistory(); // Salva la cronologia dopo ogni nuovo messaggio
     }
 }
 
@@ -139,6 +112,9 @@ chatForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const userText = userInput.value.trim();
     if (!userText) return;
+
+    // Svuoto l'input subito dopo aver catturato il testo
+    userInput.value = '';
 
     userInput.disabled = true;
     sendButton.disabled = true;

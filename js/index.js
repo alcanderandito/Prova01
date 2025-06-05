@@ -221,6 +221,26 @@ ready(() => {
     console.log("SCRIPT: Chiamata a initAudioPlayer...");
     if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
 
+    // --- Invocazione dello spirito di Don Alfred ---
+    console.log("SPIRIT: Tentativo di evocare lo spirito di Don Alfred...");
+    setTimeout(() => {
+        fetch('/api/get-alfred-comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageContext: 'Pagina Principale' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.comment && typeof showAlfredPopup === 'function') {
+                console.log("SPIRIT: Don Alfred ha un commento:", data.comment);
+                showAlfredPopup(data.comment);
+            }
+        })
+        .catch(error => {
+            console.error("SPIRIT: Errore durante l'evocazione di Don Alfred:", error);
+        });
+    }, 1000); // Appare dopo 1 secondo dal caricamento della pagina
+
     // ----- INIZIO NUOVO CODICE PER POPUP GUIDATE (CON MODIFICHE PER RESPONSIVE) -----
     console.log("POPUP: Inizializzazione popup guidate.");
 

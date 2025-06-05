@@ -194,19 +194,6 @@ function initParticleEffect() {
     console.log("PARTICLES: Inizializzazione effetto particelle completata.");
 }
 
-// --- AUDIO PLAYER ---
-function initAudioPlayer() {
-    console.log("AUDIO: initAudioPlayer chiamata.");
-    const song = document.getElementById('indexPageSong');
-    if (!song) { console.error("AUDIO: #indexPageSong non trovato."); return; }
-    let hasInteracted = false; let interactionListeners = [];
-    const tryPlayMusic = (eventSource) => { if (hasInteracted || (song.currentTime > 0 && !song.paused)) { removeInteractionListeners(); return; } hasInteracted = true; song.play().then(() => { console.log(`AUDIO: Riproduzione avviata (${eventSource || 'autoplay'}).`); removeInteractionListeners(); }).catch(e => { console.warn(`AUDIO: Play fallito (${eventSource || 'autoplay'}): ${e.name} - ${e.message}.`); hasInteracted = false; }); };
-    function addInteractionListener(target, eventType, handlerName) { const handler = () => tryPlayMusic(handlerName); target.addEventListener(eventType, handler, { once: true, passive: true }); interactionListeners.push({ target, eventType, handler }); }
-    function removeInteractionListeners() { if (interactionListeners.length > 0) { interactionListeners.forEach(listener => { listener.target.removeEventListener(listener.eventType, listener.handler); }); interactionListeners = []; } }
-    song.play().then(() => { console.log("AUDIO: Autoplay riuscito."); hasInteracted = true; }).catch(() => { addInteractionListener(document.body, 'click', 'click'); addInteractionListener(window, 'scroll', 'scroll'); addInteractionListener(document.body, 'touchstart', 'touchstart'); addInteractionListener(window, 'keydown', 'keydown'); });
-    console.log("AUDIO: Inizializzazione completata.");
-}
-
 // --- ESECUZIONE SCRIPT AL CARICAMENTO DEL DOM ---
 console.log("SCRIPT: Aggiungo listener per 'ready'.");
 ready(() => {
@@ -218,9 +205,14 @@ ready(() => {
     console.log("SCRIPT: Chiamata a initParticleEffect...");
     if (typeof initParticleEffect === 'function') initParticleEffect(); else console.error("Errore: initParticleEffect non è una funzione.");
 
-    console.log("SCRIPT: Chiamata a initAudioPlayer...");
-    if (typeof initAudioPlayer === 'function') initAudioPlayer(); else console.error("Errore: initAudioPlayer non è una funzione.");
-
+    // --- Logica audio standardizzata ---
+    console.log("SCRIPT: Chiamata a initializePageAudio per la Home...");
+    if (typeof initializePageAudio === 'function') {
+        initializePageAudio('indexPageSong');
+    } else {
+        console.error("Errore: la funzione initializePageAudio non è stata trovata. Assicurati che don-alfred-spirit.js sia caricato prima di index.js.");
+    }
+    
     // --- Invocazione dello spirito di Don Alfred ---
     console.log("SPIRIT: Tentativo di evocare lo spirito di Don Alfred...");
     setTimeout(() => {

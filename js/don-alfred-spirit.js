@@ -1,4 +1,46 @@
 /**
+ * Inizializza l'audio di una pagina, facendolo partire alla prima interazione dell'utente.
+ * @param {string} audioId L'ID dell'elemento <audio> da far partire.
+ */
+function initializePageAudio(audioId) {
+    const song = document.getElementById(audioId);
+    if (!song) {
+        console.error(`Audio element with id '${audioId}' not found.`);
+        return;
+    }
+
+    let hasInteracted = false;
+
+    const playAudio = (interactionType) => {
+        if (hasInteracted) return;
+        hasInteracted = true;
+
+        song.play().then(() => {
+            console.log(`Audio '${audioId}' started playing due to user ${interactionType}.`);
+        }).catch(error => {
+            console.warn(`Audio playback for '${audioId}' was prevented.`, error);
+        });
+
+        // Rimuove i listener dopo il primo tentativo per pulizia
+        document.removeEventListener('mousemove', handleMouseMove);
+        document.removeEventListener('touchstart', handleTouchStart);
+    };
+
+    const handleMouseMove = () => playAudio('mousemove');
+    const handleTouchStart = () => playAudio('touchstart');
+
+    // Prova un autoplay silente, se fallisce (come quasi sempre), attende l'interazione
+    song.play().then(() => {
+        console.log(`Audio '${audioId}' started automatically.`);
+        hasInteracted = true;
+    }).catch(() => {
+        console.log(`Audio '${audioId}' waiting for user interaction.`);
+        document.addEventListener('mousemove', handleMouseMove, { once: true });
+        document.addEventListener('touchstart', handleTouchStart, { once: true });
+    });
+}
+
+/**
  * Mostra un pop-up con un messaggio di Don Alfred nell'angolo in alto a destra.
  * Il pop-up svanisce automaticamente dopo un tempo prestabilito.
  * @param {string} message Il messaggio da mostrare.

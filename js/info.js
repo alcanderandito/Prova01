@@ -40,68 +40,25 @@ document.addEventListener('DOMContentLoaded', () => {
             particleContainer.appendChild(p);
         }
     }
+
+    // Avvia la logica per la musica della pagina
+    initializePageAudio('infoPageSong');
+
+    // Evoca Don Alfred
+    setTimeout(() => {
+        fetch('/api/get-alfred-comment', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ pageContext: 'Pagina di Informazioni sul Progetto' })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.comment && typeof showAlfredPopup === 'function') {
+                showAlfredPopup(data.comment);
+            }
+        })
+        .catch(error => console.error("SPIRIT: Errore durante l'evocazione di Don Alfred:", error));
+    }, 1500);
 });
 
-// Script per infosong.mp3 (precedentemente nel secondo blocco script)
-window.addEventListener('load', () => {
-    const song = document.getElementById('infoPageSong');
-    let hasInteracted = false; 
-    let interactionListenersAdded = false;
-
-    const tryPlayMusic = (eventSource) => {
-      if (hasInteracted || !song || (song.currentTime > 0 && !song.paused && !song.ended && song.readyState >= 3) ) {
-        if (interactionListenersAdded) removeInteractionListeners();
-        return;
-      }
-      hasInteracted = true; 
-
-      song.play().then(() => {
-        console.log(`infosong.mp3: Riproduzione avviata dopo interazione utente via ${eventSource || 'autoplay permesso'}.`);
-      }).catch(e => {
-        console.error(`infosong.mp3: Errore nel tentativo di play dopo interazione via ${eventSource || 'autoplay fallito'}:`, e.name, e.message);
-        hasInteracted = false; 
-      }).finally(() => {
-         if (interactionListenersAdded) removeInteractionListeners();
-      });
-    };
-
-    const interactionEventsMap = {
-      'click': { target: document.body, handler: () => tryPlayMusic('click') },
-      'scroll': { target: window, handler: () => tryPlayMusic('scroll') },
-      'mousemove': { target: document.body, handler: () => tryPlayMusic('mousemove') },
-      'touchstart': { target: document.body, handler: () => tryPlayMusic('touchstart') },
-      'keydown': { target: window, handler: () => tryPlayMusic('keydown') }
-    };
-    
-    const addInteractionListeners = () => {
-      if (interactionListenersAdded) return;
-      Object.keys(interactionEventsMap).forEach(eventType => {
-        const eventInfo = interactionEventsMap[eventType];
-        eventInfo.target.addEventListener(eventType, eventInfo.handler, { once: true });
-      });
-      interactionListenersAdded = true;
-      console.log("infosong.mp3: Listener di interazione aggiunti (per click, scroll, mousemove, touchstart, keydown).");
-    };
-
-    const removeInteractionListeners = () => {
-      if (!interactionListenersAdded) return;
-      Object.keys(interactionEventsMap).forEach(eventType => {
-        const eventInfo = interactionEventsMap[eventType];
-        eventInfo.target.removeEventListener(eventType, eventInfo.handler);
-      });
-      interactionListenersAdded = false;
-      console.log("infosong.mp3: Listener di interazione rimossi.");
-    };
-
-    if (song) {
-      song.play().then(() => {
-        console.log("infosong.mp3: Riproduzione avviata automaticamente (il browser lo ha permesso).");
-        hasInteracted = true; 
-      }).catch(error => {
-        console.warn("infosong.mp3: Autoplay iniziale bloccato dal browser. In attesa di interazione utente. Errore:", error.name, error.message);
-        addInteractionListeners();
-      });
-    } else {
-      console.error("Elemento audio con id 'infoPageSong' non trovato nel DOM.");
-    }
-}); 
+// Il vecchio script per 'infosong.mp3' viene rimosso 

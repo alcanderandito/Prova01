@@ -2,16 +2,23 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Tetris Polenta e Formai della Roby</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Tetris • Team Due Mori</title>
     <link rel="stylesheet" href="../css/tetris.css">
+    <link rel="stylesheet" href="../css/don-alfred-spirit.css">
 </head>
 <body>
-    <div class="game-area">
+    <div class="game-container">
         <h1>Tetris Polenta e Formai</h1>
         <div class="main-content">
             <div class="game-board-container">
-                <canvas id="gameCanvas"></canvas>
+                <canvas id="gameCanvas" width="200" height="400"></canvas>
+                <div id="messageOverlay" class="message-overlay" style="display: none;">
+                    <div class="message-box">
+                        <p id="messageText"></p>
+                        <button id="restartButton">Ricomincia</button>
+                    </div>
+                </div>
             </div>
             <div class="info-and-next">
                 <div class="info-panel">
@@ -21,26 +28,16 @@
                 </div>
             </div>
         </div>
-         <div id="messageOverlay" class="message-overlay">
-            <p id="messageText"></p>
-            <button id="restartButton" class="control-btn">Ricomincia</button>
-        </div>
         <div class="controls">
-            <div class="empty-dpad-tl"></div>
-            <button id="up-btn" class="control-btn">GIRA</button>
-            <div class="empty-dpad-tr"></div>
-
-            <button id="left-btn" class="control-btn">◄</button>
-            <button id="down-btn" class="control-btn">▼</button>
-            <button id="right-btn" class="control-btn">►</button>
-
-            <div class="empty-dpad-bl"></div>
-            <button id="drop-btn" class="control-btn">CADE</button>
-            <div class="empty-dpad-br"></div>
+            <button id="left-btn">Sinistra</button>
+            <button id="right-btn">Destra</button>
+            <button id="down-btn">Giu</button>
+            <button id="up-btn">Ruota</button>
+            <button id="drop-btn">Lancia!</button>
         </div>
-        <a href="../index.html" class="home-btn">Torna alla Home</a>
     </div>
-
+    
+    <script src="../js/don-alfred-spirit.js" defer></script>
     <script src="../js/tetris.js" defer></script>
 </body>
 </html> 

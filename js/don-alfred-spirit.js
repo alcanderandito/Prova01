@@ -10,6 +10,7 @@ function initializePageAudio(audioId) {
     }
 
     let hasInteracted = false;
+    const interactionEvents = ['mousemove', 'touchstart', 'click', 'scroll', 'keydown'];
 
     const playAudio = (interactionType) => {
         if (hasInteracted) return;
@@ -21,13 +22,15 @@ function initializePageAudio(audioId) {
             console.warn(`Audio playback for '${audioId}' was prevented.`, error);
         });
 
-        // Rimuove i listener dopo il primo tentativo per pulizia
-        document.removeEventListener('mousemove', handleMouseMove);
-        document.removeEventListener('touchstart', handleTouchStart);
+        // Rimuove tutti i listener dopo la prima interazione per pulizia
+        interactionEvents.forEach(event => {
+            document.removeEventListener(event, handleInteraction);
+        });
     };
 
-    const handleMouseMove = () => playAudio('mousemove');
-    const handleTouchStart = () => playAudio('touchstart');
+    const handleInteraction = (event) => {
+        playAudio(event.type);
+    };
 
     // Prova un autoplay silente, se fallisce (come quasi sempre), attende l'interazione
     song.play().then(() => {
@@ -35,8 +38,9 @@ function initializePageAudio(audioId) {
         hasInteracted = true;
     }).catch(() => {
         console.log(`Audio '${audioId}' waiting for user interaction.`);
-        document.addEventListener('mousemove', handleMouseMove, { once: true });
-        document.addEventListener('touchstart', handleTouchStart, { once: true });
+        interactionEvents.forEach(event => {
+            document.addEventListener(event, handleInteraction, { once: true, passive: true });
+        });
     });
 }
 

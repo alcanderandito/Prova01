@@ -19,7 +19,7 @@ module.exports = async (req, res) => {
         // --- Logica AI (reale o simulata) ---
         // In un'applicazione reale, qui chiameresti l'API del tuo servizio AI.
         // Esempio con OpenAI (da decommentare in produzione):
-        /*
+        
         const apiKey = process.env.OPENAI_API_KEY;
         if (!apiKey) {
             return res.status(500).json({ error: "La chiave API di OpenAI non è configurata sul server." });
@@ -42,14 +42,16 @@ module.exports = async (req, res) => {
         }
         const data = await openAIResponse.json();
         const aiMessage = data.choices[0]?.message?.content || "Non ho ricevuto una risposta valida dall'AI.";
-        */
+        
 
         // Risposta simulata per l'ambiente di test (da rimuovere in produzione)
+        /*
         const lastUserMessage = messages[messages.length - 1].content.toLowerCase();
         let aiMessage = "Questa è una risposta simulata. In un ambiente di produzione, qui ci sarebbe la vera risposta dell'intelligenza artificiale.";
         if (lastUserMessage.includes("ciao")) aiMessage = "Ciao! Come posso aiutarti oggi? Ricorda, questa è solo una simulazione.";
         if (lastUserMessage.includes("trentino")) aiMessage = "Ah, il Trentino! Terra di montagne e sapori unici. Purtroppo, non posso ancora farti domande di quiz, ma un giorno chissà! Questa è una risposta simulata.";
         if (lastUserMessage.includes("fabio")) aiMessage = "Super Fabio Bros è il gioco dell'anno, non credi? Questa è una risposta simulata.";
+        */
 
         // --- Logica di invio Email ---
         // Prepara la trascrizione della conversazione
